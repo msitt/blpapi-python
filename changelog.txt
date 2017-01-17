@@ -1,0 +1,19 @@
+Revision history for Bloomberg Python SDK.
+
+Version 3.5.5:
+==============
+- fix source installation error when building against version 3.7 of C++ SDK
+
+Version 3.5.4:
+==============
+- document system-wide C++ SDK installation
+
+Version 3.5.3:
+==============
+- preliminary support for Darwin platform (beta)
+- added 'Identity.hasEntitlements' and 'Identity.failedEntitlements' functions
+- report error if installation is attempted using Python 3
+
+Version 3.5.2:
+==============
+- Initial public release of Python SDK

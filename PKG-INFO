@@ -1,0 +1,15 @@
+Metadata-Version: 1.0
+Name: blpapi
+Version: 3.5.5
+Summary: Python SDK for Bloomberg BLPAPI (3.5.5)
+Home-page: http://open.bloomberg.com/
+Author: Bloomberg L.P.
+Author-email: UNKNOWN
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Financial and Insurance Industry
+Classifier: License :: Other/Proprietary License
+Classifier: Topic :: Office/Business :: Financial
