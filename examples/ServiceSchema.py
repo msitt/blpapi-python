@@ -1,4 +1,6 @@
 # ServiceSchema.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 import time
@@ -105,8 +107,8 @@ def getAuthentificationOptions(type, name):
 
 def printMessage(msg):
     if msg.messageType() != REFERENCE_DATA_RESPONSE:
-        print "[{0}]: {1}".format(", ".join(map(str, msg.correlationIds())),
-                                  msg)
+        print("[{0}]: {1}".format(", ".join(map(str, msg.correlationIds())),
+                                  msg))
     else:
         # This case demonstrates how to get values of individual elements
         securityDataArray = msg.getElement("securityData")
@@ -117,9 +119,9 @@ def printMessage(msg):
             for fieldName in options.field:
                 try:
                     fieldValue = fieldData.getElementValue(fieldName)
-                    print("%s %s" % (fieldName, fieldValue))
+                    print(("%s %s" % (fieldName, fieldValue)))
                 except:
-                    print("%s n/a" % fieldName)
+                    print(("%s n/a" % fieldName))
 
 
 def auth(session):
@@ -184,20 +186,20 @@ def getIndent(level):
 # Print enumeration (constant list)
 def printEnumeration(cl, level):
     indent = getIndent(level + 1)
-    print indent + "  {0} {1} {2} \"{3}\" possible values:".format(
+    print(indent + "  {0} {1} {2} \"{3}\" possible values:".format(
         cl.name(),
         SCHEMA_STATUS_NAMES[cl.status()],
         ELEMENT_DATATYPE_NAMES[cl.datatype()],
-        cl.description())
+        cl.description()))
 
     # Enumerate and print all constant list's values (constants)
     for i in cl:
-        print indent + "    {0} {1} {2} \"{3}\" = {4!s}".format(
+        print(indent + "    {0} {1} {2} \"{3}\" = {4!s}".format(
             i.name(),
             SCHEMA_STATUS_NAMES[i.status()],
             ELEMENT_DATATYPE_NAMES[i.datatype()],
             i.description(),
-            i.getValue())
+            i.getValue()))
 
 
 # Recursively print element definition
@@ -217,24 +219,24 @@ def printElementDefinition(ed, level=0):
     else:
         alternateNames = ""
 
-    print indent + "* {0} {1} {2} {3} \"{4}\"".format(
+    print(indent + "* {0} {1} {2} {3} \"{4}\"".format(
         ed.name(),
         SCHEMA_STATUS_NAMES[ed.status()],
         valuesRange,
         alternateNames,
-        ed.description())
+        ed.description()))
 
     # Get and print related type definition
     td = ed.typeDefinition()
 
-    print indent + "  {0} {1} {2} {3}{4}{5}\"{6}\"".format(
+    print(indent + "  {0} {1} {2} {3}{4}{5}\"{6}\"".format(
         td.name(),
         SCHEMA_STATUS_NAMES[td.status()],
         ELEMENT_DATATYPE_NAMES[td.datatype()],
         "complex " if td.isComplexType() else "",
         "simple " if td.isSimpleType() else "",
         "enum " if td.isEnumerationType() else "",
-        td.description())
+        td.description()))
 
     # Get and print all possible values for enumeration type
     enumeration = td.enumeration()
@@ -242,26 +244,26 @@ def printElementDefinition(ed, level=0):
         printEnumeration(enumeration, level)
 
     if td.numElementDefinitions():
-        print indent + "  Elements[{0}]:".format(
-            td.numElementDefinitions())
+        print(indent + "  Elements[{0}]:".format(
+            td.numElementDefinitions()))
         # Enumerate and print all sub-element definitions
         for i in td.elementDefinitions():
             printElementDefinition(i, level + 1)
 
 
 def printOperation(operation, service):
-    print "{0} \"{1}\" Request:".format(
+    print("{0} \"{1}\" Request:".format(
         operation.name(),
-        operation.description())
+        operation.description()))
 
     # Print operation's request definition
     printElementDefinition(operation.requestDefinition(), 1)
-    print "Responses[{0}]:".format(operation.numResponseDefinitions())
+    print("Responses[{0}]:".format(operation.numResponseDefinitions()))
 
     # Enumerate and print all operation's response definitions
     for r in operation.responseDefinitions():
         printElementDefinition(r, 1)
-    print
+    print()
 
 
 def main():
@@ -282,18 +284,18 @@ def main():
         raise Exception("Can't start session.")
 
     try:
-        print "Session started."
+        print("Session started.")
 
         # Perform authentification
         if options.auth:
             identity = auth(session)
-            print "Authentification passed ({0})".format(
+            print("Authentification passed ({0})".format(
                 {-1: "Unknown seat type",
                  0: "BPS",
-                 1: "No BPS"}[identity.getSeatType()])
+                 1: "No BPS"}[identity.getSeatType()]))
         else:
             identity = None
-            print "No authentification specified"
+            print("No authentification specified")
 
         # Open service to get reference data from
         if not session.openService(options.service):
@@ -302,16 +304,16 @@ def main():
 
         # Obtain previously opened service
         service = session.getService(options.service)
-        print "Service {0}:".format(options.service)
+        print("Service {0}:".format(options.service))
 
-        print "Service event definitions[{0}]:".format(
-            service.numEventDefinitions())
+        print("Service event definitions[{0}]:".format(
+            service.numEventDefinitions()))
         # Enumerate and print all service's event definitions
         for ed in service.eventDefinitions():
             printElementDefinition(ed)
-        print
+        print()
 
-        print "Operations[{0}]:".format(service.numOperations())
+        print("Operations[{0}]:".format(service.numOperations()))
         # Enumerate and print all service's operations
         for operation in service.operations():
             printOperation(operation, service)
@@ -320,11 +322,11 @@ def main():
         session.stop()
 
 if __name__ == "__main__":
-    print "ServiceSchema"
+    print("ServiceSchema")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

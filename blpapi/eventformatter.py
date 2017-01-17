@@ -5,7 +5,7 @@
 This component adds messages to an Event which can be later published.
 """
 
-from __future__ import absolute_import
+
 
 from .exception import _ExceptionUtil
 from .datetime import _DatetimeUtil
@@ -16,20 +16,22 @@ from .internals import CorrelationId
 
 
 class EventFormatter(object):
-    """EventFormatter is used to create Events for publishing.
+    """EventFormatter is used to populate 'Event's for publishing.
 
     An EventFormatter is created from an Event obtained from
     createPublishEvent() on Service. Once the Message or Messages have been
     appended to the Event using the EventFormatter the Event can be published
-    using publish() on the ProviderSession.
+    using 'publish()' on the ProviderSession.
 
-    EventFormatter objects cannot be copied or assigned so as to ensure there
-    is no ambiguity about what happens if two EventFormatters are both
-    formatting the same Event.
+    EventFormatter objects cannot be copied or as to ensure there is no
+    ambiguity about what happens if two 'EventFormatter's are both formatting
+    the same 'Event'.
 
-    The EventFormatter supports write once only to each field. It is an error
-    to call setElement() or pushElement() for the same name more than once at
-    a particular level of the schema when creating a message.
+    The EventFormatter supportes appending message of the same type multiple
+    time in the same 'Event'. However the 'EventFormatter' supports write once
+    only to each field. It is an error to call 'setElement()' or 'pushElement()'
+    for the same name more than once at a particular level of the schema when
+    creating a message.
 
     """
 
@@ -79,7 +81,7 @@ class EventFormatter(object):
             return EventFormatter.__stringTraits
         elif isinstance(value, bool):
             return EventFormatter.__boolTraits
-        elif isinstance(value, (int, long)):
+        elif isinstance(value, int):
             if value >= -(2 ** 31) and value <= (2 ** 31 - 1):
                 return EventFormatter.__int32Traits
             elif value >= -(2 ** 63) and value <= (2 ** 63 - 1):
@@ -107,8 +109,16 @@ class EventFormatter(object):
         self.__handle = internals.blpapi_EventFormatter_create(event._handle())
 
     def __del__(self):
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
         """Destroy this EventFormatter object."""
-        internals.blpapi_EventFormatter_destroy(self.__handle)
+        if self.__handle:
+            internals.blpapi_EventFormatter_destroy(self.__handle)
+            self.__handle = None
 
     def appendMessage(self, messageType, topic, sequenceNumber=None):
         """Append an (empty) message of the specified 'messageType'.
@@ -121,7 +131,7 @@ class EventFormatter(object):
         value used in any previous message on this 'topic', otherwise the
         behavior is undefined.
         After a message has been appended its elements
-        can be set using the various setElement() methods.
+        can be set using the various 'setElement()' methods.
         """
         name = getNamePair(messageType)
 
@@ -148,7 +158,7 @@ class EventFormatter(object):
         Append an (empty) response message of the specified 'opType'
         that will be sent in response to previously received
         operation request. After a message has been appended its
-        elements can be set using the various setElement() methods.
+        elements can be set using the various 'setElement()' methods.
         Only one response can be appended.
         """
         name = getNamePair(opType)
@@ -171,7 +181,7 @@ class EventFormatter(object):
         specified) than the last value used in any previous message on this
         'topic', otherwise the behavior is undefined.
         After a message has been appended its elements can be set using
-        the various setElement() methods. It is an error to create append
+        the various 'setElement()' methods. It is an error to create append
         a recap message to an Admin event.
         """
         cIdHandle = None if correlationId is None else correlationId._handle()
@@ -194,12 +204,15 @@ class EventFormatter(object):
     def setElement(self, name, value):
         """Set the element with the specified 'name' to the specified 'value'.
 
-        Set the element with the specified 'name' to the specified
-        'value' in the current message in the Event referenced by
-        this EventFormatter. If the 'name' is invalid for the
-        current message, if appendMessage() has never been called
-        or if the element identified by 'name' has already been set
-        an exception is raised.
+        Set the element with the specified 'name' to the specified 'value' in
+        the current message in the Event referenced by this EventFormatter. If
+        the 'name' is invalid for the current message, if 'appendMessage()' has
+        never been called or if the element identified by 'name' has already
+        been set an exception is raised.
+
+        Clients wishing to format and publish null values (e.g. for the purpose
+        of cache management) should *not* use this function; use
+        'setElementNull' instead.
         """
         traits = EventFormatter.__getTraits(value)
         name = getNamePair(name)
@@ -208,22 +221,36 @@ class EventFormatter(object):
         _ExceptionUtil.raiseOnError(
             traits[0](self.__handle, name[0], name[1], value))
 
+    def setElementNull(self, name):
+        """Create a null element with the specified 'name'.
+
+        Create a null element with the specified 'name'. Note that whether or
+        not fields containing null values are published to subscribers is
+        dependent upon details of the service and schema configuration.
+        """
+        name = getNamePair(name)
+        _ExceptionUtil.raiseOnError(
+            internals.blpapi_EventFormatter_setValueNull(
+                self.__handle,
+                name[0],
+                name[1]))
+
     def pushElement(self, name):
         """Change the level at which this EventFormatter is operating.
 
-        Change the level at which this EventFormatter is operating
-        to the specified element 'name'. The element 'name' must
-        identify either a choice, a sequence or an array at the
-        current level of the schema or the behavior is
-        undefined. After this returns the context of the
-        EventFormatter is set to the element 'name' in the schema
-        and any calls to setElement() or pushElement() are applied
-        at that level. If 'name' represents an array of scalars
-        then appendValue() must be used to add values. If 'name'
-        represents an array of complex types then appendElement()
-        creates the first entry and set the context of the
-        EventFormatter to that element. Calling appendElement()
-        again will create another entry.
+        Change the level at which this EventFormatter is operating to the
+        specified element 'name'. The element 'name' must identify either a
+        choice, a sequence or an array at the current level of the schema or
+        the behavior is undefined.  If the 'name' is invalid for the current
+        message, if 'appendMessage()' has never been called or if the element
+        identified by 'name' has already been set an exception is raised. After
+        this returns the context of the EventFormatter is set to the element
+        'name' in the schema and any calls to 'setElement()' or 'pushElement()'
+        are applied at that level. If 'name' represents an array of scalars then
+        'appendValue()' must be used to add values. If 'name' represents an array
+        of complex types then 'appendElement()' creates the first entry and set
+        the context of the EventFormatter to that element.  Calling
+        'appendElement()' again will create another entry.
         """
         name = getNamePair(name)
         _ExceptionUtil.raiseOnError(
@@ -233,12 +260,12 @@ class EventFormatter(object):
                 name[1]))
 
     def popElement(self):
-        """Undo the most recent call to pushLevel() on this EventFormatter.
+        """Undo the most recent call to 'pushLevel()' on this EventFormatter.
 
-        Undo the most recent call to pushLevel() on this
-        EventFormatter and returns the context of the
+        Undo the most recent call to 'pushLevel()' on this
+        EventFormatter and return the context of the
         EventFormatter to where it was before the call to
-        pushElement(). Once popElement() has been called it is
+        'pushElement()'. Once 'popElement()' has been called it is
         invalid to attempt to re-visit the same context.
         """
         _ExceptionUtil.raiseOnError(

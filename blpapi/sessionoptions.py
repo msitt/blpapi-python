@@ -21,12 +21,13 @@ The following snippet shows how to use the SessionOptions when creating a
 """
 
 from __future__ import absolute_import
-
 from .exception import _ExceptionUtil
 from . import internals
 from . import utils
+from .compat import with_metaclass
 
 
+@with_metaclass(utils.MetaClassForClassesWithEnums)
 class SessionOptions(object):
     """Options which the user can specify when creating a session.
 
@@ -53,8 +54,16 @@ class SessionOptions(object):
         self.__handle = internals.blpapi_SessionOptions_create()
 
     def __del__(self):
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
         """Destroy this SessionOptions."""
-        internals.blpapi_SessionOptions_destroy(self.__handle)
+        if self.__handle:
+            internals.blpapi_SessionOptions_destroy(self.__handle)
+            self.__handle = None
 
     def setServerHost(self, serverHost):
         """Set the API server host to connect to when using the server API.
@@ -117,7 +126,13 @@ class SessionOptions(object):
                 timeoutMilliSeconds))
 
     def setDefaultServices(self, defaultServices):
-        """Set the default service for the session."""
+        """Set the default service for the session.
+
+        DEPRECATED
+        Set the default service for the session. This function is deprecated;
+        see 'setDefaultSubscriptionService'.
+
+        """
 
         _ExceptionUtil.raiseOnError(
             internals.blpapi_SessionOptions_setDefaultServices(
@@ -127,9 +142,12 @@ class SessionOptions(object):
     def setDefaultSubscriptionService(self, defaultSubscriptionService):
         """Set the default service for subscriptions.
 
-        Set the default service for subscriptions which do not specify
-        a subscription server to the specified 'defaultSubscriptionService'.
-        The default is "//blp/mktdata".
+        Set the default service for subscriptions which do not specify a
+        subscription server to the specified 'defaultSubscriptionService'. The
+        behavior is undefined unless 'defaultSubscriptionService' matches the
+        regular expression '^//[-_.a-zA-Z0-9]+/[-_.a-zA-Z0-9]+$'. The default
+        is "//blp/mktdata".  For more information on when this will be used see
+        'QUALIFYING SUBSCRIPTION STRINGS' section in 'blpapi_subscriptionlist'.
 
         """
 
@@ -138,18 +156,19 @@ class SessionOptions(object):
                 self.__handle,
                 defaultSubscriptionService))
 
-    def setDefaultTopicPrefix(self, defaultTopicPrefix):
+    def setDefaultTopicPrefix(self, prefix):
         """Set the default topic prefix.
 
         Set the default topic prefix to be used when a subscription does not
-        specify a prefix to the specified 'defaultTopicPrefix'. The default is
-        "ticker".
+        specify a prefix to the specified 'prefix'. The default is "/ticker/".
+        For more information on when this will be used see 'QUALIFYING
+        SUBSCRIPTION STRINGS' section in 'blpapi_subscriptionlist'.
 
         """
 
         internals.blpapi_SessionOptions_setDefaultTopicPrefix(
             self.__handle,
-            defaultTopicPrefix)
+            prefix)
 
     def setAllowMultipleCorrelatorsPerMsg(self,
                                           allowMultipleCorrelatorsPerMsg):
@@ -203,13 +222,11 @@ class SessionOptions(object):
             authOptions)
 
     def setNumStartAttempts(self, numStartAttempts):
-        """Set the maximum number of attempts to start a session
-
-        Set the maximum number of attempts to start a session by connecting
-        a server.
-
+        """Set the maximum number of attempts to start a session.
+        
+        Set the maximum number of attempts to start a session by connecting a
+        server.
         """
-
         internals.blpapi_SessionOptions_setNumStartAttempts(self.__handle,
                                                             numStartAttempts)
 
@@ -218,6 +235,91 @@ class SessionOptions(object):
         internals.blpapi_SessionOptions_setAutoRestartOnDisconnection(
             self.__handle,
             autoRestart)
+
+    def setSlowConsumerWarningHiWaterMark(self, hiWaterMark):
+        """Set the point at which "slow consumer" events will be generated,
+        using the specified 'highWaterMark' as a fraction of
+        'maxEventQueueSize'; the default value is 0.75.  A warning event will
+        be generated when the number of outstanding undelivered events passes
+        above 'hiWaterMark * maxEventQueueSize'.  The behavior of the function
+        is undefined unless '0.0 < hiWaterMark <= 1.0'.  Further, at the time
+        that 'Session.start()' is called, it must be the case that
+        'slowConsumerWarningLoWaterMark() * maxEventQueueSize()' <
+        'slowConsumerWarningHiWaterMark() * maxEventQueueSize()'."""
+        err = internals.blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark(
+                self.__handle, hiWaterMark)
+        _ExceptionUtil.raiseOnError(err)
+
+    def setSlowConsumerWarningLoWaterMark(self, loWaterMark):
+        """Set the point at which "slow consumer cleared" events will be
+        generated, using the specified 'loWaterMark' as a fraction of
+        'maxEventQueueSize'; the default value is 0.5.  A warning cleared event
+        will be generated when the number of outstanding undelivered events
+        drops below 'loWaterMark * maxEventQueueSize'.  The behavior of the
+        function is undefined unless '0.0 <= loWaterMark < 1.0'.  Further, at
+        the time that 'Session.start()' is called, it must be the case that
+        'slowConsumerWarningLoWaterMark() * maxEventQueueSize()' <
+        'slowConsumerWarningHiWaterMark() * maxEventQueueSize()'."""
+        err = internals.blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark(
+                                         self.__handle, loWaterMark)
+        _ExceptionUtil.raiseOnError(err)
+
+    def setMaxEventQueueSize(self, eventQueueSize):
+        """Set the maximum number of outstanding undelivered events per session
+        to the specified 'eventQueueSize'.  All subsequent events delivered
+        over the network will be dropped by the session if the number of
+        outstanding undelivered events is 'eventQueueSize', the specified
+        threshold.  The default value is 10000."""
+        internals.blpapi_SessionOptions_setMaxEventQueueSize(self.__handle,
+                eventQueueSize)
+
+    def setKeepAliveEnabled(self, isEnabled):
+        """If the specified 'isEnabled' is False, then disable all keep-alive
+        mechanisms, both from the client to the server and from the server to
+        the client; otherwise enable keep-alive pings both from the client to
+        the server (as configured by 'setDefaultKeepAliveInactivityTime' and
+        'setDefaultKeepAliveResponseTimeout' if the connection supports
+        ping-based keep-alives), and from the server to the client as specified
+        by the server configuration."""
+        keepAliveValue = 1 if isEnabled else 0
+        err = internals.blpapi_SessionOptions_setKeepAliveEnabled(
+                self.__handle, keepAliveValue)
+        _ExceptionUtil.raiseOnError(err)
+
+    def setDefaultKeepAliveInactivityTime(self, inactivityMsecs):
+        """ Set to the specified 'inactivityMsecs' the amount of time that no
+        traffic can be received on a connection before the ping-based
+        keep-alive mechanism is triggered; if no traffic is received for this
+        duration then a keep-alive ping is sent to the remote end to solicit a
+        response.  If 'inactivityMsecs == 0', then no keep-alive pings will be
+        sent.  The behavior of this function is undefined unless
+        'inactivityMsecs' is a non-negative value.  The default value is 20,000
+        milliseconds.  Note that not all back-end connections provide
+        ping-based keep-alives; this option is ignored by such connections."""
+        err = internals.blpapi_SessionOptions_setDefaultKeepAliveInactivityTime(
+                self.__handle, inactivityMsecs)
+        _ExceptionUtil.raiseOnError(err)
+
+    def setDefaultKeepAliveResponseTimeout(self, timeoutMsecs):
+        """ When a keep-alive ping is sent, wait for the specified
+        'timeoutMsecs' to receive traffic (of any kind) before terminating the
+        connection due to inactivity.  If 'timeoutMsecs == 0', then connections
+        are never terminated due to the absence of traffic after a keep-alive
+        ping.  The behavior of this function is undefined unless 'timeoutMsecs'
+        is a non-negative value.  The default value is 5,000 milliseconds.
+        Note that not all back-end connections provide support for ping-based
+        keep-alives; this option is ignored by such connections."""
+        err = internals.blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout(
+                self.__handle, timeoutMsecs)
+        _ExceptionUtil.raiseOnError(err)
+
+    def setRecordSubscriptionDataReceiveTimes(self, shouldRecord):
+        """Set whether the receipt time (accessed via
+        'blpapi.Message.timeReceived') should be recorded for subscription data
+        messages. By default, the receipt time for these messages is not
+        recorded."""
+        internals.blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes(
+                self.__handle, shouldRecord)
 
     def serverHost(self):
         """Return the server host option in this SessionOptions instance."""
@@ -333,22 +435,56 @@ class SessionOptions(object):
             self.__handle)
 
     def numStartAttempts(self):
-        """Return the maximum number of attempts to start a session.
-
-        Return the maximum number of attempts to start a session by connecting
-        a server.
-
-        """
-
+        """Return the maximum number of attempts to start a session.  Return
+        the maximum number of attempts to start a session by connecting a
+        server.  """
         return internals.blpapi_SessionOptions_numStartAttempts(self.__handle)
+
+    def recordSubscriptionDataReceiveTimes(self):
+        """Return whether the receipt time (accessed via
+        'blpapi.Message.timeReceived') should be recorded for subscription data
+        messages."""
+        return internals.blpapi_SessionOptions_recordSubscriptionDataReceiveTimes(
+                self.__handle)
+
+    def slowConsumerWarningHiWaterMark(self):
+        """Return the fraction of maxEventQueueSize at which "slow consumer"
+        event will be generated."""
+        return internals.blpapi_SessionOptions_slowConsumerWarningHiWaterMark(
+                self.__handle)
+
+    def slowConsumerWarningLoWaterMark(self):
+        """Return the fraction of maxEventQueueSize at which "slow consumer
+        cleared" event will be generated."""
+        return internals.blpapi_SessionOptions_slowConsumerWarningLoWaterMark(
+                self.__handle)
+
+    def maxEventQueueSize(self):
+        """Return the value of maximum outstanding undelivered events that the
+        session is configured with."""
+        return internals.blpapi_SessionOptions_maxEventQueueSize(self.__handle)
+
+    def defaultKeepAliveInactivityTime(self):
+        """Return the interval (in milliseconds) a connection has to remain
+        inactive (receive no data) before a keep alive probe will be sent."""
+        return internals.blpapi_SessionOptions_defaultKeepAliveInactivityTime(
+                self.__handle)
+
+    def defaultKeepAliveResponseTimeout(self):
+        """Return the time (in milliseconds) the library will wait for response
+        to a keep alive probe before declaring it lost."""
+        return internals.blpapi_SessionOptions_defaultKeepAliveResponseTimeout(
+                self.__handle)
+
+    def keepAliveEnabled(self):
+        """Return True if the keep-alive mechanism is enabled; otherwise
+        return False."""
+        return internals.blpapi_SessionOptions_keepAliveEnabled(self.__handle)
 
     def _handle(self):
         """Return the internal implementation."""
         return self.__handle
 
-    # Protect enumeration constant(s) defined in this class and in classes
-    # derived from this class from changes:
-    __metaclass__ = utils.MetaClassForClassesWithEnums
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

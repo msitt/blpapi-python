@@ -1,4 +1,6 @@
 # GenerateTokenSubscriptionExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 from optparse import OptionParser
@@ -75,17 +77,17 @@ def subscribe():
                           g_options,
                           blpapi.CorrelationId(i))
 
-    print "Subscribing..."
+    print("Subscribing...")
     g_session.subscribe(subscriptions, g_identity)
 
 
 def processTokenStatus(event):
     global g_identity
-    print "processTokenEvents"
+    print("processTokenEvents")
 
     for msg in event:
         if msg.messageType() == TOKEN_SUCCESS:
-            print msg
+            print(msg)
 
             # Authentication phase has passed; send authorization request
             authService = g_session.getService("//blp/apiauth")
@@ -104,27 +106,27 @@ def processTokenStatus(event):
 
 
 def processEvent(event):
-    print "processEvent"
+    print("processEvent")
 
     for msg in event:
         if msg.messageType() == AUTHORIZATION_SUCCESS:
             # Authorization phase has passed; subscribe to market data
-            print "Authorization SUCCESS"
+            print("Authorization SUCCESS")
             subscribe()
         elif msg.messageType() == AUTHORIZATION_FAILURE:
             # Authorization failure
-            print "Authorization FAILED"
-            print msg
+            print("Authorization FAILED")
+            print(msg)
             return False
         else:
-            print msg
+            print(msg)
     return True
 
 
 def main():
     global g_session, g_securities, g_fields
 
-    print "GenerateTokenSubscriptionExample"
+    print("GenerateTokenSubscriptionExample")
     options = parseCmdLine()
 
     # Create SessionOptions object and populate it with data
@@ -135,13 +137,13 @@ def main():
     if options.dirSvcProperty:
         authOptions = "AuthenticationType=DIRECTORY_SERVICE;" + \
             "DirSvcPropertyName=" + options.dirSvcProperty
-    print "authOptions = %s" % authOptions
+    print("authOptions = %s" % authOptions)
     sessionOptions.setAuthenticationOptions(authOptions)
 
     g_securities = options.securities
     g_fields = options.fields
 
-    print "Connecting to %s:%s" % (options.host, options.port)
+    print("Connecting to %s:%s" % (options.host, options.port))
     g_session = blpapi.Session(sessionOptions)
     if not g_session.start():
         print("Failed to start session.")
@@ -178,11 +180,11 @@ def main():
 
 
 if __name__ == "__main__":
-    print "GenerateTokenSubscriptionExample"
+    print("GenerateTokenSubscriptionExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

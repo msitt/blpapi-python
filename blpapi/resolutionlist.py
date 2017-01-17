@@ -5,7 +5,7 @@
 This component implements a list of topics that require resolution.
 """
 
-from __future__ import absolute_import
+
 
 from .element import Element
 from .exception import _ExceptionUtil
@@ -14,26 +14,25 @@ from .name import Name
 from . import internals
 from . import utils
 from .internals import CorrelationId
+from .compat import with_metaclass
 
 
+@with_metaclass(utils.MetaClassForClassesWithEnums)
 class ResolutionList(object):
     """Contains a list of topics that require resolution.
 
     Created from topic strings or from SUBSCRIPTION_STARTED messages. This is
-    passed to a resolve() call or resolveAsync() call on a ProviderSession. It
-    is updated and returned by the resolve() call.
+    passed to a 'resolve()' call or 'resolveAsync()' call on a 'ProviderSession'. It
+    is updated and returned by the 'resolve()' call.
     """
-
-    # Protect enumeration constant(s) defined in this class and in classes
-    # derived from this class from changes:
-    __metaclass__ = utils.MetaClassForClassesWithEnums
 
     UNRESOLVED = internals.RESOLUTIONLIST_UNRESOLVED
     RESOLVED = internals.RESOLUTIONLIST_RESOLVED
     RESOLUTION_FAILURE_BAD_SERVICE = \
         internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_SERVICE
     RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED = \
-        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED
+        internals. \
+        RESOLUTIONLIST_RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED
     RESOLUTION_FAILURE_BAD_TOPIC = \
         internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_TOPIC
     RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED = \
@@ -46,8 +45,8 @@ class ResolutionList(object):
         Return the value of the value in the specified 'message' which
         represents the specified 'attribute'. The 'message' must be a message
         of type "RESOLUTION_SUCCESS". The 'attribute' should be an attribute
-        that was requested using addAttribute() on the ResolutionList passed to
-        the resolve() or resolveAsync() that caused this RESOLUTION_SUCCESS
+        that was requested using 'addAttribute()' on the ResolutionList passed to
+        the 'resolve()' or 'resolveAsync()' that caused this RESOLUTION_SUCCESS
         message. If the 'attribute' is not present an empty Element is
         returned.
         """
@@ -66,19 +65,28 @@ class ResolutionList(object):
 
     def __del__(self):
         """Destroy this ResolutionList."""
-        internals.blpapi_ResolutionList_destroy(self.__handle)
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
+        """Destroy resolutionlist"""
+        if self.__handle:
+            internals.blpapi_ResolutionList_destroy(self.__handle)
+            self.__handle = None
 
     def add(self, topicOrMessage, correlationId=None):
         """Add the specified topic or topic from message to this list.
 
         If 'topicOrMessage' is of string type, add the specified
         'topicOrMessage' to this list, optionally specifying a 'correlationId'.
-        Returns 0 on success or negative number on failure. After a successful
+        Return 0 on success or negative number on failure. After a successful
         call to add() the status for this entry is UNRESOLVED_TOPIC.
 
         If 'topicOrMessage' is of Message type, add the topic contained in the
         specified 'topicOrMessage' to this list, optionally specifying a
-        'correlationId'.  Returns 0 on success or a negative number on failure.
+        'correlationId'.  Return 0 on success or a negative number on failure.
         After a successful call to add() the status for this entry is
         UNRESOLVED_TOPIC.
         """
@@ -102,13 +110,10 @@ class ResolutionList(object):
         """Add the specified 'attribute' to the list of attributes.
 
         Add the specified 'attribute' to the list of attributes requested
-        during resolution for each topic in this ResolutionList. Returns 0 on
+        during resolution for each topic in this ResolutionList. Return 0 on
         success or a negative number on failure.
         """
-        if isinstance(attribute, str):
-            attribute = Name(attribute)
-        if isinstance(attribute, unicode):
-            raise TypeError("unicode strings are not currently supported")
+        attribute = Name(attribute)
         return internals.blpapi_ResolutionList_addAttribute(
             self.__handle, attribute._handle())
 
@@ -194,10 +199,7 @@ class ResolutionList(object):
         ResolutionList or if the status of the entry identified by
         'correlationId' is not RESOLVED an exception is raised.
         """
-        if isinstance(attribute, str):
-            attribute = Name(attribute)
-        if isinstance(attribute, unicode):
-            raise TypeError("unicode strings are not currently supported")
+        attribute = Name(attribute)
         errorCode, element = internals.blpapi_ResolutionList_attribute(
             self.__handle,
             attribute._handle(),
@@ -216,10 +218,7 @@ class ResolutionList(object):
         'index' >= size() or if the status of the 'index'th entry is not
         RESOLVED an exception is raised.
         """
-        if isinstance(attribute, str):
-            attribute = Name(attribute)
-        if isinstance(attribute, unicode):
-            raise TypeError("unicode strings are not currently supported")
+        attribute = Name(attribute)
         errorCode, element = internals.blpapi_ResolutionList_attributeAt(
             self.__handle,
             attribute._handle(),
@@ -249,8 +248,8 @@ class ResolutionList(object):
     def messageAt(self, index):
         """Return the message received during resolution of entry at 'index'.
 
-        Returns the value of the message received during resolution of the
-        specified 'index'th entry in this ResolutionList. If 'index' >= size()
+        Return the value of the message received during resolution of the
+        specified 'index'th entry in this ResolutionList. If 'index >= size()'
         or if the status of the 'index'th entry is not RESOLVED an exception is
         raised.
 

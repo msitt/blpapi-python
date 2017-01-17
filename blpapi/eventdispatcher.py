@@ -7,7 +7,7 @@ Sessions through callbacks.
 """
 
 
-from __future__ import absolute_import
+
 
 from . import internals
 
@@ -39,8 +39,16 @@ class EventDispatcher(object):
             numDispatcherThreads)
 
     def __del__(self):
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
         """Destructor."""
-        internals.blpapi_EventDispatcher_destroy(self.__handle)
+        if self.__handle:
+            internals.blpapi_EventDispatcher_destroy(self.__handle)
+            self.__handle = None
 
     def start(self):
         """Start generating callbacks.

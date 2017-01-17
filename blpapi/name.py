@@ -7,9 +7,11 @@ form for efficient string comparison.
 
 """
 
-from __future__ import absolute_import
+
 
 from . import internals
+import sys
+from .compat import conv2str, tolong, isstr
 
 
 class Name(object):
@@ -26,7 +28,7 @@ class Name(object):
     providing constant time comparison and ordering operations. Two Name
     objects constructed from equal strings will always compare equally.
 
-    Where possible Name objects should be initialized once and then reused.
+    Where possible, Name objects should be initialized once and then reused.
     Creating a Name object involves a search in a container requiring multiple
     string comparison operations.
 
@@ -72,8 +74,15 @@ class Name(object):
             self.__handle = internals.blpapi_Name_create(nameString)
 
     def __del__(self):
-        if self.__handle is not None:
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
+        if self.__handle:
             internals.blpapi_Name_destroy(self.__handle)
+            self.__handle = None
 
     def __len__(self):
         """Return the length of the string that this Name represents.
@@ -93,13 +102,11 @@ class Name(object):
     def __eq__(self, other):
         """x.__eq__(y) <==> x==y"""
         try:
-            if isinstance(other, str):
-                return 0 != internals.blpapi_Name_equalsStr(self.__handle,
-                                                            other)
+            s = conv2str(other)
+            if s is not None:
+                p = internals.blpapi_Name_equalsStr(self.__handle, s)
+                return 0 != p
             else:
-                if isinstance(other, unicode):
-                    raise TypeError(
-                        "unicode strings are not currently supported")
                 return self.__handle == other.__handle
         except Exception:
             return NotImplemented
@@ -111,7 +118,7 @@ class Name(object):
 
     def __hash__(self):
         """x.__hash__() <==> hash(x)"""
-        return long(self.__handle)
+        return tolong(self.__handle)
 
     def _handle(self):
         return self.__handle
@@ -127,8 +134,8 @@ def getNamePair(name):
 
     if isinstance(name, Name):
         return (None, name._handle())
-    elif isinstance(name, str):
-        return (name, None)
+    elif isstr(name):
+        return (conv2str(name), None)
     else:
         raise TypeError(
             "name should be an instance of a string or blpapi.Name")

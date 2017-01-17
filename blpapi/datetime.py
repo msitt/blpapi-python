@@ -3,13 +3,16 @@
 """Utilities that deal with blpapi.Datetime data type"""
 
 from __future__ import absolute_import
+from __future__ import division
 
 from . import internals
 from . import utils
+from .compat import with_metaclass
 
 import datetime as _dt
 
 
+@with_metaclass(utils.MetaClassForClassesWithEnums)
 class FixedOffset(_dt.tzinfo):
     """Time zone information.
 
@@ -43,29 +46,43 @@ class FixedOffset(_dt.tzinfo):
     """
 
     def __init__(self, offsetInMinutes=0):
-        _dt.tzinfo.__init__(self)
         self.__offset = _dt.timedelta(minutes=offsetInMinutes)
 
     def utcoffset(self, unused):
         return self.__offset
 
     def dst(self, unused):
-        return FixedOffset._dt.timedelta(0)
+        return _dt.timedelta(0)
 
     def getOffsetInMinutes(self):
-        return self.__offset.days * 24 * 60 + self.__offset.seconds / 60
+        return self.__offset.days * 24 * 60 + self.__offset.seconds // 60
 
     def __hash__(self):
         """x.__hash__() <==> hash(x)"""
         return self.getOffsetInMinutes()
 
     def __cmp__(self, other):
-        """Let the comparison operations work based on the time delta."""
+        """Let the comparison operations work based on the time delta.
+        NOTE: (compatibility) this method have no special meaning in python3, 
+        we should use __eq__, __lt__ and __le__ instead. Built-in cmp function
+        is also gone. This method can be called only from python2."""
         return cmp(self.getOffsetInMinutes(), other.getOffsetInMinutes())
 
-    # Protect enumeration constant(s) defined in this class and in classes
-    # derived from this class from changes:
-    __metaclass__ = utils.MetaClassForClassesWithEnums
+    def __eq__(self, other):
+        """Let the equality operator work based on the time delta."""
+        return self.getOffsetInMinutes() == other.getOffsetInMinutes()
+
+    def __lt__(self, other):
+        """Let the comparison operator work based on the time delta."""
+        return self.getOffsetInMinutes() < other.getOffsetInMinutes()
+
+    def __le__(self, other):
+        """Let the comparison operator work based on the time delta."""
+        return self.getOffsetInMinutes() <= other.getOffsetInMinutes()
+
+
+# UTC timezone
+UTC = FixedOffset(0)
 
 
 class _DatetimeUtil(object):
@@ -126,7 +143,7 @@ parts", blpapiDatetime)
             res.hours = dtime.hour
             res.minutes = dtime.minute
             res.seconds = dtime.second
-            res.milliSeconds = dtime.microsecond / 1000
+            res.milliSeconds = dtime.microsecond // 1000
             res.parts = internals.DATETIME_DATE_PART | \
                 internals.DATETIME_TIMEMILLI_PART
         elif isinstance(dtime, _dt.date):
@@ -139,7 +156,7 @@ parts", blpapiDatetime)
             res.hours = dtime.hour
             res.minutes = dtime.minute
             res.seconds = dtime.second
-            res.milliSeconds = dtime.microsecond / 1000
+            res.milliSeconds = dtime.microsecond // 1000
             res.parts = internals.DATETIME_TIMEMILLI_PART
         else:
             raise TypeError("Datetime could be created only from \

@@ -16,7 +16,7 @@ class Iterator(object):
 
         class Service(object):
             ...
-            # Returns an iterator over this Service's event definitions.
+            # Return an iterator over this Service's event definitions.
             def eventDefinitions(self):
                 return utils.Iterator(
                     self,
@@ -36,13 +36,15 @@ class Iterator(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if self.__index == self.__num:
             raise StopIteration()
         else:
             res = self.__getter(self.__obj, self.__index)
             self.__index += 1
             return res
+
+    next = __next__
 
 
 class MetaClassForClassesWithEnums(type):
@@ -64,7 +66,7 @@ class MetaClassForClassesWithEnums(type):
         Raise EnumError exception otherwise.
         """
         if name.isupper() and name in mcs.__dict__:
-            raise mcs.EnumError, "Can't change value of enum %s" % name
+            raise mcs.EnumError("Can't change value of enum %s" % name)
         else:
             type.__setattr__(mcs, name, value)
 
@@ -74,7 +76,7 @@ class MetaClassForClassesWithEnums(type):
         Raise EnumError exception otherwise.
         """
         if name.isupper() and name in mcs.__dict__:
-            raise mcs.EnumError, "Can't unbind enum %s" % name
+            raise mcs.EnumError("Can't unbind enum %s" % name)
         else:
             type.__delattr__(mcs, name)
 

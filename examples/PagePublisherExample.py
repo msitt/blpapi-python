@@ -1,6 +1,10 @@
 # PagePublisherExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
+# compatibility between python 2 and 3
+from blpapi.compat import with_metaclass
 import time
 from optparse import OptionParser, OptionValueError
 import datetime
@@ -24,11 +28,11 @@ g_running = True
 g_mutex = threading.Lock()
 
 
+@with_metaclass(blpapi.utils.MetaClassForClassesWithEnums)
 class AuthorizationStatus:
     WAITING = 1
     AUTHORIZED = 2
     FAILED = 3
-    __metaclass__ = blpapi.utils.MetaClassForClassesWithEnums
 
 
 g_authorizationStatus = dict()
@@ -60,7 +64,7 @@ class MyEventHandler(object):
 
         if event.eventType() == blpapi.Event.SESSION_STATUS:
             for msg in event:
-                print msg
+                print(msg)
                 if msg.messageType() == SESSION_TERMINATED:
                     g_running = False
 
@@ -68,7 +72,7 @@ class MyEventHandler(object):
             topicList = blpapi.TopicList()
 
             for msg in event:
-                print msg
+                print(msg)
                 if msg.messageType() == TOPIC_SUBSCRIBED:
                     topicStr = msg.getElementAsString("topic")
                     with g_mutex:
@@ -106,8 +110,8 @@ class MyEventHandler(object):
                         try:
                             stream.topic = session.getTopic(msg)
                         except blpapi.Exception as e:
-                            print "Exception while processing " \
-                                "TOPIC_CREATED: %s" % e
+                            print("Exception while processing " \
+                                "TOPIC_CREATED: %s" % e)
                             continue
 
                         if stream.isAvailable():
@@ -138,7 +142,7 @@ class MyEventHandler(object):
                             evFormatter.setElement("numCols", 80)
                             evFormatter.pushElement("rowUpdate")
 
-                            for i in xrange(1, 6):
+                            for i in range(1, 6):
                                 evFormatter.appendElement()
                                 evFormatter.setElement("rowNum", i)
                                 evFormatter.pushElement("spanUpdate")
@@ -155,7 +159,7 @@ class MyEventHandler(object):
                         session.publish(recapEvent)
 
                     except blpapi.Exception as e:
-                        print "Exception while processing TOPIC_RECAP: %s" % e
+                        print("Exception while processing TOPIC_RECAP: %s" % e)
                         continue
 
             if topicList.size() > 0:
@@ -165,12 +169,12 @@ class MyEventHandler(object):
 
         elif event.eventType() == blpapi.Event.RESOLUTION_STATUS:
             for msg in event:
-                print msg
+                print(msg)
 
         elif event.eventType() == blpapi.Event.REQUEST:
             service = session.getService(self.serviceName)
             for msg in event:
-                print msg
+                print(msg)
 
                 if msg.messageType() == PERMISSION_REQUEST:
                     # This example always sends a 'PERMISSIONED' response.
@@ -199,7 +203,7 @@ class MyEventHandler(object):
 
         else:
             for msg in event:
-                print msg
+                print(msg)
                 cids = msg.correlationIds()
                 with g_mutex:
                     for cid in cids:
@@ -302,13 +306,13 @@ def authorize(authService, identity, session, cid):
     if ev.eventType() == blpapi.Event.TOKEN_STATUS or \
             ev.eventType() == blpapi.Event.REQUEST_STATUS:
         for msg in ev:
-            print msg
+            print(msg)
             if msg.messageType() == TOKEN_SUCCESS:
                 token = msg.getElementAsString(TOKEN)
             elif msg.messageType() == TOKEN_FAILURE:
                 break
     if not token:
-        print "Failed to get token"
+        print("Failed to get token")
         return False
 
     # Create and fill the authorithation request
@@ -345,8 +349,8 @@ def main():
     sessionOptions.setAutoRestartOnDisconnection(True)
     sessionOptions.setNumStartAttempts(len(options.hosts))
 
-    print "Connecting to port %d on %s" % (
-        options.port, " ".join(options.hosts))
+    print("Connecting to port %d on %s" % (
+        options.port, " ".join(options.hosts)))
 
     myEventHandler = MyEventHandler(options.service)
 
@@ -356,7 +360,7 @@ def main():
 
     # Start a Session
     if not session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
     providerIdentity = session.createIdentity()
@@ -370,7 +374,7 @@ def main():
                 authService, providerIdentity, session,
                 blpapi.CorrelationId("auth"))
         if not isAuthorized:
-            print "No authorization"
+            print("No authorization")
             return
 
     serviceOptions = blpapi.ServiceRegistrationOptions()
@@ -381,7 +385,7 @@ def main():
     if not session.registerService(options.service,
                                    providerIdentity,
                                    serviceOptions):
-        print "Failed to register '%s'" % options.service
+        print("Failed to register '%s'" % options.service)
         return
 
     service = session.getService(options.service)
@@ -400,7 +404,7 @@ def main():
                         return
 
                 eventFormatter = blpapi.EventFormatter(event)
-                for topicName, stream in g_streams.iteritems():
+                for topicName, stream in g_streams.items():
                     if not stream.isAvailable():
                         continue
 
@@ -411,7 +415,7 @@ def main():
                         eventFormatter.setElement("numRows", 25)
                         eventFormatter.setElement("numCols", 80)
                         eventFormatter.pushElement("rowUpdate")
-                        for i in xrange(1, 6):
+                        for i in range(1, 6):
                             eventFormatter.appendElement()
                             eventFormatter.setElement("rowNum", i)
                             eventFormatter.pushElement("spanUpdate")
@@ -439,7 +443,7 @@ def main():
                     eventFormatter.popElement()
 
             for msg in event:
-                print msg
+                print(msg)
 
             session.publish(event)
             time.sleep(10)
@@ -449,11 +453,11 @@ def main():
         session.stop()
 
 if __name__ == "__main__":
-    print "PagePublisherExample"
+    print("PagePublisherExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

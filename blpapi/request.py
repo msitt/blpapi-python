@@ -7,7 +7,7 @@ Session.
 
 """
 
-from __future__ import absolute_import
+
 
 from .element import Element
 from . import internals
@@ -36,7 +36,15 @@ class Request(object):
         self.__element = None
 
     def __del__(self):
-        internals.blpapi_Request_destroy(self.__handle)
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
+        if self.__handle:
+            internals.blpapi_Request_destroy(self.__handle)
+            self.__handle = None
 
     def __str__(self):
         """x.__str__() <==> str(x)

@@ -9,7 +9,7 @@ provider service (can generate API data) or a consumer service.
 """
 
 
-from __future__ import absolute_import
+
 
 from .event import Event
 from .name import getNamePair
@@ -122,7 +122,15 @@ class Service(object):
         internals.blpapi_Service_addRef(self.__handle)
 
     def __del__(self):
-        internals.blpapi_Service_release(self.__handle)
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
+        if self.__handle:
+            internals.blpapi_Service_release(self.__handle)
+            self.__handle = None
 
     def __str__(self):
         """Convert the service schema to a string."""
@@ -214,7 +222,7 @@ class Service(object):
 
         """
 
-        if not isinstance(nameOrIndex, (int, long)):
+        if not isinstance(nameOrIndex, int):
             names = getNamePair(nameOrIndex)
             errCode, operation = internals.blpapi_Service_getOperation(
                 self.__handle, names[0], names[1])
@@ -263,7 +271,7 @@ class Service(object):
 
         """
 
-        if not isinstance(nameOrIndex, (int, long)):
+        if not isinstance(nameOrIndex, int):
             names = getNamePair(nameOrIndex)
             errCode, definition = internals.blpapi_Service_getEventDefinition(
                 self.__handle,
@@ -319,8 +327,8 @@ class Service(object):
     def createAuthorizationRequest(self, authorizationOperation=None):
         """Return an empty Request object for 'authorizationOperation'.
 
-        If the 'authorizationOperation' does not indentify a valid operation
-        for this Service then an exception is raised.
+        If the 'authorizationOperation' does not identify a valid operation for
+        this Service then an exception is raised.
 
         An application must populate the Request before issuing it using
         Session.sendAuthorizationRequest().

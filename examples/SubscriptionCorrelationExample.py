@@ -1,4 +1,6 @@
 # SubscriptionCorrelationExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 from optparse import OptionParser
@@ -11,7 +13,7 @@ class GridWindow(object):
 
     def processSecurityUpdate(self, msg, row):
         topicName = self.securities[row]
-        print "%s:%s,%s" % (self.name, row, topicName)
+        print("%s:%s,%s" % (self.name, row, topicName))
 
 
 def parseCmdLine():
@@ -48,18 +50,18 @@ def main():
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(options.port)
 
-    print "Connecting to %s:%d" % (options.host, options.port)
+    print("Connecting to %s:%d" % (options.host, options.port))
 
     # Create a Session
     session = blpapi.Session(sessionOptions)
 
     # Start a Session
     if not session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
     if not session.openService("//blp/mktdata"):
-        print "Failed to open //blp/mktdata"
+        print("Failed to open //blp/mktdata")
         return
 
     securities = ["IBM US Equity", "VOD LN Equity"]
@@ -93,11 +95,11 @@ def main():
         session.stop()
 
 if __name__ == "__main__":
-    print "SubscriptionCorrelationExample"
+    print("SubscriptionCorrelationExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

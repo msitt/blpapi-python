@@ -1,4 +1,6 @@
 # SimpleRefDataOverrideExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 from optparse import OptionParser
@@ -33,27 +35,27 @@ def parseCmdLine():
 
 def processMessage(msg):
     if not msg.hasElement(SECURITY_DATA):
-        print "Unexpected message:"
-        print msg
+        print("Unexpected message:")
+        print(msg)
         return
 
     securityDataArray = msg.getElement(SECURITY_DATA)
     for securityData in securityDataArray.values():
-        print securityData.getElementAsString(SECURITY)
+        print(securityData.getElementAsString(SECURITY))
         fieldData = securityData.getElement(FIELD_DATA)
         for field in fieldData.elements():
             if field.isValid():
-                print field.name(), "=", field.getValueAsString()
+                print(field.name(), "=", field.getValueAsString())
             else:
-                print field.name(), " is NULL"
+                print(field.name(), " is NULL")
 
         fieldExceptionArray = securityData.getElement(FIELD_EXCEPTIONS)
         for fieldException in fieldExceptionArray.values():
             errorInfo = fieldException.getElement(ERROR_INFO)
-            print errorInfo.getElementAsString("category"), ":", \
-                fieldException.getElementAsString(FIELD_ID)
+            print(errorInfo.getElementAsString("category"), ":", \
+                fieldException.getElementAsString(FIELD_ID))
 
-        print
+        print()
 
 
 def main():
@@ -65,18 +67,18 @@ def main():
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(options.port)
 
-    print "Connecting to %s:%d" % (options.host, options.port)
+    print("Connecting to %s:%d" % (options.host, options.port))
 
     # Create a Session
     session = blpapi.Session(sessionOptions)
 
     # Start a Session
     if not session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
     if not session.openService("//blp/refdata"):
-        print "Failed to open //blp/refdata"
+        print("Failed to open //blp/refdata")
         return
 
     refDataService = session.getService("//blp/refdata")
@@ -100,7 +102,7 @@ def main():
     override2.setElement("fieldId", "VWAP_END_TIME")
     override2.setElement("value", "11:30")
 
-    print "Sending Request:", request
+    print("Sending Request:", request)
     cid = session.sendRequest(request)
 
     try:
@@ -119,11 +121,11 @@ def main():
         session.stop()
 
 if __name__ == "__main__":
-    print "SimpleRefDataOverrideExample"
+    print("SimpleRefDataOverrideExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

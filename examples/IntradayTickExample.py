@@ -1,4 +1,6 @@
 # IntradayTickExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 import copy
@@ -89,14 +91,14 @@ def parseCmdLine():
 
 
 def printErrorInfo(leadingStr, errorInfo):
-    print "%s%s (%s)" % (leadingStr, errorInfo.getElementAsString(CATEGORY),
-                         errorInfo.getElementAsString(MESSAGE))
+    print("%s%s (%s)" % (leadingStr, errorInfo.getElementAsString(CATEGORY),
+                         errorInfo.getElementAsString(MESSAGE)))
 
 
 def processMessage(msg):
     data = msg.getElement(TICK_DATA).getElement(TICK_DATA)
-    print "TIME\t\t\t\tTYPE\tVALUE\t\tSIZE\tCC"
-    print "----\t\t\t\t----\t-----\t\t----\t--"
+    print("TIME\t\t\t\tTYPE\tVALUE\t\tSIZE\tCC")
+    print("----\t\t\t\t----\t-----\t\t----\t--")
 
     for item in data.values():
         time = item.getElementAsDatetime(TIME)
@@ -109,12 +111,12 @@ def processMessage(msg):
         else:
             cc = ""
 
-        print "%s\t%s\t%.3f\t\t%d\t%s" % (timeString, type, value, size, cc)
+        print("%s\t%s\t%.3f\t\t%d\t%s" % (timeString, type, value, size, cc))
 
 
 def processResponseEvent(event):
     for msg in event:
-        print msg
+        print(msg)
         if msg.hasElement(RESPONSE_ERROR):
             printErrorInfo("REQUEST FAILED: ", msg.getElement(RESPONSE_ERROR))
             continue
@@ -151,7 +153,7 @@ def sendIntradayTickRequest(session, options):
     if options.conditionCodes:
         request.set("includeConditionCodes", True)
 
-    print "Sending Request:", request
+    print("Sending Request:", request)
     session.sendRequest(request)
 
 
@@ -162,10 +164,10 @@ def eventLoop(session):
         # the program catch Ctrl-C between arrivals of new events
         event = session.nextEvent(500)
         if event.eventType() == blpapi.Event.PARTIAL_RESPONSE:
-            print "Processing Partial Response"
+            print("Processing Partial Response")
             processResponseEvent(event)
         elif event.eventType() == blpapi.Event.RESPONSE:
-            print "Processing Response"
+            print("Processing Response")
             processResponseEvent(event)
             done = True
         else:
@@ -196,19 +198,19 @@ def main():
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(options.port)
 
-    print "Connecting to %s:%s" % (options.host, options.port)
+    print("Connecting to %s:%s" % (options.host, options.port))
     # Create a Session
     session = blpapi.Session(sessionOptions)
 
     # Start a Session
     if not session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
     try:
         # Open service to get historical data from
         if not session.openService("//blp/refdata"):
-            print "Failed to open //blp/refdata"
+            print("Failed to open //blp/refdata")
             return
 
         sendIntradayTickRequest(session, options)
@@ -221,11 +223,11 @@ def main():
         session.stop()
 
 if __name__ == "__main__":
-    print "IntradayTickExample"
+    print("IntradayTickExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

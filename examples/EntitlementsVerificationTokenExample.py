@@ -1,4 +1,6 @@
 # EntitlementsVerificationTokenExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 from optparse import OptionParser
@@ -22,20 +24,20 @@ def printEvent(event):
     for msg in event:
         corrId = msg.correlationIds()[0]
         if corrId.value():
-            print "Correlator:", corrId.value()
-        print msg
+            print("Correlator:", corrId.value())
+        print(msg)
 
 
 class SessionEventHandler(object):
     def printFailedEntitlements(self, listOfFailedEIDs):
-        print listOfFailedEIDs
+        print(listOfFailedEIDs)
 
     def distributeMessage(self, msg):
         service = msg.service()
         securities = msg.getElement(SECURITY_DATA)
         numSecurities = securities.numValues()
-        print "Processing %s securities" % numSecurities
-        for i in xrange(numSecurities):
+        print("Processing %s securities" % numSecurities)
+        for i in range(numSecurities):
             security = securities.getValueAsElement(i)
             ticker = security.getElementAsString(SECURITY)
             entitlements = None
@@ -46,24 +48,24 @@ class SessionEventHandler(object):
                     entitlements.numValues() > 0):
                 for j, identity in enumerate(g_identities):
                     if identity.hasEntitlements(service, entitlements):
-                        print "User: %s is entitled to get data for: %s" % \
-                            (j + 1, ticker)
+                        print("User: %s is entitled to get data for: %s" % \
+                            (j + 1, ticker))
                     else:
-                        print "User: %s is NOT entitled to get data for: %s " \
-                            "- Failed eids:" % (j + 1, ticker)
+                        print("User: %s is NOT entitled to get data for: %s " \
+                            "- Failed eids:" % (j + 1, ticker))
                         self.printFailedEntitlements(
                             identity.getFailedEntitlements(service,
                                                            entitlements)[1])
             else:
                 for token in g_tokens:
-                    print "User: %s is entitled to get data for: %s" % \
-                        (token, ticker)
+                    print("User: %s is entitled to get data for: %s" % \
+                        (token, ticker))
                     # Now Distribute message to the user.
 
     def processResponseEvent(self, event):
         for msg in event:
             if msg.hasElement("RESPONSE_ERROR"):
-                print msg
+                print(msg)
                 continue
             self.distributeMessage(msg)
 
@@ -78,7 +80,7 @@ class SessionEventHandler(object):
             try:
                 self.processResponseEvent(event)
             except blpapi.Exception as e:
-                print "Library Exception !!! %s" % e.description()
+                print("Library Exception !!! %s" % e.description())
         return True
 
 
@@ -141,10 +143,10 @@ def authorizeUsers():
                 event.eventType() == blpapi.Event.REQUEST_STATUS):
             for msg in event:
                 if msg.messageType() == AUTHORIZATION_SUCCESS:
-                    print "User %s authorization success" % (index + 1)
+                    print("User %s authorization success" % (index + 1))
                     is_any_user_authorized = True
                 else:
-                    print "User %s authorization failed" % (index + 1)
+                    print("User %s authorization failed" % (index + 1))
                     printEvent(event)
     return is_any_user_authorized
 
@@ -166,7 +168,7 @@ def sendRefDataRequest():
     request.set("returnEids", True)
 
     # Send the request using the server's credentials
-    print "Sending RefDataRequest using server credentials..."
+    print("Sending RefDataRequest using server credentials...")
     g_session.sendRequest(request)
 
 
@@ -181,28 +183,28 @@ def main():
 
     g_securities = options.securities
     if not options.tokens:
-        print "No tokens were specified"
+        print("No tokens were specified")
         return
 
     g_tokens = options.tokens
-    print g_tokens
+    print(g_tokens)
 
     # Create Session object and connect to Bloomberg services
-    print "Connecting to %s:%s" % (options.host, options.port)
+    print("Connecting to %s:%s" % (options.host, options.port))
     eventHandler = SessionEventHandler()
     g_session = blpapi.Session(sessionOptions, eventHandler.processEvent)
     if not g_session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
     # Open authorization service
     if not g_session.openService("//blp/apiauth"):
-        print "Failed to open //blp/apiauth"
+        print("Failed to open //blp/apiauth")
         return
 
     # Open reference data service
     if not g_session.openService("//blp/refdata"):
-        print "Failed to open //blp/refdata"
+        print("Failed to open //blp/refdata")
         return
 
     # Authorize all the users that are interested in receiving data
@@ -212,18 +214,18 @@ def main():
 
     try:
         # Wait for enter key to exit application
-        print "Press ENTER to quit"
-        raw_input()
+        print("Press ENTER to quit")
+        input()
     finally:
         # Stop the session
         g_session.stop()
 
 if __name__ == "__main__":
-    print "EntitlementsVerificationTokenExample"
+    print("EntitlementsVerificationTokenExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

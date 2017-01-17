@@ -1,4 +1,6 @@
 # SimpleIntradayTickExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 import datetime
@@ -47,18 +49,18 @@ def main():
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(options.port)
 
-    print "Connecting to %s:%d" % (options.host, options.port)
+    print("Connecting to %s:%d" % (options.host, options.port))
 
     # Create a Session
     session = blpapi.Session(sessionOptions)
 
     # Start a Session
     if not session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
     if not session.openService("//blp/refdata"):
-        print "Failed to open //blp/refdata"
+        print("Failed to open //blp/refdata")
         return
 
     refDataService = session.getService("//blp/refdata")
@@ -70,7 +72,7 @@ def main():
 
     tradedOn = getPreviousTradingDate()
     if not tradedOn:
-        print "unable to get previous trading date"
+        print("unable to get previous trading date")
         return
 
     startTime = datetime.datetime.combine(tradedOn, datetime.time(13, 30))
@@ -79,7 +81,7 @@ def main():
     endTime = datetime.datetime.combine(tradedOn, datetime.time(13, 35))
     request.set("endDateTime", endTime)
 
-    print "Sending Request:", request
+    print("Sending Request:", request)
     session.sendRequest(request)
 
     try:
@@ -88,7 +90,7 @@ def main():
             # We provide timeout to give the chance to Ctrl+C handling:
             ev = session.nextEvent(500)
             for msg in ev:
-                print msg
+                print(msg)
             # Response completly received, so we could exit
             if ev.eventType() == blpapi.Event.RESPONSE:
                 break
@@ -97,11 +99,11 @@ def main():
         session.stop()
 
 if __name__ == "__main__":
-    print "SimpleIntradayTickExample"
+    print("SimpleIntradayTickExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

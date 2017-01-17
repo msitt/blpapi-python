@@ -1,8 +1,12 @@
-Bloomberg Python API version 3.5
+Bloomberg Python API version 3.9
 ================================
 
 This directory contains an interface for interacting with Bloomberg API
-services using the Python programming language.
+services using the Python programming language. This package is the source
+installer, and requires a C compilation environment compatible with Python's
+`distutils` package. Windows users without such an environment are encourage to
+instead use the appropriate binary installer, available from
+<http://www.bloomberglabs.com/api/libraries/>.
 
 
 Dependencies
@@ -10,9 +14,9 @@ Dependencies
 
 This SDK requires the following products:
 
-- CPython version 2.6 or 2.7
+- CPython version 2.6 or higher
 
-- Bloomberg C++ SDK version 3.5 or later
+- Bloomberg C++ SDK version 3.9 or later
 
 - Visual C++ 2008 or 2010 (Windows) or GCC 4.1+ (Linux)
 
@@ -24,8 +28,12 @@ Note that installation requires a working C compiler and the C headers
 distributed as part of the Bloomberg C++ SDK.
 
 1. Set the `BLPAPI_ROOT` environment variable to the location at which the
-   Bloomberg C++ SDK is installed. (On Windows, this location may be of the
-   form `C:\blp\API\APIv3\C++API\v3.5.2.1\`.)
+   Bloomberg C++ SDK is installed. (This is the directory containing the
+   `include` directory. On linux this may be of the form
+   `$HOME/blpapi_cpp_3.9.5.1`; on Windows, this location may be of the
+   form `C:\blp\API\APIv3\C++API\v3.9.5.1\`.) Note that this is environment
+   variable is required only for *installing* the `blpapi` package, not for
+   running blpapi python applications.
 
 2. To compile and install the `blpapi` Python package for all users, run
 
@@ -88,7 +96,7 @@ Documentation for individual Bloomberg API classes and functions is provided
 through Python's built-in help system.
 
 Further documentation on programming the Bloomberg API is available in the
-Developer's Guide, available at <http://open.bloomberg.com>.
+Developer's Guide, available at <http://www..bloomberglabs.com/api/>.
 
 
 Examples
@@ -105,11 +113,11 @@ line.
 Implementation Notes
 --------------------
 
-- The Python Bloomberg SDK does not provide direct support for Python `unicode`
-  objects. Clients can pass unicode data to SDK functions accepting strings by
-  calling `u.encode('utf-8')` for an appropriate `unicode` object `u`; a string
-  `s` received from an SDK function can be converted to a `unicode` object by
-  calling `s.decode('utf-8')`.
+- The Bloomberg SDK for Python 2 does not provide direct support for Python
+  `unicode` objects. Clients can pass unicode data to SDK functions accepting
+   strings by calling `u.encode('utf-8')` for an appropriate `unicode` object
+   `u`; a string `s` received from an SDK function can be converted to a
+   `unicode` object by calling `s.decode('utf-8')`.
 
 - Python Bloomberg SDK types do not provide support for the Python `copy` or
   `pickle` modules.

@@ -1,4 +1,6 @@
 # SimpleFieldInfoExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 from optparse import OptionParser
@@ -47,21 +49,21 @@ def printField(field):
         fldMnemonic = fldInfo.getElementAsString(FIELD_MNEMONIC)
         fldDesc = fldInfo.getElementAsString(FIELD_DESC)
 
-        print "%s%s%s" % (fldId.ljust(ID_LEN), fldMnemonic.ljust(MNEMONIC_LEN),
-                          fldDesc.ljust(DESC_LEN))
+        print("%s%s%s" % (fldId.ljust(ID_LEN), fldMnemonic.ljust(MNEMONIC_LEN),
+                          fldDesc.ljust(DESC_LEN)))
     else:
         fldError = field.getElement(FIELD_ERROR)
         errorMsg = fldError.getElementAsString(FIELD_MSG)
 
-        print
-        print " ERROR: %s - %s" % (fldId, errorMsg)
+        print()
+        print(" ERROR: %s - %s" % (fldId, errorMsg))
 
 
 def printHeader():
-    print "%s%s%s" % ("FIELD ID".ljust(ID_LEN), "MNEMONIC".ljust(MNEMONIC_LEN),
-                      "DESCRIPTION".ljust(DESC_LEN))
-    print "%s%s%s" % ("-----------".ljust(ID_LEN), "-----------".ljust(MNEMONIC_LEN),
-                      "-----------".ljust(DESC_LEN))
+    print("%s%s%s" % ("FIELD ID".ljust(ID_LEN), "MNEMONIC".ljust(MNEMONIC_LEN),
+                      "DESCRIPTION".ljust(DESC_LEN)))
+    print("%s%s%s" % ("-----------".ljust(ID_LEN), "-----------".ljust(MNEMONIC_LEN),
+                      "-----------".ljust(DESC_LEN)))
 
 
 def main():
@@ -73,18 +75,18 @@ def main():
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(options.port)
 
-    print "Connecting to %s:%d" % (options.host, options.port)
+    print("Connecting to %s:%d" % (options.host, options.port))
 
     # Create a Session
     session = blpapi.Session(sessionOptions)
 
     # Start a Session
     if not session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
     if not session.openService(APIFLDS_SVC):
-        print "Failed to open", APIFLDS_SVC
+        print("Failed to open", APIFLDS_SVC)
         return
 
     fieldInfoService = session.getService(APIFLDS_SVC)
@@ -95,7 +97,7 @@ def main():
 
     request.set("returnFieldDocumentation", True)
 
-    print "Sending Request:", request
+    print("Sending Request:", request)
     session.sendRequest(request)
 
     try:
@@ -111,7 +113,7 @@ def main():
                 printHeader()
                 for field in fields.values():
                     printField(field)
-                print
+                print()
             # Response completly received, so we could exit
             if event.eventType() == blpapi.Event.RESPONSE:
                 break
@@ -120,11 +122,11 @@ def main():
         session.stop()
 
 if __name__ == "__main__":
-    print "SimpleFieldInfoExample"
+    print("SimpleFieldInfoExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

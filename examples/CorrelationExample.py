@@ -1,4 +1,6 @@
 # CorrelationExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 from optparse import OptionParser
@@ -9,7 +11,7 @@ class Window(object):
         self.name = name
 
     def displaySecurityInfo(self, msg):
-        print "%s: %s" % (self.name, msg)
+        print("%s: %s" % (self.name, msg))
 
 
 def parseCmdLine():
@@ -34,11 +36,11 @@ def parseCmdLine():
 
 def startSession(session):
     if not session.start():
-        print "Failed to connect!"
+        print("Failed to connect!")
         return False
 
     if not session.openService("//blp/refdata"):
-        print "Failed to open //blp/refdata"
+        print("Failed to open //blp/refdata")
         session.stop()
         return False
 
@@ -54,7 +56,7 @@ def main():
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(options.port)
 
-    print "Connecting to %s:%d" % (options.host, options.port)
+    print("Connecting to %s:%d" % (options.host, options.port))
 
     # Create a Session
     session = blpapi.Session(sessionOptions)
@@ -72,7 +74,7 @@ def main():
     secInfoWindow = Window("SecurityInfo")
     cid = blpapi.CorrelationId(secInfoWindow)
 
-    print "Sending Request:", request
+    print("Sending Request:", request)
     session.sendRequest(request, correlationId=cid)
 
     try:
@@ -94,11 +96,11 @@ def main():
         session.stop()
 
 if __name__ == "__main__":
-    print "CorrelationExample"
+    print("CorrelationExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

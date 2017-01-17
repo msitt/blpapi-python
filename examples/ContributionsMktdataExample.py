@@ -1,6 +1,10 @@
 # ContributionsMktdataExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
+# compatibility between python 2 and 3
+from blpapi.compat import with_metaclass
 import time
 from optparse import OptionParser, OptionValueError
 import datetime
@@ -18,11 +22,11 @@ g_running = True
 g_mutex = threading.Lock()
 
 
+@with_metaclass(blpapi.utils.MetaClassForClassesWithEnums)
 class AuthorizationStatus:
     WAITING = 1
     AUTHORIZED = 2
     FAILED = 3
-    __metaclass__ = blpapi.utils.MetaClassForClassesWithEnums
 
 
 g_authorizationStatus = dict()
@@ -38,7 +42,7 @@ class MyEventHandler(object):
         global g_running
 
         for msg in event:
-            print msg
+            print(msg)
             if event.eventType() == blpapi.Event.SESSION_STATUS:
                 if msg.messageType() == SESSION_TERMINATED:
                     g_running = False
@@ -138,13 +142,13 @@ def authorize(authService, identity, session, cid):
     if ev.eventType() == blpapi.Event.TOKEN_STATUS or \
             ev.eventType() == blpapi.Event.REQUEST_STATUS:
         for msg in ev:
-            print msg
+            print(msg)
             if msg.messageType() == TOKEN_SUCCESS:
                 token = msg.getElementAsString(TOKEN)
             elif msg.messageType() == TOKEN_FAILURE:
                 break
     if not token:
-        print "Failed to get token"
+        print("Failed to get token")
         return False
 
     # Create and fill the authorithation request
@@ -189,7 +193,7 @@ def main():
 
     # Start a Session
     if not session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
     providerIdentity = session.createIdentity()
@@ -203,7 +207,7 @@ def main():
                 authService, providerIdentity, session,
                 blpapi.CorrelationId("auth"))
         if not isAuthorized:
-            print "No authorization"
+            print("No authorization")
             return
 
     topicList = blpapi.TopicList()
@@ -219,7 +223,7 @@ def main():
     # under the covers)
 
     streams = []
-    for i in xrange(topicList.size()):
+    for i in range(topicList.size()):
         stream = topicList.correlationIdAt(i).value()
         status = topicList.statusAt(i)
         topicString = topicList.topicStringAt(i)
@@ -228,8 +232,8 @@ def main():
             stream.topic = session.getTopic(topicList.messageAt(i))
             streams.append(stream)
         else:
-            print "Stream '%s': topic not resolved, status = %d" % (
-                stream.id, status)
+            print("Stream '%s': topic not resolved, status = %d" % (
+                stream.id, status))
 
     service = session.getService(options.service)
 
@@ -247,7 +251,7 @@ def main():
                 eventFormatter.setElement("ASK", value)
 
             for msg in event:
-                print msg
+                print(msg)
 
             session.publish(event)
             time.sleep(10)
@@ -256,11 +260,11 @@ def main():
         session.stop()
 
 if __name__ == "__main__":
-    print "ContributionsMktdataExample"
+    print("ContributionsMktdataExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

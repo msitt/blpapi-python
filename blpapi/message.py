@@ -7,12 +7,14 @@ inside an event and containing elements.
 
 """
 
-from __future__ import absolute_import
 
+from __future__ import absolute_import
 from .element import Element
 from .name import Name
 from . import internals
+import datetime
 import weakref
+from blpapi.datetime import _DatetimeUtil, UTC
 
 # Handling a circular dependancy between modules:
 #   service->event->message->service
@@ -48,8 +50,15 @@ class Message(object):
         self.__element = None
 
     def __del__(self):
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
         if self.__handle is not None:
             internals.blpapi_Message_release(self.__handle)
+            self.__handle = None
 
     def __str__(self):
         """x.__str__() <==> str(x)
@@ -99,7 +108,7 @@ class Message(object):
         """
 
         res = []
-        for i in xrange(
+        for i in range(
                 internals.blpapi_Message_numCorrelationIds(self.__handle)):
             res.append(
                 internals.blpapi_Message_correlationId(self.__handle, i))
@@ -151,6 +160,18 @@ class Message(object):
     def toString(self, level=0, spacesPerLevel=4):
         """Format this Element to the string."""
         return self.asElement().toString(level, spacesPerLevel)
+
+    def timeReceived(self, tzinfo=UTC):
+        """Return the time when the message was received by the SDK. This
+        method will throw 'ValueError' if this information was not recorded for
+        this message; see 'SessionOptions.recordSubscriptionDataReceiveTimes'
+        for information on configuring this recording. The resulting datetime
+        will be represented using the specified 'tzinfo' value, and will be
+        measured using a high-resolution clock internal to the SDK; see
+        'highresclock' for more information on this clock."""
+        original = internals.blpapi_Message_timeReceived_wrapper(self.__handle)
+        native = _DatetimeUtil.convertToNative(original)
+        return native.astimezone(tzinfo)
 
     def _handle(self):
         return self.__handle

@@ -10,7 +10,7 @@ This component provides a representation of a schema enumeration constant, and
 a representation for lists of such constants
 """
 
-from __future__ import absolute_import
+
 
 from .exception import _ExceptionUtil, NotFoundException, \
     IndexOutOfRangeException
@@ -179,7 +179,7 @@ class ConstantList:
     def hasConstant(self, name):
         """True if this 'ConstantList' contains an item with this 'name'.
 
-        Returns True if this 'ConstantList' contains an item with the specified
+        Return True if this 'ConstantList' contains an item with the specified
         'name', and False otherwise.
 
         Exception is raised if 'name' is neither a Name nor a string.
@@ -208,11 +208,11 @@ class ConstantList:
         return Constant(res, self.__sessions)
 
     def getConstantAt(self, position):
-        """Return the 'Constant' at the specified 'index'.
+        """Return the 'Constant' at the specified 'position'.
 
-        Return the 'Constant' at the specified 'index' in this 'ConstantList'.
-        If 'index' is not in the range from 0 to numConstants() - 1 then an
-        exception is raised.
+        Return the 'Constant' at the specified 'position' in this
+        'ConstantList'.  If 'position' is not in the range from 0 to
+        'numConstants() - 1' then an exception is raised.
         """
         res = internals.blpapi_ConstantList_getConstantAt(self.__handle,
                                                           position)

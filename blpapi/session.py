@@ -5,9 +5,8 @@
 This component implements a consumer session for getting services.
 """
 
-
+from __future__ import print_function
 from __future__ import absolute_import
-
 import weakref
 import sys
 import traceback
@@ -100,7 +99,7 @@ class Session(AbstractSession):
                 event = Event(eventHandle, session)
                 session.__handler(event, session)
         except:
-            print >> sys.stderr, "Exception in event handler:"
+            print("Exception in event handler:", file=sys.stderr)
             traceback.print_exc(file=sys.stderr)
             os._exit(1)
 
@@ -164,7 +163,15 @@ class Session(AbstractSession):
             internals.blpapi_Session_getAbstractSession(self.__handle))
 
     def __del__(self):
-        internals.Session_destroyHelper(self.__handle, self.__handlerProxy)
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
+        if self.__handle:
+            internals.Session_destroyHelper(self.__handle, self.__handlerProxy)
+            self.__handle = None
 
     def start(self):
         """Start this session in synchronous mode.
@@ -297,7 +304,7 @@ class Session(AbstractSession):
             None,
             0))
 
-    def resubscribe(self, subscriptionList, requestLabel=""):
+    def resubscribe(self, subscriptionList, requestLabel="", resubscriptionId=None):
         """Modify subscriptions in 'subscriptionList'.
 
         Modify each subscription in the specified 'subscriptionList', which
@@ -314,11 +321,22 @@ class Session(AbstractSession):
         'subscriptionList' does not identify a current subscription then that
         entry is ignored.
         """
-        _ExceptionUtil.raiseOnError(internals.blpapi_Session_resubscribe(
-            self.__handle,
-            subscriptionList._handle(),
-            requestLabel,
-            len(requestLabel)))
+        error = None
+        if resubscriptionId is None:
+            error = internals.blpapi_Session_resubscribe(
+                    self.__handle,
+                    subscriptionList._handle(),
+                    requestLabel,
+                    len(requestLabel))
+        else:
+            error = internals.blpapi_Session_resubscribeWithId(
+                    self.__handle,
+                    subscriptionList._handle(),
+                    resubscriptionId,
+                    requestLabel,
+                    len(requestLabel))
+
+        _ExceptionUtil.raiseOnError(error)
 
     def setStatusCorrelationId(self, service, correlationId, identity=None):
         """Set the CorrelationID on which service status messages.

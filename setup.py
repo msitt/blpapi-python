@@ -8,16 +8,13 @@ from distutils.core import setup, Extension
 import os
 import platform as plat
 from sys import version
-from sys import platform
+
+platform = plat.system().lower()
 
 if version < '2.6':
     raise Exception(
         "Python versions before 2.6 are not supported (current version is " +
 	version + ")")
-if version >= '3.0':
-    raise Exception(
-        "Python 3 is not supported (current version is " + version +
-        ")")
 
 if not ('BLPAPI_ROOT' in os.environ):
     raise Exception("BLPAPI_ROOT environment variable isn't defined")
@@ -31,7 +28,7 @@ else:
 blpapiRoot = os.environ['BLPAPI_ROOT']
 blpapiIncludes = os.path.join(blpapiRoot, 'include')
 
-if platform == 'win32':
+if platform == 'windows':
     blpapiLibraryPath = os.path.join(blpapiRoot, 'lib')
     extraLinkArgs = ['/MANIFEST']
 
@@ -41,7 +38,7 @@ if platform == 'win32':
         if (not ('VS90COMNTOOLS' in os.environ)) and \
                 ('VS100COMNTOOLS' in os.environ):
             os.environ['VS90COMNTOOLS'] = os.environ['VS100COMNTOOLS']
-elif platform == 'linux2':
+elif platform == 'linux':
     blpapiLibraryPath = os.path.join(blpapiRoot, 'Linux')
     extraLinkArgs = []
 elif platform == 'darwin':
@@ -61,11 +58,12 @@ blpapi_wrap = Extension(
 
 setup(
     name='blpapi',
-    version='3.5.5',
+    version='3.9.0',
     author='Bloomberg L.P.',
-    description='Python SDK for Bloomberg BLPAPI (3.5.5)',
+    author_email='open-tech@bloomberg.net',
+    description='Python SDK for Bloomberg BLPAPI (<=3.9)',
     ext_modules=[blpapi_wrap],
-    url='http://open.bloomberg.com/',
+    url='http://www.bloomberglabs.com/api/',
     packages=["blpapi"],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

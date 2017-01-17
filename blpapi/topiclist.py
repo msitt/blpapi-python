@@ -5,7 +5,7 @@
 This component implements a list of topics which require topic creation.
 """
 
-from __future__ import absolute_import
+
 
 from .exception import _ExceptionUtil
 from .message import Message
@@ -13,8 +13,10 @@ from .resolutionlist import ResolutionList
 from . import internals
 from . import utils
 from .internals import CorrelationId
+from .compat import with_metaclass
 
 
+@with_metaclass(utils.MetaClassForClassesWithEnums)
 class TopicList(object):
     """A list of topics which require creation.
 
@@ -22,13 +24,9 @@ class TopicList(object):
 
     Created from topic strings or from TOPIC_SUBSCRIBED or RESOLUTION_SUCCESS
     messages.
-    This is passed to a createTopics() call or createTopicsAsync() call on a
-    ProviderSession. It is updated and returned by the createTopics() call.
+    This is passed to a 'createTopics()' call or 'createTopicsAsync()' call on a
+    ProviderSession. It is updated and returned by the 'createTopics()' call.
     """
-
-    # Protect enumeration constant(s) defined in this class and in classes
-    # derived from this class from changes:
-    __metaclass__ = utils.MetaClassForClassesWithEnums
 
     NOT_CREATED = internals.TOPICLIST_NOT_CREATED
     CREATED = internals.TOPICLIST_CREATED
@@ -50,23 +48,30 @@ class TopicList(object):
             self.__sessions = set()
 
     def __del__(self):
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
         """Destroy this TopicList."""
-        internals.blpapi_TopicList_destroy(self.__handle)
+        if self.__handle:
+            internals.blpapi_TopicList_destroy(self.__handle)
+            self.__handle = None
 
     def add(self, topicOrMessage, correlationId=None):
         """Add the specified topic or topic from message to this TopicList.
 
-        Add the specified 'topic' to this list, optionally specifying a
-        'correlationId'. Returns 0 on success or negative number on failure.
-        After a successful call to add() the status for this entry is
-        NOT_CREATED.
+        If topic is passed as 'topicOrMessage', add the topic to this list,
+        optionally specifying a 'correlationId'. Return 0 on success or
+        negative number on failure.  After a successful call to 'add()' the
+        status for this entry is NOT_CREATED.
 
         If Message is passed as 'topicOrMessage', add the topic contained in
-        the specified 'topicSubscribedMessage' or 'resolutionSuccessMessage'
-        to this list, optionally specifying a 'correlationId'.
-        Returns 0 on success or a negative number on failure.
-        After a successful call to add() the status for this entry is
-        NOT_CREATED.
+        the specified 'topicSubscribedMessage' or 'resolutionSuccessMessage' to
+        this list, optionally specifying a 'correlationId'.  Return 0 on
+        success or a negative number on failure.  After a successful call to
+        'add()' the status for this entry is NOT_CREATED.
         """
         if correlationId is None:
             correlationId = CorrelationId()
@@ -171,7 +176,7 @@ class TopicList(object):
         Return the value of the message received during creation of the
         specified 'index'th entry in this TopicList. If 'index' >= size() or if
         the status of the 'index'th entry is not CREATED an exception is
-        thrown.
+        raised.
 
         The message returned can be used when creating an instance of Topic.
         """

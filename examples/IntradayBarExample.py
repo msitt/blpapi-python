@@ -1,4 +1,6 @@
 # IntradayBarExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 import copy
@@ -95,13 +97,13 @@ def parseCmdLine():
 
 
 def printErrorInfo(leadingStr, errorInfo):
-    print "%s%s (%s)" % (leadingStr, errorInfo.getElementAsString(CATEGORY),
-                         errorInfo.getElementAsString(MESSAGE))
+    print("%s%s (%s)" % (leadingStr, errorInfo.getElementAsString(CATEGORY),
+                         errorInfo.getElementAsString(MESSAGE)))
 
 
 def processMessage(msg):
     data = msg.getElement(BAR_DATA).getElement(BAR_TICK_DATA)
-    print "Datetime\t\tOpen\t\tHigh\t\tLow\t\tClose\t\tNumEvents\tVolume"
+    print("Datetime\t\tOpen\t\tHigh\t\tLow\t\tClose\t\tNumEvents\tVolume")
 
     for bar in data.values():
         time = bar.getElementAsDatetime(TIME)
@@ -112,14 +114,14 @@ def processMessage(msg):
         numEvents = bar.getElementAsInteger(NUM_EVENTS)
         volume = bar.getElementAsInteger(VOLUME)
 
-        print "%s\t\t%.3f\t\t%.3f\t\t%.3f\t\t%.3f\t\t%d\t\t%d" % \
+        print("%s\t\t%.3f\t\t%.3f\t\t%.3f\t\t%.3f\t\t%d\t\t%d" % \
             (time.strftime("%m/%d/%y %H:%M"), open, high, low, close,
-             numEvents, volume)
+             numEvents, volume))
 
 
 def processResponseEvent(event):
     for msg in event:
-        print msg
+        print(msg)
         if msg.hasElement(RESPONSE_ERROR):
             printErrorInfo("REQUEST FAILED: ", msg.getElement(RESPONSE_ERROR))
             continue
@@ -153,7 +155,7 @@ def sendIntradayBarRequest(session, options):
     if options.gapFillInitialBar:
         request.set("gapFillInitialBar", True)
 
-    print "Sending Request:", request
+    print("Sending Request:", request)
     session.sendRequest(request)
 
 
@@ -164,10 +166,10 @@ def eventLoop(session):
         # the program catch Ctrl-C between arrivals of new events
         event = session.nextEvent(500)
         if event.eventType() == blpapi.Event.PARTIAL_RESPONSE:
-            print "Processing Partial Response"
+            print("Processing Partial Response")
             processResponseEvent(event)
         elif event.eventType() == blpapi.Event.RESPONSE:
-            print "Processing Response"
+            print("Processing Response")
             processResponseEvent(event)
             done = True
         else:
@@ -198,19 +200,19 @@ def main():
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(options.port)
 
-    print "Connecting to %s:%s" % (options.host, options.port)
+    print("Connecting to %s:%s" % (options.host, options.port))
     # Create a Session
     session = blpapi.Session(sessionOptions)
 
     # Start a Session
     if not session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
     try:
         # Open service to get historical data from
         if not session.openService("//blp/refdata"):
-            print "Failed to open //blp/refdata"
+            print("Failed to open //blp/refdata")
             return
 
         sendIntradayBarRequest(session, options)
@@ -223,11 +225,11 @@ def main():
         session.stop()
 
 if __name__ == "__main__":
-    print "IntradayBarExample"
+    print("IntradayBarExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

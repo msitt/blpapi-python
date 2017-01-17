@@ -1,4 +1,6 @@
 # RefDataTableOverrideExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 from optparse import OptionParser
@@ -35,24 +37,24 @@ def parseCmdLine():
 def processMessage(msg):
     securityDataArray = msg.getElement(SECURITY_DATA)
     for securityData in securityDataArray.values():
-        print securityData.getElementAsString(SECURITY)
+        print(securityData.getElementAsString(SECURITY))
         fieldData = securityData.getElement(FIELD_DATA)
         for field in fieldData.elements():
             if not field.isValid():
-                print field.name(), "is NULL."
+                print(field.name(), "is NULL.")
             elif field.isArray():
                 # The following illustrates how to iterate over complex
                 # data returns.
                 for i, row in enumerate(field.values()):
-                    print "Row %d: %s" % (i, row)
+                    print("Row %d: %s" % (i, row))
             else:
-                print "%s = %s" % (field.name(), field.getValueAsString())
+                print("%s = %s" % (field.name(), field.getValueAsString()))
 
         fieldExceptionArray = securityData.getElement(FIELD_EXCEPTIONS)
         for fieldException in fieldExceptionArray.values():
             errorInfo = fieldException.getElement(ERROR_INFO)
-            print "%s: %s" % (errorInfo.getElementAsString("category"),
-                              fieldException.getElementAsString(FIELD_ID))
+            print("%s: %s" % (errorInfo.getElementAsString("category"),
+                              fieldException.getElementAsString(FIELD_ID)))
 
 
 def main():
@@ -64,18 +66,18 @@ def main():
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(options.port)
 
-    print "Connecting to %s:%d" % (options.host, options.port)
+    print("Connecting to %s:%d" % (options.host, options.port))
 
     # Create a Session
     session = blpapi.Session(sessionOptions)
 
     # Start a Session
     if not session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
     if not session.openService("//blp/refdata"):
-        print "Failed to open //blp/refdata"
+        print("Failed to open //blp/refdata")
         return
 
     refDataService = session.getService("//blp/refdata")
@@ -131,7 +133,7 @@ def main():
         for value in rateVector:
             cols.appendValue(value)
 
-    print "Sending Request:", request
+    print("Sending Request:", request)
     cid = session.sendRequest(request)
 
     try:
@@ -151,11 +153,11 @@ def main():
         session.stop()
 
 if __name__ == "__main__":
-    print "RefDataTableOverrideExample"
+    print("RefDataTableOverrideExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

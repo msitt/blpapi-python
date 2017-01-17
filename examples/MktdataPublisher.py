@@ -1,6 +1,10 @@
 # MktdataPublisher.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
+# compatibility between python 2 and 3
+from blpapi.compat import with_metaclass
 import time
 from optparse import OptionParser, OptionValueError
 import datetime
@@ -34,7 +38,7 @@ class MyStream(object):
     def fillData(self, eventFormatter, elementDef):
         for i, f in enumerate(self.fields):
             if not elementDef.typeDefinition().hasElementDefinition(f):
-                print "Invalid field '%s'" % f
+                print("Invalid field '%s'" % f)
                 continue
 
             fieldDef = elementDef.typeDefinition().getElementDefinition(f)
@@ -62,7 +66,18 @@ class MyStream(object):
 
             eventFormatter.setElement(f, value)
 
-    def next(self):
+    def fillDataNull(self, eventFormatter, elementDef):
+        for i, f in enumerate(self.fields):
+            if not elementDef.typeDefinition().hasElementDefinition(f):
+                print("Invalid field '%s'" % f)
+                continue
+
+            fieldDef = elementDef.typeDefinition().getElementDefinition(f)
+            if fieldDef.typeDefinition().isSimpleType():
+                # Publishing NULL value
+                eventFormatter.setElementNull(f)
+
+    def __next__(self):
         self.lastValue += 1
 
     def isAvailable(self):
@@ -76,29 +91,35 @@ g_mutex = threading.Lock()
 g_condition = threading.Condition(g_mutex)
 
 
+@with_metaclass(blpapi.utils.MetaClassForClassesWithEnums)
 class AuthorizationStatus:
     WAITING = 1
     AUTHORIZED = 2
     FAILED = 3
-    __metaclass__ = blpapi.utils.MetaClassForClassesWithEnums
 
 
 g_authorizationStatus = dict()
 
 
 class MyEventHandler(object):
-    def __init__(self, serviceName, messageType, fields, eids):
+    def __init__(self,
+                 serviceName,
+                 messageType,
+                 fields,
+                 eids,
+                 resolveSubServiceCode):
         self.serviceName = serviceName
         self.messageType = messageType
         self.fields = fields
         self.eids = eids
+        self.resolveSubServiceCode = resolveSubServiceCode
 
     def processEvent(self, event, session):
         global g_availableTopicCount, g_running
 
         if event.eventType() == blpapi.Event.SESSION_STATUS:
             for msg in event:
-                print msg
+                print(msg)
                 if msg.messageType() == SESSION_TERMINATED:
                     g_running = False
 
@@ -106,7 +127,7 @@ class MyEventHandler(object):
             topicList = blpapi.TopicList()
 
             for msg in event:
-                print msg
+                print(msg)
                 if msg.messageType() == TOPIC_SUBSCRIBED:
                     topicStr = msg.getElementAsString("topic")
                     with g_mutex:
@@ -146,8 +167,8 @@ class MyEventHandler(object):
                         try:
                             stream.topic = session.getTopic(msg)
                         except blpapi.Exception as e:
-                            print "Exception while processing " \
-                                "TOPIC_CREATED: %s" % e
+                            print("Exception while processing " \
+                                "TOPIC_CREATED: %s" % e)
                             continue
 
                         if stream.isAvailable():
@@ -183,7 +204,7 @@ class MyEventHandler(object):
                         session.publish(recapEvent)
 
                     except blpapi.Exception as e:
-                        print "Exception while processing TOPIC_RECAP: %s" % e
+                        print("Exception while processing TOPIC_RECAP: %s" % e)
                         continue
 
             if topicList.size() > 0:
@@ -193,12 +214,12 @@ class MyEventHandler(object):
 
         elif event.eventType() == blpapi.Event.RESOLUTION_STATUS:
             for msg in event:
-                print msg
+                print(msg)
 
         elif event.eventType() == blpapi.Event.REQUEST:
             service = session.getService(self.serviceName)
             for msg in event:
-                print msg
+                print(msg)
 
                 if msg.messageType() == PERMISSION_REQUEST:
                     # Similar to createPublishEvent. We assume just one
@@ -230,6 +251,15 @@ class MyEventHandler(object):
                     for topic in topicsElement:
                         ef.appendElement()
                         ef.setElement("topic", topic)
+                        if self.resolveSubServiceCode:
+                            try:
+                                ef.setElement("subServiceCode",
+                                              self.resolveSubServiceCode)
+                                print(("Mapping topic %s to subServiceCode %s" %
+                                      (topic, self.resolveSubServiceCode)))
+                            except blpapi.Exception:
+                                print("subServiceCode could not be set."
+                                      " Resolving without subServiceCode")
                         ef.setElement("result", permission)
                         if permission == 1:  # DENIED
                             ef.pushElement("reason")
@@ -261,7 +291,7 @@ class MyEventHandler(object):
 
         else:
             for msg in event:
-                print msg
+                print(msg)
                 cids = msg.correlationIds()
                 with g_mutex:
                     for cid in cids:
@@ -347,6 +377,13 @@ def parseCmdLine():
                       help="set publisher priority level (default: %default)",
                       metavar="priority",
                       default=10)
+    parser.add_option("-c",
+                      type="int",
+                      dest="clearInterval",
+                      help="number of events after which cache will be "
+                      "cleared (default: 0 i.e cache never cleared)",
+                      metavar="clearInterval",
+                      default=0)
     parser.add_option("--auth",
                       dest="auth",
                       help="authentication option: "
@@ -357,6 +394,17 @@ def parseCmdLine():
                       callback=authOptionCallback,
                       type="string",
                       default="user")
+    parser.add_option("--ssc",
+                      dest="ssc",
+                      help="active sub-service code option: "
+                      "<begin>,<end>,<priority>",
+                      metavar="ssc",
+                      default="")
+    parser.add_option("--rssc",
+                      dest="rssc",
+                      help="sub-service code to be used in resolves",
+                      metavar="rssc",
+                      default="")
 
     (options, args) = parser.parse_args()
 
@@ -367,6 +415,27 @@ def parseCmdLine():
         options.fields = ["LAST_PRICE"]
 
     return options
+
+
+def activate(options, session):
+    if options.ssc:
+        sscBegin, sscEnd, sscPriority = map(int, options.ssc.split(","))
+        print(("Activating sub service code range [%s, %s] @ %s" %
+            (sscBegin, sscEnd, sscPriority)))
+        session.activateSubServiceCodeRange(options.service,
+                                            sscBegin,
+                                            sscEnd,
+                                            sscPriority)
+
+
+def deactivate(options, session):
+    if options.ssc:
+        sscBegin, sscEnd, sscPriority = map(int, options.ssc.split(","))
+        print(("DeActivating sub service code range [%s, %s] @ %s" %
+            (sscBegin, sscEnd, sscPriority)))
+        session.deactivateSubServiceCodeRange(options.service,
+                                              sscBegin,
+                                              sscEnd)
 
 
 def authorize(authService, identity, session, cid):
@@ -385,13 +454,13 @@ def authorize(authService, identity, session, cid):
     token = None
     if ev.eventType() == blpapi.Event.TOKEN_STATUS:
         for msg in ev:
-            print msg
+            print(msg)
             if msg.messageType() == TOKEN_SUCCESS:
                 token = msg.getElementAsString(TOKEN)
             elif msg.messageType() == TOKEN_FAILURE:
                 break
     if not token:
-        print "Failed to get token"
+        print("Failed to get token")
         return False
 
     # Create and fill the authorithation request
@@ -436,15 +505,16 @@ def main():
     # so only try to connect to each server once.
     sessionOptions.setNumStartAttempts(1 if len(options.hosts) > 1 else 1000)
 
-    print "Connecting to port %d on %s" % (
-        options.port, " ".join(options.hosts))
+    print("Connecting to port %d on %s" % (
+        options.port, " ".join(options.hosts)))
 
     PUBLISH_MESSAGE_TYPE = blpapi.Name(options.messageType)
 
     myEventHandler = MyEventHandler(options.service,
                                     PUBLISH_MESSAGE_TYPE,
                                     options.fields,
-                                    options.eids)
+                                    options.eids,
+                                    options.rssc)
 
     # Create a Session
     session = blpapi.ProviderSession(sessionOptions,
@@ -452,7 +522,7 @@ def main():
 
     # Start a Session
     if not session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
     providerIdentity = session.createIdentity()
@@ -466,7 +536,7 @@ def main():
                 authService, providerIdentity, session,
                 blpapi.CorrelationId("auth"))
         if not isAuthorized:
-            print "No authorization"
+            print("No authorization")
             return
 
     serviceOptions = blpapi.ServiceRegistrationOptions()
@@ -474,16 +544,30 @@ def main():
         serviceOptions.setGroupId(options.groupId)
     serviceOptions.setServicePriority(options.priority)
 
+    if options.ssc:
+        sscBegin, sscEnd, sscPriority = map(int, options.ssc.split(","))
+        print(("Adding active sub service code range [%s, %s] @ %s" %
+            (sscBegin, sscEnd, sscPriority)))
+        try:
+            serviceOptions.addActiveSubServiceCodeRange(sscBegin,
+                                                        sscEnd,
+                                                        sscPriority)
+        except blpapi.Exception as e:
+            print(("FAILED to add active sub service codes."
+                  " Exception %s" % e.description()))
+
     if not session.registerService(options.service,
                                    providerIdentity,
                                    serviceOptions):
-        print "Failed to register '%s'" % options.service
+        print("Failed to register '%s'" % options.service)
         return
 
     service = session.getService(options.service)
     elementDef = service.getEventDefinition(PUBLISH_MESSAGE_TYPE)
+    eventCount = 0
 
     try:
+        numPublished = 0
         while g_running:
             event = service.createPublishEvent()
 
@@ -494,31 +578,45 @@ def main():
                     if not g_running:
                         return
 
+                publishNull = False
+                if (options.clearInterval > 0 and
+                        eventCount == options.clearInterval):
+                    eventCount = 0
+                    publishNull = True
                 eventFormatter = blpapi.EventFormatter(event)
-                for topicName, stream in g_streams.iteritems():
+                for topicName, stream in g_streams.items():
                     if not stream.isAvailable():
                         continue
-                    stream.next()
                     eventFormatter.appendMessage(PUBLISH_MESSAGE_TYPE,
                                                  stream.topic)
-                    stream.fillData(eventFormatter, elementDef)
+                    if publishNull:
+                        stream.fillDataNull(eventFormatter, elementDef)
+                    else:
+                        eventCount += 1
+                        next(stream)
+                        stream.fillData(eventFormatter, elementDef)
 
             for msg in event:
-                print msg
+                print(msg)
 
             session.publish(event)
-            time.sleep(10)
+            time.sleep(1)
+            numPublished += 1
+            if numPublished % 10 == 0:
+                deactivate(options, session)
+                time.sleep(30)
+                activate(options, session)
 
     finally:
         # Stop the session
         session.stop()
 
 if __name__ == "__main__":
-    print "MktdataPublisher"
+    print("MktdataPublisher")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

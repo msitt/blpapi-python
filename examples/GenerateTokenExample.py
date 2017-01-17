@@ -1,4 +1,6 @@
 # GenerateTokenExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 from optparse import OptionParser
@@ -73,18 +75,18 @@ def sendRequest():
     for field in g_fields:
         fields.appendValue(field)
 
-    print "Sending request: %s" % request
+    print("Sending request: %s" % request)
     g_session.sendRequest(request, g_identity)
 
 
 def processTokenStatus(event):
     global g_identity
-    print "processTokenEvents"
+    print("processTokenEvents")
 
     # Handle response to token generation request
     for msg in event:
         if msg.messageType() == TOKEN_SUCCESS:
-            print msg
+            print(msg)
 
             # Authentication phase has passed; send authorization request
             authService = g_session.getService("//blp/apiauth")
@@ -99,30 +101,30 @@ def processTokenStatus(event):
                 blpapi.CorrelationId(1))
         elif msg.messageType() == TOKEN_FAILURE:
             # Token generation failure
-            print msg
+            print(msg)
             return False
     return True
 
 
 def processEvent(event):
-    print "processEvent"
+    print("processEvent")
 
     # Handle response to authorization request; handle reference data
     for msg in event:
         if msg.messageType() == AUTHORIZATION_SUCCESS:
             # Authorization phase has passed; request data
-            print "Authorization SUCCESS"
+            print("Authorization SUCCESS")
             sendRequest()
         elif msg.messageType() == AUTHORIZATION_FAILURE:
             # Authorization failure
-            print "Authorization FAILED"
-            print msg
+            print("Authorization FAILED")
+            print(msg)
             return False
         else:
             # Handle reference data. RESPONSE event indicates end-of-data
-            print msg
+            print(msg)
             if event.eventType() == blpapi.Event.RESPONSE:
-                print "Got Final Response"
+                print("Got Final Response")
                 return False
     return True
 
@@ -139,27 +141,27 @@ def main():
     if options.dirSvcProperty:
         authOptions = "AuthenticationType=DIRECTORY_SERVICE;" + \
             "DirSvcPropertyName=" + options.dirSvcProperty
-    print "authOptions = %s" % authOptions
+    print("authOptions = %s" % authOptions)
     sessionOptions.setAuthenticationOptions(authOptions)
 
     g_securities = options.securities
     g_fields = options.fields
 
     # Create Session object and connect to Bloomberg services
-    print "Connecting to %s:%s" % (options.host, options.port)
+    print("Connecting to %s:%s" % (options.host, options.port))
     g_session = blpapi.Session(sessionOptions)
     if not g_session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
     # Open reference data service
     if not g_session.openService("//blp/refdata"):
-        print "Failed to open //blp/refdata"
+        print("Failed to open //blp/refdata")
         return
 
     # Open authorization service
     if not g_session.openService("//blp/apiauth"):
-        print "Failed to open //blp/apiauth"
+        print("Failed to open //blp/apiauth")
         return
 
     # Submit a token generation request
@@ -177,11 +179,11 @@ def main():
 
 
 if __name__ == "__main__":
-    print "GenerateTokenExample"
+    print("GenerateTokenExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

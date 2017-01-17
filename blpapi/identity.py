@@ -7,21 +7,23 @@ to the entitlements.
 """
 
 
-from __future__ import absolute_import
+
 
 from .element import Element
 from .exception import _ExceptionUtil
 from . import internals
 from . import utils
+from .compat import with_metaclass
 
 
+@with_metaclass(utils.MetaClassForClassesWithEnums)
 class Identity(object):
     """Provides access to the entitlements for a specific user.
 
-    An unauthorized Identity is created using Session.createIdentity(). Once
+    An unauthorized Identity is created using 'Session.createIdentity()'. Once
     a Identity has been created it can be authorized using
-    Session.sendAuthorizationRequest(). The authorized Identity can then be
-    queried or used in Session.subscribe() or Session.sendRequest() calls.
+    'Session.sendAuthorizationRequest()'. The authorized Identity can then be
+    queried or used in 'Session.subscribe()' or 'Session.sendRequest()' calls.
 
     Once authorized a Identity has access to the entitlements of the user which
     it was validated for.
@@ -48,13 +50,20 @@ class Identity(object):
         internals.blpapi_Identity_addRef(self.__handle)
 
     def __del__(self):
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
         """Destuctor.
 
         Destroying the last Identity for a specific user cancels any
         authorizations associated with it.
         """
-
-        internals.blpapi_Identity_release(self.__handle)
+        if self.__handle:
+            internals.blpapi_Identity_release(self.__handle)
+            self.__handle = None
 
     def hasEntitlements(self, service, entitlements):
         """Return True if authorized for the specified Service and EIDs.
@@ -93,7 +102,7 @@ class Identity(object):
         """Return a tuple containing a boolean and a list of integers.
 
         Return a tuple containing a boolean and a list of integers, where
-        the returned boolean is true if this 'Identity' is authorized for the
+        the returned boolean is True if this 'Identity' is authorized for the
         specified 'service' and all of the specified 'entitlements', which must
         be either a list of integers or an 'Element' which is an array of
         integers, and the returned list is the subset of 'entitlements' for
@@ -133,24 +142,22 @@ class Identity(object):
                 failedEIDs,
                 failedEIDsSize)
         result = []
-        for i in xrange(failedEIDsSize[0]):
+        for i in range(failedEIDsSize[0]):
             result.append(failedEIDs[i])
         return (True if res else False, result)
 
     def isAuthorized(self, service):
         """Return True if the handle is authorized for the specified Service.
 
-        Return True if the user handle is authorized for the specified
-        Service. Use hasEntitlements() to determine what (if anything)
-        entitlements a Identity has.
+        Return True if this 'Identity' is authorized for the specified
+        'service'; otherwise return False.
         """
-
         res = internals.blpapi_Identity_isAuthorized(self.__handle,
                                                      service._handle())
         return True if res else False
 
     def getSeatType(self):
-        """Return seat type of this identity."""
+        """Return the seat type of this identity."""
         res = internals.blpapi_Identity_getSeatType(self.__handle)
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
@@ -161,8 +168,7 @@ class Identity(object):
 
     # Protect enumeration constant(s) defined in this class and in classes
     # derived from this class from changes:
-    __metaclass__ = utils.MetaClassForClassesWithEnums
-
+    
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.
 

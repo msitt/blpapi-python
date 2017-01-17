@@ -4,9 +4,19 @@
 
 This file defines a class 'AbstractSession' - an interface which is shared
 between its concrete implementations 'Session' and 'ProviderSession'.
+
+SERVICE IDENTIFIER
+------------------
+A service identifier is the fully qualified service name which uniquely
+identifies the service in the API infrastructure.  A service must be of the
+form "//<namespace>/<service-name>" where '<namespace>' and '<local-name>' are
+non-empty strings of characters from the set '[-_.a-zA-Z0-9]'. Service
+identifiers are case-insensitive, but clients are encouraged to prefer
+identifiers without upper-case characters.  Note that the <namespace> and
+<service-name> cannot contain the character '/'.
 """
 
-from __future__ import absolute_import
+
 
 from .exception import _ExceptionUtil
 from .identity import Identity
@@ -14,8 +24,9 @@ from .service import Service
 from . import internals
 from .internals import CorrelationId
 from . import utils
+from .compat import with_metaclass
 
-
+@with_metaclass(utils.MetaClassForClassesWithEnums)
 class AbstractSession(object):
     """A common interface shared between publish and consumer sessions.
 
@@ -256,8 +267,7 @@ class AbstractSession(object):
 
     # Protect enumeration constant(s) defined in this class and in classes
     # derived from this class from changes:
-    __metaclass__ = utils.MetaClassForClassesWithEnums
-
+    
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.
 

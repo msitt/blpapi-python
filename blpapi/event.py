@@ -33,11 +33,12 @@ Synchronously read the response 'event' and parse over messages using 'token'
 
 """
 
-from __future__ import absolute_import
+
 
 from .message import Message
 from . import internals
 from . import utils
+from .compat import with_metaclass
 
 import sys
 
@@ -58,19 +59,30 @@ class MessageIterator(object):
         self.__event = event
 
     def __del__(self):
-        internals.blpapi_MessageIterator_destroy(self.__handle)
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
+        if self.__handle:
+            internals.blpapi_MessageIterator_destroy(self.__handle)
+            self.__handle = None
 
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         retCode, message = internals.blpapi_MessageIterator_next(self.__handle)
         if retCode:
             raise StopIteration()
         else:
             return Message(message, self.__event)
 
+    next = __next__
 
+
+@with_metaclass(utils.MetaClassForClassesWithEnums)
 class Event(object):
     """A single event resulting from a subscription or a request.
 
@@ -146,7 +158,15 @@ class Event(object):
         self.__sessions = sessions
 
     def __del__(self):
-        internals.blpapi_Event_release(self.__handle)
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
+        if self.__handle:
+            internals.blpapi_Event_release(self.__handle)
+            self.__handle = None
 
     def eventType(self):
         """Return the type of messages contained by this 'Event'."""
@@ -168,8 +188,7 @@ class Event(object):
 
     # Protect enumeration constant(s) defined in this class and in classes
     # derived from this class from changes:
-    __metaclass__ = utils.MetaClassForClassesWithEnums
-
+    
 
 class EventQueue(object):
     """A construct used to handle replies to request synchronously.
@@ -187,7 +206,15 @@ class EventQueue(object):
         self.__sessions = set()
 
     def __del__(self):
-        internals.blpapi_EventQueue_destroy(self.__handle)
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
+        if self.__handle:
+            internals.blpapi_EventQueue_destroy(self.__handle)
+            self.__handle = None
 
     def nextEvent(self, timeout=0):
         """Return the next Event available from the 'EventQueue'.

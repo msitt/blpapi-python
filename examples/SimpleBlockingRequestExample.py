@@ -1,4 +1,6 @@
 # SimpleBlockingRequestExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 from optparse import OptionParser
@@ -14,10 +16,10 @@ class MyEventHandler(object):
                 for msg in event:
                     if msg.hasElement(LAST_PRICE):
                         field = msg.getElement(LAST_PRICE)
-                        print field.name(), "=", field.getValueAsString()
+                        print(field.name(), "=", field.getValueAsString())
             return True
         except Exception as e:
-            print "Exception:", e
+            print("Exception:", e)
             return False
 
 
@@ -50,7 +52,7 @@ def main():
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(options.port)
 
-    print "Connecting to %s:%d" % (options.host, options.port)
+    print("Connecting to %s:%d" % (options.host, options.port))
 
     myEventHandler = MyEventHandler()
     # Create a Session
@@ -58,24 +60,24 @@ def main():
 
     # Start a Session
     if not session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
     if not session.openService("//blp/mktdata"):
-        print "Failed to open //blp/mktdata"
+        print("Failed to open //blp/mktdata")
         return
 
     if not session.openService("//blp/refdata"):
-        print "Failed to open //blp/refdata"
+        print("Failed to open //blp/refdata")
         return
 
-    print "Subscribing to IBM US Equity"
+    print("Subscribing to IBM US Equity")
     cid = blpapi.CorrelationId(1)
     subscriptions = blpapi.SubscriptionList()
     subscriptions.add("IBM US Equity", "LAST_PRICE", "", cid)
     session.subscribe(subscriptions)
 
-    print "Requesting reference data IBM US Equity"
+    print("Requesting reference data IBM US Equity")
     refDataService = session.getService("//blp/refdata")
     request = refDataService.createRequest("ReferenceDataRequest")
     request.append("securities", "IBM US Equity")
@@ -91,24 +93,24 @@ def main():
             # We provide timeout to give the chance to Ctrl+C handling:
             ev = eventQueue.nextEvent(500)
             for msg in ev:
-                print msg
+                print(msg)
             # Response completly received, so we could exit
             if ev.eventType() == blpapi.Event.RESPONSE:
                 break
 
         # Wait for enter key to exit application
-        print "Press ENTER to quit"
-        raw_input()
+        print("Press ENTER to quit")
+        input()
     finally:
         # Stop the session
         session.stop()
 
 if __name__ == "__main__":
-    print "SimpleBlockingRequestExample"
+    print("SimpleBlockingRequestExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

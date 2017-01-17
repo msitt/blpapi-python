@@ -5,7 +5,7 @@
 This component provides a topic that is used for publishing data on.
 """
 
-from __future__ import absolute_import
+
 
 from .exception import _ExceptionUtil
 from .message import Message
@@ -17,25 +17,34 @@ from .service import Service
 class Topic(object):
     """Used to identify the stream on which a message is published.
 
-    Topic objects are obtained from createTopic() on ProviderSession. They are
-    used when adding a message to an Event for publishing using appendMessage()
-    on EventFormatter.
+    Topic objects are obtained from 'createTopic()' on 'ProviderSession'. They are
+    used when adding a message to an Event for publishing using 'appendMessage()'
+    on 'EventFormatter'.
     """
 
-    def __init__(self, handle=None):
+    def __init__(self, handle=None, sessions=None):
         """Create a Topic object.
 
-        Create a Topic object. A Topic created with handle set to None is not
+        Create a Topic object. A Topic created with 'handle' set to None is not
         a valid topic and must be assigned to from a valid topic before it can
         be used.
         """
         self.__handle = handle
         if handle is not None:
             self.__handle = internals.blpapi_Topic_create(handle)
+        self.__sessions = sessions
 
     def __del__(self):
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
         """Destroy this Topic object."""
-        internals.blpapi_Topic_destroy(self.__handle)
+        if self.__handle:
+            internals.blpapi_Topic_destroy(self.__handle)
+            self.__handle = None
 
     def isValid(self):
         """Return True if this Topic is valid.
@@ -58,11 +67,20 @@ class Topic(object):
 
         Return the service for which this topic was created.
         """
-        return Service(internals.blpapi_Topic_service(self.__handle), None)
+        return Service(internals.blpapi_Topic_service(self.__handle),
+                       self.__sessions)
 
     def __cmp__(self, other):
         """3-way comparison of Topic objects."""
         return internals.blpapi_Topic_compare(self.__handle, other.__handle)
+
+    def __lt__(self, other):
+        """2-way comparison of Topic objects."""
+        return internals.blpapi_Topic_compare(self.__handle, other.__handle) < 0
+
+    def __eq__(self, other):
+        """2-way comparison of Topic objects."""
+        return internals.blpapi_Topic_compare(self.__handle, other.__handle) == 0
 
     def _handle(self):
         """Return the internal implementation."""

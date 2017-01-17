@@ -7,7 +7,7 @@ This file defines these classes:
 
 """
 
-from __future__ import absolute_import
+
 
 from .exception import _ExceptionUtil
 from .exception import UnsupportedOperationException
@@ -15,8 +15,11 @@ from .datetime import _DatetimeUtil
 from .datatype import DataType
 from .name import Name, getNamePair
 from .schema import SchemaElementDefinition
+from .compat import conv2str, isstr, int_typelist
 from . import utils
 from . import internals
+
+import sys
 
 
 class Element(object):
@@ -27,9 +30,9 @@ class Element(object):
 
     The value(s) in an Element can be queried in a number of ways. For an
     Element which represents a single value or an array of values use the
-    getValueAs() functions or getValueAsBool() etc. For an Element which
-    represents a sequence or choice use getElementAsBool() etc. In addition,
-    for choices and sequences, hasElement() and getElement() are useful.
+    'getValueAs()' functions or 'getValueAsBool()' etc. For an Element which
+    represents a sequence or choice use 'getElementAsBool()' etc. In addition,
+    for choices and sequences, 'hasElement()' and 'getElement()' are useful.
 
     This example shows how to access the value of a scalar element 's' as a
     floating point number:
@@ -41,43 +44,49 @@ class Element(object):
 
          f = a.getValueAsFloat(2)
 
-    Use numValues() to determine the number of values available. For single
+    Use 'numValues()' to determine the number of values available. For single
     values, it will return either 0 or 1. For arrays it will return the actual
     number of values in the array.
 
     To retrieve values from a complex element types (sequnces and choices) use
-    the getElementAs...() family of methods. This example shows how to get the
+    the 'getElementAs...()' family of methods. This example shows how to get the
     value of the the element 'city' in the sequence element 'address':
 
          city = address.getElementAsString("city")
 
-    Note that getElementAsXYZ(name) method is a shortcut to
-    getElement(name).getValueAsXYZ().
+    Note that 'getElementAsXYZ(name)' method is a shortcut to
+    'getElement(name).getValueAsXYZ()'.
 
     The value(s) of an Element can be set in a number of ways. For an Element
-    which represents a single value or an array of values use the setValue() or
-    appendValue() functions. For an element which represents a seqeunce or a
-    choice use the setElement() functions.
+    which represents a single value or an array of values use the 'setValue()' or
+    'appendValue()' functions. For an element which represents a seqeunce or a
+    choice use the 'setElement()' functions.
 
     This example shows how to set the value of an Element 's':
 
          value=5
          s.setValue(value)
 
-    This example shows how to append a value to an array
-    element 'a':
+    This example shows how to append a value to an array element 'a':
 
          value=5;
          s.appendValue(value);
 
     To set values in a complex element (a sequence or a choice) use the
-    setElement() family of functions. This example shows how to set the value
+    'setElement()' family of functions. This example shows how to set the value
     of the element 'city' in the sequence element 'address' to a string.
 
          address.setElement("city", "New York")
 
-    Methods which specify an Element name accept name in two forms: blpapi.Name
-    or a string. Passing blpapi.Name is more efficient.
+    Methods which specify an Element name accept name in two forms: 'blpapi.Name'
+    or a string. Passing 'blpapi.Name' is more efficient. However, it requires
+    the Name to have been created in the global name table.
+
+    The form which takes a string is less efficient but will not cause a new
+    Name to be created in the global Name table. Because all valid Element
+    names will have already been placed in the global name table by the API if
+    the supplied string cannot be found in the global name table the
+    appropriate error or exception can be returned.
 
     The API will convert data types as long as there is no loss of precision
     involved.
@@ -120,7 +129,7 @@ class Element(object):
     __stringTraits = (
         internals.blpapi_Element_setElementString,
         internals.blpapi_Element_setValueString,
-        None)
+        conv2str)
 
     __defaultTraits = (
         internals.blpapi_Element_setElementString,
@@ -129,11 +138,11 @@ class Element(object):
 
     @staticmethod
     def __getTraits(value):
-        if isinstance(value, str):
+        if isstr(value):
             return Element.__stringTraits
         elif isinstance(value, bool):
             return Element.__boolTraits
-        elif isinstance(value, (int, long)):
+        elif isinstance(value, int_typelist):
             if value >= -(2 ** 31) and value <= (2 ** 31 - 1):
                 return Element.__int32Traits
             elif value >= -(2 ** 63) and value <= (2 ** 63 - 1):
@@ -173,8 +182,8 @@ class Element(object):
     def __str__(self):
         """x.__str__() <==> str(x)
 
-        Return a string representation of this Element. Call of str(element) is
-        equivalent to element.toString() called with default parameters.
+        Return a string representation of this Element. Call of 'str(element)' is
+        equivalent to 'element.toString()' called with default parameters.
 
         """
 
@@ -183,11 +192,11 @@ class Element(object):
     def name(self):
         """Return the name of this Element.
 
-        If this Element is part of a sequence or choice Element then this
-        method returns the Name of this Element within the sequence or choice
-        Element that owns it. If this Element is not part of a sequence Element
-        (that is it is an entire Request or Message) then the Name of the
-        Request or Message is returned.
+        If this Element is part of a sequence or choice Element then return the
+        Name of this Element within the sequence or choice Element that owns
+        it. If this Element is not part of a sequence Element (that is it is an
+        entire Request or Message) then return the Name of the Request or
+        Message.
 
         """
 
@@ -198,7 +207,7 @@ class Element(object):
     def datatype(self):
         """Return the basic data type of this Element.
 
-        Return the basic datatype used to represent a value of this Element.
+        Return the basic data type used to represent a value in this Element.
 
         The possible return values are enumerated in DataType class.
 
@@ -211,7 +220,7 @@ class Element(object):
         """Return True is this Element is a SEQUENCE or CHOICE.
 
         Return True if 'datatype()==DataType.SEQUENCE' or
-        'datatype()==DataType.CHOICE'.
+        'datatype()==DataType.CHOICE' and False otherwise.
 
         """
 
@@ -222,7 +231,7 @@ class Element(object):
         """Return True is this element is an array.
 
         Return True if 'elementDefinition().maxValues()>1' or if
-        'elementDefinition().maxValues()==UNBOUNDED'.
+        'elementDefinition().maxValues()==UNBOUNDED', and False otherwise.
 
         """
 
@@ -230,11 +239,11 @@ class Element(object):
         return bool(internals.blpapi_Element_isArray(self.__handle))
 
     def isValid(self):
-        """Return true if this Element is valid."""
+        """Return True if this Element is valid."""
         return self.__handle is not None
 
     def isNull(self):
-        """Return True if this Element is in a NULL state."""
+        """Return True if this Element has a null value."""
         self.__assertIsValid()
         return bool(internals.blpapi_Element_isNull(self.__handle))
 
@@ -244,18 +253,25 @@ class Element(object):
         return bool(internals.blpapi_Element_isReadOnly(self.__handle))
 
     def elementDefinition(self):
-        """Return a read-only SchemaElementDefinition for this Element."""
+        """Return a read-only SchemaElementDefinition for this Element.
+
+        Return a reference to the read-only element definition object that
+        defines the properties of this elements value.
+
+        """
         self.__assertIsValid()
         return SchemaElementDefinition(
             internals.blpapi_Element_definition(self.__handle),
             self._sessions())
 
     def numValues(self):
-        """Return the number of values contained in this Element.
+        """Return the number of values contained by this element.
 
-        For scalar element types. The value returned will always be in the
-        range defined by elementDefinition().minValues() and
-        elementDefinition().maxValues().
+        Return the number of values contained by this element. The number of
+        values is 0 if 'isNull()' returns True, and no greater than 1 if
+        'isComplexType()' returns True. The value returned will always be in
+        the range defined by 'elementDefinition().minValues()' and
+        'elementDefinition().maxValues()'.
 
         """
 
@@ -265,27 +281,27 @@ class Element(object):
     def numElements(self):
         """Return the number of elements in this Element.
 
-        Return the number of elements contained in this Element if
-        'isComplexType()' returns True.
-
-        If this Element is a choice the method will always return 1. If this
-        Element is a sequence the method may return any number (including 0).
-        If other cases the method will return 0.
+        Return the number of elements contained by this element.  The number
+        of elements is 0 if 'isComplex()' returns False, and no greater than
+        1 if the Datatype is CHOICE; if the DataType is SEQUENCE this may
+        return any number (including 0).
 
         """
 
         self.__assertIsValid()
         return internals.blpapi_Element_numElements(self.__handle)
 
-    def isNullValue(self, index=0):
-        """Return True if the value at the specified 'index' is NULL.
+    def isNullValue(self, position=0):
+        """Return True if the value at the 'position' is a null value.
 
-        An exception is raised if 'index' >= numValues().
+        Return True if the value of the sub-element at the specified 'position'
+        in a sequence or choice element is a null value. An exception is raised
+        if 'position >= numElements()'.
 
         """
 
         self.__assertIsValid()
-        res = internals.blpapi_Element_isNullValue(self.__handle, index)
+        res = internals.blpapi_Element_isNullValue(self.__handle, position)
         if res == 0 or res == 1:
             return bool(res)
         _ExceptionUtil.raiseOnError(res)
@@ -322,7 +338,7 @@ class Element(object):
 
         """
 
-        if not isinstance(nameOrIndex, (int, long)):
+        if not isinstance(nameOrIndex, int):
             self.__assertIsValid()
             name = getNamePair(nameOrIndex)
             res = internals.blpapi_Element_getElement(self.__handle,
@@ -348,8 +364,8 @@ class Element(object):
     def hasElement(self, name, excludeNullElements=False):
         """Return True if this Element contains sub-element with this 'name'.
 
-        Return True if this Element contains sub-element with the specified
-        'name' and False otherwise.
+        Return True if this Element is a choice or sequence ('isComplexType()
+        == True') and it contains an Element with the specified 'name'.
 
         Exception is raised if 'name' is neither a Name nor a string.
 
@@ -368,7 +384,8 @@ class Element(object):
     def getChoice(self):
         """Return the selection name of this element as Element.
 
-        An exception is raised if 'datatype() != DataType.CHOICE'.
+        Return the selection name of this element if 
+        'datatype() == DataType.CHOICE'; otherwise, an exception is raised.
 
         """
 
@@ -381,7 +398,7 @@ class Element(object):
         """Return the specified 'index'th entry in the Element as a boolean.
 
         An exception is raised if the data type of this Element cannot be
-        converted to a boolean or if 'index' >= numValues().
+        converted to a boolean or if 'index >= numValues()'.
 
         """
 
@@ -394,7 +411,7 @@ class Element(object):
         """Return the specified 'index'th entry in the Element as a string.
 
         An exception is raised if the data type of this Element cannot be
-        converted to a string or if 'index' >= numValues().
+        converted to a string or if 'index >= numValues()'.
 
         """
 
@@ -406,11 +423,11 @@ class Element(object):
     def getValueAsDatetime(self, index=0):
         """Return the specified 'index'th entry as one of the datetime types.
 
-        The possible result types are datetime.time, datetime.date or
-        datetime.datetime.
+        The possible result types are 'datetime.time', 'datetime.date' or
+        'datetime.datetime'.
 
         An exception is raised if the data type of this Element cannot be
-        converted to one of these types or if 'index' >= numValues().
+        converted to one of these types or if 'index >= numValues()'.
 
         """
 
@@ -423,7 +440,7 @@ class Element(object):
         """Return the specified 'index'th entry in the Element as an integer.
 
         An exception is raised if the data type of this Element cannot be
-        converted to an integer or if 'index' >= numValues().
+        converted to an integer or if 'index >= numValues()'.
 
         """
 
@@ -436,7 +453,7 @@ class Element(object):
         """Return the specified 'index'th entry in the Element as a float.
 
         An exception is raised if the data type of this Element cannot be
-        converted to a float or if 'index' >= numValues().
+        converted to a float or if 'index >= numValues()'.
 
         """
 
@@ -449,7 +466,7 @@ class Element(object):
         """Return the specified 'index'th entry in the Element as a Name.
 
         An exception is raised if the data type of this Element cannot be
-        converted to a Name or if 'index' >= numValues().
+        converted to a Name or if 'index >= numValues()'.
 
         """
 
@@ -462,7 +479,7 @@ class Element(object):
         """Return the specified 'index'th entry in the Element as an Element.
 
         An exception is raised if the data type of this Element cannot be
-        converted to an Element or if 'index' >= numValues().
+        converted to an Element or if 'index >= numValues()'.
 
         """
 
@@ -478,7 +495,7 @@ class Element(object):
         defined by this Element datatype.
 
         An exception is raised if this Element either a sequence or a choice or
-        if 'index' >= numValues().
+        if 'index >= numValues()'.
 
         """
 
@@ -490,7 +507,7 @@ class Element(object):
     def values(self):
         """Return an iterator over values contained in this Element.
 
-        If isComplexType() returns True for this Element, the empty iterator is
+        If 'isComplexType()' returns True for this Element, the empty iterator is
         returned.
 
         """
@@ -535,7 +552,7 @@ class Element(object):
         Exception is raised if 'name' is neither a Name nor a string, or if
         this Element is neither a sequence nor a choice, or in case it has no
         sub-element with the specified 'name', or in case the Element's value
-        can't be returned as one of datetype types
+        can't be returned as one of datetype types.
 
         """
 
@@ -600,10 +617,10 @@ class Element(object):
         - integers
         - float
         - string
-        - datetypes (datetime.time, datetime.date or datetime.datetime)
+        - datetypes ('datetime.time', 'datetime.date' or 'datetime.datetime')
         - Name
 
-        Any other 'value' will be converted to a string with str() function and
+        Any other 'value' will be converted to a string with 'str' function and
         then processed in the same way as string 'value'.
 
         An exception is raised if 'name' is neither a Name nor a string, or if
@@ -632,14 +649,14 @@ class Element(object):
         - integers
         - float
         - string
-        - datetypes (datetime.time, datetime.date or datetime.datetime)
+        - datetypes ('datetime.time', 'datetime.date' or 'datetime.datetime')
         - Name
 
-        Any other 'value' will be converted to a string with str() function and
+        Any other 'value' will be converted to a string with 'str' function and
         then processed in the same way as string 'value'.
 
         An exception is raised if this Element's datatype can't be initialized
-        with the type of the specified 'value', or if 'index' >= numValues().
+        with the type of the specified 'value', or if 'index >= numValues()'.
 
         """
 
@@ -659,16 +676,16 @@ class Element(object):
         - integers
         - float
         - string
-        - datetypes (datetime.time, datetime.date or datetime.datetime)
+        - datetypes ('datetime.time', 'datetime.date' or 'datetime.datetime')
         - Name
 
-        Any other 'value' will be converted to a string with str() function and
+        Any other 'value' will be converted to a string with 'str' function and
         then processed in the same way as string 'value'.
 
         An exception is raised if this Element's datatype can't be initialized
         from the type of the specified 'value', or if the current size of this
-        Element (numValues()) is equal to the maximum defined by
-        elementDefinition().maxValues().
+        Element ('numValues()') is equal to the maximum defined by
+        'elementDefinition().maxValues()'.
 
         """
 

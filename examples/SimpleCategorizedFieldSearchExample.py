@@ -1,4 +1,6 @@
 # SimpleCategorizedFieldSearchExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 from optparse import OptionParser
@@ -52,21 +54,21 @@ def printField(field):
         fldMnemonic = fldInfo.getElementAsString(FIELD_MNEMONIC)
         fldDesc = fldInfo.getElementAsString(FIELD_DESC)
 
-        print "%s%s%s" % (fldId.ljust(ID_LEN), fldMnemonic.ljust(MNEMONIC_LEN),
-                          fldDesc.ljust(DESC_LEN))
+        print("%s%s%s" % (fldId.ljust(ID_LEN), fldMnemonic.ljust(MNEMONIC_LEN),
+                          fldDesc.ljust(DESC_LEN)))
     else:
         fldError = field.getElement(FIELD_ERROR)
         errorMsg = fldError.getElementAsString(FIELD_MSG)
 
-        print
-        print " ERROR: %s - %s" % (fldId, errorMsg)
+        print()
+        print(" ERROR: %s - %s" % (fldId, errorMsg))
 
 
 def printHeader():
-    print "%s%s%s" % ("FIELD ID".ljust(ID_LEN), "MNEMONIC".ljust(MNEMONIC_LEN),
-                      "DESCRIPTION".ljust(DESC_LEN))
-    print "%s%s%s" % ("-----------".ljust(ID_LEN), "-----------".ljust(MNEMONIC_LEN),
-                      "-----------".ljust(DESC_LEN))
+    print("%s%s%s" % ("FIELD ID".ljust(ID_LEN), "MNEMONIC".ljust(MNEMONIC_LEN),
+                      "DESCRIPTION".ljust(DESC_LEN)))
+    print("%s%s%s" % ("-----------".ljust(ID_LEN), "-----------".ljust(MNEMONIC_LEN),
+                      "-----------".ljust(DESC_LEN)))
 
 
 def main():
@@ -78,18 +80,18 @@ def main():
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(options.port)
 
-    print "Connecting to %s:%d" % (options.host, options.port)
+    print("Connecting to %s:%d" % (options.host, options.port))
 
     # Create a Session
     session = blpapi.Session(sessionOptions)
 
     # Start a Session
     if not session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
     if not session.openService(APIFLDS_SVC):
-        print "Failed to open", APIFLDS_SVC
+        print("Failed to open", APIFLDS_SVC)
         return
 
     fieldInfoService = session.getService(APIFLDS_SVC)
@@ -99,7 +101,7 @@ def main():
     exclude.setElement("fieldType", "Static")
     request.set("returnFieldDocumentation", False)
 
-    print "Sending Request:", request
+    print("Sending Request:", request)
     session.sendRequest(request)
 
     try:
@@ -112,21 +114,21 @@ def main():
                 continue
             for msg in event:
                 if msg.hasElement(FIELD_SEARCH_ERROR):
-                    print msg
+                    print(msg)
                     continue
 
                 categories = msg.getElement("category")
                 for category in categories.values():
                     Name = category.getElementAsString("categoryName")
                     Id = category.getElementAsString("categoryId")
-                    print "\n  Category Name:%s\tId:%s" % \
-                        (Name.ljust(CAT_NAME_LEN), Id)
+                    print("\n  Category Name:%s\tId:%s" % \
+                        (Name.ljust(CAT_NAME_LEN), Id))
 
                     printHeader()
                     fields = category.getElement("fieldData")
                     for field in fields.values():
                         printField(field)
-                    print
+                    print()
 
             # Response completly received, so we could exit
             if event.eventType() == blpapi.Event.RESPONSE:
@@ -136,11 +138,11 @@ def main():
         session.stop()
 
 if __name__ == "__main__":
-    print "SimpleCategorizedFieldSearchExample"
+    print("SimpleCategorizedFieldSearchExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

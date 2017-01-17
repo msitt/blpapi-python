@@ -5,14 +5,20 @@
 This file defines various exceptions that blpapi can raise.
 """
 
-from __future__ import absolute_import
 
-from __builtin__ import Exception as _StandardException
+
+try:
+    from builtins import Exception as _StandardException
+except ImportError:
+    from __builtin__ import Exception as _StandardException
 from . import internals
 
 
 class Exception(_StandardException):
-    "This is the base class for exceptions used by blpapi."
+    """This class defines a base exception for blpapi operations.
+
+    Objects of this class contain the error description for the exception.
+    """
     def __init__(self, description, errorCode):
         _StandardException.__init__(self, description, errorCode)
 
@@ -21,47 +27,82 @@ class Exception(_StandardException):
 
 
 class DuplicateCorrelationIdException(Exception):
-    """Duplicate CorrelationId exception."""
+    """Duplicate CorrelationId exception.
+
+    The class defines an exception for non unqiue 'blpapi.CorrelationId'.
+    """
     pass
 
 
 class InvalidStateException(Exception):
-    """Invalid state exception."""
+    """Invalid state exception.
+
+    This class defines an exception for calling methods on an object that is
+    not in a valid state.
+    """
     pass
 
 
 class InvalidArgumentException(Exception):
-    """Invalid argument exception."""
+    """Invalid argument exception.
+
+    This class defines an exception for invalid arguments on method
+    invocations.
+    """
     pass
 
 
 class InvalidConversionException(Exception):
-    """Invalid conversion exception."""
+    """Invalid conversion exception.
+
+    This class defines an exception for invalid conversion of data.
+    """
     pass
 
 
 class IndexOutOfRangeException(Exception):
-    """Index out of range exception."""
+    """Index out of range exception.
+
+    This class defines an exception to capture the error when an invalid index
+    is used for an operation that needs index.
+    """
     pass
 
 
 class NotFoundException(Exception):
-    """Not found exception."""
+    """Not found exception.
+
+    This class defines an exception to capture the error when an item is not
+    found for an operation.
+
+    """
     pass
 
 
 class FieldNotFoundException(Exception):
-    """Field not found exception."""
+    """Field not found exception.
+
+    This class defines an exception to capture the error when an invalid field
+    is used for operation.
+    DEPRECATED
+    """
     pass
 
 
 class UnsupportedOperationException(Exception):
-    """Unsupported operation exception."""
+    """Unsupported operation exception.
+
+    This class defines an exception for unsupported operations.
+    """
     pass
 
 
 class UnknownErrorException(Exception):
-    """Unknown error exception."""
+    """Unknown error exception.
+
+    This class defines an exception for errors that do not fall in any
+    predefined category.
+    """
     pass
 
 
@@ -87,6 +128,7 @@ class _ExceptionUtil(object):
 
     @staticmethod
     def raiseException(errorCode, description=None):
+        """Throw the appropriate exception for the specified 'errorCode'."""
         if description is None:
             description = internals.blpapi_getLastErrorDescription(errorCode)
             if not description:
@@ -96,6 +138,9 @@ class _ExceptionUtil(object):
 
     @staticmethod
     def raiseOnError(errorCode, description=None):
+        """Throw the appropriate exception for the specified 'errorCode' if the
+        'errorCode != 0'.
+        """
         if errorCode:
             _ExceptionUtil.raiseException(errorCode, description)
 

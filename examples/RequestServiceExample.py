@@ -1,9 +1,12 @@
 # RequestServiceExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
+# compatibility between python 2 and 3
+from blpapi.compat import with_metaclass
 import datetime
 import time
-import thread
 import threading
 from optparse import OptionParser, OptionValueError
 
@@ -19,11 +22,11 @@ g_running = True
 g_mutex = threading.Lock()
 
 
+@with_metaclass(blpapi.utils.MetaClassForClassesWithEnums)
 class AuthorizationStatus:
     WAITING = 1
     AUTHORIZED = 2
     FAILED = 3
-    __metaclass__ = blpapi.utils.MetaClassForClassesWithEnums
 
 
 g_authorizationStatus = dict()
@@ -36,21 +39,21 @@ class MyProviderEventHandler(object):
     def processEvent(self, event, session):
         global g_running
 
-        print "Server received an event"
+        print("Server received an event")
         if event.eventType() == blpapi.Event.SESSION_STATUS:
             for msg in event:
-                print msg
+                print(msg)
                 if msg.messageType() == SESSION_TERMINATED:
                     g_running = False
 
         elif event.eventType() == blpapi.Event.RESOLUTION_STATUS:
             for msg in event:
-                print msg
+                print(msg)
 
         elif event.eventType() == blpapi.Event.REQUEST:
             service = session.getService(self.serviceName)
             for msg in event:
-                print msg
+                print(msg)
 
                 if msg.messageType() == blpapi.Name("ReferenceDataRequest"):
                     # Similar to createPublishEvent. We assume just one
@@ -61,7 +64,7 @@ class MyProviderEventHandler(object):
                     if msg.hasElement("timestamp"):
                         requestTime = msg.getElementAsFloat("timestamp")
                         latency = time.time() - requestTime
-                        print "Response latency =", latency
+                        print("Response latency =", latency)
 
                     response = \
                         service.createResponseEvent(msg.correlationIds()[0])
@@ -98,7 +101,7 @@ class MyProviderEventHandler(object):
 
         else:
             for msg in event:
-                print msg
+                print(msg)
                 cids = msg.correlationIds()
                 with g_mutex:
                     for cid in cids:
@@ -115,9 +118,9 @@ class MyProviderEventHandler(object):
 
 class MyRequesterEventHandler(object):
     def processEvent(self, event, session):
-        print "Client received an event"
+        print("Client received an event")
         for msg in event:
-            print msg
+            print(msg)
             cids = msg.correlationIds()
             with g_mutex:
                 for cid in cids:
@@ -219,10 +222,10 @@ def parseCmdLine():
 
 
 def serverRun(session, options):
-    print "Server is starting------"
+    print("Server is starting------")
 
     if not session.start():
-        print "Failed to start server session."
+        print("Failed to start server session.")
         return
 
     providerIdentity = session.createIdentity()
@@ -236,19 +239,19 @@ def serverRun(session, options):
                 authService, providerIdentity, session,
                 blpapi.CorrelationId("sauth"))
         if not isAuthorized:
-            print "No authorization"
+            print("No authorization")
             return
 
     if not session.registerService(options.service, providerIdentity):
-        print "Failed to register", options.service
+        print("Failed to register", options.service)
         return
 
 
 def clientRun(session, options):
-    print "Client is starting------"
+    print("Client is starting------")
 
     if not session.start():
-        print "Failed to start client session."
+        print("Failed to start client session.")
         return
 
     identity = session.createIdentity()
@@ -262,11 +265,11 @@ def clientRun(session, options):
                 authService, identity, session,
                 blpapi.CorrelationId("cauth"))
         if not isAuthorized:
-            print "No authorization"
+            print("No authorization")
             return
 
     if not session.openService(options.service):
-        print "Failed to open", options.service
+        print("Failed to open", options.service)
         return
 
     service = session.getService(options.service)
@@ -285,7 +288,7 @@ def clientRun(session, options):
 
     request.set("timestamp", time.time())
 
-    print "Sendind Request:", request
+    print("Sendind Request:", request)
 
     eventQueue = blpapi.EventQueue()
     session.sendRequest(request, identity, blpapi.CorrelationId("AddRequest"),
@@ -298,14 +301,14 @@ def clientRun(session, options):
         if event.eventType() == blpapi.Event.TIMEOUT:
             continue
 
-        print "Client received an event"
+        print("Client received an event")
         for msg in event:
             with g_mutex:
                 if event.eventType() == blpapi.Event.RESPONSE:
                     if msg.hasElement("timestamp"):
                         responseTime = msg.getElementAsFloat("timestamp")
-                        print "Response latency =", time.time() - responseTime
-                print msg
+                        print("Response latency =", time.time() - responseTime)
+                print(msg)
 
         if event.eventType() == blpapi.Event.RESPONSE:
             break
@@ -324,14 +327,14 @@ def authorize(authService, identity, session, cid):
     if ev.eventType() == blpapi.Event.TOKEN_STATUS or \
             ev.eventType() == blpapi.Event.REQUEST_STATUS:
         for msg in ev:
-            print msg
+            print(msg)
             if msg.messageType() == TOKEN_SUCCESS:
                 token = msg.getElementAsString(TOKEN)
             elif msg.messageType() == TOKEN_FAILURE:
                 break
 
     if not token:
-        print "Failed to get token"
+        print("Failed to get token")
         return False
 
     # Create and fill the authorithation request
@@ -367,8 +370,8 @@ def main():
     sessionOptions.setAutoRestartOnDisconnection(True)
     sessionOptions.setNumStartAttempts(len(options.hosts))
 
-    print "Connecting to port %d on %s" % (
-        options.port, ", ".join(options.hosts))
+    print("Connecting to port %d on %s" % (
+        options.port, ", ".join(options.hosts)))
 
     providerEventHandler = MyProviderEventHandler(options.service)
     providerSession = blpapi.ProviderSession(sessionOptions,
@@ -385,8 +388,8 @@ def main():
         clientRun(requesterSession, options)
 
     # wait for enter key to exit application
-    print "Press ENTER to quit"
-    raw_input()
+    print("Press ENTER to quit")
+    input()
 
     if options.role in ["server", "both"]:
         providerSession.stop()
@@ -396,11 +399,11 @@ def main():
 
 
 if __name__ == "__main__":
-    print "RequestServiceExample"
+    print("RequestServiceExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

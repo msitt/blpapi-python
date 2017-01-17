@@ -1,4 +1,6 @@
 # SubscriptionWithEventHandlerExample.py
+from __future__ import print_function
+from __future__ import absolute_import
 
 import blpapi
 from optparse import OptionParser
@@ -18,17 +20,17 @@ class SubscriptionEventHandler(object):
 
     def processSubscriptionStatus(self, event):
         timeStamp = self.getTimeStamp()
-        print "Processing SUBSCRIPTION_STATUS"
+        print("Processing SUBSCRIPTION_STATUS")
         for msg in event:
             topic = msg.correlationIds()[0].value()
-            print "%s: %s - %s" % (timeStamp, topic, msg.messageType())
+            print("%s: %s - %s" % (timeStamp, topic, msg.messageType()))
 
             if msg.hasElement(REASON):
                 # This can occur on SubscriptionFailure.
                 reason = msg.getElement(REASON)
-                print "        %s: %s" % (
+                print("        %s: %s" % (
                     reason.getElement(CATEGORY).getValueAsString(),
-                    reason.getElement(DESCRIPTION).getValueAsString())
+                    reason.getElement(DESCRIPTION).getValueAsString()))
 
             if msg.hasElement(EXCEPTIONS):
                 # This can occur on SubscriptionStarted if at least
@@ -37,30 +39,30 @@ class SubscriptionEventHandler(object):
                 for exInfo in exceptions.values():
                     fieldId = exInfo.getElement(FIELD_ID)
                     reason = exInfo.getElement(REASON)
-                    print "        %s: %s" % (
+                    print("        %s: %s" % (
                         fieldId.getValueAsString(),
-                        reason.getElement(CATEGORY).getValueAsString())
+                        reason.getElement(CATEGORY).getValueAsString()))
 
     def processSubscriptionDataEvent(self, event):
         timeStamp = self.getTimeStamp()
-        print
-        print "Processing SUBSCRIPTION_DATA"
+        print()
+        print("Processing SUBSCRIPTION_DATA")
         for msg in event:
             topic = msg.correlationIds()[0].value()
-            print "%s: %s - %s" % (timeStamp, topic, msg.messageType())
+            print("%s: %s - %s" % (timeStamp, topic, msg.messageType()))
             for field in msg.asElement().elements():
                 if field.numValues() < 1:
-                    print "        %s is NULL" % field.name()
+                    print("        %s is NULL" % field.name())
                     continue
 
                 # Assume all values are scalar.
-                print "        %s = %s" % (field.name(),
-                                           field.getValueAsString())
+                print("        %s = %s" % (field.name(),
+                                           field.getValueAsString()))
 
     def processMiscEvents(self, event):
         timeStamp = self.getTimeStamp()
         for msg in event:
-            print "%s: %s" % (timeStamp, msg.messageType())
+            print("%s: %s" % (timeStamp, msg.messageType()))
 
     def processEvent(self, event, session):
         try:
@@ -71,7 +73,7 @@ class SubscriptionEventHandler(object):
             else:
                 return self.processMiscEvents(event)
         except blpapi.Exception as e:
-            print "Library Exception !!! %s" % e.description()
+            print("Library Exception !!! %s" % e.description())
         return False
 
 
@@ -126,7 +128,7 @@ def main():
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(options.port)
 
-    print "Connecting to %s:%d" % (options.host, options.port)
+    print("Connecting to %s:%d" % (options.host, options.port))
 
     eventHandler = SubscriptionEventHandler()
     # Create a Session
@@ -134,14 +136,14 @@ def main():
 
     # Start a Session
     if not session.start():
-        print "Failed to start session."
+        print("Failed to start session.")
         return
 
-    print "Connected successfully"
+    print("Connected successfully")
 
     service = "//blp/mktdata"
     if not session.openService(service):
-        print "Failed to open %s service" % service
+        print("Failed to open %s service" % service)
         return
 
     subscriptions = blpapi.SubscriptionList()
@@ -153,23 +155,23 @@ def main():
         subscriptions.add(topic, options.fields, options.options,
                           blpapi.CorrelationId(t))
 
-    print "Subscribing..."
+    print("Subscribing...")
     session.subscribe(subscriptions)
 
     try:
         # Wait for enter key to exit application
-        print "Press ENTER to quit"
-        raw_input()
+        print("Press ENTER to quit")
+        input()
     finally:
         # Stop the session
         session.stop()
 
 if __name__ == "__main__":
-    print "SubscriptionWithEventHandlerExample"
+    print("SubscriptionWithEventHandlerExample")
     try:
         main()
     except KeyboardInterrupt:
-        print "Ctrl+C pressed. Stopping..."
+        print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.
