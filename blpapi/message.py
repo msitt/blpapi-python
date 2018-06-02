@@ -32,9 +32,24 @@ class Message(object):
     Message contents are represented as an Element and all Elements accessors
     could be used to access the data.
 
+    Class attributes:
+        The possible types of fragment types:
+        FRAGMENT_NONE           Unfragmented message
+        FRAGMENT_START          Start of a fragmented message
+        FRAGMENT_INTERMEDIATE   Intermediate fragment
+        FRAGMENT_END            Final part of a fragmented message
     """
 
     __handle = None
+
+    FRAGMENT_NONE = internals.MESSAGE_FRAGMENT_NONE
+    """Unfragmented message"""
+    FRAGMENT_START = internals.MESSAGE_FRAGMENT_START
+    """Start of a fragmented message"""
+    FRAGMENT_INTERMEDIATE = internals.MESSAGE_FRAGMENT_INTERMEDIATE
+    """Intermediate fragment"""
+    FRAGMENT_END = internals.MESSAGE_FRAGMENT_END
+    """Final part of a fragmented message"""
 
     def __init__(self, handle, event=None, sessions=None):
         internals.blpapi_Message_addRef(handle)
@@ -74,6 +89,14 @@ class Message(object):
         """Return the type of this message as a Name."""
         return Name._createInternally(
             internals.blpapi_Message_messageType(self.__handle))
+
+    def fragmentType(self):
+        """Return the frament type
+
+        The fragment type is one of MESSAGE_FRAGMENT_NONE,
+        MESSAGE_FRAGMENT_START, MESSAGE_FRAGMENT_INTERMEDIATE or
+        MESSAGE_FRAGMENT_END."""
+        return internals.blpapi_Message_fragmentType(self.__handle)
 
     def topicName(self):
         """Return a string containing the topic string of this message.

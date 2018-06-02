@@ -4,29 +4,31 @@
 setup.py file for Bloomberg Python SDK
 """
 
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 import os
 import platform as plat
 from sys import version
 
 platform = plat.system().lower()
+versionString = '3.9.2'
 
 if version < '2.6':
     raise Exception(
         "Python versions before 2.6 are not supported (current version is " +
 	version + ")")
 
-if not ('BLPAPI_ROOT' in os.environ):
-    raise Exception("BLPAPI_ROOT environment variable isn't defined")
+blpapiRoot = os.environ.get('BLPAPI_ROOT')
+blpapiIncludesVar = os.environ.get('BLPAPI_INCDIR')
+blpapiLibVar = os.environ.get('BLPAPI_LIBDIR')
+
+assert blpapiRoot or (blpapiIncludesVar and blpapiLibVar), \
+        "BLPAPI_ROOT environment variable isn't defined"
 
 is64bit = plat.architecture()[0] == '64bit'
 if is64bit:
     blpapiLibraryName = 'blpapi3_64'
 else:
     blpapiLibraryName = 'blpapi3_32'
-
-blpapiRoot = os.environ['BLPAPI_ROOT']
-blpapiIncludes = os.path.join(blpapiRoot, 'include')
 
 if platform == 'windows':
     blpapiLibraryPath = os.path.join(blpapiRoot, 'lib')
@@ -47,6 +49,9 @@ elif platform == 'darwin':
 else:
     raise Exception("Platform '" + platform + "' isn't supported")
 
+blpapiLibraryPath = blpapiLibVar or blpapiLibraryPath
+blpapiIncludes = blpapiIncludesVar or os.path.join(blpapiRoot, 'include')
+
 blpapi_wrap = Extension(
     'blpapi._internals',
     sources=['blpapi/internals_wrap.cxx'],
@@ -58,7 +63,7 @@ blpapi_wrap = Extension(
 
 setup(
     name='blpapi',
-    version='3.9.0',
+    version=versionString,
     author='Bloomberg L.P.',
     author_email='open-tech@bloomberg.net',
     description='Python SDK for Bloomberg BLPAPI (<=3.9)',

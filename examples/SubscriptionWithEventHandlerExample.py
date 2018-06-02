@@ -12,7 +12,7 @@ FIELD_ID = blpapi.Name("fieldId")
 REASON = blpapi.Name("reason")
 CATEGORY = blpapi.Name("category")
 DESCRIPTION = blpapi.Name("description")
-
+ERROR_INFO = blpapi.Name("ErrorInfo")
 
 class SubscriptionEventHandler(object):
     def getTimeStamp(self):
@@ -28,9 +28,10 @@ class SubscriptionEventHandler(object):
             if msg.hasElement(REASON):
                 # This can occur on SubscriptionFailure.
                 reason = msg.getElement(REASON)
-                print("        %s: %s" % (
-                    reason.getElement(CATEGORY).getValueAsString(),
-                    reason.getElement(DESCRIPTION).getValueAsString()))
+                if reason.elementDefinition().name() == ERROR_INFO:
+                    print("        %s: %s" % (
+                        reason.getElement(CATEGORY).getValueAsString(),
+                        reason.getElement(DESCRIPTION).getValueAsString()))
 
             if msg.hasElement(EXCEPTIONS):
                 # This can occur on SubscriptionStarted if at least
@@ -107,6 +108,7 @@ def parseCmdLine():
                       dest="options",
                       help="subscription options (default: empty)",
                       metavar="option",
+                      action="append",
                       default=[])
 
     (options, args) = parser.parse_args()

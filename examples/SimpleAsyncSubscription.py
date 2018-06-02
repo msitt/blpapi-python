@@ -230,7 +230,7 @@ def main():
     # Start dispatcher to "pump" the received events
     dispatcher.start()
 
-    # Start session asyncroniously
+    # Start session asynchronously
     if not session.startAsync():
         raise Exception("Can't initiate session start.")
 

@@ -1,10 +1,20 @@
-Revision history for Bloomberg Python SDK.
+Version 3.9.2:
+==============
+- Fix Message.fragmentType
+
+Version 3.9.1:
+==============
+- DPKG support
+- Fix argument handling in LocalMktDataSubscriptionExample.py
+- Fix ErrorInfo processing bug in SubscriptionWIthEventHandlerExample.py
+- Fix missing dependency on the binary package
+- Add support PyPI with wheels
+- Add Message.fragmentType
 
 Version 3.9.0:
 ==============
-
-- support for all new interfaces included in blpapi release 3.9
-- python 3 support
+- Support for all new interfaces included in blpapi release 3.9
+- Python 3 support
 
 Version 3.7:
 ==============

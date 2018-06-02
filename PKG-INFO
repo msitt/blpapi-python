@@ -1,6 +1,6 @@
-Metadata-Version: 1.0
+Metadata-Version: 1.1
 Name: blpapi
-Version: 3.9.0
+Version: 3.9.2
 Summary: Python SDK for Bloomberg BLPAPI (<=3.9)
 Home-page: http://www.bloomberglabs.com/api/
 Author: Bloomberg L.P.
