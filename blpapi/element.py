@@ -432,7 +432,8 @@ class Element(object):
         """
 
         self.__assertIsValid()
-        res = internals.blpapi_Element_getValueAsDatetime(self.__handle, index)
+        res = internals.blpapi_Element_getValueAsHighPrecisionDatetime(
+                self.__handle, index)
         _ExceptionUtil.raiseOnError(res[0])
         return _DatetimeUtil.convertToNative(res[1])
 

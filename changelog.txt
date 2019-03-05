@@ -1,3 +1,37 @@
+Version 3.12.2:
+===============
+- Stability and performance improvements
+
+Version 3.12.1:
+===============
+- Stability and performance improvements
+
+Version 3.12.0:
+===============
+- Add SessionOptions.toString() and SessionOptions.__str__
+- Add version helpers
+- Python3.7 compatibility
+	- Deprecated the named parameter 'async' for blpapi.EventFormatter.stop in
+	favor of 'async_'. 'async' is a reserved keyword with Python3.7.
+
+Version 3.11.0:
+===============
+- Add support for zero footprint connections
+- Add support for fragmented recaps
+- Add support for consuming microseconds
+
+Version 3.10.0:
+===============
+- Documentation change
+	Clarify the meaning of integer priorities in 'ProviderSession'. Greater 
+	values indicate higher priorities.
+
+- Add support for 3.10 features
+	- Provide access to the Message recap type
+	- Enable configuration of service timeouts in SessionOptions
+	- Add support for publisher terminated subscriptions
+	For more details on these features, please refer to the C++ release notes
+
 Version 3.9.2:
 ==============
 - Fix Message.fragmentType

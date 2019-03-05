@@ -9,8 +9,9 @@ import os
 import platform as plat
 from sys import version
 
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
 platform = plat.system().lower()
-versionString = '3.9.2'
+versionString = '3.12.2'
 
 if version < '2.6':
     raise Exception(
@@ -61,13 +62,22 @@ blpapi_wrap = Extension(
     extra_link_args=extraLinkArgs
 )
 
+versionhelper_wrap = Extension(
+    'blpapi._versionhelper',
+    sources=['blpapi/versionhelper_wrap.cxx'],
+    include_dirs=[blpapiIncludes],
+    library_dirs=[blpapiLibraryPath],
+    libraries=[blpapiLibraryName],
+    extra_link_args=extraLinkArgs
+)
+
 setup(
     name='blpapi',
     version=versionString,
     author='Bloomberg L.P.',
     author_email='open-tech@bloomberg.net',
-    description='Python SDK for Bloomberg BLPAPI (<=3.9)',
-    ext_modules=[blpapi_wrap],
+    description='Python SDK for Bloomberg BLPAPI',
+    ext_modules=[blpapi_wrap, versionhelper_wrap],
     url='http://www.bloomberglabs.com/api/',
     packages=["blpapi"],
     classifiers=[

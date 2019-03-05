@@ -12,9 +12,9 @@ from .datetime import _DatetimeUtil
 from .message import Message
 from .name import Name, getNamePair
 from . import internals
-from .internals import CorrelationId
+from .utils import get_handle, invoke_if_valid
 
-
+#pylint: disable=useless-object-inheritance
 class EventFormatter(object):
     """EventFormatter is used to populate 'Event's for publishing.
 
@@ -63,7 +63,7 @@ class EventFormatter(object):
     __nameTraits = (
         internals.blpapi_EventFormatter_setValueFromName,
         internals.blpapi_EventFormatter_appendValueFromName,
-        Name._handle)
+        Name._handle) #pylint: disable=protected-access
 
     __stringTraits = (
         internals.blpapi_EventFormatter_setValueString,
@@ -75,27 +75,27 @@ class EventFormatter(object):
         internals.blpapi_EventFormatter_appendValueString,
         str)
 
+    #pylint: disable=too-many-return-statements
     @staticmethod
     def __getTraits(value):
+        """Returns traits for value based on its type"""
         if isinstance(value, str):
             return EventFormatter.__stringTraits
-        elif isinstance(value, bool):
+        if isinstance(value, bool):
             return EventFormatter.__boolTraits
-        elif isinstance(value, int):
-            if value >= -(2 ** 31) and value <= (2 ** 31 - 1):
+        if isinstance(value, int):
+            if -(2 ** 31) <= value <= (2 ** 31 - 1):
                 return EventFormatter.__int32Traits
-            elif value >= -(2 ** 63) and value <= (2 ** 63 - 1):
+            if -(2 ** 63) <= value <= (2 ** 63 - 1):
                 return EventFormatter.__int64Traits
-            else:
-                raise ValueError("value is out of supported range")
-        elif isinstance(value, float):
+            raise ValueError("value is out of supported range")
+        if isinstance(value, float):
             return EventFormatter.__floatTraits
-        elif _DatetimeUtil.isDatetime(value):
+        if _DatetimeUtil.isDatetime(value):
             return EventFormatter.__datetimeTraits
-        elif isinstance(value, Name):
+        if isinstance(value, Name):
             return EventFormatter.__nameTraits
-        else:
-            return EventFormatter.__defaultTraits
+        return EventFormatter.__defaultTraits
 
     def __init__(self, event):
         """Create an EventFormatter to create Messages in the specified 'event'
@@ -106,7 +106,8 @@ class EventFormatter(object):
         Event will result in an exception being raised.
         """
 
-        self.__handle = internals.blpapi_EventFormatter_create(event._handle())
+        self.__handle = internals.blpapi_EventFormatter_create(
+            get_handle(event))
 
     def __del__(self):
         try:
@@ -141,14 +142,14 @@ class EventFormatter(object):
                     self.__handle,
                     name[0],
                     name[1],
-                    topic._handle()))
+                    get_handle(topic)))
         else:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_EventFormatter_appendMessageSeq(
                     self.__handle,
                     name[0],
                     name[1],
-                    topic._handle(),
+                    get_handle(topic),
                     sequenceNumber,
                     0))
 
@@ -169,7 +170,8 @@ class EventFormatter(object):
                 name[1]))
 
     def appendRecapMessage(self, topic, correlationId=None,
-                           sequenceNumber=None):
+                           sequenceNumber=None,
+                           fragmentType=Message.FRAGMENT_NONE):
         """Append a (empty) recap message that will be published.
 
         Append a (empty) recap message that will be published under the
@@ -183,23 +185,49 @@ class EventFormatter(object):
         After a message has been appended its elements can be set using
         the various 'setElement()' methods. It is an error to create append
         a recap message to an Admin event.
+
+        Single-tick recap messages should have
+        'fragmentType'= Message.FRAGMENT_NONE. Multi-tick recaps can have
+        either Message.FRAGMENT_START, Message.FRAGMENT_INTERMEDIATE, or
+        Message.FRAGMENT_END as the 'fragmentType'.
         """
-        cIdHandle = None if correlationId is None else correlationId._handle()
+        # pylint: disable=line-too-long
+        cIdHandle = None if correlationId is None else get_handle(correlationId)
 
         if sequenceNumber is None:
-            _ExceptionUtil.raiseOnError(
-                internals.blpapi_EventFormatter_appendRecapMessage(
-                    self.__handle,
-                    topic._handle(),
-                    cIdHandle))
+            if fragmentType == Message.FRAGMENT_NONE:
+                _ExceptionUtil.raiseOnError(
+                    internals.blpapi_EventFormatter_appendRecapMessage(
+                        self.__handle,
+                        get_handle(topic),
+                        cIdHandle))
+            else:
+                _ExceptionUtil.raiseOnError(
+                    internals.blpapi_EventFormatter_appendFragmentedRecapMessage(
+                        self.__handle,
+                        None,
+                        None,
+                        get_handle(topic),
+                        cIdHandle,
+                        fragmentType))
         else:
-            _ExceptionUtil.raiseOnError(
-                internals.blpapi_EventFormatter_appendRecapMessageSeq(
-                    self.__handle,
-                    topic._handle(),
-                    cIdHandle,
-                    sequenceNumber,
-                    0))
+            if fragmentType == Message.FRAGMENT_NONE:
+                _ExceptionUtil.raiseOnError(
+                    internals.blpapi_EventFormatter_appendRecapMessageSeq(
+                        self.__handle,
+                        get_handle(topic),
+                        cIdHandle,
+                        sequenceNumber,
+                        0))
+            else:
+                _ExceptionUtil.raiseOnError(
+                    internals.blpapi_EventFormatter_appendFragmentedRecapMessageSeq(
+                        self.__handle,
+                        None,
+                        None,
+                        get_handle(topic),
+                        fragmentType,
+                        sequenceNumber))
 
     def setElement(self, name, value):
         """Set the element with the specified 'name' to the specified 'value'.
@@ -216,8 +244,7 @@ class EventFormatter(object):
         """
         traits = EventFormatter.__getTraits(value)
         name = getNamePair(name)
-        if traits[2] is not None:
-            value = traits[2](value)
+        value = invoke_if_valid(traits[2], value)
         _ExceptionUtil.raiseOnError(
             traits[0](self.__handle, name[0], name[1], value))
 
@@ -247,10 +274,11 @@ class EventFormatter(object):
         this returns the context of the EventFormatter is set to the element
         'name' in the schema and any calls to 'setElement()' or 'pushElement()'
         are applied at that level. If 'name' represents an array of scalars then
-        'appendValue()' must be used to add values. If 'name' represents an array
-        of complex types then 'appendElement()' creates the first entry and set
-        the context of the EventFormatter to that element.  Calling
-        'appendElement()' again will create another entry.
+        'appendValue()' must be used to add values.
+        If 'name' represents an array of complex types then 'appendElement()'
+        creates the first entry and sets the context of the EventFormatter
+        to that element.  Calling  'appendElement()' again will create
+        another entry.
         """
         name = getNamePair(name)
         _ExceptionUtil.raiseOnError(
@@ -273,8 +301,7 @@ class EventFormatter(object):
 
     def appendValue(self, value):
         traits = EventFormatter.__getTraits(value)
-        if traits[2] is not None:
-            value = traits[2](value)
+        value = invoke_if_valid(traits[2], value)
         _ExceptionUtil.raiseOnError(traits[1](self.__handle, value))
 
     def appendElement(self):

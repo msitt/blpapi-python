@@ -10,6 +10,7 @@ Sessions through callbacks.
 
 
 from . import internals
+import warnings
 
 
 class EventDispatcher(object):
@@ -59,21 +60,32 @@ class EventDispatcher(object):
 
         return internals.blpapi_EventDispatcher_start(self.__handle)
 
-    def stop(self, async=False):
+    def stop(self, async_=False, **kwargs):
         """Stop generating callbacks.
 
         Stop generating callbacks for events from sessions associated with this
-        EventDispatcher. If the specified 'async' is False (the default) then
+        EventDispatcher. If the specified 'async_' is False (the default) then
         this method blocks until all current callbacks which were dispatched
-        through this EventDispatcher have completed. If 'async' is True, this
+        through this EventDispatcher have completed. If 'async_' is True, this
         method returns immediately and no further callbacks will be dispatched.
 
-        Note: If stop is called with 'async' of False from within a callback
-        dispatched by this EventDispatcher then the 'async' parameter is
+        Note: If stop is called with 'async_' of False from within a callback
+        dispatched by this EventDispatcher then the 'async_' parameter is
         overridden to True.
         """
 
-        return internals.blpapi_EventDispatcher_stop(self.__handle, async)
+        if 'async' in kwargs:
+            warnings.warn(
+                    "async parameter has been deprecated in favor of async_",
+                    DeprecationWarning)
+            async_ = kwargs.pop('async')
+
+        if kwargs:
+            raise TypeError("EventDispatcher.stop() got an unexpected keyword "
+                    "argument. Only 'async' is allowed for backwards "
+                    "compatibility.")
+
+        return internals.blpapi_EventDispatcher_stop(self.__handle, async_)
 
     def _handle(self):
         """Return the internal implementation."""

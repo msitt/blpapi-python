@@ -153,14 +153,14 @@ def auth(session):
     # Obtain opened service
     authService = session.getService(AUTH_SERVICE)
 
-    # Create and fill the authorithation request
+    # Create and fill the authorization request
     authRequest = authService.createAuthorizationRequest()
     authRequest.set(TOKEN, token)
 
     # Create Identity
     identity = session.createIdentity()
 
-    # Send authorithation request to "fill" the Identity
+    # Send authorization request to "fill" the Identity
     session.sendAuthorizationRequest(authRequest, identity, eventQueue=eq)
 
     # Process related responses

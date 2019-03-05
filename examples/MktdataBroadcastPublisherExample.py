@@ -167,11 +167,11 @@ def authorize(authService, identity, session, cid):
         print("Failed to get token")
         return False
 
-    # Create and fill the authorithation request
+    # Create and fill the authorization request
     authRequest = authService.createAuthorizationRequest()
     authRequest.set(TOKEN, token)
 
-    # Send authorithation request to "fill" the Identity
+    # Send authorization request to "fill" the Identity
     session.sendAuthorizationRequest(authRequest, identity, cid)
 
     # Process related responses

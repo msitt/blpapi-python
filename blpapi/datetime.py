@@ -88,15 +88,30 @@ UTC = FixedOffset(0)
 class _DatetimeUtil(object):
     """Utility methods that deal with BLPAPI dates and times."""
     @staticmethod
-    def convertToNative(blpapiDatetime):
+    def convertToNative(blpapiDatetimeObj):
         """Convert BLPAPI Datetime object to a suitable Python object."""
+
+        isHighPrecision = isinstance(blpapiDatetimeObj,
+                internals.blpapi_HighPrecisionDatetime_tag)
+
+        if isHighPrecision:
+            # used for (get/set)Element, (get/set/append)Value methods
+            blpapiDatetime = blpapiDatetimeObj.datetime
+        else:
+            # used by:
+            # * blpapi_Constant_getValue
+            # * blpapi_HighResolutionClock_now_wrapper
+            blpapiDatetime = blpapiDatetimeObj
+
         parts = blpapiDatetime.parts
         hasDate = parts & internals.DATETIME_DATE_PART == \
             internals.DATETIME_DATE_PART
         hasTime = parts & internals.DATETIME_TIME_PART == \
             internals.DATETIME_TIME_PART
-        mlsecs = blpapiDatetime.milliSeconds * 1000 if parts & \
+        microsecs = blpapiDatetime.milliSeconds * 1000 if parts & \
             internals.DATETIME_MILLISECONDS_PART else 0
+        if isHighPrecision and parts & internals.DATETIME_FRACSECONDS_PART:
+            microsecs += blpapiDatetimeObj.picoseconds // 1000 // 1000
         tzinfo = FixedOffset(blpapiDatetime.offset) if parts & \
             internals.DATETIME_OFFSET_PART else None
         if hasDate:
@@ -107,7 +122,7 @@ class _DatetimeUtil(object):
                                     blpapiDatetime.hours,
                                     blpapiDatetime.minutes,
                                     blpapiDatetime.seconds,
-                                    mlsecs,
+                                    microsecs,
                                     tzinfo)
             else:
                 # Skip an offset, because it's not informative in case of
@@ -122,7 +137,7 @@ parts", blpapiDatetime)
             return _dt.time(blpapiDatetime.hours,
                             blpapiDatetime.minutes,
                             blpapiDatetime.seconds,
-                            mlsecs,
+                            microsecs,
                             tzinfo)
 
     @staticmethod

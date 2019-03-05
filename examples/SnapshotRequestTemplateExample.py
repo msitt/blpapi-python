@@ -1,4 +1,4 @@
-# LocalPageSubscriptionExample.py
+# SnapshotRequestTemplateExample.py
 from __future__ import print_function
 from __future__ import absolute_import
 
@@ -40,7 +40,7 @@ def authOptionCallback(option, opt, value, parser):
 
 
 def parseCmdLine():
-    parser = OptionParser(description="Page monitor.")
+    parser = OptionParser(description="Retrieve realtime data.")
     parser.add_option("-a",
                       "--ip",
                       dest="hosts",
@@ -58,11 +58,29 @@ def parseCmdLine():
                       dest="service",
                       help="service name (default: %default)",
                       metavar="service",
-                      default="//viper/page")
+                      default="//viper/mktdata")
+    parser.add_option("-t",
+                      dest="topics",
+                      help="topic name (default: /ticker/IBM Equity)",
+                      metavar="topic",
+                      action="append",
+                      default=[])
+    parser.add_option("-f",
+                      dest="fields",
+                      help="field to subscribe to (default: empty)",
+                      metavar="field",
+                      action="append",
+                      default=[])
+    parser.add_option("-o",
+                      dest="options",
+                      help="subscription options (default: empty)",
+                      metavar="option",
+                      action="append",
+                      default=[])
     parser.add_option("--me",
                       dest="maxEvents",
                       type="int",
-                      help="number of events to retrieve (default: %default)",
+                      help="stop after this many events (default: %default)",
                       metavar="maxEvents",
                       default=1000000)
     parser.add_option("--auth",
@@ -76,12 +94,15 @@ def parseCmdLine():
                       type="string",
                       default="user")
 
-    (options, args) = parser.parse_args()
+    (opts, args) = parser.parse_args()
 
-    if not options.hosts:
-        options.hosts = ["localhost"]
+    if not opts.hosts:
+        opts.hosts = ["localhost"]
 
-    return options
+    if not opts.topics:
+        opts.topics = ["/ticker/IBM US Equity"]
+
+    return opts
 
 
 def authorize(authService, identity, session, cid):
@@ -117,7 +138,7 @@ def authorize(authService, identity, session, cid):
     while True:
         event = session.nextEvent(WAIT_TIME_SECONDS * 1000)
         if event.eventType() == blpapi.Event.RESPONSE or \
-            event.eventType() == blpapi.Event.REQUEST_STATUS or \
+                event.eventType() == blpapi.Event.REQUEST_STATUS or \
                 event.eventType() == blpapi.Event.PARTIAL_RESPONSE:
             for msg in event:
                 print(msg)
@@ -132,6 +153,7 @@ def authorize(authService, identity, session, cid):
 
 
 def main():
+    global options
     options = parseCmdLine()
 
     # Fill SessionOptions
@@ -166,49 +188,69 @@ def main():
         authServiceName = "//blp/apiauth"
         if session.openService(authServiceName):
             authService = session.getService(authServiceName)
-            isAuthorized = authorize(
-                authService, subscriptionIdentity, session,
-                blpapi.CorrelationId("auth"))
+            isAuthorized = authorize(authService, subscriptionIdentity,
+                                     session, blpapi.CorrelationId("auth"))
         if not isAuthorized:
             print("No authorization")
             return
 
-    topic = options.service + "/1245/4/5"
-    topic2 = options.service + "/330/1/1"
-    subscriptions = blpapi.SubscriptionList()
-    subscriptions.add(topic, correlationId=blpapi.CorrelationId(topic))
-    subscriptions.add(topic2, correlationId=blpapi.CorrelationId(topic2))
+    fieldStr = "?fields=" + ",".join(options.fields)
 
-    session.subscribe(subscriptions, subscriptionIdentity)
+    snapshots = []
+    nextCorrelationId = 0
+    for i, topic in enumerate(options.topics):
+        subscriptionString = options.service + topic + fieldStr
+        snapshots.append(session.createSnapshotRequestTemplate(
+                                      subscriptionString,
+                                      subscriptionIdentity,
+                                      blpapi.CorrelationId(i)))
+        nextCorrelationId += 1
 
+    requestTemplateAvailable = blpapi.Name('RequestTemplateAvailable')
+    eventCount = 0
     try:
-        eventCount = 0
         while True:
             # Specify timeout to give a chance for Ctrl-C
             event = session.nextEvent(1000)
             for msg in event:
-                if event.eventType() == blpapi.Event.SUBSCRIPTION_STATUS or \
-                        event.eventType() == blpapi.Event.SUBSCRIPTION_DATA:
-                    print("%s - %s" % (msg.correlationIds()[0].value(), msg))
+                if event.eventType() == blpapi.Event.ADMIN and  \
+                        msg.messageType() == requestTemplateAvailable:
+
+                    for requestTemplate in snapshots:
+                        session.sendRequestTemplate(requestTemplate,
+                                    blpapi.CorrelationId(nextCorrelationId))
+                        nextCorrelationId += 1
+
+                elif event.eventType() == blpapi.Event.RESPONSE or \
+                        event.eventType() == blpapi.Event.PARTIAL_RESPONSE:
+
+                    cid = msg.correlationIds()[0].value()
+                    print("%s - %s" % (cid, msg))
                 else:
                     print(msg)
-            if event.eventType() == blpapi.Event.SUBSCRIPTION_DATA:
+            if event.eventType() == blpapi.Event.RESPONSE:
                 eventCount += 1
                 if eventCount >= options.maxEvents:
+                    print("%d events processed, terminating." % eventCount)
                     break
+            elif event.eventType() == blpapi.Event.TIMEOUT:
+                for requestTemplate in snapshots:
+                    session.sendRequestTemplate(requestTemplate,
+                                blpapi.CorrelationId(nextCorrelationId))
+                    nextCorrelationId += 1
+
     finally:
         session.stop()
 
-
 if __name__ == "__main__":
-    print("LocalPageSubscriptionExample")
+    print("SnapshotRequestTemplateExample")
     try:
         main()
     except KeyboardInterrupt:
         print("Ctrl+C pressed. Stopping...")
 
 __copyright__ = """
-Copyright 2012. Bloomberg Finance L.P.
+Copyright 2018. Bloomberg Finance L.P.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to

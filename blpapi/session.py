@@ -19,6 +19,7 @@ from .exception import _ExceptionUtil
 from . import internals
 from .internals import CorrelationId
 from .sessionoptions import SessionOptions
+from .requesttemplate import RequestTemplate
 
 
 class Session(AbstractSession):
@@ -389,6 +390,102 @@ class Session(AbstractSession):
         if eventQueue is not None:
             eventQueue._registerSession(self)
         return correlationId
+
+    def sendRequestTemplate(self, requestTemplate, correlationId=None):
+        """Send a request defined by the specified 'requestTemplate'. If the
+        optionally specified 'correlationId' is supplied, use it otherwise
+        create a new 'CorrelationId'. The actual 'CorrelationId' used is
+        returned.
+       
+        A successful request will generate zero or more 'PARTIAL_RESPONSE'
+        events followed by exactly one 'RESPONSE' event. Once the final
+        'RESPONSE' event has been received the 'CorrelationId' associated
+        with  this request may be re-used. If the request fails at any stage
+        a 'REQUEST_STATUS' will be generated after which the 'CorrelationId'
+        associated with the request may be re-used.
+        """
+        if correlationId is None:
+            correlationId = CorrelationId()
+        res = internals.blpapi_Session_sendRequestTemplate(
+                                                self.__handle,
+                                                requestTemplate._handle(),
+                                                correlationId._handle())
+        _ExceptionUtil.raiseOnError(res)
+        return correlationId
+
+    def createSnapshotRequestTemplate(self,
+                                      subscriptionString,
+                                      identity,
+                                      correlationId):
+        """Create a snapshot request template for getting subscription data
+        specified by the 'subscriptionString' using the specified 'identity' 
+        if all the following conditions are met: the session is
+        established, 'subscriptionString' is a valid subscription string and
+        'correlationId' is not used in this session. If one or more conditions
+        are not met, an exception is thrown. The provided 'correlationId' will
+        be used for status updates about the created request template state
+        and an implied subscription associated with it delivered by
+        'SUBSCRIPTION_STATUS' events.
+
+        The benefit of the snapshot request templates is that these requests
+        may be serviced from a cache and the user may expect to see
+        significantly lower response time.
+
+        There are 3 possible states for a created request template:
+        'Pending', 'Available', and 'Terminated'. Right after creation a
+        request template is in the 'Pending' state.
+
+        If a state is 'Pending', the user may send a request using this
+        template but there are no guarantees about response time since cache
+        is not available yet. Request template may transition into 'Pending'
+        state only from the 'Available' state. In this case the
+        'RequestTemplatePending' message is generated.
+
+        If state is 'Available', all requests will be serviced from a cache
+        and the user may expect to see significantly reduced latency. Note,
+        that a snapshot request template can transition out of the
+        'Available' state concurrently with requests being sent, so no
+        guarantee of service from the cache can be provided. Request
+        template may transition into 'Available' state only from the
+        'Pending' state. In this case the 'RequestTemplateAvailable' message
+        is generated. This message will also contain information about
+        currently used connection in the 'boundTo' field. Note that it is
+        possible to get the 'RequestTemplateAvailable' message with a new
+        connection information, even if a request template is already in the
+        'Available' state.
+
+        If state is 'Terminated', sending request will always result in a
+        failure response. Request template may transition into this state
+        from any other state. This is a final state and it is guaranteed
+        that the last message associated with the provided 'correlationId' will
+        be the 'RequestTemplateTerminated' message which is generated when a
+        request template transitions into this state. If a request template
+        transitions into this state, all outstanding requests will be failed
+        and appropriate messages will be generated for each request. After
+        receiving the 'RequestTemplateTerminated' message, 'correlationId' may
+        be reused.
+
+        Note that resources used by a snapshot request template are released
+        only when request template transitions into the 'Terminated' state
+        or when session is destroyed. In order to release resources when
+        request template is not needed anymore, user should call the
+        'Session::cancel(correlationId)' unless the 'RequestTemplateTerminated'
+        message was already received due to some problems. When the last
+        copy of a 'RequestTemplate' object goes out of scope and there are
+        no outstanding requests left, the snapshot request template will be
+        destroyed automatically. If the last copy of a 'RequestTemplate'
+        object goes out of scope while there are still some outstanding
+        requests left, snapshot service request template will be destroyed
+        automatically when the last request gets a final response.
+        """
+        rc, template = internals.blpapi_Session_createSnapshotRequestTemplate(
+                                                        self.__handle,
+                                                        subscriptionString,
+                                                        identity._handle(),
+                                                        correlationId._handle())
+        _ExceptionUtil.raiseOnError(rc)
+        reqTemplate = RequestTemplate(template)
+        return reqTemplate
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

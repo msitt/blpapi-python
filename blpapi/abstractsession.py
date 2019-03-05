@@ -17,7 +17,7 @@ identifiers without upper-case characters.  Note that the <namespace> and
 """
 
 
-
+from . import exception
 from .exception import _ExceptionUtil
 from .identity import Identity
 from .service import Service
@@ -223,20 +223,36 @@ class AbstractSession(object):
             None,  # no request label
             0))    # request label length 0
 
-    def generateToken(self, correlationId=None, eventQueue=None):
+    def generateToken(self, correlationId=None,
+                      eventQueue=None, authId=None, ipAddress=None):
         """Generate a token to be used for authorization.
 
-        If invalid authentication option is specified in session option or
-        there is failure to get authentication information based on
-        authentication option, then an InvalidArgumentException is raised.
+        The 'authId' and 'ipAddress' must be provided together and can only be
+        provided if the authentication mode is 'MANUAL'.
+
+        Raises 'InvalidArgumentException' if the authentication options in
+        'SessionOptions' or the arguments to the function are invalid.
         """
         if correlationId is None:
             correlationId = CorrelationId()
-        _ExceptionUtil.raiseOnError(
-            internals.blpapi_AbstractSession_generateToken(
-                self.__handle,
-                correlationId._handle(),
-                None if eventQueue is None else eventQueue._handle()))
+
+        if authId is None and ipAddress is None:
+            _ExceptionUtil.raiseOnError(
+                internals.blpapi_AbstractSession_generateToken(
+                    self.__handle,
+                    correlationId._handle(),
+                    None if eventQueue is None else eventQueue._handle()))
+        elif authId is not None and ipAddress is not None:
+            _ExceptionUtil.raiseOnError(
+                internals.blpapi_AbstractSession_generateManualToken(
+                    self.__handle,
+                    correlationId._handle(),
+                    authId,
+                    ipAddress,
+                    None if eventQueue is None else eventQueue._handle()))
+        else:
+            raise exception.InvalidArgumentException(
+                    "'authId' and 'ipAddress' must be provided together", 0)
         if eventQueue is not None:
             eventQueue._registerSession(self)
         return correlationId

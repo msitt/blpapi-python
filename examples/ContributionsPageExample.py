@@ -65,21 +65,38 @@ def authOptionCallback(option, opt, value, parser):
     vals = value.split('=', 1)
 
     if value == "user":
-        parser.values.auth = "AuthenticationType=OS_LOGON"
+        parser.values.auth = { 'option' : "AuthenticationType=OS_LOGON" }
     elif value == "none":
-        parser.values.auth = None
+        parser.values.auth = { 'option' : None }
     elif vals[0] == "app" and len(vals) == 2:
-        parser.values.auth = "AuthenticationMode=APPLICATION_ONLY;"\
+        parser.values.auth = { 'option' : "AuthenticationMode=APPLICATION_ONLY;"\
             "ApplicationAuthenticationType=APPNAME_AND_KEY;"\
-            "ApplicationName=" + vals[1]
+            "ApplicationName=" + vals[1] }
     elif vals[0] == "userapp" and len(vals) == 2:
-        parser.values.auth = "AuthenticationMode=USER_AND_APPLICATION;"\
+        parser.values.auth = { 'option' : "AuthenticationMode=USER_AND_APPLICATION;"\
             "AuthenticationType=OS_LOGON;"\
             "ApplicationAuthenticationType=APPNAME_AND_KEY;"\
-            "ApplicationName=" + vals[1]
+            "ApplicationName=" + vals[1] }
     elif vals[0] == "dir" and len(vals) == 2:
-        parser.values.auth = "AuthenticationType=DIRECTORY_SERVICE;"\
-            "DirSvcPropertyName=" + vals[1]
+        parser.values.auth = { 'option' : "AuthenticationType=DIRECTORY_SERVICE;"\
+            "DirSvcPropertyName=" + vals[1] }
+    elif vals[0] == "manual":
+        parts = []
+        if len(vals) == 2:
+            parts = vals[1].split(',')
+
+        # TODO: Add support for user+ip only
+        if len(parts) != 3:
+            raise OptionValueError("Invalid auth option '%s'" % value)
+
+        option = "AuthenticationMode=USER_AND_APPLICATION;" + \
+                 "AuthenticationType=MANUAL;" + \
+                 "ApplicationAuthenticationType=APPNAME_AND_KEY;" + \
+                 "ApplicationName=" + parts[0]
+
+        parser.values.auth = { 'option' : option,
+                               'manual'  : { 'ip'   : parts[1],
+                                             'user' : parts[2] } }
     else:
         raise OptionValueError("Invalid auth option '%s'" % value)
 
@@ -118,13 +135,36 @@ def parseCmdLine():
     parser.add_option("--auth",
                       dest="auth",
                       help="authentication option: "
-                      "user|none|app=<app>|userapp=<app>|dir=<property>"
+                      "user|none|app=<app>|userapp=<app>|dir=<property>|manual=<app,ip,user>"
                       " (default: %default)",
                       metavar="option",
                       action="callback",
                       callback=authOptionCallback,
                       type="string",
-                      default="user")
+                      default={ "option" : None })
+
+    # TLS Options
+    parser.add_option("--tls-client-credentials",
+                      dest="tls_client_credentials",
+                      help="name a PKCS#12 file to use as a source of client credentials",
+                      metavar="option",
+                      type="string")
+    parser.add_option("--tls-client-credentials-password",
+                      dest="tls_client_credentials_password",
+                      help="specify password for accessing client credentials",
+                      metavar="option",
+                      type="string",
+                      default="")
+    parser.add_option("--tls-trust-material",
+                      dest="tls_trust_material",
+                      help="name a PKCS#7 file to use as a source of trusted certificates",
+                      metavar="option",
+                      type="string")
+    parser.add_option("--read-certificate-files",
+                      dest="read_certificate_files",
+                      help="(optional) read the TLS files and pass the blobs",
+                      metavar="option",
+                      action="store_true")
 
     (options, args) = parser.parse_args()
 
@@ -133,15 +173,18 @@ def parseCmdLine():
 
     return options
 
-
-def authorize(authService, identity, session, cid):
+def authorize(authService, identity, session, cid, manual_options = None):
     with g_mutex:
         g_authorizationStatus[cid] = AuthorizationStatus.WAITING
 
     tokenEventQueue = blpapi.EventQueue()
 
-    # Generate token
-    session.generateToken(eventQueue=tokenEventQueue)
+    if manual_options:
+        session.generateToken(authId=manual_options['user'],
+                              ipAddress=manual_options['ip'],
+                              eventQueue=tokenEventQueue)
+    else:
+        session.generateToken(eventQueue=tokenEventQueue)
 
     # Process related response
     ev = tokenEventQueue.nextEvent()
@@ -154,15 +197,16 @@ def authorize(authService, identity, session, cid):
                 token = msg.getElementAsString(TOKEN)
             elif msg.messageType() == TOKEN_FAILURE:
                 break
+
     if not token:
         print("Failed to get token")
         return False
 
-    # Create and fill the authorithation request
+    # Create and fill the authorization request
     authRequest = authService.createAuthorizationRequest()
     authRequest.set(TOKEN, token)
 
-    # Send authorithation request to "fill" the Identity
+    # Send authorization request to "fill" the Identity
     session.sendAuthorizationRequest(authRequest, identity, cid)
 
     # Process related responses
@@ -180,6 +224,29 @@ def authorize(authService, identity, session, cid):
 
         time.sleep(1)
 
+def getTlsOptions(options):
+    if (options.tls_client_credentials is None or
+            options.tls_trust_material is None):
+        return None
+
+    print("TlsOptions enabled")
+    if (options.read_certificate_files):
+        credential_blob = None
+        trust_blob = None
+        with open(options.tls_client_credentials, 'rb') as credentialfile:
+            credential_blob = credentialfile.read()
+        with open(options.tls_trust_material, 'rb') as trustfile:
+            trust_blob = trustfile.read()
+
+        return blpapi.TlsOptions.createFromBlobs(
+                credential_blob,
+                options.tls_client_credentials_password,
+                trust_blob)
+    else:
+        return blpapi.TlsOptions.createFromFiles(
+                options.tls_client_credentials,
+                options.tls_client_credentials_password,
+                options.tls_trust_material)
 
 def main():
     options = parseCmdLine()
@@ -188,10 +255,13 @@ def main():
     sessionOptions = blpapi.SessionOptions()
     for idx, host in enumerate(options.hosts):
         sessionOptions.setServerAddress(host, options.port, idx)
-    sessionOptions.setAuthenticationOptions(options.auth)
+    sessionOptions.setAuthenticationOptions(options.auth['option'])
     sessionOptions.setAutoRestartOnDisconnection(True)
     sessionOptions.setNumStartAttempts(len(options.hosts))
 
+    tlsOptions = getTlsOptions(options)
+    if tlsOptions is not None:
+        sessionOptions.setTlsOptions(tlsOptions)
     myEventHandler = MyEventHandler()
 
     # Create a Session
@@ -205,20 +275,21 @@ def main():
 
     providerIdentity = session.createIdentity()
 
-    if options.auth:
+    if options.auth['option']:
         isAuthorized = False
         authServiceName = "//blp/apiauth"
         if session.openService(authServiceName):
             authService = session.getService(authServiceName)
             isAuthorized = authorize(
                 authService, providerIdentity, session,
-                blpapi.CorrelationId("auth"))
+                blpapi.CorrelationId("auth"),
+                options.auth.get('manual'))
         if not isAuthorized:
             print("No authorization")
             return
 
     topicList = blpapi.TopicList()
-    topicList.add(options.service + "/" + options.topic,
+    topicList.add(options.service + options.topic,
                   blpapi.CorrelationId(MyStream(options.topic)))
 
     # Create topics

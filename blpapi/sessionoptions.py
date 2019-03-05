@@ -59,6 +59,16 @@ class SessionOptions(object):
         except (NameError, AttributeError):
             pass
 
+    def __str__(self):
+        """x.__str__() <==> str(x)
+
+        Return a string representation of this SessionOptions. Call of
+        'str(options)' is equivalent to 'options.toString()' called with
+        default parameters.
+
+        """
+        return self.toString()
+
     def destroy(self):
         """Destroy this SessionOptions."""
         if self.__handle:
@@ -223,7 +233,7 @@ class SessionOptions(object):
 
     def setNumStartAttempts(self, numStartAttempts):
         """Set the maximum number of attempts to start a session.
-        
+
         Set the maximum number of attempts to start a session by connecting a
         server.
         """
@@ -313,6 +323,14 @@ class SessionOptions(object):
                 self.__handle, timeoutMsecs)
         _ExceptionUtil.raiseOnError(err)
 
+    def setFlushPublishedEventsTimeout(self, timeoutMsecs):
+        """Set the timeout, in milliseconds, for ProviderSession to flush
+        published events before stopping. The behavior is not defined
+        unless the specified 'timeoutMsecs' is a positive value. The 
+        default value is 2000."""
+        internals.blpapi_SessionOptions_setFlushPublishedEventsTimeout(
+            self.__handle, timeoutMsecs)
+
     def setRecordSubscriptionDataReceiveTimes(self, shouldRecord):
         """Set whether the receipt time (accessed via
         'blpapi.Message.timeReceived') should be recorded for subscription data
@@ -320,6 +338,29 @@ class SessionOptions(object):
         recorded."""
         internals.blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes(
                 self.__handle, shouldRecord)
+
+    def setServiceCheckTimeout(self, timeoutMsecs):
+        """Set the timeout, in milliseconds, when opening a service for checking
+         what version of the schema should be downloaded. The behavior is not
+         defined unless 'timeoutMsecs' is a positive value. The default timeout
+         is 60,000 milliseconds."""
+        err = internals.blpapi_SessionOptions_setServiceCheckTimeout(
+                                                    self.__handle, timeoutMsecs)
+        _ExceptionUtil.raiseOnError(err)
+
+    def setServiceDownloadTimeout(self, timeoutMsecs):
+        """Set the timeout, in milliseconds, when opening a service for
+        downloading the service schema. The behavior is not defined unless the
+        specified 'timeoutMsecs' is a positive value. The default timeout
+        is 120,000 milliseconds."""
+        err = internals.blpapi_SessionOptions_setServiceDownloadTimeout(
+                                                    self.__handle, timeoutMsecs)
+        _ExceptionUtil.raiseOnError(err)
+
+    def setTlsOptions(self, tlsOptions):
+        """Set the TLS options"""
+        internals.blpapi_SessionOptions_setTlsOptions(self.__handle,
+                                                      tlsOptions._handle())
 
     def serverHost(self):
         """Return the server host option in this SessionOptions instance."""
@@ -476,15 +517,117 @@ class SessionOptions(object):
         return internals.blpapi_SessionOptions_defaultKeepAliveResponseTimeout(
                 self.__handle)
 
+    def flushPublishedEventsTimeout(self):
+        """Return the timeout, in milliseconds, for ProviderSession to flush
+        published events before stopping. The default value is 2000."""
+        return internals.blpapi_SessionOptions_flushPublishedEventsTimeout(
+                 self.__handle)
+
     def keepAliveEnabled(self):
         """Return True if the keep-alive mechanism is enabled; otherwise
         return False."""
         return internals.blpapi_SessionOptions_keepAliveEnabled(self.__handle)
 
+    def serviceCheckTimeout(self):
+        """Return the value of the service check timeout option in this
+        SessionOptions instance in milliseconds."""
+        return internals.blpapi_SessionOptions_serviceCheckTimeout(self.__handle)
+
+    def serviceDownloadTimeout(self):
+        """Return the value of the service download timeout option in this
+        SessionOptions instance in milliseconds."""
+        return internals.blpapi_SessionOptions_serviceDownloadTimeout(self.__handle)
+
     def _handle(self):
         """Return the internal implementation."""
         return self.__handle
 
+    def toString(self, level=0, spacesPerLevel=4):
+        """Format this SessionOptions to the string.
+
+        You could optionally specify 'spacesPerLevel' - the number of spaces
+        per indentation level for this and all of its nested objects. If
+        'level' is negative, suppress indentation of the first line. If
+        'spacesPerLevel' is negative, format the entire output on one line,
+        suppressing all but the initial indentation (as governed by 'level').
+        """
+        return internals.blpapi_SessionOptions_printHelper(self.__handle,
+                                                           level,
+                                                           spacesPerLevel)
+
+class TlsOptions(object):
+    """SSL configuration options
+
+    TlsOptions instances maintain client credentials and trust material used
+    by a session to establish secure mutually authenticated connections to
+    endpoints.
+
+    The client credentials comprise an encrypted private key with a client
+    certificate. The trust material comprises one or more certificates.
+
+    TlsOptions objects are created using 'createFromFiles' or 'createFromBlobs'
+    accepting the DER encoded client credentials in PKCS#12 format and the DER
+    encoded trusted material in PKCS#7 format."""
+
+    def __init__(self, handle):
+        self.__handle = handle
+
+    def __del__(self):
+        try:
+            self.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def destroy(self):
+        if self.__handle:
+            internals.blpapi_TlsOptions_destroy(self.__handle)
+            self.__handle = None
+
+    def _handle(self):
+        return self.__handle
+
+    def setTlsHandshakeTimeoutMs(self, timeoutMs):
+        """Set the TLS handshake timeout to the specified
+        'tlsHandshakeTimeoutMs'. The default is 10,000 milliseconds.
+        The TLS handshake timeout will be set to the default if
+        the specified 'tlsHandshakeTimeoutMs' is not positive."""
+        internals.blpapi_TlsOptions_setTlsHandshakeTimeoutMs(self.__handle,
+                                                             timeoutMs)
+    def setCrlFetchTimeoutMs(self, timeoutMs):
+        """Set the CRL fetch timeout to the specified 'timeoutMs'. The default
+        is 20,000 milliseconds.  The TLS handshake timeout will be set to the
+        default if the specified 'crlFetchTimeoutMs' is not positive."""
+        internals.blpapi_TlsOptions_setCrlFetchTimeoutMs(self.__handle, timeoutMs)
+
+    @staticmethod
+    def createFromFiles(clientCredentialsFilename,
+                        clientCredentialsPassword,
+                        trustedCertificatesFilename):
+        """Creates a TlsOptions using a DER encoded client credentials in
+        PKCS#12 format and DER encoded trust material in PKCS#7 format from
+        the specified files"""
+        handle = internals.blpapi_TlsOptions_createFromFiles(clientCredentialsFilename,
+                                                             clientCredentialsPassword,
+                                                             trustedCertificatesFilename)
+        return TlsOptions(handle)
+
+    @staticmethod
+    def createFromBlobs(clientCredentials,
+                        clientCredentialsPassword,
+                        trustedCertificates):
+        """Creates a TlsOptions using a DER encoded client credentials in
+        PKCS#12 format and DER encoded trust material in PKCS#7 format from
+        the given raw data.
+        The type of clientCredentials and trustedCertificates should be
+        either 'bytes' or 'bytearray'.
+        clientCredentialsPassword is a regular string."""
+        credentials = bytearray(clientCredentials)
+        certs = bytearray(trustedCertificates)
+        handle = internals.blpapi_TlsOptions_createFromBlobs(
+                     credentials,
+                     clientCredentialsPassword,
+                     certs)
+        return TlsOptions(handle)
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

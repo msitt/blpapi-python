@@ -1,28 +1,48 @@
-Bloomberg Python API version 3.9
-================================
+Bloomberg Python API
+====================
 
 This directory contains an interface for interacting with Bloomberg API
 services using the Python programming language. This package is the source
-installer, and requires a C compilation environment compatible with Python's
-`distutils` package. Windows users without such an environment are encourage to
-instead use the appropriate binary installer, available from
-<http://www.bloomberglabs.com/api/libraries/>.
+installer, and requires a C/C++ compilation environment compatible with
+Python's `setuptools` package.
 
+Users are encouraged to install using `pip` directly, as documented in
+<https://www.bloomberg.com/professional/support/api-library>
 
 Dependencies
 ------------
 
 This SDK requires the following products:
 
-- CPython version 2.6 or higher
+- CPython version 2.7 or higher
 
-- Bloomberg C++ SDK version 3.9 or later
+- Bloomberg C++ SDK same major and minor version as the Python SDK
 
-- Visual C++ 2008 or 2010 (Windows) or GCC 4.1+ (Linux)
+- Optionally, C/C++ compiler for your CPython installation
+
+- On Windows, the VC redistributable package for the Python install
+
+The C/C++ compilers are only needed for building the binary part of the module.
+We provide pre-built binaries for different versions of CPython on Windows, but
+you may need to have the compiler to build on other operating systems or
+unsupported versions of CPython.
+
+On Windows, the VS redistributable package for the compiler used in the target
+CPython installation is needed.  You can find the compiler version for a
+CPython version in [1] and the VC redistributable package in [2].
+
+[1] https://wiki.python.org/moin/WindowsCompilers
+
+[2] https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
 
 
-Installation
-------------
+Installation from sources
+-------------------------
+
+Installation using pip is strongly recommended, and can handle installing from
+sources by building the Python SDK binaries locally.  The C++ SDK and setting
+the `BLPAPI_ROOT` environment is still needed to build with `pip`, but the rest
+of the steps are equivalent to a normal installation.
 
 Note that installation requires a working C compiler and the C headers
 distributed as part of the Bloomberg C++ SDK.
@@ -30,8 +50,8 @@ distributed as part of the Bloomberg C++ SDK.
 1. Set the `BLPAPI_ROOT` environment variable to the location at which the
    Bloomberg C++ SDK is installed. (This is the directory containing the
    `include` directory. On linux this may be of the form
-   `$HOME/blpapi_cpp_3.9.5.1`; on Windows, this location may be of the
-   form `C:\blp\API\APIv3\C++API\v3.9.5.1\`.) Note that this is environment
+   `$HOME/blpapi_cpp_3.x.y.z`; on Windows, this location may be of the
+   form `C:\blp\API\APIv3\C++API\v3.x.y.z\`.) Note that this is environment
    variable is required only for *installing* the `blpapi` package, not for
    running blpapi python applications.
 
@@ -57,8 +77,9 @@ distributed as part of the Bloomberg C++ SDK.
    (configured by `/etc/ld.so.conf` on Linux and by setting the `PATH`
    environment variable on Windows) to include the directory containing the
    C++ SDK library.  Note that this step is not necessary for users who already
-   have a system-wide installation of the C++ SDK, including Windows users who
-   have the Bloomberg Terminal software installed.
+   have a system-wide installation of the C++ SDK with the same or newer
+   version, including Windows users who have the Bloomberg Terminal software
+   installed.
 
 
 Writing Bloomberg API Programs in Python
@@ -96,7 +117,8 @@ Documentation for individual Bloomberg API classes and functions is provided
 through Python's built-in help system.
 
 Further documentation on programming the Bloomberg API is available in the
-Developer's Guide, available at <http://www..bloomberglabs.com/api/>.
+Developer's Guide, available at
+<http://www.bloomberg.com/professional/api-library>.
 
 
 Examples

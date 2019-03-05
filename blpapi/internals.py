@@ -133,6 +133,9 @@ MESSAGE_FRAGMENT_NONE = _internals.MESSAGE_FRAGMENT_NONE
 MESSAGE_FRAGMENT_START = _internals.MESSAGE_FRAGMENT_START
 MESSAGE_FRAGMENT_INTERMEDIATE = _internals.MESSAGE_FRAGMENT_INTERMEDIATE
 MESSAGE_FRAGMENT_END = _internals.MESSAGE_FRAGMENT_END
+MESSAGE_RECAPTYPE_NONE = _internals.MESSAGE_RECAPTYPE_NONE
+MESSAGE_RECAPTYPE_SOLICITED = _internals.MESSAGE_RECAPTYPE_SOLICITED
+MESSAGE_RECAPTYPE_UNSOLICITED = _internals.MESSAGE_RECAPTYPE_UNSOLICITED
 ELEMENTDEFINITION_UNBOUNDED = _internals.ELEMENTDEFINITION_UNBOUNDED
 ELEMENT_INDEX_END = _internals.ELEMENT_INDEX_END
 SERVICEREGISTRATIONOPTIONS_PRIORITY_MEDIUM = _internals.SERVICEREGISTRATIONOPTIONS_PRIORITY_MEDIUM
@@ -244,6 +247,10 @@ def blpapi_HighResolutionClock_now_wrapper():
     return _internals.blpapi_HighResolutionClock_now_wrapper()
 blpapi_HighResolutionClock_now_wrapper = _internals.blpapi_HighResolutionClock_now_wrapper
 
+def blpapi_EventDispatcher_stop(handle, asynch):
+    return _internals.blpapi_EventDispatcher_stop(handle, asynch)
+blpapi_EventDispatcher_stop = _internals.blpapi_EventDispatcher_stop
+
 def blpapi_Service_printHelper(service, level, spacesPerLevel):
     return _internals.blpapi_Service_printHelper(service, level, spacesPerLevel)
 blpapi_Service_printHelper = _internals.blpapi_Service_printHelper
@@ -255,6 +262,10 @@ blpapi_SchemaElementDefinition_printHelper = _internals.blpapi_SchemaElementDefi
 def blpapi_SchemaTypeDefinition_printHelper(item, level, spacesPerLevel):
     return _internals.blpapi_SchemaTypeDefinition_printHelper(item, level, spacesPerLevel)
 blpapi_SchemaTypeDefinition_printHelper = _internals.blpapi_SchemaTypeDefinition_printHelper
+
+def blpapi_SessionOptions_printHelper(sessionOptions, level, spacesPerLevel):
+    return _internals.blpapi_SessionOptions_printHelper(sessionOptions, level, spacesPerLevel)
+blpapi_SessionOptions_printHelper = _internals.blpapi_SessionOptions_printHelper
 
 def blpapi_SchemaTypeDefinition_hasElementDefinition(type, nameString, name):
     return _internals.blpapi_SchemaTypeDefinition_hasElementDefinition(type, nameString, name)
@@ -633,8 +644,8 @@ def blpapi_Element_getValueAsDatetime(element, index):
     return _internals.blpapi_Element_getValueAsDatetime(element, index)
 blpapi_Element_getValueAsDatetime = _internals.blpapi_Element_getValueAsDatetime
 
-def blpapi_Element_getValueAsHighPrecisionDatetime(element, buffer, index):
-    return _internals.blpapi_Element_getValueAsHighPrecisionDatetime(element, buffer, index)
+def blpapi_Element_getValueAsHighPrecisionDatetime(element, index):
+    return _internals.blpapi_Element_getValueAsHighPrecisionDatetime(element, index)
 blpapi_Element_getValueAsHighPrecisionDatetime = _internals.blpapi_Element_getValueAsHighPrecisionDatetime
 
 def blpapi_Element_getValueAsElement(element, index):
@@ -669,10 +680,6 @@ def blpapi_Element_setValueDatetime(element, value, index):
     return _internals.blpapi_Element_setValueDatetime(element, value, index)
 blpapi_Element_setValueDatetime = _internals.blpapi_Element_setValueDatetime
 
-def blpapi_Element_setValueHighPrecisionDatetime(element, value, index):
-    return _internals.blpapi_Element_setValueHighPrecisionDatetime(element, value, index)
-blpapi_Element_setValueHighPrecisionDatetime = _internals.blpapi_Element_setValueHighPrecisionDatetime
-
 def blpapi_Element_setValueFromName(element, value, index):
     return _internals.blpapi_Element_setValueFromName(element, value, index)
 blpapi_Element_setValueFromName = _internals.blpapi_Element_setValueFromName
@@ -696,10 +703,6 @@ blpapi_Element_setElementString = _internals.blpapi_Element_setElementString
 def blpapi_Element_setElementDatetime(element, nameString, name, value):
     return _internals.blpapi_Element_setElementDatetime(element, nameString, name, value)
 blpapi_Element_setElementDatetime = _internals.blpapi_Element_setElementDatetime
-
-def blpapi_Element_setElementHighPrecisionDatetime(element, nameString, name, value):
-    return _internals.blpapi_Element_setElementHighPrecisionDatetime(element, nameString, name, value)
-blpapi_Element_setElementHighPrecisionDatetime = _internals.blpapi_Element_setElementHighPrecisionDatetime
 
 def blpapi_Element_setElementFromName(element, elementName, name, buffer):
     return _internals.blpapi_Element_setElementFromName(element, elementName, name, buffer)
@@ -748,6 +751,14 @@ blpapi_EventFormatter_appendRecapMessage = _internals.blpapi_EventFormatter_appe
 def blpapi_EventFormatter_appendRecapMessageSeq(formatter, topic, cid, sequenceNumber, arg5):
     return _internals.blpapi_EventFormatter_appendRecapMessageSeq(formatter, topic, cid, sequenceNumber, arg5)
 blpapi_EventFormatter_appendRecapMessageSeq = _internals.blpapi_EventFormatter_appendRecapMessageSeq
+
+def blpapi_EventFormatter_appendFragmentedRecapMessage(formatter, typeString, typeName, topic, cid, fragmentType):
+    return _internals.blpapi_EventFormatter_appendFragmentedRecapMessage(formatter, typeString, typeName, topic, cid, fragmentType)
+blpapi_EventFormatter_appendFragmentedRecapMessage = _internals.blpapi_EventFormatter_appendFragmentedRecapMessage
+
+def blpapi_EventFormatter_appendFragmentedRecapMessageSeq(formatter, typeString, typeName, topic, fragmentType, sequenceNumber):
+    return _internals.blpapi_EventFormatter_appendFragmentedRecapMessageSeq(formatter, typeString, typeName, topic, fragmentType, sequenceNumber)
+blpapi_EventFormatter_appendFragmentedRecapMessageSeq = _internals.blpapi_EventFormatter_appendFragmentedRecapMessageSeq
 
 def blpapi_EventFormatter_setValueBool(formatter, typeString, typeName, value):
     return _internals.blpapi_EventFormatter_setValueBool(formatter, typeString, typeName, value)
@@ -841,10 +852,6 @@ def blpapi_EventDispatcher_start(handle):
     return _internals.blpapi_EventDispatcher_start(handle)
 blpapi_EventDispatcher_start = _internals.blpapi_EventDispatcher_start
 
-def blpapi_EventDispatcher_stop(handle, async):
-    return _internals.blpapi_EventDispatcher_stop(handle, async)
-blpapi_EventDispatcher_stop = _internals.blpapi_EventDispatcher_stop
-
 def ProviderSession_createHelper(parameters, eventHandlerFunc, dispatcher):
     return _internals.ProviderSession_createHelper(parameters, eventHandlerFunc, dispatcher)
 ProviderSession_createHelper = _internals.ProviderSession_createHelper
@@ -852,6 +859,14 @@ ProviderSession_createHelper = _internals.ProviderSession_createHelper
 def ProviderSession_destroyHelper(sessionHandle, eventHandlerFunc):
     return _internals.ProviderSession_destroyHelper(sessionHandle, eventHandlerFunc)
 ProviderSession_destroyHelper = _internals.ProviderSession_destroyHelper
+
+def ProviderSession_terminateSubscriptionsOnTopic(sessionHandle, topic, message):
+    return _internals.ProviderSession_terminateSubscriptionsOnTopic(sessionHandle, topic, message)
+ProviderSession_terminateSubscriptionsOnTopic = _internals.ProviderSession_terminateSubscriptionsOnTopic
+
+def ProviderSession_flushPublishedEvents(handle, timeoutMsecs):
+    return _internals.ProviderSession_flushPublishedEvents(handle, timeoutMsecs)
+ProviderSession_flushPublishedEvents = _internals.ProviderSession_flushPublishedEvents
 UNKNOWN_CLASS = _internals.UNKNOWN_CLASS
 INVALIDSTATE_CLASS = _internals.INVALIDSTATE_CLASS
 INVALIDARG_CLASS = _internals.INVALIDARG_CLASS
@@ -978,6 +993,22 @@ def blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes(parameters, shou
     return _internals.blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes(parameters, shouldRecord)
 blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes = _internals.blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes
 
+def blpapi_SessionOptions_setServiceCheckTimeout(paramaters, timeoutMsecs):
+    return _internals.blpapi_SessionOptions_setServiceCheckTimeout(paramaters, timeoutMsecs)
+blpapi_SessionOptions_setServiceCheckTimeout = _internals.blpapi_SessionOptions_setServiceCheckTimeout
+
+def blpapi_SessionOptions_setServiceDownloadTimeout(paramaters, timeoutMsecs):
+    return _internals.blpapi_SessionOptions_setServiceDownloadTimeout(paramaters, timeoutMsecs)
+blpapi_SessionOptions_setServiceDownloadTimeout = _internals.blpapi_SessionOptions_setServiceDownloadTimeout
+
+def blpapi_SessionOptions_setTlsOptions(paramaters, tlsOptions):
+    return _internals.blpapi_SessionOptions_setTlsOptions(paramaters, tlsOptions)
+blpapi_SessionOptions_setTlsOptions = _internals.blpapi_SessionOptions_setTlsOptions
+
+def blpapi_SessionOptions_setFlushPublishedEventsTimeout(paramaters, timeoutMsecs):
+    return _internals.blpapi_SessionOptions_setFlushPublishedEventsTimeout(paramaters, timeoutMsecs)
+blpapi_SessionOptions_setFlushPublishedEventsTimeout = _internals.blpapi_SessionOptions_setFlushPublishedEventsTimeout
+
 def blpapi_SessionOptions_serverHost(parameters):
     return _internals.blpapi_SessionOptions_serverHost(parameters)
 blpapi_SessionOptions_serverHost = _internals.blpapi_SessionOptions_serverHost
@@ -1061,6 +1092,38 @@ blpapi_SessionOptions_keepAliveEnabled = _internals.blpapi_SessionOptions_keepAl
 def blpapi_SessionOptions_recordSubscriptionDataReceiveTimes(parameters):
     return _internals.blpapi_SessionOptions_recordSubscriptionDataReceiveTimes(parameters)
 blpapi_SessionOptions_recordSubscriptionDataReceiveTimes = _internals.blpapi_SessionOptions_recordSubscriptionDataReceiveTimes
+
+def blpapi_SessionOptions_serviceCheckTimeout(parameters):
+    return _internals.blpapi_SessionOptions_serviceCheckTimeout(parameters)
+blpapi_SessionOptions_serviceCheckTimeout = _internals.blpapi_SessionOptions_serviceCheckTimeout
+
+def blpapi_SessionOptions_serviceDownloadTimeout(parameters):
+    return _internals.blpapi_SessionOptions_serviceDownloadTimeout(parameters)
+blpapi_SessionOptions_serviceDownloadTimeout = _internals.blpapi_SessionOptions_serviceDownloadTimeout
+
+def blpapi_SessionOptions_flushPublishedEventsTimeout(parameters):
+    return _internals.blpapi_SessionOptions_flushPublishedEventsTimeout(parameters)
+blpapi_SessionOptions_flushPublishedEventsTimeout = _internals.blpapi_SessionOptions_flushPublishedEventsTimeout
+
+def blpapi_TlsOptions_destroy(parameters):
+    return _internals.blpapi_TlsOptions_destroy(parameters)
+blpapi_TlsOptions_destroy = _internals.blpapi_TlsOptions_destroy
+
+def blpapi_TlsOptions_createFromFiles(clientCredentialsFileName, clientCredentialsPassword, trustedCertificatesFileName):
+    return _internals.blpapi_TlsOptions_createFromFiles(clientCredentialsFileName, clientCredentialsPassword, trustedCertificatesFileName)
+blpapi_TlsOptions_createFromFiles = _internals.blpapi_TlsOptions_createFromFiles
+
+def blpapi_TlsOptions_createFromBlobs(clientCredentialsRawData, clientCredentialsPassword, trustedCertificatesRawData):
+    return _internals.blpapi_TlsOptions_createFromBlobs(clientCredentialsRawData, clientCredentialsPassword, trustedCertificatesRawData)
+blpapi_TlsOptions_createFromBlobs = _internals.blpapi_TlsOptions_createFromBlobs
+
+def blpapi_TlsOptions_setTlsHandshakeTimeoutMs(paramaters, tlsHandshakeTimeoutMs):
+    return _internals.blpapi_TlsOptions_setTlsHandshakeTimeoutMs(paramaters, tlsHandshakeTimeoutMs)
+blpapi_TlsOptions_setTlsHandshakeTimeoutMs = _internals.blpapi_TlsOptions_setTlsHandshakeTimeoutMs
+
+def blpapi_TlsOptions_setCrlFetchTimeoutMs(paramaters, crlFetchTimeoutMs):
+    return _internals.blpapi_TlsOptions_setCrlFetchTimeoutMs(paramaters, crlFetchTimeoutMs)
+blpapi_TlsOptions_setCrlFetchTimeoutMs = _internals.blpapi_TlsOptions_setCrlFetchTimeoutMs
 
 def blpapi_Name_create(nameString):
     return _internals.blpapi_Name_create(nameString)
@@ -1362,6 +1425,10 @@ def blpapi_Request_setPreferredRoute(request, correlationId):
     return _internals.blpapi_Request_setPreferredRoute(request, correlationId)
 blpapi_Request_setPreferredRoute = _internals.blpapi_Request_setPreferredRoute
 
+def blpapi_RequestTemplate_release(requestTemplate):
+    return _internals.blpapi_RequestTemplate_release(requestTemplate)
+blpapi_RequestTemplate_release = _internals.blpapi_RequestTemplate_release
+
 def blpapi_Operation_name(service):
     return _internals.blpapi_Operation_name(service)
 blpapi_Operation_name = _internals.blpapi_Operation_name
@@ -1474,6 +1541,14 @@ def blpapi_Message_fragmentType(message):
     return _internals.blpapi_Message_fragmentType(message)
 blpapi_Message_fragmentType = _internals.blpapi_Message_fragmentType
 
+def blpapi_Message_recapType(message):
+    return _internals.blpapi_Message_recapType(message)
+blpapi_Message_recapType = _internals.blpapi_Message_recapType
+
+def blpapi_Message_print(message, streamWriter, stream, indentLevel, spacesPerLevel):
+    return _internals.blpapi_Message_print(message, streamWriter, stream, indentLevel, spacesPerLevel)
+blpapi_Message_print = _internals.blpapi_Message_print
+
 def blpapi_Message_addRef(message):
     return _internals.blpapi_Message_addRef(message)
 blpapi_Message_addRef = _internals.blpapi_Message_addRef
@@ -1566,6 +1641,10 @@ def blpapi_AbstractSession_generateToken(session, correlationId, eventQueue):
     return _internals.blpapi_AbstractSession_generateToken(session, correlationId, eventQueue)
 blpapi_AbstractSession_generateToken = _internals.blpapi_AbstractSession_generateToken
 
+def blpapi_AbstractSession_generateManualToken(session, correlationId, user, manualIp, eventQueue):
+    return _internals.blpapi_AbstractSession_generateManualToken(session, correlationId, user, manualIp, eventQueue)
+blpapi_AbstractSession_generateManualToken = _internals.blpapi_AbstractSession_generateManualToken
+
 def blpapi_AbstractSession_getService(session, serviceIdentifier):
     return _internals.blpapi_AbstractSession_getService(session, serviceIdentifier)
 blpapi_AbstractSession_getService = _internals.blpapi_AbstractSession_getService
@@ -1621,6 +1700,14 @@ blpapi_Session_setStatusCorrelationId = _internals.blpapi_Session_setStatusCorre
 def blpapi_Session_sendRequest(session, request, correlationId, identity, eventQueue, requestLabel, requestLabelLen):
     return _internals.blpapi_Session_sendRequest(session, request, correlationId, identity, eventQueue, requestLabel, requestLabelLen)
 blpapi_Session_sendRequest = _internals.blpapi_Session_sendRequest
+
+def blpapi_Session_sendRequestTemplate(session, requestTemplate, correlationId):
+    return _internals.blpapi_Session_sendRequestTemplate(session, requestTemplate, correlationId)
+blpapi_Session_sendRequestTemplate = _internals.blpapi_Session_sendRequestTemplate
+
+def blpapi_Session_createSnapshotRequestTemplate(session, subscriptionString, identity, correlationId):
+    return _internals.blpapi_Session_createSnapshotRequestTemplate(session, subscriptionString, identity, correlationId)
+blpapi_Session_createSnapshotRequestTemplate = _internals.blpapi_Session_createSnapshotRequestTemplate
 
 def blpapi_Session_getAbstractSession(session):
     return _internals.blpapi_Session_getAbstractSession(session)
@@ -1841,6 +1928,10 @@ blpapi_ProviderSession_createServiceStatusTopic = _internals.blpapi_ProviderSess
 def blpapi_ProviderSession_deleteTopics(session, topics, numTopics):
     return _internals.blpapi_ProviderSession_deleteTopics(session, topics, numTopics)
 blpapi_ProviderSession_deleteTopics = _internals.blpapi_ProviderSession_deleteTopics
+
+def blpapi_ProviderSession_terminateSubscriptionsOnTopics(session, topics, numTopics, message):
+    return _internals.blpapi_ProviderSession_terminateSubscriptionsOnTopics(session, topics, numTopics, message)
+blpapi_ProviderSession_terminateSubscriptionsOnTopics = _internals.blpapi_ProviderSession_terminateSubscriptionsOnTopics
 
 def blpapi_ProviderSession_publish(session, event):
     return _internals.blpapi_ProviderSession_publish(session, event)

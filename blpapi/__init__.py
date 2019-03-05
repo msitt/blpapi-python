@@ -5,33 +5,13 @@ try:
 except ImportError as error:
     # The most likely reason for a failure here is a failure to locate the
     # shared object for the C++ library. Provide a meaningful error message.
-    import platform
-    s = platform.system()
-    if s == 'Windows':
-        env = 'PATH'
-    elif s == 'Darwin':
-        env = 'DYLD_LIBRARY_PATH'
-    else:
-        env = 'LD_LIBRARY_PATH'
-
-    msg = """%s
-
-Could not open the C++ SDK library.
-
-Download and install the latest C++ SDK from:
-
-    http://www.bloomberg.com/professional/api-library
-
-If the C++ SDK is already installed, please ensure that the path to the library
-was added to %s before entering the interpreter.
-
-""" % (str(error), env)
-    raise ImportError(msg)
+    from .debug import debug_load_error
+    raise debug_load_error(error)
 
 from .abstractsession import AbstractSession
 from .constant import Constant, ConstantList
-from .datetime import FixedOffset
 from .datatype import DataType
+from .datetime import FixedOffset
 from .element import Element
 from .event import Event, EventQueue
 from .eventdispatcher import EventDispatcher
@@ -46,11 +26,11 @@ from .resolutionlist import ResolutionList
 from .schema import SchemaElementDefinition, SchemaStatus, SchemaTypeDefinition
 from .service import Service
 from .session import Session
-from .sessionoptions import SessionOptions
+from .sessionoptions import SessionOptions, TlsOptions
 from .subscriptionlist import SubscriptionList
 from .topic import Topic
 from .topiclist import TopicList
-
+from .version import __version__, version, cpp_sdk_version, print_version
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

@@ -68,14 +68,15 @@ from .abstractsession import AbstractSession
 from .event import Event
 from . import exception
 from .exception import _ExceptionUtil
-from .identity import Identity
 from . import internals
 from .internals import CorrelationId
 from .sessionoptions import SessionOptions
 from .topic import Topic
 from . import utils
-from .compat import with_metaclass, conv2str, isstr
+from .utils import get_handle
+from .compat import with_metaclass
 
+# pylint: disable=line-too-long,bad-continuation
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
 class ServiceRegistrationOptions(object):
@@ -148,11 +149,14 @@ class ServiceRegistrationOptions(object):
         """Set the priority with which a service will be registered.
 
         Set the priority with which a service will be registered to the
-        non-negative value specified in priority.  This call returns with a
-        non-zero value indicating error when a negative priority is specified.
-        Any non-negative priority value, other than the one pre-defined in
-        ServiceRegistrationPriority can be used.  Default value is
-        PRIORITY_HIGH.
+        specified 'priority', where numerically greater values of 'priority'
+        indicate higher priorities. The behavior is undefined unless
+        'priority' is non-negative. Note that while the values pre-defined in
+        ServiceRegistrationOptions are suitable for use here, any non-negative
+        'priority' is acceptable.
+
+        By default, a service will be registered with priority
+        ServiceRegistrationOptions.PRIORITY_HIGH.
         """
         return internals.blpapi_ServiceRegistrationOptions_setServicePriority(
             self.__handle,
@@ -160,7 +164,7 @@ class ServiceRegistrationOptions(object):
 
     def getGroupId(self):
         """Return the value of the service Group Id in this instance."""
-        errorCode, groupId = \
+        _, groupId = \
             internals.blpapi_ServiceRegistrationOptions_getGroupId(
                 self.__handle)
         return groupId
@@ -176,8 +180,10 @@ class ServiceRegistrationOptions(object):
         """Advertise the service to be registered to receive, with the
         specified 'priority', subscriptions that the resolver has mapped to a
         service code between the specified 'begin' and the specified 'end'
-        values, inclusive. The behavior of this function is undefined unless '0
-        <= begin <= end < (1 << 24)', and 'priority' is non-negative."""
+        values, inclusive. Numerically greater values of 'priority' indicate
+        higher priorities. The behavior of this function is undefined unless
+        '0 <= begin <= end < (1 << 24)', and 'priority' is non-negative.
+        """
         err = internals.blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange(
                 self.__handle, begin, end, priority)
         _ExceptionUtil.raiseOnError(err)
@@ -245,6 +251,7 @@ class ProviderSession(AbstractSession):
 
     @staticmethod
     def __dispatchEvent(sessionRef, eventHandle):
+        """Use sessions ref to dispatch an event"""
         try:
             session = sessionRef()
             if session is not None:
@@ -303,9 +310,9 @@ class ProviderSession(AbstractSession):
             self.__handlerProxy = functools.partial(
                 ProviderSession.__dispatchEvent, weakref.ref(self))
         self.__handle = internals.ProviderSession_createHelper(
-            options._handle(),
+            get_handle(options),
             self.__handlerProxy,
-            None if eventDispatcher is None else eventDispatcher._handle())
+            get_handle(eventDispatcher))
         AbstractSession.__init__(
             self,
             internals.blpapi_ProviderSession_getAbstractSession(self.__handle))
@@ -348,6 +355,18 @@ class ProviderSession(AbstractSession):
         started once.
         """
         return internals.blpapi_ProviderSession_startAsync(self.__handle) == 0
+
+    def flushPublishedEvents(self, timeoutMsecs):
+        """Wait at most 'timeoutMsecs' milliseconds for all the published
+        events to be sent through the underlying channel. The method returns
+        either as soon as all the published events have been sent out or
+        when it has waited 'timeoutMs' milliseconds. Return true if
+        all the published events have been sent; false otherwise.
+        The behavior is undefined unless the specified 'timeoutMsecs' is
+        a non-negative value. When 'timeoutMsecs' is 0, the method checks
+        if all the published events have been sent and returns without
+        waiting."""
+        return internals.ProviderSession_flushPublishedEvents(self.__handle, timeoutMsecs)
 
     def stop(self):
         """Stop operation of this session and wait until it stops.
@@ -407,8 +426,7 @@ class ProviderSession(AbstractSession):
             self.__handle)
         if retCode:
             return None
-        else:
-            return Event(event, self)
+        return Event(event, self)
 
     def registerService(self, uri, identity=None, options=None):
         """Attempt to register the service and block until it is done.
@@ -435,8 +453,8 @@ class ProviderSession(AbstractSession):
             options = ServiceRegistrationOptions()
         if internals.blpapi_ProviderSession_registerService(
                 self.__handle, uri,
-                None if identity is None else identity._handle(),
-                options._handle()) == 0:
+                get_handle(identity),
+                get_handle(options)) == 0:
             return True
         return False
 
@@ -469,9 +487,9 @@ class ProviderSession(AbstractSession):
             internals.blpapi_ProviderSession_registerServiceAsync(
                 self.__handle,
                 uri,
-                None if identity is None else identity._handle(),
-                correlationId._handle(),
-                options._handle()
+                get_handle(identity),
+                get_handle(correlationId),
+                get_handle(options)
             ))
 
         return correlationId
@@ -502,9 +520,9 @@ class ProviderSession(AbstractSession):
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_resolve(
                 self.__handle,
-                resolutionList._handle(),
+                get_handle(resolutionList),
                 resolveMode,
-                None if identity is None else identity._handle()))
+                get_handle(identity)))
 
     def resolveAsync(self, resolutionList, resolveMode=DONT_REGISTER_SERVICES,
                      identity=None):
@@ -530,9 +548,9 @@ class ProviderSession(AbstractSession):
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_resolveAsync(
                 self.__handle,
-                resolutionList._handle(),
+                get_handle(resolutionList),
                 resolveMode,
-                None if identity is None else identity._handle()))
+                get_handle(identity)))
 
     def getTopic(self, message):
         """Find a previously created Topic object based on the 'message'.
@@ -546,7 +564,7 @@ class ProviderSession(AbstractSession):
         """
         errorCode, topic = internals.blpapi_ProviderSession_getTopic(
             self.__handle,
-            message._handle())
+            get_handle(message))
         _ExceptionUtil.raiseOnError(errorCode)
         return Topic(topic, sessions=(self,))
 
@@ -560,8 +578,7 @@ class ProviderSession(AbstractSession):
         errorCode, topic = \
             internals.blpapi_ProviderSession_createServiceStatusTopic(
                 self.__handle,
-                service._handle()
-            )
+                get_handle(service))
         _ExceptionUtil.raiseOnError(errorCode)
         return Topic(topic)
 
@@ -570,14 +587,14 @@ class ProviderSession(AbstractSession):
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_publish(
                 self.__handle,
-                event._handle()))
+                get_handle(event)))
 
     def sendResponse(self, event, isPartialResponse=False):
         """Send the response event for previously received request."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_sendResponse(
                 self.__handle,
-                event._handle(),
+                get_handle(event),
                 isPartialResponse))
 
     def createTopics(self, topicList,
@@ -601,9 +618,9 @@ class ProviderSession(AbstractSession):
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_createTopics(
                 self.__handle,
-                topicList._handle(),
+                get_handle(topicList),
                 resolveMode,
-                None if identity is None else identity._handle()))
+                get_handle(identity)))
 
     def createTopicsAsync(self, topicList,
                           resolveMode=DONT_REGISTER_SERVICES,
@@ -624,17 +641,19 @@ class ProviderSession(AbstractSession):
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_createTopicsAsync(
                 self.__handle,
-                topicList._handle(),
+                get_handle(topicList),
                 resolveMode,
-                None if identity is None else identity._handle()))
+                get_handle(identity)))
 
     def activateSubServiceCodeRange(self, serviceName, begin, end, priority):
         """Register to receive, with the specified 'priority', subscriptions
         for the specified 'service' that the resolver has mapped to a service
         code between the specified 'begin' and the specified 'end' values,
-        inclusive. The behavior of this function is undefined unless 'service'
+        inclusive. Numerically greater values of 'priority' indicate higher
+        priorities. The behavior of this function is undefined unless 'service'
         has already been successfully registered, '0 <= begin <= end < (1 <<
-        24)', and 'priority' is non-negative."""
+        24)', and 'priority' is non-negative.
+        """
         err = internals.blpapi_ProviderSession_activateSubServiceCodeRange(
                 self.__handle, serviceName, begin, end, priority)
         _ExceptionUtil.raiseOnError(err)
@@ -668,6 +687,44 @@ class ProviderSession(AbstractSession):
                 self.__handle, serviceName)
         return res == 0
 
+    def terminateSubscriptionsOnTopic(self, topic, message=None):
+        """Delete the specified 'topic' (See deleteTopic(topic) for
+        additional details).  Furthermore, proactively terminate all current
+        subscriptions on 'topic'.  The optionally specified 'message' can be
+        used to convey additional information to subscribers regarding the
+        termination. This message is contained in the 'description' of
+        'reason' in a 'SubscriptionTerminated' message.
+        """
+        if not topic:
+            return
+        _ExceptionUtil.raiseOnError(
+                internals.ProviderSession_terminateSubscriptionsOnTopic(
+                                    self.__handle, get_handle(topic), message))
+
+    def terminateSubscriptionsOnTopics(self, topics, message=None):
+        """Terminate subscriptions on the first 'numTopics' topics in the
+        specified 'topics'.
+
+        See terminateSubscriptionsOnTopic(topic,message) for additional details.
+        """
+        if not topics:
+            return
+        topicsCArraySize = len(topics)
+        topicsCArray = internals.new_topicPtrArray(topicsCArraySize)
+        try:
+            for i, topic in enumerate(topics):
+                internals.topicPtrArray_setitem(topicsCArray,
+                                                i,
+                                                get_handle(topic))
+            _ExceptionUtil.raiseOnError(
+                internals.blpapi_ProviderSession_terminateSubscriptionsOnTopics(
+                    self.__handle,
+                    topicsCArray,
+                    topicsCArraySize,
+                    message))
+        finally:
+            internals.delete_topicPtrArray(topicsCArray)
+
     def deleteTopic(self, topic):
         """Remove one reference from the specified 'topic'. If this function
         has been called the same number of times that 'topic' was created
@@ -693,7 +750,7 @@ class ProviderSession(AbstractSession):
             for i, topic in enumerate(topics):
                 internals.topicPtrArray_setitem(topicsCArray,
                                                 i,
-                                                topic._handle())
+                                                get_handle(topic))
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_ProviderSession_deleteTopics(
                     self.__handle,

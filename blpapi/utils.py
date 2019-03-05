@@ -2,7 +2,7 @@
 
 """Internal utils."""
 
-
+#pylint: disable=too-few-public-methods, useless-object-inheritance
 class Iterator(object):
     """Universal iterator for many of BLPAPI objects.
 
@@ -60,25 +60,35 @@ class MetaClassForClassesWithEnums(type):
         """
         pass
 
-    def __setattr__(mcs, name, value):
+    def __setattr__(cls, name, value):
         """Change the value of an attribute if it is not an enum.
 
         Raise EnumError exception otherwise.
         """
-        if name.isupper() and name in mcs.__dict__:
-            raise mcs.EnumError("Can't change value of enum %s" % name)
+        if name.isupper() and name in cls.__dict__:
+            raise cls.EnumError("Can't change value of enum %s" % name)
         else:
-            type.__setattr__(mcs, name, value)
+            type.__setattr__(cls, name, value)
 
-    def __delattr__(mcs, name):
+    def __delattr__(cls, name):
         """Unbind the attribute if it is not an enum.
 
         Raise EnumError exception otherwise.
         """
-        if name.isupper() and name in mcs.__dict__:
-            raise mcs.EnumError("Can't unbind enum %s" % name)
+        if name.isupper() and name in cls.__dict__:
+            raise cls.EnumError("Can't unbind enum %s" % name)
         else:
-            type.__delattr__(mcs, name)
+            type.__delattr__(cls, name)
+
+def get_handle(thing):
+    """Returns the result of thing._handle() or None if thing is None"""
+    return None if thing is None else thing._handle() #pylint: disable=protected-access
+
+def invoke_if_valid(cb, value):
+    """Returns the result of cb(value) if cb is callable, else -- just value"""
+    if cb is None or not callable(cb):
+        return value
+    return cb(value)
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

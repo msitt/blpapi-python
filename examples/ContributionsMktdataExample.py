@@ -119,6 +119,30 @@ def parseCmdLine():
                       type="string",
                       default="user")
 
+    # TLS Options
+    parser.add_option("--tls-client-credentials",
+                      dest="tls_client_credentials",
+                      help="name a PKCS#12 file to use as a source of client credentials",
+                      metavar="option",
+                      type="string")
+    parser.add_option("--tls-client-credentials-password",
+                      dest="tls_client_credentials_password",
+                      help="specify password for accessing client credentials",
+                      metavar="option",
+                      type="string",
+                      default="")
+    parser.add_option("--tls-trust-material",
+                      dest="tls_trust_material",
+                      help="name a PKCS#7 file to use as a source of trusted certificates",
+                      metavar="option",
+                      type="string")
+    parser.add_option("--read-certificate-files",
+                      dest="read_certificate_files",
+                      help="(optional) read the TLS files and pass the blobs",
+                      metavar="option",
+                      action="store_true")
+
+
     (options, args) = parser.parse_args()
 
     if not options.hosts:
@@ -151,11 +175,11 @@ def authorize(authService, identity, session, cid):
         print("Failed to get token")
         return False
 
-    # Create and fill the authorithation request
+    # Create and fill the authorization request
     authRequest = authService.createAuthorizationRequest()
     authRequest.set(TOKEN, token)
 
-    # Send authorithation request to "fill" the Identity
+    # Send authorization request to "fill" the Identity
     session.sendAuthorizationRequest(authRequest, identity, cid)
 
     # Process related responses
@@ -173,6 +197,31 @@ def authorize(authService, identity, session, cid):
 
         time.sleep(1)
 
+def getTlsOptions(options):
+    if (options.tls_client_credentials is None or
+            options.tls_trust_material is None):
+        return None
+
+    print("TlsOptions enabled")
+    if (options.read_certificate_files):
+        credential_blob = None
+        trust_blob = None
+        with open(options.tls_client_credentials, 'rb') as credentialfile:
+            credential_blob = credentialfile.read()
+        with open(options.tls_trust_material, 'rb') as trustfile:
+            trust_blob = trustfile.read()
+
+        return blpapi.TlsOptions.createFromBlobs(
+                credential_blob,
+                options.tls_client_credentials_password,
+                trust_blob)
+    else:
+        return blpapi.TlsOptions.createFromFiles(
+                options.tls_client_credentials,
+                options.tls_client_credentials_password,
+                options.tls_trust_material)
+
+
 
 def main():
     options = parseCmdLine()
@@ -184,6 +233,11 @@ def main():
     sessionOptions.setAuthenticationOptions(options.auth)
     sessionOptions.setAutoRestartOnDisconnection(True)
     sessionOptions.setNumStartAttempts(len(options.hosts))
+
+    tlsOptions = getTlsOptions(options)
+    if tlsOptions is not None:
+        sessionOptions.setTlsOptions(tlsOptions)
+
 
     myEventHandler = MyEventHandler()
 
