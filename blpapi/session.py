@@ -20,7 +20,9 @@ from . import internals
 from .internals import CorrelationId
 from .sessionoptions import SessionOptions
 from .requesttemplate import RequestTemplate
+from .utils import get_handle
 
+# pylint: disable=too-many-arguments,protected-access,bare-except
 
 class Session(AbstractSession):
     """Consumer session for making requests for Bloomberg services.
@@ -94,6 +96,7 @@ class Session(AbstractSession):
 
     @staticmethod
     def __dispatchEvent(sessionRef, eventHandle):
+        """ event dispatcher """
         try:
             session = sessionRef()
             if session is not None:
@@ -156,9 +159,9 @@ class Session(AbstractSession):
             self.__handlerProxy = functools.partial(Session.__dispatchEvent,
                                                     weakref.ref(self))
         self.__handle = internals.Session_createHelper(
-            options._handle(),
+            get_handle(options),
             self.__handlerProxy,
-            None if eventDispatcher is None else eventDispatcher._handle())
+            get_handle(eventDispatcher))
         AbstractSession.__init__(
             self,
             internals.blpapi_Session_getAbstractSession(self.__handle))
@@ -255,8 +258,7 @@ class Session(AbstractSession):
         retCode, event = internals.blpapi_Session_tryNextEvent(self.__handle)
         if retCode:
             return None
-        else:
-            return Event(event, self)
+        return Event(event, self)
 
     def subscribe(self, subscriptionList, identity=None, requestLabel=""):
         """Begin subscriptions for each entry in the specified list.
@@ -273,8 +275,8 @@ class Session(AbstractSession):
         """
         _ExceptionUtil.raiseOnError(internals.blpapi_Session_subscribe(
             self.__handle,
-            subscriptionList._handle(),
-            None if identity is None else identity._handle(),
+            get_handle(subscriptionList),
+            get_handle(identity),
             requestLabel,
             len(requestLabel)))
 
@@ -301,11 +303,15 @@ class Session(AbstractSession):
         """
         _ExceptionUtil.raiseOnError(internals.blpapi_Session_unsubscribe(
             self.__handle,
-            subscriptionList._handle(),
+            get_handle(subscriptionList),
             None,
             0))
 
-    def resubscribe(self, subscriptionList, requestLabel="", resubscriptionId=None):
+    def resubscribe(
+            self,
+            subscriptionList,
+            requestLabel="",
+            resubscriptionId=None):
         """Modify subscriptions in 'subscriptionList'.
 
         Modify each subscription in the specified 'subscriptionList', which
@@ -325,17 +331,17 @@ class Session(AbstractSession):
         error = None
         if resubscriptionId is None:
             error = internals.blpapi_Session_resubscribe(
-                    self.__handle,
-                    subscriptionList._handle(),
-                    requestLabel,
-                    len(requestLabel))
+                self.__handle,
+                get_handle(subscriptionList),
+                requestLabel,
+                len(requestLabel))
         else:
             error = internals.blpapi_Session_resubscribeWithId(
-                    self.__handle,
-                    subscriptionList._handle(),
-                    resubscriptionId,
-                    requestLabel,
-                    len(requestLabel))
+                self.__handle,
+                get_handle(subscriptionList),
+                resubscriptionId,
+                requestLabel,
+                len(requestLabel))
 
         _ExceptionUtil.raiseOnError(error)
 
@@ -349,9 +355,9 @@ class Session(AbstractSession):
         _ExceptionUtil.raiseOnError(
             internals.blpapi_Session_setStatusCorrelationId(
                 self.__handle,
-                service._handle(),
-                None if identity is None else identity._handle(),
-                correlationId._handle()))
+                get_handle(service),
+                get_handle(identity),
+                get_handle(correlationId)))
 
     def sendRequest(self,
                     request,
@@ -380,10 +386,10 @@ class Session(AbstractSession):
             correlationId = CorrelationId()
         res = internals.blpapi_Session_sendRequest(
             self.__handle,
-            request._handle(),
-            correlationId._handle(),
-            None if identity is None else identity._handle(),
-            None if eventQueue is None else eventQueue._handle(),
+            get_handle(request),
+            get_handle(correlationId),
+            get_handle(identity),
+            get_handle(eventQueue),
             requestLabel,
             len(requestLabel))
         _ExceptionUtil.raiseOnError(res)
@@ -396,7 +402,7 @@ class Session(AbstractSession):
         optionally specified 'correlationId' is supplied, use it otherwise
         create a new 'CorrelationId'. The actual 'CorrelationId' used is
         returned.
-       
+
         A successful request will generate zero or more 'PARTIAL_RESPONSE'
         events followed by exactly one 'RESPONSE' event. Once the final
         'RESPONSE' event has been received the 'CorrelationId' associated
@@ -407,18 +413,19 @@ class Session(AbstractSession):
         if correlationId is None:
             correlationId = CorrelationId()
         res = internals.blpapi_Session_sendRequestTemplate(
-                                                self.__handle,
-                                                requestTemplate._handle(),
-                                                correlationId._handle())
+            self.__handle,
+            get_handle(requestTemplate),
+            get_handle(correlationId))
         _ExceptionUtil.raiseOnError(res)
         return correlationId
 
-    def createSnapshotRequestTemplate(self,
-                                      subscriptionString,
-                                      identity,
-                                      correlationId):
+    def createSnapshotRequestTemplate(
+            self,
+            subscriptionString,
+            identity,
+            correlationId):
         """Create a snapshot request template for getting subscription data
-        specified by the 'subscriptionString' using the specified 'identity' 
+        specified by the 'subscriptionString' using the specified 'identity'
         if all the following conditions are met: the session is
         established, 'subscriptionString' is a valid subscription string and
         'correlationId' is not used in this session. If one or more conditions
@@ -479,10 +486,10 @@ class Session(AbstractSession):
         automatically when the last request gets a final response.
         """
         rc, template = internals.blpapi_Session_createSnapshotRequestTemplate(
-                                                        self.__handle,
-                                                        subscriptionString,
-                                                        identity._handle(),
-                                                        correlationId._handle())
+            self.__handle,
+            subscriptionString,
+            get_handle(identity),
+            get_handle(correlationId))
         _ExceptionUtil.raiseOnError(rc)
         reqTemplate = RequestTemplate(template)
         return reqTemplate

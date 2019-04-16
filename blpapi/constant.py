@@ -20,6 +20,7 @@ from .datetime import _DatetimeUtil
 from . import utils
 from . import internals
 
+# pylint: disable=protected-access,old-style-class
 
 class Constant:
     """Represents the value of a schema enumeration constant.
@@ -185,9 +186,9 @@ class ConstantList:
         Exception is raised if 'name' is neither a Name nor a string.
         """
         names = getNamePair(name)
-        return internals.blpapi_ConstantList_hasConstant(self.__handle,
-                                                         names[0],
-                                                         names[1])
+        return bool(internals.blpapi_ConstantList_hasConstant(self.__handle,
+                                                              names[0],
+                                                              names[1]))
 
     def getConstant(self, name):
         """Return the 'Constant' with the specified 'name'.

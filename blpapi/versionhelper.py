@@ -106,10 +106,6 @@ blpapi_getVersionInfo = _versionhelper.blpapi_getVersionInfo
 def blpapi_getVersionIdentifier():
     return _versionhelper.blpapi_getVersionIdentifier()
 blpapi_getVersionIdentifier = _versionhelper.blpapi_getVersionIdentifier
-
-def __lshift__(stream, rhs):
-    return _versionhelper.__lshift__(stream, rhs)
-__lshift__ = _versionhelper.__lshift__
 # This file is compatible with both classic and new-style classes.
 
 

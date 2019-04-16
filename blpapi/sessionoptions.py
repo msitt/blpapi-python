@@ -24,8 +24,10 @@ from __future__ import absolute_import
 from .exception import _ExceptionUtil
 from . import internals
 from . import utils
+from .utils import get_handle
 from .compat import with_metaclass
 
+# pylint: disable=useless-object-inheritance,too-many-public-methods,line-too-long
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
 class SessionOptions(object):
@@ -257,7 +259,7 @@ class SessionOptions(object):
         'slowConsumerWarningLoWaterMark() * maxEventQueueSize()' <
         'slowConsumerWarningHiWaterMark() * maxEventQueueSize()'."""
         err = internals.blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark(
-                self.__handle, hiWaterMark)
+            self.__handle, hiWaterMark)
         _ExceptionUtil.raiseOnError(err)
 
     def setSlowConsumerWarningLoWaterMark(self, loWaterMark):
@@ -271,7 +273,7 @@ class SessionOptions(object):
         'slowConsumerWarningLoWaterMark() * maxEventQueueSize()' <
         'slowConsumerWarningHiWaterMark() * maxEventQueueSize()'."""
         err = internals.blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark(
-                                         self.__handle, loWaterMark)
+            self.__handle, loWaterMark)
         _ExceptionUtil.raiseOnError(err)
 
     def setMaxEventQueueSize(self, eventQueueSize):
@@ -280,8 +282,9 @@ class SessionOptions(object):
         over the network will be dropped by the session if the number of
         outstanding undelivered events is 'eventQueueSize', the specified
         threshold.  The default value is 10000."""
-        internals.blpapi_SessionOptions_setMaxEventQueueSize(self.__handle,
-                eventQueueSize)
+        internals.blpapi_SessionOptions_setMaxEventQueueSize(
+            self.__handle,
+            eventQueueSize)
 
     def setKeepAliveEnabled(self, isEnabled):
         """If the specified 'isEnabled' is False, then disable all keep-alive
@@ -293,7 +296,7 @@ class SessionOptions(object):
         by the server configuration."""
         keepAliveValue = 1 if isEnabled else 0
         err = internals.blpapi_SessionOptions_setKeepAliveEnabled(
-                self.__handle, keepAliveValue)
+            self.__handle, keepAliveValue)
         _ExceptionUtil.raiseOnError(err)
 
     def setDefaultKeepAliveInactivityTime(self, inactivityMsecs):
@@ -307,7 +310,7 @@ class SessionOptions(object):
         milliseconds.  Note that not all back-end connections provide
         ping-based keep-alives; this option is ignored by such connections."""
         err = internals.blpapi_SessionOptions_setDefaultKeepAliveInactivityTime(
-                self.__handle, inactivityMsecs)
+            self.__handle, inactivityMsecs)
         _ExceptionUtil.raiseOnError(err)
 
     def setDefaultKeepAliveResponseTimeout(self, timeoutMsecs):
@@ -320,13 +323,13 @@ class SessionOptions(object):
         Note that not all back-end connections provide support for ping-based
         keep-alives; this option is ignored by such connections."""
         err = internals.blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout(
-                self.__handle, timeoutMsecs)
+            self.__handle, timeoutMsecs)
         _ExceptionUtil.raiseOnError(err)
 
     def setFlushPublishedEventsTimeout(self, timeoutMsecs):
         """Set the timeout, in milliseconds, for ProviderSession to flush
         published events before stopping. The behavior is not defined
-        unless the specified 'timeoutMsecs' is a positive value. The 
+        unless the specified 'timeoutMsecs' is a positive value. The
         default value is 2000."""
         internals.blpapi_SessionOptions_setFlushPublishedEventsTimeout(
             self.__handle, timeoutMsecs)
@@ -337,15 +340,15 @@ class SessionOptions(object):
         messages. By default, the receipt time for these messages is not
         recorded."""
         internals.blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes(
-                self.__handle, shouldRecord)
+            self.__handle, shouldRecord)
 
     def setServiceCheckTimeout(self, timeoutMsecs):
-        """Set the timeout, in milliseconds, when opening a service for checking
-         what version of the schema should be downloaded. The behavior is not
-         defined unless 'timeoutMsecs' is a positive value. The default timeout
-         is 60,000 milliseconds."""
+        """Set the timeout, in milliseconds, when opening a service
+        for checking what version of the schema should be downloaded.
+        The behavior is not defined unless 'timeoutMsecs' is a positive value.
+        The default timeout is 60,000 milliseconds."""
         err = internals.blpapi_SessionOptions_setServiceCheckTimeout(
-                                                    self.__handle, timeoutMsecs)
+            self.__handle, timeoutMsecs)
         _ExceptionUtil.raiseOnError(err)
 
     def setServiceDownloadTimeout(self, timeoutMsecs):
@@ -354,13 +357,14 @@ class SessionOptions(object):
         specified 'timeoutMsecs' is a positive value. The default timeout
         is 120,000 milliseconds."""
         err = internals.blpapi_SessionOptions_setServiceDownloadTimeout(
-                                                    self.__handle, timeoutMsecs)
+            self.__handle, timeoutMsecs)
         _ExceptionUtil.raiseOnError(err)
 
     def setTlsOptions(self, tlsOptions):
         """Set the TLS options"""
-        internals.blpapi_SessionOptions_setTlsOptions(self.__handle,
-                                                      tlsOptions._handle())
+        internals.blpapi_SessionOptions_setTlsOptions(
+            self.__handle,
+            get_handle(tlsOptions))
 
     def serverHost(self):
         """Return the server host option in this SessionOptions instance."""
@@ -382,8 +386,9 @@ class SessionOptions(object):
         """Return tuple of the server name and port indexed by 'index'."""
 
         errorCode, host, port = \
-            internals.blpapi_SessionOptions_getServerAddress(self.__handle,
-                                                             index)
+            internals.blpapi_SessionOptions_getServerAddress(
+                self.__handle,
+                index)
 
         _ExceptionUtil.raiseOnError(errorCode)
 
@@ -486,19 +491,19 @@ class SessionOptions(object):
         'blpapi.Message.timeReceived') should be recorded for subscription data
         messages."""
         return internals.blpapi_SessionOptions_recordSubscriptionDataReceiveTimes(
-                self.__handle)
+            self.__handle)
 
     def slowConsumerWarningHiWaterMark(self):
         """Return the fraction of maxEventQueueSize at which "slow consumer"
         event will be generated."""
         return internals.blpapi_SessionOptions_slowConsumerWarningHiWaterMark(
-                self.__handle)
+            self.__handle)
 
     def slowConsumerWarningLoWaterMark(self):
         """Return the fraction of maxEventQueueSize at which "slow consumer
         cleared" event will be generated."""
         return internals.blpapi_SessionOptions_slowConsumerWarningLoWaterMark(
-                self.__handle)
+            self.__handle)
 
     def maxEventQueueSize(self):
         """Return the value of maximum outstanding undelivered events that the
@@ -509,19 +514,19 @@ class SessionOptions(object):
         """Return the interval (in milliseconds) a connection has to remain
         inactive (receive no data) before a keep alive probe will be sent."""
         return internals.blpapi_SessionOptions_defaultKeepAliveInactivityTime(
-                self.__handle)
+            self.__handle)
 
     def defaultKeepAliveResponseTimeout(self):
         """Return the time (in milliseconds) the library will wait for response
         to a keep alive probe before declaring it lost."""
         return internals.blpapi_SessionOptions_defaultKeepAliveResponseTimeout(
-                self.__handle)
+            self.__handle)
 
     def flushPublishedEventsTimeout(self):
         """Return the timeout, in milliseconds, for ProviderSession to flush
         published events before stopping. The default value is 2000."""
         return internals.blpapi_SessionOptions_flushPublishedEventsTimeout(
-                 self.__handle)
+            self.__handle)
 
     def keepAliveEnabled(self):
         """Return True if the keep-alive mechanism is enabled; otherwise
@@ -531,12 +536,14 @@ class SessionOptions(object):
     def serviceCheckTimeout(self):
         """Return the value of the service check timeout option in this
         SessionOptions instance in milliseconds."""
-        return internals.blpapi_SessionOptions_serviceCheckTimeout(self.__handle)
+        return internals.blpapi_SessionOptions_serviceCheckTimeout(
+            self.__handle)
 
     def serviceDownloadTimeout(self):
         """Return the value of the service download timeout option in this
         SessionOptions instance in milliseconds."""
-        return internals.blpapi_SessionOptions_serviceDownloadTimeout(self.__handle)
+        return internals.blpapi_SessionOptions_serviceDownloadTimeout(
+            self.__handle)
 
     def _handle(self):
         """Return the internal implementation."""
@@ -551,9 +558,10 @@ class SessionOptions(object):
         'spacesPerLevel' is negative, format the entire output on one line,
         suppressing all but the initial indentation (as governed by 'level').
         """
-        return internals.blpapi_SessionOptions_printHelper(self.__handle,
-                                                           level,
-                                                           spacesPerLevel)
+        return internals.blpapi_SessionOptions_printHelper(
+            self.__handle,
+            level,
+            spacesPerLevel)
 
 class TlsOptions(object):
     """SSL configuration options
@@ -597,7 +605,8 @@ class TlsOptions(object):
         """Set the CRL fetch timeout to the specified 'timeoutMs'. The default
         is 20,000 milliseconds.  The TLS handshake timeout will be set to the
         default if the specified 'crlFetchTimeoutMs' is not positive."""
-        internals.blpapi_TlsOptions_setCrlFetchTimeoutMs(self.__handle, timeoutMs)
+        internals.blpapi_TlsOptions_setCrlFetchTimeoutMs(
+            self.__handle, timeoutMs)
 
     @staticmethod
     def createFromFiles(clientCredentialsFilename,
@@ -606,9 +615,10 @@ class TlsOptions(object):
         """Creates a TlsOptions using a DER encoded client credentials in
         PKCS#12 format and DER encoded trust material in PKCS#7 format from
         the specified files"""
-        handle = internals.blpapi_TlsOptions_createFromFiles(clientCredentialsFilename,
-                                                             clientCredentialsPassword,
-                                                             trustedCertificatesFilename)
+        handle = internals.blpapi_TlsOptions_createFromFiles(
+            clientCredentialsFilename,
+            clientCredentialsPassword,
+            trustedCertificatesFilename)
         return TlsOptions(handle)
 
     @staticmethod
@@ -624,9 +634,9 @@ class TlsOptions(object):
         credentials = bytearray(clientCredentials)
         certs = bytearray(trustedCertificates)
         handle = internals.blpapi_TlsOptions_createFromBlobs(
-                     credentials,
-                     clientCredentialsPassword,
-                     certs)
+            credentials,
+            clientCredentialsPassword,
+            certs)
         return TlsOptions(handle)
 
 __copyright__ = """

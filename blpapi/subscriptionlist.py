@@ -15,7 +15,7 @@ The simplest form of a subscription string is a *fully* *qualified*
 subscription string, which has the following structure:
 
 "//blp/mktdata/ticker/IBM US Equity?fields=BID,ASK&interval=2"
- \-----------/\------/\-----------/\------------------------/
+ \\-----------/\\------/\\-----------/\\------------------------/
        |          |         |                  |
     Service    Prefix   Instrument           Suffix
 
@@ -87,7 +87,9 @@ from .exception import _ExceptionUtil
 from . import internals
 from .internals import CorrelationId
 from .compat import conv2str, isstr
+from .utils import get_handle
 
+# pylint: disable=useless-object-inheritance
 
 class SubscriptionList(object):
     """A list of subscriptions.
@@ -106,24 +108,25 @@ class SubscriptionList(object):
     :  this subscription.
 
     The following table describes how various operations use the above
-    elements:
-    |--------------|--------------------------------------------------------|
-    | OPERATION    |  SUBSCRIPTION STRING  |       CORRELATION ID           |
-    |--------------|-----------------------+--------------------------------|
-    | 'subscribe'  |Used to specify the    |Identifier for the subscription.|
-    |              |topic to subscribe to. |If uninitialized correlationid  |
-    |              |                       |was specified an internally     |
-    |              |                       |generated correlationId will be |
-    |              |                       |set for the subscription.       |
-    |--------------+-----------------------+--------------------------------|
-    |'resubscribe' |Used to specify the new|Identifier of the subscription  |
-    |              |topic to which the     |which needs to be modified.     |
-    |              |subscription should be |                                |
-    |              |modified to.           |                                |
-    |--------------+-----------------------+--------------------------------|
-    |'unsubscribe' |        NOT USED       |Identifier of the subscription  |
-    |              |                       |which needs to be canceled.     |
-    |-----------------------------------------------------------------------|
+    elements::
+
+        |-------------|--------------------------------------------------------|
+        | OPERATION   |  SUBSCRIPTION STRING  |       CORRELATION ID           |
+        |-------------|-----------------------+--------------------------------|
+        | 'subscribe' |Used to specify the    |Identifier for the subscription.|
+        |             |topic to subscribe to. |If uninitialized correlationid  |
+        |             |                       |was specified an internally     |
+        |             |                       |generated correlationId will be |
+        |             |                       |set for the subscription.       |
+        |-------------+-----------------------+--------------------------------|
+        |'resubscribe'|Used to specify the new|Identifier of the subscription  |
+        |             |topic to which the     |which needs to be modified.     |
+        |             |subscription should be |                                |
+        |             |modified to.           |                                |
+        |-------------+-----------------------+--------------------------------|
+        |'unsubscribe'|        NOT USED       |Identifier of the subscription  |
+        |             |                       |which needs to be canceled.     |
+        |----------------------------------------------------------------------|
     """
     def __init__(self):
         """Create an empty SubscriptionList."""
@@ -165,20 +168,20 @@ class SubscriptionList(object):
             else:
                 fields = ",".join(fields)
 
-        if (options is not None):
+        if options is not None:
             if isstr(options):
                 options = conv2str(options)
             elif isinstance(options, (list, tuple)):
                 options = "&".join(options)
             elif isinstance(options, dict):
                 options = "&".join([key if val is None
-                                        else "{0}={1}".format(key, val)
+                                    else "{0}={1}".format(key, val)
                                     for key, val in options.items()])
 
         return internals.blpapi_SubscriptionList_addHelper(
             self.__handle,
             topic,
-            correlationId._handle(),
+            get_handle(correlationId),
             fields,
             options)
 
@@ -186,7 +189,7 @@ class SubscriptionList(object):
         """Append a copy of the specified 'subscriptionList' to this list"""
         return internals.blpapi_SubscriptionList_append(
             self.__handle,
-            other.__handle)
+            get_handle(other))
 
     def clear(self):
         """Remove all entries from this object."""
@@ -236,7 +239,7 @@ class SubscriptionList(object):
         if correlationId is None:
             correlationId = internals.CorrelationId()
         return internals.blpapi_SubscriptionList_addResolved(
-                self.__handle, subscriptionString, correlationId._handle())
+            self.__handle, subscriptionString, get_handle(correlationId))
 
     def isResolvedTopicAt(self, index):
         """Return 'true' if the 'index'th entry in this 'SubscriptionList'
@@ -244,7 +247,7 @@ class SubscriptionList(object):
         it was created using 'SubscriptionList.add'.  An exception is thrown
         if 'index >= size()'."""
         err, res = internals.blpapi_SubscriptionList_isResolvedAt(
-                self.__handle, index)
+            self.__handle, index)
         _ExceptionUtil.raiseOnError(err)
         return res
 

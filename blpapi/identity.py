@@ -6,15 +6,14 @@ This component provides an identification of a user and implements the access
 to the entitlements.
 """
 
-
-
-
 from .element import Element
 from .exception import _ExceptionUtil
 from . import internals
 from . import utils
+from .utils import get_handle
 from .compat import with_metaclass
 
+# pylint: disable=useless-object-inheritance
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
 class Identity(object):
@@ -76,8 +75,8 @@ class Identity(object):
         if isinstance(entitlements, Element):
             res = internals.blpapi_Identity_hasEntitlements(
                 self.__handle,
-                service._handle(),
-                entitlements._handle(),
+                get_handle(service),
+                get_handle(entitlements),
                 None,
                 0,
                 None,
@@ -90,7 +89,7 @@ class Identity(object):
                 carrayOfEIDs[i] = eid
             res = internals.blpapi_Identity_hasEntitlements(
                 self.__handle,
-                service._handle(),
+                get_handle(service),
                 None,
                 carrayOfEIDs,
                 numberOfEIDs,
@@ -117,8 +116,8 @@ class Identity(object):
             failedEIDsSize[0] = maxFailedEIDs
             res = internals.blpapi_Identity_hasEntitlements(
                 self.__handle,
-                service._handle(),
-                entitlements._handle(),
+                get_handle(service),
+                get_handle(entitlements),
                 None,
                 0,
                 failedEIDs,
@@ -135,7 +134,7 @@ class Identity(object):
             failedEIDsSize[0] = maxFailedEIDs
             res = internals.blpapi_Identity_hasEntitlements(
                 self.__handle,
-                service._handle(),
+                get_handle(service),
                 None,
                 carrayOfEIDs,
                 numberOfEIDs,
@@ -152,8 +151,9 @@ class Identity(object):
         Return True if this 'Identity' is authorized for the specified
         'service'; otherwise return False.
         """
-        res = internals.blpapi_Identity_isAuthorized(self.__handle,
-                                                     service._handle())
+        res = internals.blpapi_Identity_isAuthorized(
+            self.__handle,
+            get_handle(service))
         return True if res else False
 
     def getSeatType(self):
@@ -168,7 +168,7 @@ class Identity(object):
 
     # Protect enumeration constant(s) defined in this class and in classes
     # derived from this class from changes:
-    
+
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.
 

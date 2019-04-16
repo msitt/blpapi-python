@@ -1,41 +1,44 @@
-# This tool tries to register every blpapi_*** function call in a database.
-# Resulting information can be used later to generate test coverage report.
-# This module doesn't ment to be used directly.
+"""This tool tries to register every blpapi_*** function call in a database.
+Resulting information can be used later to generate test coverage report.
+This module doesn't ment to be used directly."""
+
+# pylint: disable=useless-import-alias,global-statement
 
 import sqlite3
-import blpapi.internals as internals
 from collections import defaultdict
 from threading import Lock
 import inspect
+import blpapi.internals as internals
+
 
 #import blpapi-py modules
 import blpapi
 
 __MODULES = [
-        blpapi,
-        blpapi.abstractsession,
-        blpapi.constant,
-        blpapi.datatype,
-        blpapi.datetime,
-        blpapi.element,
-        blpapi.event,
-        blpapi.eventdispatcher,
-        blpapi.eventformatter,
-        #blpapi.exception,
-        blpapi.identity,
-        blpapi.message,
-        blpapi.name,
-        blpapi.providersession,
-        blpapi.request,
-        blpapi.resolutionlist,
-        blpapi.schema,
-        blpapi.service,
-        blpapi.session,
-        blpapi.sessionoptions,
-        blpapi.subscriptionlist,
-        blpapi.topic,
-        blpapi.topiclist,
-        blpapi.utils,
+    blpapi,
+    blpapi.abstractsession,
+    blpapi.constant,
+    blpapi.datatype,
+    blpapi.datetime,
+    blpapi.element,
+    blpapi.event,
+    blpapi.eventdispatcher,
+    blpapi.eventformatter,
+    #blpapi.exception,
+    blpapi.identity,
+    blpapi.message,
+    blpapi.name,
+    blpapi.providersession,
+    blpapi.request,
+    blpapi.resolutionlist,
+    blpapi.schema,
+    blpapi.service,
+    blpapi.session,
+    blpapi.sessionoptions,
+    blpapi.subscriptionlist,
+    blpapi.topic,
+    blpapi.topiclist,
+    blpapi.utils,
 ]
 
 
@@ -49,6 +52,7 @@ __EXCEPTIONS = set([
 ])
 
 def __writeCallToDB(method_name, test_name, class_name=None):
+    """ writes to db """
     global __cursor, __cursorLock
     with __cursorLock:
         query = """
@@ -69,7 +73,7 @@ def __writeCallToDB(method_name, test_name, class_name=None):
                                           table_name=table_name,))
         else:
             print("No database connection, calling {method} from {test}".format(
-                                          method=full_method_name, test=test_name))
+                method=full_method_name, test=test_name))
 
 def logCallsToDB(method_name, test_name, obj, clsname=None):
     """Basic logging decorator"""
@@ -199,7 +203,10 @@ def commit():
     __connection.commit()
 
 class Coverage:
-    def __init__(self, cur, api_table_name='all_api_exists', calls_table_name='api_calls_by_test'):
+    """ coverage """
+    def __init__(self, cur,
+                 api_table_name='all_api_exists',
+                 calls_table_name='api_calls_by_test'):
         self.__api_table_name = api_table_name
         self.__calls_table_name = calls_table_name
         self.__tests = defaultdict(list)
@@ -208,15 +215,18 @@ class Coverage:
         self.readDB()
 
     def readDB(self):
+        """ select from db """
         query = """SELECT * from {0};""".format(self.__api_table_name)
         for name, in self.__cursor.execute(query):
             self.__allfn.append(name)
 
-        query = """SELECT test_name, method_name FROM {0};""".format(self.__calls_table_name)
+        query = """SELECT test_name, method_name FROM {0};""".format(
+            self.__calls_table_name)
         for test, method in self.__cursor.execute(query):
             self.__tests[test].append(method)
 
     def getTotalCoverage(self):
+        """ returns coverage """
         from itertools import chain
         allexists = set(self.__allfn)
         alltested = set(chain(*self.__tests.values()))
@@ -229,6 +239,7 @@ class Coverage:
         }
 
 def getCodeCoverage():
+    """ returns coverage """
     global __cursor
     blpapi_coverage = Coverage(__cursor)
     blpapipy_coverage = Coverage(__cursor, api_table_name="all_class_methods",
@@ -241,4 +252,3 @@ def getCodeCoverage():
 # Init everything on module load
 print("Initializing testtools, database name %s" % __DBNAME)
 init()
-

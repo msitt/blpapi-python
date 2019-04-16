@@ -7,12 +7,11 @@ form for efficient string comparison.
 
 """
 
-
-
 from . import internals
-import sys
 from .compat import conv2str, tolong, isstr
+from .utils import get_handle
 
+# pylint: disable=useless-object-inheritance,broad-except
 
 class Name(object):
     """Name represents a string in a form which is efficient for comparison.
@@ -61,7 +60,7 @@ class Name(object):
     def hasName(nameString):
         """Return True if a Name object representing 'nameString' exists.
         """
-        return internals.blpapi_Name_hasName(nameString)
+        return bool(internals.blpapi_Name_hasName(nameString))
 
     @staticmethod
     def _createInternally(handle):
@@ -105,9 +104,8 @@ class Name(object):
             s = conv2str(other)
             if s is not None:
                 p = internals.blpapi_Name_equalsStr(self.__handle, s)
-                return 0 != p
-            else:
-                return self.__handle == other.__handle
+                return p != 0
+            return self.__handle == get_handle(other)
         except Exception:
             return NotImplemented
 
@@ -133,12 +131,11 @@ def getNamePair(name):
     """
 
     if isinstance(name, Name):
-        return (None, name._handle())
-    elif isstr(name):
+        return (None, get_handle(name))
+    if isstr(name):
         return (conv2str(name), None)
-    else:
-        raise TypeError(
-            "name should be an instance of a string or blpapi.Name")
+    raise TypeError(
+        "name should be an instance of a string or blpapi.Name")
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

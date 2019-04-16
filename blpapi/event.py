@@ -33,17 +33,13 @@ Synchronously read the response 'event' and parse over messages using 'token'
 
 """
 
-
-
 from .message import Message
 from . import internals
 from . import utils
+from .utils import get_handle
 from .compat import with_metaclass
 
-import sys
-
-#sys.modules[__name__] = utils._Constants()
-
+# pylint: disable=useless-object-inheritance
 
 class MessageIterator(object):
     """An iterator over the 'Message' objects within an Event.
@@ -55,7 +51,7 @@ class MessageIterator(object):
 
     def __init__(self, event):
         self.__handle = \
-            internals.blpapi_MessageIterator_create(event._handle())
+            internals.blpapi_MessageIterator_create(get_handle(event))
         self.__event = event
 
     def __del__(self):
@@ -104,54 +100,53 @@ class Event(object):
 
     Class attributes:
         The possible types of event:
-        ADMIN                 Admin event
-        SESSION_STATUS        Status updates for a session
-        SUBSCRIPTION_STATUS   Status updates for a subscription
-        REQUEST_STATUS        Status updates for a request
-        RESPONSE              The final (possibly only) response to a request
-        PARTIAL_RESPONSE      A partial response to a request
-        SUBSCRIPTION_DATA     Data updates resulting from a subscription
-        SERVICE_STATUS        Status updates for a service
-        TIMEOUT               An Event returned from nextEvent() if it
-                              timed out
-        AUTHORIZATION_STATUS  Status updates for user authorization
-        RESOLUTION_STATUS     Status updates for a resolution operation
-        TOPIC_STATUS          Status updates about topics for service providers
-        ROKEN_STATUS          Status updates for a generate token request
-        REQUEST               Request event
-        UNKNOWN               Unknown event
+            ADMIN:
+                Admin event
+            SESSION_STATUS:
+                Status updates for a session
+            SUBSCRIPTION_STATUS:
+                Status updates for a subscription
+            REQUEST_STATUS:
+                Status updates for a request
+            RESPONSE:
+                The final (possibly only) response to a request
+            PARTIAL_RESPONSE:
+                A partial response to a request
+            SUBSCRIPTION_DATA:
+                Data updates resulting from a subscription
+            SERVICE_STATUS:
+                Status updates for a service
+            TIMEOUT:
+                An Event returned from nextEvent() if it timed out
+            AUTHORIZATION_STATUS:
+                Status updates for user authorization
+            RESOLUTION_STATUS:
+                Status updates for a resolution operation
+            TOPIC_STATUS:
+                Status updates about topics for service providers
+            ROKEN_STATUS:
+                Status updates for a generate token request
+            REQUEST:
+                Request event
+            UNKNOWN:
+                Unknown event
     """
 
     ADMIN = internals.EVENTTYPE_ADMIN
-    """Admin event"""
     SESSION_STATUS = internals.EVENTTYPE_SESSION_STATUS
-    """Status updates for a session"""
     SUBSCRIPTION_STATUS = internals.EVENTTYPE_SUBSCRIPTION_STATUS
-    """Status updates for a subscription"""
     REQUEST_STATUS = internals.EVENTTYPE_REQUEST_STATUS
-    """Status updates for a request"""
     RESPONSE = internals.EVENTTYPE_RESPONSE
-    """The final (possibly only) response to a request"""
     PARTIAL_RESPONSE = internals.EVENTTYPE_PARTIAL_RESPONSE
-    """A partial response to a request"""
     SUBSCRIPTION_DATA = internals.EVENTTYPE_SUBSCRIPTION_DATA
-    """Data updates resulting from a subscription"""
     SERVICE_STATUS = internals.EVENTTYPE_SERVICE_STATUS
-    """Status updates for a service"""
     TIMEOUT = internals.EVENTTYPE_TIMEOUT
-    """An Event returned from nextEvent() if it timed out"""
     AUTHORIZATION_STATUS = internals.EVENTTYPE_AUTHORIZATION_STATUS
-    """Status updates for user authorization"""
     RESOLUTION_STATUS = internals.EVENTTYPE_RESOLUTION_STATUS
-    """Status updates for a resolution operation"""
     TOPIC_STATUS = internals.EVENTTYPE_TOPIC_STATUS
-    """Status updates about topics for service providers"""
     TOKEN_STATUS = internals.EVENTTYPE_TOKEN_STATUS
-    """Status updates for a generate token request"""
     REQUEST = internals.EVENTTYPE_REQUEST
-    """Request event"""
     UNKNOWN = -1
-    """Unknown event"""
 
     def __init__(self, handle, sessions):
         self.__handle = handle
@@ -188,7 +183,7 @@ class Event(object):
 
     # Protect enumeration constant(s) defined in this class and in classes
     # derived from this class from changes:
-    
+
 
 class EventQueue(object):
     """A construct used to handle replies to request synchronously.
@@ -239,8 +234,7 @@ class EventQueue(object):
         res = internals.blpapi_EventQueue_tryNextEvent(self.__handle)
         if res[0]:
             return None
-        else:
-            return Event(res[1], self._getSessions())
+        return Event(res[1], self._getSessions())
 
     def purge(self):
         """Purge any 'Event' objects in this 'EventQueue'.

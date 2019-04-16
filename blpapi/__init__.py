@@ -1,5 +1,7 @@
 # __init__.py
 
+# pylint: disable=missing-docstring,redefined-builtin,wildcard-import
+
 try:
     from .internals import CorrelationId
 except ImportError as error:
@@ -22,14 +24,16 @@ from .message import Message
 from .name import Name
 from .providersession import ProviderSession, ServiceRegistrationOptions
 from .request import Request
+from .requesttemplate import RequestTemplate
 from .resolutionlist import ResolutionList
 from .schema import SchemaElementDefinition, SchemaStatus, SchemaTypeDefinition
-from .service import Service
+from .service import Service, Operation
 from .session import Session
 from .sessionoptions import SessionOptions, TlsOptions
 from .subscriptionlist import SubscriptionList
 from .topic import Topic
 from .topiclist import TopicList
+from .zfputil import ZfpUtil
 from .version import __version__, version, cpp_sdk_version, print_version
 
 __copyright__ = """

@@ -6,12 +6,11 @@ This file defines these classes:
     'DataType' - "enum" representing all possible data types in an Element.
 """
 
-
-
 from . import internals
 from . import utils
 from .compat import with_metaclass
 
+# pylint: disable=too-few-public-methods,useless-object-inheritance
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
 class DataType(object):

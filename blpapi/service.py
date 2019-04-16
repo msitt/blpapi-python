@@ -8,17 +8,16 @@ provider service (can generate API data) or a consumer service.
 
 """
 
-
-
-
 from .event import Event
 from .name import getNamePair
 from .request import Request
 from .schema import SchemaElementDefinition
 from .exception import _ExceptionUtil
 from . import utils
+from .utils import get_handle
 from . import internals
 
+# pylint: disable=useless-object-inheritance
 
 class Operation(object):
     """Defines an operation which can be performed by a Service.
@@ -51,7 +50,7 @@ class Operation(object):
 
         errCode, definition = internals.blpapi_Operation_requestDefinition(
             self.__handle)
-        return None if 0 != errCode else\
+        return None if errCode != 0 else\
             SchemaElementDefinition(definition, self.__sessions)
 
     def numResponseDefinitions(self):
@@ -186,7 +185,7 @@ class Service(object):
 
         errCode, event = internals.blpapi_Service_createResponseEvent(
             self.__handle,
-            correlationId._handle())
+            get_handle(correlationId))
         _ExceptionUtil.raiseOnError(errCode)
         return Event(event, self.__sessions)
 
@@ -207,9 +206,9 @@ class Service(object):
         """
 
         names = getNamePair(name)
-        return internals.blpapi_Service_hasOperation(self.__handle,
-                                                     names[0],
-                                                     names[1])
+        return bool(internals.blpapi_Service_hasOperation(self.__handle,
+                                                          names[0],
+                                                          names[1]))
 
     def getOperation(self, nameOrIndex):
         """Return a specified operation.
@@ -255,9 +254,9 @@ class Service(object):
         """
 
         names = getNamePair(name)
-        return internals.blpapi_Service_hasEventDefinition(self.__handle,
-                                                           names[0],
-                                                           names[1])
+        return bool(internals.blpapi_Service_hasEventDefinition(self.__handle,
+                                                                names[0],
+                                                                names[1]))
 
     def getEventDefinition(self, nameOrIndex):
         """Return the definition of a specified event.

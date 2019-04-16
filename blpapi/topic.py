@@ -5,21 +5,18 @@
 This component provides a topic that is used for publishing data on.
 """
 
-
-
-from .exception import _ExceptionUtil
-from .message import Message
 from . import internals
-from .internals import CorrelationId
 from .service import Service
+from .utils import get_handle
 
+# pylint: disable=useless-object-inheritance
 
 class Topic(object):
     """Used to identify the stream on which a message is published.
 
-    Topic objects are obtained from 'createTopic()' on 'ProviderSession'. They are
-    used when adding a message to an Event for publishing using 'appendMessage()'
-    on 'EventFormatter'.
+    Topic objects are obtained from 'createTopic()' on 'ProviderSession'.
+    They are used when adding a message to an Event for publishing using
+    'appendMessage()' on 'EventFormatter'.
     """
 
     def __init__(self, handle=None, sessions=None):
@@ -72,15 +69,19 @@ class Topic(object):
 
     def __cmp__(self, other):
         """3-way comparison of Topic objects."""
-        return internals.blpapi_Topic_compare(self.__handle, other.__handle)
+        return internals.blpapi_Topic_compare(
+            self.__handle,
+            get_handle(other))
 
     def __lt__(self, other):
         """2-way comparison of Topic objects."""
-        return internals.blpapi_Topic_compare(self.__handle, other.__handle) < 0
+        return internals.blpapi_Topic_compare(
+            self.__handle, get_handle(other)) < 0
 
     def __eq__(self, other):
         """2-way comparison of Topic objects."""
-        return internals.blpapi_Topic_compare(self.__handle, other.__handle) == 0
+        return internals.blpapi_Topic_compare(
+            self.__handle, get_handle(other)) == 0
 
     def _handle(self):
         """Return the internal implementation."""

@@ -19,6 +19,8 @@ and management of snapshot request templates.
 
 from . import internals
 
+# pylint: disable=useless-object-inheritance
+
 class RequestTemplate(object):
     """Request templates cache the necessary information to make a request and
     eliminate the need to create new requests for snapshot services.

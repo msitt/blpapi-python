@@ -1,14 +1,11 @@
-# SnapshotRequestTemplateExample.py
+"""SnapshotRequestTemplateExample.py"""
 from __future__ import print_function
 from __future__ import absolute_import
 
-import blpapi
 import datetime
-import time
-import traceback
-import weakref
 from optparse import OptionParser, OptionValueError
-from blpapi import Event as EventType
+
+import blpapi
 
 TOKEN_SUCCESS = blpapi.Name("TokenGenerationSuccess")
 TOKEN_FAILURE = blpapi.Name("TokenGenerationFailure")
@@ -16,7 +13,7 @@ AUTHORIZATION_SUCCESS = blpapi.Name("AuthorizationSuccess")
 TOKEN = blpapi.Name("token")
 
 
-def authOptionCallback(option, opt, value, parser):
+def authOptionCallback(_option, _opt, value, parser):
     vals = value.split('=', 1)
 
     if value == "user":
@@ -40,6 +37,7 @@ def authOptionCallback(option, opt, value, parser):
 
 
 def parseCmdLine():
+    """parse cli arguments"""
     parser = OptionParser(description="Retrieve realtime data.")
     parser.add_option("-a",
                       "--ip",
@@ -94,7 +92,7 @@ def parseCmdLine():
                       type="string",
                       default="user")
 
-    (opts, args) = parser.parse_args()
+    (opts, _) = parser.parse_args()
 
     if not opts.hosts:
         opts.hosts = ["localhost"]
@@ -106,6 +104,7 @@ def parseCmdLine():
 
 
 def authorize(authService, identity, session, cid):
+    """authorize the session for identity via authService"""
     tokenEventQueue = blpapi.EventQueue()
     session.generateToken(eventQueue=tokenEventQueue)
 
@@ -153,6 +152,7 @@ def authorize(authService, identity, session, cid):
 
 
 def main():
+    """main entry point"""
     global options
     options = parseCmdLine()
 
@@ -181,9 +181,9 @@ def main():
         print("Failed to start session.")
         return
 
-    subscriptionIdentity = session.createIdentity()
-
+    subscriptionIdentity = None
     if options.auth:
+        subscriptionIdentity = session.createIdentity()
         isAuthorized = False
         authServiceName = "//blp/apiauth"
         if session.openService(authServiceName):
@@ -193,6 +193,8 @@ def main():
         if not isAuthorized:
             print("No authorization")
             return
+    else:
+        print("Not using authorization")
 
     fieldStr = "?fields=" + ",".join(options.fields)
 
@@ -201,9 +203,9 @@ def main():
     for i, topic in enumerate(options.topics):
         subscriptionString = options.service + topic + fieldStr
         snapshots.append(session.createSnapshotRequestTemplate(
-                                      subscriptionString,
-                                      subscriptionIdentity,
-                                      blpapi.CorrelationId(i)))
+            subscriptionString,
+            subscriptionIdentity,
+            blpapi.CorrelationId(i)))
         nextCorrelationId += 1
 
     requestTemplateAvailable = blpapi.Name('RequestTemplateAvailable')
@@ -217,8 +219,9 @@ def main():
                         msg.messageType() == requestTemplateAvailable:
 
                     for requestTemplate in snapshots:
-                        session.sendRequestTemplate(requestTemplate,
-                                    blpapi.CorrelationId(nextCorrelationId))
+                        session.sendRequestTemplate(
+                            requestTemplate,
+                            blpapi.CorrelationId(nextCorrelationId))
                         nextCorrelationId += 1
 
                 elif event.eventType() == blpapi.Event.RESPONSE or \
@@ -235,8 +238,9 @@ def main():
                     break
             elif event.eventType() == blpapi.Event.TIMEOUT:
                 for requestTemplate in snapshots:
-                    session.sendRequestTemplate(requestTemplate,
-                                blpapi.CorrelationId(nextCorrelationId))
+                    session.sendRequestTemplate(
+                        requestTemplate,
+                        blpapi.CorrelationId(nextCorrelationId))
                     nextCorrelationId += 1
 
     finally:

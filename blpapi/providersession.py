@@ -76,7 +76,8 @@ from . import utils
 from .utils import get_handle
 from .compat import with_metaclass
 
-# pylint: disable=line-too-long,bad-continuation
+# pylint: disable=line-too-long,bad-continuation,useless-object-inheritance
+# pylint: disable=protected-access,too-many-public-methods,bare-except,too-many-function-args
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
 class ServiceRegistrationOptions(object):
@@ -366,7 +367,12 @@ class ProviderSession(AbstractSession):
         a non-negative value. When 'timeoutMsecs' is 0, the method checks
         if all the published events have been sent and returns without
         waiting."""
-        return internals.ProviderSession_flushPublishedEvents(self.__handle, timeoutMsecs)
+
+        err_code, allFlushed = internals.blpapi_ProviderSession_flushPublishedEvents(self.__handle, timeoutMsecs)
+        if err_code != 0:
+            raise RuntimeError("Flush published events failed")
+
+        return allFlushed != 0
 
     def stop(self):
         """Stop operation of this session and wait until it stops.

@@ -1,4 +1,5 @@
 # coding: utf-8
+""" Support highres clock"""
 
 from __future__ import absolute_import
 from blpapi import internals
@@ -10,6 +11,10 @@ def now(tzinfo=UTC):
     necessarily the same clock as is accessed by calls to 'datetime.now'. The
     resulting datetime will be represented using the specified 'tzinfo'.
     """
-    original = internals.blpapi_HighResolutionClock_now_wrapper()
+    err_code, time_point = internals.blpapi_HighResolutionClock_now()
+    if err_code != 0:
+        raise RuntimeError("High resolution clock error")
+    original = internals.blpapi_HighPrecisionDatetime_fromTimePoint_wrapper(
+        time_point)
     native = _DatetimeUtil.convertToNative(original)
     return native.astimezone(tzinfo)

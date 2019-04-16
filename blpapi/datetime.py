@@ -5,12 +5,14 @@
 from __future__ import absolute_import
 from __future__ import division
 
+import datetime as _dt
+
 from . import internals
 from . import utils
 from .compat import with_metaclass
 
-import datetime as _dt
 
+# pylint: disable=no-member,useless-object-inheritance
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
 class FixedOffset(_dt.tzinfo):
@@ -48,11 +50,17 @@ class FixedOffset(_dt.tzinfo):
     def __init__(self, offsetInMinutes=0):
         self.__offset = _dt.timedelta(minutes=offsetInMinutes)
 
-    def utcoffset(self, unused):
+    def utcoffset(self, dt):
+        del dt
         return self.__offset
 
-    def dst(self, unused):
+    def dst(self, dt): # pylint: disable=no-self-use
+        del dt
         return _dt.timedelta(0)
+
+    def tzname(self, dt):
+        del dt
+        return self.__offset
 
     def getOffsetInMinutes(self):
         return self.__offset.days * 24 * 60 + self.__offset.seconds // 60
@@ -63,10 +71,10 @@ class FixedOffset(_dt.tzinfo):
 
     def __cmp__(self, other):
         """Let the comparison operations work based on the time delta.
-        NOTE: (compatibility) this method have no special meaning in python3, 
+        NOTE: (compatibility) this method have no special meaning in python3,
         we should use __eq__, __lt__ and __le__ instead. Built-in cmp function
         is also gone. This method can be called only from python2."""
-        return cmp(self.getOffsetInMinutes(), other.getOffsetInMinutes())
+        return cmp(self.getOffsetInMinutes(), other.getOffsetInMinutes()) # pylint: disable=undefined-variable
 
     def __eq__(self, other):
         """Let the equality operator work based on the time delta."""
@@ -91,8 +99,9 @@ class _DatetimeUtil(object):
     def convertToNative(blpapiDatetimeObj):
         """Convert BLPAPI Datetime object to a suitable Python object."""
 
-        isHighPrecision = isinstance(blpapiDatetimeObj,
-                internals.blpapi_HighPrecisionDatetime_tag)
+        isHighPrecision = isinstance(
+            blpapiDatetimeObj,
+            internals.blpapi_HighPrecisionDatetime_tag)
 
         if isHighPrecision:
             # used for (get/set)Element, (get/set/append)Value methods
@@ -124,21 +133,21 @@ class _DatetimeUtil(object):
                                     blpapiDatetime.seconds,
                                     microsecs,
                                     tzinfo)
-            else:
-                # Skip an offset, because it's not informative in case of
-                # there is a date without the time
-                return _dt.date(blpapiDatetime.year,
-                                blpapiDatetime.month,
-                                blpapiDatetime.day)
-        else:
-            if not hasTime:
-                raise ValueError("Datetime object misses both time and date \
-parts", blpapiDatetime)
-            return _dt.time(blpapiDatetime.hours,
-                            blpapiDatetime.minutes,
-                            blpapiDatetime.seconds,
-                            microsecs,
-                            tzinfo)
+            # Skip an offset, because it's not informative in case of
+            # there is a date without the time
+            return _dt.date(blpapiDatetime.year,
+                            blpapiDatetime.month,
+                            blpapiDatetime.day)
+
+        if not hasTime:
+            raise ValueError(
+                "Datetime object misses both time and date parts",
+                blpapiDatetime)
+        return _dt.time(blpapiDatetime.hours,
+                        blpapiDatetime.minutes,
+                        blpapiDatetime.seconds,
+                        microsecs,
+                        tzinfo)
 
     @staticmethod
     def isDatetime(dtime):

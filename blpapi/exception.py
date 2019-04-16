@@ -6,13 +6,14 @@ This file defines various exceptions that blpapi can raise.
 """
 
 
-
 try:
     from builtins import Exception as _StandardException
 except ImportError:
     from __builtin__ import Exception as _StandardException
 from . import internals
 
+
+# pylint: disable=useless-object-inheritance, redefined-builtin
 
 class Exception(_StandardException):
     """This class defines a base exception for blpapi operations.
@@ -23,13 +24,14 @@ class Exception(_StandardException):
         _StandardException.__init__(self, description, errorCode)
 
     def __str__(self):
-        return "{0} ({1:#010x})".format(self.args[0], self.args[1])
+        args_arr = list(self.args)
+        return "{0} ({1:#010x})".format(args_arr[0], args_arr[1])
 
 
 class DuplicateCorrelationIdException(Exception):
     """Duplicate CorrelationId exception.
 
-    The class defines an exception for non unqiue 'blpapi.CorrelationId'.
+    The class defines an exception for non unique 'blpapi.CorrelationId'.
     """
     pass
 
@@ -120,6 +122,7 @@ class _ExceptionUtil(object):
 
     @staticmethod
     def __getErrorClass(errorCode):
+        """ returns proper error class for the code """
         if errorCode == internals.ERROR_DUPLICATE_CORRELATIONID:
             return DuplicateCorrelationIdException
         errorClass = errorCode & 0xff0000

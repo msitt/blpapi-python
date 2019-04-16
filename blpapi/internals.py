@@ -120,22 +120,6 @@ except __builtin__.Exception:
         pass
     _newclass = 0
 
-TOPICLIST_NOT_CREATED = _internals.TOPICLIST_NOT_CREATED
-TOPICLIST_CREATED = _internals.TOPICLIST_CREATED
-TOPICLIST_FAILURE = _internals.TOPICLIST_FAILURE
-RESOLUTIONLIST_UNRESOLVED = _internals.RESOLUTIONLIST_UNRESOLVED
-RESOLUTIONLIST_RESOLVED = _internals.RESOLUTIONLIST_RESOLVED
-RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_SERVICE = _internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_SERVICE
-RESOLUTIONLIST_RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED = _internals.RESOLUTIONLIST_RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED
-RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_TOPIC = _internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_TOPIC
-RESOLUTIONLIST_RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED = _internals.RESOLUTIONLIST_RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED
-MESSAGE_FRAGMENT_NONE = _internals.MESSAGE_FRAGMENT_NONE
-MESSAGE_FRAGMENT_START = _internals.MESSAGE_FRAGMENT_START
-MESSAGE_FRAGMENT_INTERMEDIATE = _internals.MESSAGE_FRAGMENT_INTERMEDIATE
-MESSAGE_FRAGMENT_END = _internals.MESSAGE_FRAGMENT_END
-MESSAGE_RECAPTYPE_NONE = _internals.MESSAGE_RECAPTYPE_NONE
-MESSAGE_RECAPTYPE_SOLICITED = _internals.MESSAGE_RECAPTYPE_SOLICITED
-MESSAGE_RECAPTYPE_UNSOLICITED = _internals.MESSAGE_RECAPTYPE_UNSOLICITED
 ELEMENTDEFINITION_UNBOUNDED = _internals.ELEMENTDEFINITION_UNBOUNDED
 ELEMENT_INDEX_END = _internals.ELEMENT_INDEX_END
 SERVICEREGISTRATIONOPTIONS_PRIORITY_MEDIUM = _internals.SERVICEREGISTRATIONOPTIONS_PRIORITY_MEDIUM
@@ -198,6 +182,24 @@ REGISTRATIONPARTS_PUBLISHING = _internals.REGISTRATIONPARTS_PUBLISHING
 REGISTRATIONPARTS_OPERATIONS = _internals.REGISTRATIONPARTS_OPERATIONS
 REGISTRATIONPARTS_SUBSCRIBER_RESOLUTION = _internals.REGISTRATIONPARTS_SUBSCRIBER_RESOLUTION
 REGISTRATIONPARTS_PUBLISHER_RESOLUTION = _internals.REGISTRATIONPARTS_PUBLISHER_RESOLUTION
+TOPICLIST_NOT_CREATED = _internals.TOPICLIST_NOT_CREATED
+TOPICLIST_CREATED = _internals.TOPICLIST_CREATED
+TOPICLIST_FAILURE = _internals.TOPICLIST_FAILURE
+RESOLUTIONLIST_UNRESOLVED = _internals.RESOLUTIONLIST_UNRESOLVED
+RESOLUTIONLIST_RESOLVED = _internals.RESOLUTIONLIST_RESOLVED
+RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_SERVICE = _internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_SERVICE
+RESOLUTIONLIST_RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED = _internals.RESOLUTIONLIST_RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED
+RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_TOPIC = _internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_TOPIC
+RESOLUTIONLIST_RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED = _internals.RESOLUTIONLIST_RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED
+MESSAGE_FRAGMENT_NONE = _internals.MESSAGE_FRAGMENT_NONE
+MESSAGE_FRAGMENT_START = _internals.MESSAGE_FRAGMENT_START
+MESSAGE_FRAGMENT_INTERMEDIATE = _internals.MESSAGE_FRAGMENT_INTERMEDIATE
+MESSAGE_FRAGMENT_END = _internals.MESSAGE_FRAGMENT_END
+MESSAGE_RECAPTYPE_NONE = _internals.MESSAGE_RECAPTYPE_NONE
+MESSAGE_RECAPTYPE_SOLICITED = _internals.MESSAGE_RECAPTYPE_SOLICITED
+MESSAGE_RECAPTYPE_UNSOLICITED = _internals.MESSAGE_RECAPTYPE_UNSOLICITED
+ZFPUTIL_REMOTE_8194 = _internals.ZFPUTIL_REMOTE_8194
+ZFPUTIL_REMOTE_8196 = _internals.ZFPUTIL_REMOTE_8196
 DATATYPE_BOOL = _internals.DATATYPE_BOOL
 DATATYPE_CHAR = _internals.DATATYPE_CHAR
 DATATYPE_BYTE = _internals.DATATYPE_BYTE
@@ -227,6 +229,10 @@ def setLoggerCallbackWrapper(cb, severity):
     return _internals.setLoggerCallbackWrapper(cb, severity)
 setLoggerCallbackWrapper = _internals.setLoggerCallbackWrapper
 
+def blpapi_HighPrecisionDatetime_fromTimePoint_wrapper(original):
+    return _internals.blpapi_HighPrecisionDatetime_fromTimePoint_wrapper(original)
+blpapi_HighPrecisionDatetime_fromTimePoint_wrapper = _internals.blpapi_HighPrecisionDatetime_fromTimePoint_wrapper
+
 def blpapi_Logging_registerCallback(callback, thresholdSeverity):
     return _internals.blpapi_Logging_registerCallback(callback, thresholdSeverity)
 blpapi_Logging_registerCallback = _internals.blpapi_Logging_registerCallback
@@ -238,14 +244,6 @@ blpapi_Logging_logTestMessage = _internals.blpapi_Logging_logTestMessage
 def blpapi_DiagnosticsUtil_memoryInfo_wrapper():
     return _internals.blpapi_DiagnosticsUtil_memoryInfo_wrapper()
 blpapi_DiagnosticsUtil_memoryInfo_wrapper = _internals.blpapi_DiagnosticsUtil_memoryInfo_wrapper
-
-def blpapi_Message_timeReceived_wrapper(message):
-    return _internals.blpapi_Message_timeReceived_wrapper(message)
-blpapi_Message_timeReceived_wrapper = _internals.blpapi_Message_timeReceived_wrapper
-
-def blpapi_HighResolutionClock_now_wrapper():
-    return _internals.blpapi_HighResolutionClock_now_wrapper()
-blpapi_HighResolutionClock_now_wrapper = _internals.blpapi_HighResolutionClock_now_wrapper
 
 def blpapi_EventDispatcher_stop(handle, asynch):
     return _internals.blpapi_EventDispatcher_stop(handle, asynch)
@@ -361,13 +359,14 @@ class CorrelationId(_object):
 
     Two CorrelationIds are considered equal if they have the same
     type() and:
+
     - holds the same (not just equal!) objects in case of
-        type() == CorrelationId.OBJECT_TYPE
+      type() == CorrelationId.OBJECT_TYPE
     - holds equal integers in case of
-        type() == CorrelationId.INT_TYPE or
-        type() == CorrelationId.AUTOGEN_TYPE
+      type() == CorrelationId.INT_TYPE or
+      type() == CorrelationId.AUTOGEN_TYPE
     - True otherwise
-        (i.e. in case of type() == CorrelationId.UNSET_TYPE)
+      (i.e. in case of type() == CorrelationId.UNSET_TYPE)
 
     It is possible that an user constructed CorrelationId and a
     CorrelationId generated by the API could return the same
@@ -387,16 +386,20 @@ class CorrelationId(_object):
     whilst the original request or subscription is still active.
 
     Class attributes:
+        MAX_CLASS_ID:
+            The maximum value allowed for classId.
         Possible return values for type() method:
-            UNSET_TYPE      The CorrelationId is unset. That is, it was created by
-                            the default CorrelationId constructor.
-            INT_TYPE        The CorrelationId was created from an integer (or long)
-                            supplied by the user.
-            OBJECT_TYPE     The CorrelationId was created from an object supplied by
-                            the user.
-            AUTOGEN_TYPE    The CorrelationId was created internally by API.
-
-        MAX_CLASS_ID    The maximum value allowed for classId.
+            UNSET_TYPE:
+                The CorrelationId is unset. That is, it was created by
+                the default CorrelationId constructor.
+            INT_TYPE:
+                The CorrelationId was created from an integer (or long)
+                supplied by the user.
+            OBJECT_TYPE:
+                The CorrelationId was created from an object supplied by
+                the user.
+            AUTOGEN_TYPE:
+                The CorrelationId was created internally by API.
     """
 
     __swig_setmethods__ = {}
@@ -404,6 +407,9 @@ class CorrelationId(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, CorrelationId, name)
     __repr__ = _swig_repr
+    __swig_getmethods__["value"] = _internals.CorrelationId_value_get
+    if _newclass:
+        value = _swig_property(_internals.CorrelationId_value_get)
 
     UNSET_TYPE = _internals.CORRELATION_TYPE_UNSET
 
@@ -439,7 +445,7 @@ class CorrelationId(_object):
     def __eq__(self, other):
         """x.__eq__(y) <==> x==y"""
         try:
-            return CorrelationId_t_equals(self, other)
+            return bool(CorrelationId_t_equals(self, other))
         except Exception:
             return NotImplemented
 
@@ -451,8 +457,9 @@ class CorrelationId(_object):
     def value(self):
         """Return the value of this CorrelationId object. The return value
         depends on this CorrelationId's value type and could be:
+
             - integer (type() == CorrelationId.INT_TYPE
-                or type() == CorrelationId.AUTOGEN_TYPE)
+              or type() == CorrelationId.AUTOGEN_TYPE)
             - object (type() == CorrelationId.OBJECT_TYPE)
             - None (type() == CorrelationId.UNSET_TYPE)
         """
@@ -481,13 +488,14 @@ class CorrelationId(_object):
 
         Two CorrelationIds are considered equal if they have the same
         type() and:
+
         - holds the same (not just equal!) objects in case of
-            type() == CorrelationId.OBJECT_TYPE
+          type() == CorrelationId.OBJECT_TYPE
         - holds equal integers in case of
-            type() == CorrelationId.INT_TYPE or
-            type() == CorrelationId.AUTOGEN_TYPE
+          type() == CorrelationId.INT_TYPE or
+          type() == CorrelationId.AUTOGEN_TYPE
         - True otherwise
-            (i.e. in case of type() == CorrelationId.UNSET_TYPE)
+          (i.e. in case of type() == CorrelationId.UNSET_TYPE)
 
         It is possible that an user constructed CorrelationId and a
         CorrelationId generated by the API could return the same
@@ -507,16 +515,20 @@ class CorrelationId(_object):
         whilst the original request or subscription is still active.
 
         Class attributes:
+            MAX_CLASS_ID:
+                The maximum value allowed for classId.
             Possible return values for type() method:
-                UNSET_TYPE      The CorrelationId is unset. That is, it was created by
-                                the default CorrelationId constructor.
-                INT_TYPE        The CorrelationId was created from an integer (or long)
-                                supplied by the user.
-                OBJECT_TYPE     The CorrelationId was created from an object supplied by
-                                the user.
-                AUTOGEN_TYPE    The CorrelationId was created internally by API.
-
-            MAX_CLASS_ID    The maximum value allowed for classId.
+                UNSET_TYPE:
+                    The CorrelationId is unset. That is, it was created by
+                    the default CorrelationId constructor.
+                INT_TYPE:
+                    The CorrelationId was created from an integer (or long)
+                    supplied by the user.
+                OBJECT_TYPE:
+                    The CorrelationId was created from an object supplied by
+                    the user.
+                AUTOGEN_TYPE:
+                    The CorrelationId was created internally by API.
         """
         this = _internals.new_CorrelationId(*args)
         try:
@@ -546,6 +558,24 @@ class CorrelationId(_object):
         return _internals.CorrelationId___toInteger(self)
 CorrelationId_swigregister = _internals.CorrelationId_swigregister
 CorrelationId_swigregister(CorrelationId)
+
+class blpapi_CorrelationId_t__value(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, blpapi_CorrelationId_t__value, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, blpapi_CorrelationId_t__value, name)
+    __repr__ = _swig_repr
+
+    def __init__(self):
+        this = _internals.new_blpapi_CorrelationId_t__value()
+        try:
+            self.this.append(this)
+        except __builtin__.Exception:
+            self.this = this
+    __swig_destroy__ = _internals.delete_blpapi_CorrelationId_t__value
+    __del__ = lambda self: None
+blpapi_CorrelationId_t__value_swigregister = _internals.blpapi_CorrelationId_t__value_swigregister
+blpapi_CorrelationId_t__value_swigregister(blpapi_CorrelationId_t__value)
 
 
 def blpapi_Element_setElementFloat(element, nameString, name, value):
@@ -863,10 +893,6 @@ ProviderSession_destroyHelper = _internals.ProviderSession_destroyHelper
 def ProviderSession_terminateSubscriptionsOnTopic(sessionHandle, topic, message):
     return _internals.ProviderSession_terminateSubscriptionsOnTopic(sessionHandle, topic, message)
 ProviderSession_terminateSubscriptionsOnTopic = _internals.ProviderSession_terminateSubscriptionsOnTopic
-
-def ProviderSession_flushPublishedEvents(handle, timeoutMsecs):
-    return _internals.ProviderSession_flushPublishedEvents(handle, timeoutMsecs)
-ProviderSession_flushPublishedEvents = _internals.ProviderSession_flushPublishedEvents
 UNKNOWN_CLASS = _internals.UNKNOWN_CLASS
 INVALIDSTATE_CLASS = _internals.INVALIDSTATE_CLASS
 INVALIDARG_CLASS = _internals.INVALIDARG_CLASS
@@ -1184,6 +1210,32 @@ blpapi_SubscriptionList_topicStringAt = _internals.blpapi_SubscriptionList_topic
 def blpapi_SubscriptionList_isResolvedAt(list, index):
     return _internals.blpapi_SubscriptionList_isResolvedAt(list, index)
 blpapi_SubscriptionList_isResolvedAt = _internals.blpapi_SubscriptionList_isResolvedAt
+class blpapi_TimePoint(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, blpapi_TimePoint, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, blpapi_TimePoint, name)
+    __repr__ = _swig_repr
+    __swig_setmethods__["d_value"] = _internals.blpapi_TimePoint_d_value_set
+    __swig_getmethods__["d_value"] = _internals.blpapi_TimePoint_d_value_get
+    if _newclass:
+        d_value = _swig_property(_internals.blpapi_TimePoint_d_value_get, _internals.blpapi_TimePoint_d_value_set)
+
+    def __init__(self):
+        this = _internals.new_blpapi_TimePoint()
+        try:
+            self.this.append(this)
+        except __builtin__.Exception:
+            self.this = this
+    __swig_destroy__ = _internals.delete_blpapi_TimePoint
+    __del__ = lambda self: None
+blpapi_TimePoint_swigregister = _internals.blpapi_TimePoint_swigregister
+blpapi_TimePoint_swigregister(blpapi_TimePoint)
+
+
+def blpapi_TimePointUtil_nanosecondsBetween(start, end):
+    return _internals.blpapi_TimePointUtil_nanosecondsBetween(start, end)
+blpapi_TimePointUtil_nanosecondsBetween = _internals.blpapi_TimePointUtil_nanosecondsBetween
 class blpapi_Datetime_tag(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, blpapi_Datetime_tag, name, value)
@@ -1273,8 +1325,8 @@ def blpapi_HighPrecisionDatetime_print(datetime, streamWriter, stream, level, sp
     return _internals.blpapi_HighPrecisionDatetime_print(datetime, streamWriter, stream, level, spacesPerLevel)
 blpapi_HighPrecisionDatetime_print = _internals.blpapi_HighPrecisionDatetime_print
 
-def blpapi_HighPrecisionDatetime_fromTimePoint(datetime, timePoint, offset):
-    return _internals.blpapi_HighPrecisionDatetime_fromTimePoint(datetime, timePoint, offset)
+def blpapi_HighPrecisionDatetime_fromTimePoint(datetime, offset):
+    return _internals.blpapi_HighPrecisionDatetime_fromTimePoint(datetime, offset)
 blpapi_HighPrecisionDatetime_fromTimePoint = _internals.blpapi_HighPrecisionDatetime_fromTimePoint
 
 def blpapi_Constant_name(constant):
@@ -1557,8 +1609,8 @@ def blpapi_Message_release(message):
     return _internals.blpapi_Message_release(message)
 blpapi_Message_release = _internals.blpapi_Message_release
 
-def blpapi_Message_timeReceived(message, timeReceived):
-    return _internals.blpapi_Message_timeReceived(message, timeReceived)
+def blpapi_Message_timeReceived(message):
+    return _internals.blpapi_Message_timeReceived(message)
 blpapi_Message_timeReceived = _internals.blpapi_Message_timeReceived
 
 def blpapi_Event_eventType(event):
@@ -1620,6 +1672,10 @@ blpapi_Identity_isAuthorized = _internals.blpapi_Identity_isAuthorized
 def blpapi_Identity_getSeatType(handle):
     return _internals.blpapi_Identity_getSeatType(handle)
 blpapi_Identity_getSeatType = _internals.blpapi_Identity_getSeatType
+
+def blpapi_HighResolutionClock_now():
+    return _internals.blpapi_HighResolutionClock_now()
+blpapi_HighResolutionClock_now = _internals.blpapi_HighResolutionClock_now
 
 def blpapi_AbstractSession_cancel(session, correlationIds, numCorrelationIds, requestLabel, requestLabelLen):
     return _internals.blpapi_AbstractSession_cancel(session, correlationIds, numCorrelationIds, requestLabel, requestLabelLen)
@@ -1945,6 +2001,10 @@ def blpapi_ProviderSession_getAbstractSession(session):
     return _internals.blpapi_ProviderSession_getAbstractSession(session)
 blpapi_ProviderSession_getAbstractSession = _internals.blpapi_ProviderSession_getAbstractSession
 
+def blpapi_ProviderSession_flushPublishedEvents(session, timeoutMsecs):
+    return _internals.blpapi_ProviderSession_flushPublishedEvents(session, timeoutMsecs)
+blpapi_ProviderSession_flushPublishedEvents = _internals.blpapi_ProviderSession_flushPublishedEvents
+
 def blpapi_ServiceRegistrationOptions_create():
     return _internals.blpapi_ServiceRegistrationOptions_create()
 blpapi_ServiceRegistrationOptions_create = _internals.blpapi_ServiceRegistrationOptions_create
@@ -1992,6 +2052,10 @@ blpapi_ServiceRegistrationOptions_getServicePriority = _internals.blpapi_Service
 def blpapi_ServiceRegistrationOptions_getPartsToRegister(parameters):
     return _internals.blpapi_ServiceRegistrationOptions_getPartsToRegister(parameters)
 blpapi_ServiceRegistrationOptions_getPartsToRegister = _internals.blpapi_ServiceRegistrationOptions_getPartsToRegister
+
+def blpapi_ZfpUtil_getOptionsForLeasedLines(sessionOptions, tlsOptions, remote):
+    return _internals.blpapi_ZfpUtil_getOptionsForLeasedLines(sessionOptions, tlsOptions, remote)
+blpapi_ZfpUtil_getOptionsForLeasedLines = _internals.blpapi_ZfpUtil_getOptionsForLeasedLines
 # This file is compatible with both classic and new-style classes.
 
 

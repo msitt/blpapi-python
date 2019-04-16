@@ -9,18 +9,19 @@ inside an event and containing elements.
 
 
 from __future__ import absolute_import
+import sys
+import weakref
+from blpapi.datetime import _DatetimeUtil, UTC
 from .element import Element
 from .name import Name
 from . import internals
 from . import utils
 from .compat import with_metaclass
-import datetime
-import weakref
-from blpapi.datetime import _DatetimeUtil, UTC
+
+# pylint: disable=useless-object-inheritance,protected-access
 
 # Handling a circular dependancy between modules:
 #   service->event->message->service
-import sys
 service = sys.modules.get('blpapi.service')
 if service is None:
     from . import service
@@ -215,7 +216,13 @@ class Message(object):
         will be represented using the specified 'tzinfo' value, and will be
         measured using a high-resolution clock internal to the SDK; see
         'highresclock' for more information on this clock."""
-        original = internals.blpapi_Message_timeReceived_wrapper(self.__handle)
+        err_code, time_point = internals.blpapi_Message_timeReceived(
+            self.__handle)
+        if err_code != 0:
+            raise ValueError("Message has no timestamp")
+        original = internals.blpapi_HighPrecisionDatetime_fromTimePoint_wrapper(
+            time_point)
+
         native = _DatetimeUtil.convertToNative(original)
         return native.astimezone(tzinfo)
 

@@ -7,12 +7,11 @@ Session.
 
 """
 
-
-
+import weakref
 from .element import Element
 from . import internals
-import weakref
 
+# pylint: disable=useless-object-inheritance
 
 class Request(object):
     """A single request to a single service.

@@ -7,8 +7,6 @@ This file defines these classes:
 
 """
 
-
-
 from .exception import _ExceptionUtil
 from .exception import UnsupportedOperationException
 from .datetime import _DatetimeUtil
@@ -19,8 +17,7 @@ from .compat import conv2str, isstr, int_typelist
 from . import utils
 from . import internals
 
-import sys
-
+# pylint: disable=useless-object-inheritance,protected-access,too-many-return-statements,too-many-public-methods
 
 class Element(object):
     """Element represents an item in a message.
@@ -48,7 +45,7 @@ class Element(object):
     values, it will return either 0 or 1. For arrays it will return the actual
     number of values in the array.
 
-    To retrieve values from a complex element types (sequnces and choices) use
+    To retrieve values from a complex element types (sequences and choices) use
     the 'getElementAs...()' family of methods. This example shows how to get the
     value of the the element 'city' in the sequence element 'address':
 
@@ -58,9 +55,9 @@ class Element(object):
     'getElement(name).getValueAsXYZ()'.
 
     The value(s) of an Element can be set in a number of ways. For an Element
-    which represents a single value or an array of values use the 'setValue()' or
-    'appendValue()' functions. For an element which represents a seqeunce or a
-    choice use the 'setElement()' functions.
+    which represents a single value or an array of values use the 'setValue()'
+    or 'appendValue()' functions. For an element which represents a sequence
+    or a choice use the 'setElement()' functions.
 
     This example shows how to set the value of an Element 's':
 
@@ -78,9 +75,10 @@ class Element(object):
 
          address.setElement("city", "New York")
 
-    Methods which specify an Element name accept name in two forms: 'blpapi.Name'
-    or a string. Passing 'blpapi.Name' is more efficient. However, it requires
-    the Name to have been created in the global name table.
+    Methods which specify an Element name accept name in two forms:
+    'blpapi.Name' or a string. Passing 'blpapi.Name' is more efficient.
+    However, it requires the Name to have been created in the
+    global name table.
 
     The form which takes a string is less efficient but will not cause a new
     Name to be created in the global Name table. Because all valid Element
@@ -138,25 +136,24 @@ class Element(object):
 
     @staticmethod
     def __getTraits(value):
+        """ traits dispatcher """
         if isstr(value):
             return Element.__stringTraits
-        elif isinstance(value, bool):
+        if isinstance(value, bool):
             return Element.__boolTraits
-        elif isinstance(value, int_typelist):
-            if value >= -(2 ** 31) and value <= (2 ** 31 - 1):
+        if isinstance(value, int_typelist):
+            if -(2 ** 31) <= value <= (2 ** 31 - 1):
                 return Element.__int32Traits
-            elif value >= -(2 ** 63) and value <= (2 ** 63 - 1):
+            if -(2 ** 63) <= value <= (2 ** 63 - 1):
                 return Element.__int64Traits
-            else:
-                raise ValueError("value is out of element's supported range")
-        elif isinstance(value, float):
+            raise ValueError("value is out of element's supported range")
+        if isinstance(value, float):
             return Element.__floatTraits
-        elif _DatetimeUtil.isDatetime(value):
+        if _DatetimeUtil.isDatetime(value):
             return Element.__datetimeTraits
-        elif isinstance(value, Name):
+        if isinstance(value, Name):
             return Element.__nameTraits
-        else:
-            return Element.__defaultTraits
+        return Element.__defaultTraits
 
     def __assertIsValid(self):
         if not self.isValid():
@@ -176,14 +173,13 @@ class Element(object):
         For internal use."""
         if self.__dataHolder is None:
             return list()
-        else:
-            return self.__dataHolder._sessions()
+        return self.__dataHolder._sessions()
 
     def __str__(self):
         """x.__str__() <==> str(x)
 
-        Return a string representation of this Element. Call of 'str(element)' is
-        equivalent to 'element.toString()' called with default parameters.
+        Return a string representation of this Element. Call of 'str(element)'
+        is equivalent to 'element.toString()' called with default parameters.
 
         """
 
@@ -302,9 +298,10 @@ class Element(object):
 
         self.__assertIsValid()
         res = internals.blpapi_Element_isNullValue(self.__handle, position)
-        if res == 0 or res == 1:
+        if res in (0, 1):
             return bool(res)
         _ExceptionUtil.raiseOnError(res)
+        return None # unreachable
 
     def toString(self, level=0, spacesPerLevel=4):
         """Format this Element to the string.
@@ -325,9 +322,9 @@ class Element(object):
                                                     spacesPerLevel)
 
     def getElement(self, nameOrIndex):
-        """Return a specified subelement.
+        """Return a specified sub-element.
 
-        Return a subelement identified by the specified 'nameOrIndex', which
+        Return a sub-element identified by the specified 'nameOrIndex', which
         must be either a string, a Name, or an integer. If 'nameOrIndex' is a
         string or a Name and 'hasElement(nameOrIndex) != True', or if
         'nameOrIndex' is an integer and 'nameOrIndex >= numElements()', then
@@ -357,8 +354,9 @@ class Element(object):
         An exception is raised if this 'Element' is not a sequence.
         """
 
-        if (self.datatype() != DataType.SEQUENCE):
-            raise UnsupportedOperationException()
+        if self.datatype() != DataType.SEQUENCE:
+            raise UnsupportedOperationException(
+                description="Only sequences are supported", errorCode=None)
         return utils.Iterator(self, Element.numElements, Element.getElement)
 
     def hasElement(self, name, excludeNullElements=False):
@@ -384,7 +382,7 @@ class Element(object):
     def getChoice(self):
         """Return the selection name of this element as Element.
 
-        Return the selection name of this element if 
+        Return the selection name of this element if
         'datatype() == DataType.CHOICE'; otherwise, an exception is raised.
 
         """
@@ -433,7 +431,7 @@ class Element(object):
 
         self.__assertIsValid()
         res = internals.blpapi_Element_getValueAsHighPrecisionDatetime(
-                self.__handle, index)
+            self.__handle, index)
         _ExceptionUtil.raiseOnError(res[0])
         return _DatetimeUtil.convertToNative(res[1])
 
@@ -508,9 +506,8 @@ class Element(object):
     def values(self):
         """Return an iterator over values contained in this Element.
 
-        If 'isComplexType()' returns True for this Element, the empty iterator is
-        returned.
-
+        If 'isComplexType()' returns True for this Element, the empty iterator
+        is returned.
         """
 
         if self.isComplexType():
@@ -625,7 +622,7 @@ class Element(object):
         then processed in the same way as string 'value'.
 
         An exception is raised if 'name' is neither a Name nor a string, or if
-        this element has no sub-elemen with the specified 'name', or if the
+        this element has no sub-element with the specified 'name', or if the
         Element identified by the specified 'name' cannot be initialized from
         the type of the specified 'value'.
 

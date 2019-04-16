@@ -5,25 +5,25 @@
 This component implements a list of topics that require resolution.
 """
 
-
-
 from .element import Element
 from .exception import _ExceptionUtil
 from .message import Message
 from .name import Name
 from . import internals
 from . import utils
+from .utils import get_handle
 from .internals import CorrelationId
 from .compat import with_metaclass
 
+# pylint: disable=useless-object-inheritance
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
 class ResolutionList(object):
     """Contains a list of topics that require resolution.
 
     Created from topic strings or from SUBSCRIPTION_STARTED messages. This is
-    passed to a 'resolve()' call or 'resolveAsync()' call on a 'ProviderSession'. It
-    is updated and returned by the 'resolve()' call.
+    passed to a 'resolve()' call or 'resolveAsync()' call on a
+    'ProviderSession'. It is updated and returned by the 'resolve()' call.
     """
 
     UNRESOLVED = internals.RESOLUTIONLIST_UNRESOLVED
@@ -45,14 +45,14 @@ class ResolutionList(object):
         Return the value of the value in the specified 'message' which
         represents the specified 'attribute'. The 'message' must be a message
         of type "RESOLUTION_SUCCESS". The 'attribute' should be an attribute
-        that was requested using 'addAttribute()' on the ResolutionList passed to
-        the 'resolve()' or 'resolveAsync()' that caused this RESOLUTION_SUCCESS
-        message. If the 'attribute' is not present an empty Element is
-        returned.
+        that was requested using 'addAttribute()' on the ResolutionList passed
+        to the 'resolve()' or 'resolveAsync()' that caused
+        this RESOLUTION_SUCCESS message.
+        If the 'attribute' is not present an empty Element is returned.
         """
         i = internals  # to fit next line in 79 chars
         res = i.blpapi_ResolutionList_extractAttributeFromResolutionSuccess(
-            message._handle(), attribute._handle())
+            get_handle(message), get_handle(attribute))
         return Element(res, message)
 
     def __init__(self):
@@ -98,13 +98,12 @@ class ResolutionList(object):
         if isinstance(topicOrMessage, Message):
             return internals.blpapi_ResolutionList_addFromMessage(
                 self.__handle,
-                topicOrMessage._handle(),
-                correlationId._handle())
-        else:
-            return internals.blpapi_ResolutionList_add(
-                self.__handle,
-                topicOrMessage,
-                correlationId._handle())
+                get_handle(topicOrMessage),
+                get_handle(correlationId))
+        return internals.blpapi_ResolutionList_add(
+            self.__handle,
+            topicOrMessage,
+            get_handle(correlationId))
 
     def addAttribute(self, attribute):
         """Add the specified 'attribute' to the list of attributes.
@@ -115,7 +114,7 @@ class ResolutionList(object):
         """
         attribute = Name(attribute)
         return internals.blpapi_ResolutionList_addAttribute(
-            self.__handle, attribute._handle())
+            self.__handle, get_handle(attribute))
 
     def correlationIdAt(self, index):
         """Return the CorrelationId at the specified 'index'.
@@ -138,7 +137,7 @@ class ResolutionList(object):
         """
         errorCode, topic = internals.blpapi_ResolutionList_topicString(
             self.__handle,
-            correlationId._handle())
+            get_handle(correlationId))
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
@@ -168,7 +167,7 @@ class ResolutionList(object):
         """
         errorCode, status = internals.blpapi_ResolutionList_status(
             self.__handle,
-            correlationId._handle())
+            get_handle(correlationId))
         _ExceptionUtil.raiseOnError(errorCode)
         return status
 
@@ -202,8 +201,8 @@ class ResolutionList(object):
         attribute = Name(attribute)
         errorCode, element = internals.blpapi_ResolutionList_attribute(
             self.__handle,
-            attribute._handle(),
-            correlationId._handle())
+            get_handle(attribute),
+            get_handle(correlationId))
 
         _ExceptionUtil.raiseOnError(errorCode)
 
@@ -221,7 +220,7 @@ class ResolutionList(object):
         attribute = Name(attribute)
         errorCode, element = internals.blpapi_ResolutionList_attributeAt(
             self.__handle,
-            attribute._handle(),
+            get_handle(attribute),
             index)
 
         _ExceptionUtil.raiseOnError(errorCode)
@@ -241,7 +240,7 @@ class ResolutionList(object):
         """
         errorCode, message = internals.blpapi_ResolutionList_message(
             self.__handle,
-            correlationId._handle())
+            get_handle(correlationId))
         _ExceptionUtil.raiseOnError(errorCode)
         return Message(message, sessions=self.__sessions)
 

@@ -18,8 +18,6 @@ permitted to be associated with that identifier.
 
 """
 
-
-
 from .exception import NotFoundException, IndexOutOfRangeException
 from .name import Name, getNamePair
 from .constant import ConstantList
@@ -27,6 +25,7 @@ from . import utils
 from . import internals
 from .compat import with_metaclass
 
+# pylint: disable=useless-object-inheritance,protected-access,too-few-public-methods
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
 class SchemaStatus(object):
@@ -34,24 +33,23 @@ class SchemaStatus(object):
 
     Class attributes:
 
-        ACTIVE      This item is current and may appear in Messages
-        DEPRECATED  This item is current and may appear in Messages but will
-                    be removed in due course
-        INACTIVE    This item is not current and will not appear in Messages
-        PENDING_DEPRECATION  This item is expected to be deprecated in the
-                    future; clients are advised to migrate away from use of
-                    this item.
-
+        ACTIVE:
+            This item is current and may appear in Messages
+        DEPRECATED:
+            This item is current and may appear in Messages
+            but will be removed in due course
+        INACTIVE:
+            This item is not current and will not appear in Messages
+        PENDING_DEPRECATION:
+            This item is expected to be deprecated in the
+            future; clients are advised to migrate away from use of
+            this item.
     """
 
     ACTIVE = internals.STATUS_ACTIVE
-    """This item is current and may appear in Messages"""
     DEPRECATED = internals.STATUS_DEPRECATED
-    """This item is current and may appear in Messages but will be removed"""
     INACTIVE = internals.STATUS_INACTIVE
-    """This item is not current and will not appear in Messages"""
     PENDING_DEPRECATION = internals.STATUS_PENDING_DEPRECATION
-    """This item is expected to be deprecated in the future"""
 
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
@@ -329,10 +327,10 @@ class SchemaTypeDefinition(object):
         """
 
         name = getNamePair(name)
-        return internals.blpapi_SchemaTypeDefinition_hasElementDefinition(
+        return bool(internals.blpapi_SchemaTypeDefinition_hasElementDefinition(
             self.__handle,
             name[0],
-            name[1])
+            name[1]))
 
     def getElementDefinition(self, nameOrIndex):
         """Return the definition of a specified element.

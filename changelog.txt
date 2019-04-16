@@ -1,3 +1,25 @@
+Version 3.13.0:
+===============
+- Automated network configuration for ZFP over leased lines
+    Allow customers that leverage leased lines/routers for Bloomberg services
+    (such as existing Bloomberg terminals) to use this infrastructure to
+    connect their applications to Zero Foot-Print (ZFP) instances.
+
+    A new utility class, 'blpapi.ZfpUtil', can be used to create a
+    'SessionOptions' object with the appropriate servers. Applications can
+    update the options, including authorization settings, but should not
+    change the servers.
+
+    Added a new example ZfpOverLeasedLinesSessionExample.py to demonstrate
+    how to create a session over ZFP leased lines.
+
+- Stability and performance improvements
+
+Version 3.12.3:
+===============
+- Improve error reporting on failure to load the blpapi package
+- Remove dependency on the C++ runtime
+
 Version 3.12.2:
 ===============
 - Stability and performance improvements

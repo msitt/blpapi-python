@@ -5,16 +5,16 @@
 This component implements a list of topics which require topic creation.
 """
 
-
-
 from .exception import _ExceptionUtil
 from .message import Message
 from .resolutionlist import ResolutionList
 from . import internals
 from . import utils
+from .utils import get_handle
 from .internals import CorrelationId
 from .compat import with_metaclass
 
+# pylint: disable=useless-object-inheritance,protected-access
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
 class TopicList(object):
@@ -41,7 +41,7 @@ class TopicList(object):
         if isinstance(original, ResolutionList):
             self.__handle = \
                 internals.blpapi_TopicList_createFromResolutionList(
-                    original._handle())
+                    get_handle(original))
             self.__sessions = original._sessions()
         else:
             self.__handle = internals.blpapi_TopicList_create(None)
@@ -81,13 +81,12 @@ class TopicList(object):
         if isinstance(topicOrMessage, Message):
             return internals.blpapi_TopicList_addFromMessage(
                 self.__handle,
-                topicOrMessage._handle(),
-                correlationId._handle())
-        else:
-            return internals.blpapi_TopicList_add(
-                self.__handle,
-                topicOrMessage,
-                correlationId._handle())
+                get_handle(topicOrMessage),
+                get_handle(correlationId))
+        return internals.blpapi_TopicList_add(
+            self.__handle,
+            topicOrMessage,
+            get_handle(correlationId))
 
     def correlationIdAt(self, index):
         """Return the CorrelationId at the specified 'index'.
@@ -110,7 +109,7 @@ class TopicList(object):
         """
         errorCode, topic = internals.blpapi_TopicList_topicString(
             self.__handle,
-            correlationId._handle())
+            get_handle(correlationId))
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
@@ -136,7 +135,7 @@ class TopicList(object):
         """
         errorCode, status = internals.blpapi_TopicList_status(
             self.__handle,
-            correlationId._handle())
+            get_handle(correlationId))
         _ExceptionUtil.raiseOnError(errorCode)
         return status
 
@@ -166,7 +165,7 @@ class TopicList(object):
         """
         errorCode, message = internals.blpapi_TopicList_message(
             self.__handle,
-            correlationId._handle())
+            get_handle(correlationId))
         _ExceptionUtil.raiseOnError(errorCode)
         return Message(message, sessions=self.__sessions)
 

@@ -6,12 +6,10 @@ This component implements a dispatcher to dispatch events from one or more
 Sessions through callbacks.
 """
 
-
-
-
-from . import internals
 import warnings
+from . import internals
 
+# pylint: disable=useless-object-inheritance
 
 class EventDispatcher(object):
     """Dispatches events from one or more Sessions through callbacks
@@ -64,26 +62,27 @@ class EventDispatcher(object):
         """Stop generating callbacks.
 
         Stop generating callbacks for events from sessions associated with this
-        EventDispatcher. If the specified 'async_' is False (the default) then
+        EventDispatcher. If the specified `async_` is False (the default) then
         this method blocks until all current callbacks which were dispatched
-        through this EventDispatcher have completed. If 'async_' is True, this
+        through this EventDispatcher have completed. If `async_` is True, this
         method returns immediately and no further callbacks will be dispatched.
 
-        Note: If stop is called with 'async_' of False from within a callback
-        dispatched by this EventDispatcher then the 'async_' parameter is
+        Note: If stop is called with `async_` of False from within a callback
+        dispatched by this EventDispatcher then the `async_` parameter is
         overridden to True.
         """
 
         if 'async' in kwargs:
             warnings.warn(
-                    "async parameter has been deprecated in favor of async_",
-                    DeprecationWarning)
+                "async parameter has been deprecated in favor of async_",
+                DeprecationWarning)
             async_ = kwargs.pop('async')
 
         if kwargs:
-            raise TypeError("EventDispatcher.stop() got an unexpected keyword "
-                    "argument. Only 'async' is allowed for backwards "
-                    "compatibility.")
+            raise TypeError(
+                "EventDispatcher.stop() got an unexpected keyword "
+                "argument. Only 'async' is allowed for backwards "
+                "compatibility.")
 
         return internals.blpapi_EventDispatcher_stop(self.__handle, async_)
 

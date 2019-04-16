@@ -16,6 +16,7 @@ identifiers without upper-case characters.  Note that the <namespace> and
 <service-name> cannot contain the character '/'.
 """
 
+# pylint: disable=protected-access,useless-object-inheritance
 
 from . import exception
 from .exception import _ExceptionUtil
@@ -24,6 +25,7 @@ from .service import Service
 from . import internals
 from .internals import CorrelationId
 from . import utils
+from .utils import get_handle
 from .compat import with_metaclass
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
@@ -141,7 +143,7 @@ class AbstractSession(object):
             internals.blpapi_AbstractSession_openServiceAsync(
                 self.__handle,
                 serviceName,
-                correlationId._handle()))
+                get_handle(correlationId)))
         return correlationId
 
     def sendAuthorizationRequest(self,
@@ -182,10 +184,10 @@ class AbstractSession(object):
         _ExceptionUtil.raiseOnError(
             internals.blpapi_AbstractSession_sendAuthorizationRequest(
                 self.__handle,
-                request._handle(),
-                identity._handle(),
-                correlationId._handle(),
-                None if eventQueue is None else eventQueue._handle(),
+                get_handle(request),
+                get_handle(identity),
+                get_handle(correlationId),
+                get_handle(eventQueue),
                 None,  # no request label
                 0))    # request label length 0
         if eventQueue is not None:
@@ -218,7 +220,7 @@ class AbstractSession(object):
 
         _ExceptionUtil.raiseOnError(internals.blpapi_AbstractSession_cancel(
             self.__handle,
-            correlationId._handle(),
+            get_handle(correlationId),
             1,     # number of correlation IDs supplied
             None,  # no request label
             0))    # request label length 0
@@ -240,19 +242,19 @@ class AbstractSession(object):
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_AbstractSession_generateToken(
                     self.__handle,
-                    correlationId._handle(),
-                    None if eventQueue is None else eventQueue._handle()))
+                    get_handle(correlationId),
+                    get_handle(eventQueue)))
         elif authId is not None and ipAddress is not None:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_AbstractSession_generateManualToken(
                     self.__handle,
-                    correlationId._handle(),
+                    get_handle(correlationId),
                     authId,
                     ipAddress,
-                    None if eventQueue is None else eventQueue._handle()))
+                    get_handle(eventQueue)))
         else:
             raise exception.InvalidArgumentException(
-                    "'authId' and 'ipAddress' must be provided together", 0)
+                "'authId' and 'ipAddress' must be provided together", 0)
         if eventQueue is not None:
             eventQueue._registerSession(self)
         return correlationId
@@ -283,7 +285,7 @@ class AbstractSession(object):
 
     # Protect enumeration constant(s) defined in this class and in classes
     # derived from this class from changes:
-    
+
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.
 

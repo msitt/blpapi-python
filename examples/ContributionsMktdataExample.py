@@ -2,13 +2,13 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import blpapi
-# compatibility between python 2 and 3
-from blpapi.compat import with_metaclass
 import time
 from optparse import OptionParser, OptionValueError
 import datetime
 import threading
+import blpapi
+# compatibility between python 2 and 3
+from blpapi.compat import with_metaclass
 
 TOKEN_SUCCESS = blpapi.Name("TokenGenerationSuccess")
 TOKEN_FAILURE = blpapi.Name("TokenGenerationFailure")
@@ -17,28 +17,28 @@ TOKEN = blpapi.Name("token")
 MARKET_DATA = blpapi.Name("MarketData")
 SESSION_TERMINATED = blpapi.Name("SessionTerminated")
 
-
 g_running = True
 g_mutex = threading.Lock()
 
-
 @with_metaclass(blpapi.utils.MetaClassForClassesWithEnums)
-class AuthorizationStatus:
+class AuthorizationStatus:  # pylint: disable=too-few-public-methods
     WAITING = 1
     AUTHORIZED = 2
     FAILED = 3
 
-
 g_authorizationStatus = dict()
 
+class MyStream(object):  # pylint: disable=too-few-public-methods,useless-object-inheritance
 
-class MyStream(object):
     def __init__(self, id=""):
         self.id = id
 
+class MyEventHandler(object):  # pylint: disable=too-few-public-methods,useless-object-inheritance
+    """Event handler for the session"""
 
-class MyEventHandler(object):
     def processEvent(self, event, session):
+        """Process session event"""
+
         global g_running
 
         for msg in event:
@@ -59,8 +59,9 @@ class MyEventHandler(object):
                             g_authorizationStatus[cid] = \
                                 AuthorizationStatus.FAILED
 
-
 def authOptionCallback(option, opt, value, parser):
+    """Parse authorization options from user input"""
+
     vals = value.split('=', 1)
 
     if value == "user":
@@ -82,8 +83,9 @@ def authOptionCallback(option, opt, value, parser):
     else:
         raise OptionValueError("Invalid auth option '%s'" % value)
 
-
 def parseCmdLine():
+    """Parse command line arguments"""
+
     parser = OptionParser(description="Market data contribution.")
     parser.add_option("-a",
                       "--ip",
@@ -122,7 +124,8 @@ def parseCmdLine():
     # TLS Options
     parser.add_option("--tls-client-credentials",
                       dest="tls_client_credentials",
-                      help="name a PKCS#12 file to use as a source of client credentials",
+                      help="name a PKCS#12 file to use as a source of "
+                           "client credentials",
                       metavar="option",
                       type="string")
     parser.add_option("--tls-client-credentials-password",
@@ -133,7 +136,8 @@ def parseCmdLine():
                       default="")
     parser.add_option("--tls-trust-material",
                       dest="tls_trust_material",
-                      help="name a PKCS#7 file to use as a source of trusted certificates",
+                      help="name a PKCS#7 file to use as a source of "
+                           "trusted certificates",
                       metavar="option",
                       type="string")
     parser.add_option("--read-certificate-files",
@@ -142,16 +146,40 @@ def parseCmdLine():
                       metavar="option",
                       action="store_true")
 
+    # ZFP Options
+    parser.add_option("--zfp-over-leased-line",
+                      dest="zfpPort",
+                      help="enable ZFP connections over leased lines on the"
+                           " specified port (8194 or 8196)"
+                           " (When this option is enabled, '-ip' and '-p' "
+                           "arguments will be ignored.)",
+                      metavar="port",
+                      type="int")
 
     (options, args) = parser.parse_args()
 
     if not options.hosts:
         options.hosts = ["localhost"]
 
+    options.tlsOptions = getTlsOptions(options)
+
+    options.remote = None
+    if options.zfpPort:
+        if not options.tlsOptions:
+            raise RuntimeError("ZFP connections require TLS parameters")
+
+        if options.zfpPort == 8194:
+            options.remote = blpapi.ZfpUtil.REMOTE_8194
+        elif options.zfpPort == 8196:
+            options.remote = blpapi.ZfpUtil.REMOTE_8196
+        else:
+            raise RuntimeError("Invalid ZFP port: " + options.product)
+
     return options
 
-
 def authorize(authService, identity, session, cid):
+    """Authorize the identity"""
+
     with g_mutex:
         g_authorizationStatus[cid] = AuthorizationStatus.WAITING
 
@@ -198,12 +226,14 @@ def authorize(authService, identity, session, cid):
         time.sleep(1)
 
 def getTlsOptions(options):
+    """Parse TlsOptions from user input"""
+
     if (options.tls_client_credentials is None or
             options.tls_trust_material is None):
         return None
 
     print("TlsOptions enabled")
-    if (options.read_certificate_files):
+    if options.read_certificate_files:
         credential_blob = None
         trust_blob = None
         with open(options.tls_client_credentials, 'rb') as credentialfile:
@@ -212,32 +242,48 @@ def getTlsOptions(options):
             trust_blob = trustfile.read()
 
         return blpapi.TlsOptions.createFromBlobs(
-                credential_blob,
-                options.tls_client_credentials_password,
-                trust_blob)
-    else:
-        return blpapi.TlsOptions.createFromFiles(
-                options.tls_client_credentials,
-                options.tls_client_credentials_password,
-                options.tls_trust_material)
+            credential_blob,
+            options.tls_client_credentials_password,
+            trust_blob)
 
+    return blpapi.TlsOptions.createFromFiles(
+        options.tls_client_credentials,
+        options.tls_client_credentials_password,
+        options.tls_trust_material)
 
+def prepareStandardSessionOptions(options):
+    """Prepare SessionOptions for a regular session"""
 
-def main():
-    options = parseCmdLine()
-
-    # Fill SessionOptions
     sessionOptions = blpapi.SessionOptions()
     for idx, host in enumerate(options.hosts):
         sessionOptions.setServerAddress(host, options.port, idx)
-    sessionOptions.setAuthenticationOptions(options.auth)
-    sessionOptions.setAutoRestartOnDisconnection(True)
     sessionOptions.setNumStartAttempts(len(options.hosts))
 
-    tlsOptions = getTlsOptions(options)
-    if tlsOptions is not None:
-        sessionOptions.setTlsOptions(tlsOptions)
+    if options.tlsOptions:
+        sessionOptions.setTlsOptions(options.tlsOptions)
 
+    return sessionOptions
+
+def prepareZfpSessionOptions(options):
+    """Prepare SessionOptions for a ZFP session"""
+
+    print("Creating a ZFP connection for leased lines.")
+    sessionOptions = blpapi.ZfpUtil.getZfpOptionsForLeasedLines(
+        options.remote,
+        options.tlsOptions)
+    return sessionOptions
+
+def main():
+    """Main function"""
+
+    options = parseCmdLine()
+
+    # Fill SessionOptions
+    sessionOptions = prepareZfpSessionOptions(options) \
+        if options.remote \
+        else prepareStandardSessionOptions(options)
+    sessionOptions.setAuthenticationOptions(options.auth)
+    sessionOptions.setAutoRestartOnDisconnection(True)
 
     myEventHandler = MyEventHandler()
 
@@ -280,9 +326,8 @@ def main():
     for i in range(topicList.size()):
         stream = topicList.correlationIdAt(i).value()
         status = topicList.statusAt(i)
-        topicString = topicList.topicStringAt(i)
 
-        if (status == blpapi.TopicList.CREATED):
+        if status == blpapi.TopicList.CREATED:
             stream.topic = session.getTopic(topicList.messageAt(i))
             streams.append(stream)
         else:

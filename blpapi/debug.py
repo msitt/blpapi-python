@@ -3,20 +3,54 @@
 """Provide debugging information for import errors"""
 
 import platform
+import os
+
+from .debug_environment import get_env_diagnostics
 
 def debug_load_error(error):
     """Called when the module fails to import "internals".
     Returns ImportError with some debugging message.
     """
     # Try to load just the version.py
+    version_imported = True
     try:
         from .version import version, cpp_sdk_version
     except ImportError as version_error:
-        return _version_load_error(version_error)
+        import_error = _version_load_error(version_error)
+        version_imported = False
 
-    # If the version loading succeeds, the most likely reason for a failure
-    # is a mismatch between C++ and Python SDKs.
-    return _version_mismatch_error(error, version(), cpp_sdk_version())
+    if version_imported:
+        # If the version loading succeeds, the most likely reason for a failure
+        # is a mismatch between C++ and Python SDKs.
+        import_error = _version_mismatch_error(
+            error, version(), cpp_sdk_version())
+
+    # Environment diagnostics currently only works for windows
+    if platform.system().lower() == "windows":
+        env_diagnostics = get_env_diagnostics()
+
+        full_error_msg = """
+---------------------------- ENVIRONMENT -----------------------------
+%s
+----------------------------------------------------------------------
+%s
+""" % (env_diagnostics, import_error)
+    else:
+        full_error_msg = import_error
+
+    # Also output the error message to a file if BLPAPI_DIAGNOSTICS is set
+    diagnostics_path_env_var = "BLPAPI_DIAGNOSTICS"
+    if diagnostics_path_env_var in os.environ:
+        diagnostics_path = os.environ[diagnostics_path_env_var]
+        try:
+            with open(diagnostics_path, "w") as f:
+                f.write(full_error_msg)
+        except IOError:
+            print("Failed to write to path defined by %s: \"%s\"" \
+                % (diagnostics_path_env_var, diagnostics_path))
+
+    return ImportError(full_error_msg)
+
 
 def _linker_env():
     """Return the name of the right environment variable for linking in the
@@ -47,7 +81,7 @@ If the C++ SDK is already installed, please ensure that the path to the library
 was added to %s before entering the interpreter.
 
 """ % (str(error), _linker_env())
-    return ImportError(msg)
+    return msg
 
 
 def _version_mismatch_error(error, py_version, cpp_version):
@@ -69,4 +103,4 @@ If a recent version of the C++ SDK is already installed, please ensure that the
 path to the library is added to %s before entering the interpreter.
 
 """ % (str(error), py_version, cpp_version, _linker_env())
-    return ImportError(msg)
+    return msg
