@@ -21,6 +21,12 @@ class Exception(_StandardException):
     Objects of this class contain the error description for the exception.
     """
     def __init__(self, description, errorCode):
+        """Create a blpapi exception
+
+        Args:
+            description (str): Description of the error
+            errorCode (int): Code corresponding to the error
+        """
         _StandardException.__init__(self, description, errorCode)
 
     def __str__(self):
@@ -31,7 +37,7 @@ class Exception(_StandardException):
 class DuplicateCorrelationIdException(Exception):
     """Duplicate CorrelationId exception.
 
-    The class defines an exception for non unique 'blpapi.CorrelationId'.
+    The class defines an exception for non unique :class:`CorrelationId`.
     """
     pass
 
@@ -86,7 +92,8 @@ class FieldNotFoundException(Exception):
 
     This class defines an exception to capture the error when an invalid field
     is used for operation.
-    DEPRECATED
+
+    **DEPRECATED**
     """
     pass
 

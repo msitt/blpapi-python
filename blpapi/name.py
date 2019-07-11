@@ -14,43 +14,50 @@ from .utils import get_handle
 # pylint: disable=useless-object-inheritance,broad-except
 
 class Name(object):
-    """Name represents a string in a form which is efficient for comparison.
+    """:class:`Name` represents a string in a form which is efficient for
+    comparison.
 
-    Name(nameString) constructs a Name object.
+    :class:`Name` objects are used to identify and access the classes which
+    define the schema - :class:`SchemaTypeDefinition`,
+    :class:`SchemaElementDefinition`, :class:`Constant`, :class:`ConstantList`.
+    They are also used to access the values in :class:`Element` objects and
+    :class:`Message` objects.
 
-    Name objects are used to identify and access the classes which define the
-    schema - SchemaTypeDefinition, SchemaElementDefinition, SchemaConstant,
-    SchemaConstantList. They are also used to access the values in Element
-    objects and Message objects.
+    The :class:`Name` class is an efficient substitute for a string when used
+    as a key, providing constant time comparison and ordering operations. Two
+    :class:`Name` objects constructed from equal strings will always compare
+    equally.
 
-    The Name class is an efficient substitute for a string when used as a key,
-    providing constant time comparison and ordering operations. Two Name
-    objects constructed from equal strings will always compare equally.
+    Where possible, :class:`Name` objects should be initialized once and then
+    reused.  Creating a :class:`Name` object involves a search in a container
+    requiring multiple string comparison operations.
 
-    Where possible, Name objects should be initialized once and then reused.
-    Creating a Name object involves a search in a container requiring multiple
-    string comparison operations.
+    Note:
+        Each :class:`Name` instance refers to an entry in a global static
+        table. :class:`Name` instances for identical strings will refer to the
+        same data. There is no provision for removing entries from the static
+        table so :class:`Name` objects should only be used when the set of
+        input strings is bounded.
 
-    Note: Each Name instance refers to an entry in a global static table. Name
-    instances for identical strings will refer to the same data. There is no
-    provision for removing entries from the static table so Name objects should
-    only be used when the set of input strings is bounded.
-
-    For example, creating a Name for every possible field name and type in a
-    data model is reasonable (in fact, the API will do this whenever it
-    receives schema information). However converting sequence numbers on
-    incoming messages to strings and creating a Name from each one of those
-    strings will cause the static table to grow in an unbounded manner.
-
+        For example, creating a :class:`Name` for every possible field name and
+        type in a data model is reasonable (in fact, the API will do this
+        whenever it receives schema information). However converting sequence
+        numbers on incoming messages to strings and creating a :class:`Name`
+        from each one of those strings will cause the static table to grow in
+        an unbounded manner.
     """
 
     __handle = None
 
     @staticmethod
     def findName(nameString):
-        """Return an existing Name object representing 'nameString'.
+        """
+        Args:
+            nameString (str): String represented by an existing :class:`Name`
 
-        If no such object exists, None is returned.
+        Returns:
+            Name: An existing :class:`Name` object representing ``nameString``.
+            If no such object exists, ``None`` is retured.
         """
         nameHandle = internals.blpapi_Name_findName(nameString)
         return None if nameHandle is None \
@@ -58,7 +65,13 @@ class Name(object):
 
     @staticmethod
     def hasName(nameString):
-        """Return True if a Name object representing 'nameString' exists.
+        """
+        Args:
+            nameString (str): String represented by an existing :class:`Name`
+
+        Returns:
+            bool: ``True`` if a :class:`Name` object representing
+            ``nameString`` exists
         """
         return bool(internals.blpapi_Name_hasName(nameString))
 
@@ -123,11 +136,20 @@ class Name(object):
 
 
 def getNamePair(name):
-    """Create a tuple that contains nameString and blpapi_Name_t *.
+    """Create a tuple that contains a name string and blpapi_Name_t*.
 
-    Return (None, name._handle()) if 'name' is a Name instance or (name, None)
-    if name is a string. In other cases raise TypeError exception.
+    Args:
+        name (Name or str): A :class:`Name` or a string instance
 
+    Returns:
+        ``(None, name._handle())`` if ``name`` is a :class:`Name` instance, or
+        ``(name, None)`` if ``name`` is a string. In other cases raise
+        TypeError exception.
+
+    Raises:
+        TypeError: If ``name`` is neither a :class:`Name` nor a string
+
+    For internal use only.
     """
 
     if isinstance(name, Name):

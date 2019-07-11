@@ -26,7 +26,7 @@ class Logger:
     SEVERITY_TRACE = internals.blpapi_Logging_SEVERITY_TRACE
 
     @staticmethod
-    def registerCallback(callback, thresholdSeverity=Logger.SEVERITY_INFO):
+    def registerCallback(callback, thresholdSeverity=SEVERITY_INFO):
         """Register the specified 'callback' that will be called for all log
         messages with severity greater than or equal to the specified
         'thresholdSeverity'.  The callback needs to be registered before the

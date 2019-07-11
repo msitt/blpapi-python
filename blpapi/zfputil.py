@@ -32,20 +32,49 @@ from .sessionoptions import SessionOptions
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
 class ZfpUtil(object):
-    """Wrapper for Zero Footprint utilities"""
+    """Utility used to prepare :class:`SessionOptions` for private leased
+    lines.
+
+    The following snippet shows how to use :class:`ZfpUtil` to start a
+    ``Session``::
+
+        tlsOptions = blpapi.TlsOptions.createFromFiles( ... )
+        sessionOptions = blpapi.ZfpUtil.getZfpOptionsForLeasedLines(
+            blpapi.ZfpUtil.REMOTE_8194,
+            tlsOptions)
+
+        sessionOptions.setAuthenticationOptions( ... )
+
+        session = blpapi.Session(sessionOptions)
+        session.start()
+    """
 
     REMOTE_8194 = internals.ZFPUTIL_REMOTE_8194
     REMOTE_8196 = internals.ZFPUTIL_REMOTE_8196
 
     @staticmethod
     def getZfpOptionsForLeasedLines(remote, tlsOptions):
-        """Creates a SessionOptions object for applications that leverages
-        private leased lines to Bloomberg network. The SessionOptions
-        object is only valid for private leased line connectivity. On failure
-        (e.g. connectivity issues), an exception is raised.
+        """Creates a :class:`SessionOptions` object for applications that
+        leverage private leased lines to the Bloomberg network.
 
-        This is a costly operation that is preferably called once per
-        application.
+        Args:
+            remote (int): Type of the remote to connect to
+            tlsOptions (TlsOptions): Tls options to use when connecting
+
+        Returns:
+            SessionOptions: :class:`SessionOptions` object for applications
+            that leverage private leased lines to the Bloomberg network.
+
+        Raises:
+            Exception: If failed to obtain the session options
+
+        Note:
+            The :class:`SessionOptions` object is only valid for private leased
+            line connectivity.
+
+        Note:
+            This is a costly operation that is preferably called once per
+            application.
         """
         sessionOptions = SessionOptions()
         err = internals.blpapi_ZfpUtil_getOptionsForLeasedLines(

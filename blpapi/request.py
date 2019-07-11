@@ -16,17 +16,19 @@ from . import internals
 class Request(object):
     """A single request to a single service.
 
-    Request objects are created using Service.createRequest() or
-    Service.createAuthorizationRequest(). They are used with
-    Session.sendRequest() or Session.sendAuthorizationRequest().
+    :class:`Request` objects are created using :meth:`Service.createRequest()`
+    or :meth:`Service.createAuthorizationRequest()`. They are used with
+    :meth:`Session.sendRequest()` or
+    :meth:`Session.sendAuthorizationRequest()`.
 
-    The Request object contains the parameters for a single request to a single
-    service. Once a Request has been created its fields can be populated
-    directly using the functions provided by Element or using the Element
-    interface on the Element returned by asElement().
+    The :class:`Request` object contains the parameters for a single request to
+    a single service. Once a :class:`Request` has been created its fields can
+    be populated directly using the functions provided by :class:`Element` or
+    using the :class:`Element` interface on the :class:`Element` returned by
+    :meth:`asElement()`.
 
-    The schema for the Request can be queried using the Element interface.
-
+    The schema for the :class:`Request` can be queried using the
+    :class:`Element` interface.
     """
 
     def __init__(self, handle, sessions):
@@ -41,6 +43,7 @@ class Request(object):
             pass
 
     def destroy(self):
+        """Destructor."""
         if self.__handle:
             internals.blpapi_Request_destroy(self.__handle)
             self.__handle = None
@@ -56,15 +59,21 @@ class Request(object):
         return self.toString()
 
     def set(self, name, value):
-        """Equivalent to asElement().setElement(name, value)."""
+        """Equivalent to :meth:`asElement().setElement(name, value)
+        <Element.setElement>`."""
         self.asElement().setElement(name, value)
 
     def append(self, name, value):
-        """Equivalent to getElement(name).appendValue(value)."""
+        """Equivalent to :meth:`getElement(name).appendValue(value)
+        <Element.appendValue>`."""
         return self.getElement(name).appendValue(value)
 
     def asElement(self):
-        """Return the content of this Request as an Element."""
+        """
+        Returns:
+            Element: The content of this :class:`Request` as an
+            :class:`Element`.
+        """
         el = None
         if self.__element:
             el = self.__element()
@@ -75,11 +84,13 @@ class Request(object):
         return el
 
     def getElement(self, name):
-        """Equivalent to asElement().getElement(name)."""
+        """Equivalent to :meth:`asElement().getElement(name)
+        <Element.getElement>`."""
         return self.asElement().getElement(name)
 
     def toString(self, level=0, spacesPerLevel=4):
-        """Format this Element to the string."""
+        """Equivalent to :meth:`asElement().toString(level, spacesPerLevel)
+        <Element.toString>`."""
         return self.asElement().toString(level, spacesPerLevel)
 
     def _handle(self):

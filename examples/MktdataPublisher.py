@@ -77,7 +77,7 @@ class MyStream(object):
                 # Publishing NULL value
                 eventFormatter.setElementNull(f)
 
-    def __next__(self):
+    def next(self):
         self.lastValue += 1
 
     def isAvailable(self):
@@ -593,7 +593,7 @@ def main():
                         stream.fillDataNull(eventFormatter, elementDef)
                     else:
                         eventCount += 1
-                        next(stream)
+                        stream.next()
                         stream.fillData(eventFormatter, elementDef)
 
             for msg in event:

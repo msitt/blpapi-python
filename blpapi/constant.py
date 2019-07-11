@@ -25,49 +25,73 @@ from . import internals
 class Constant:
     """Represents the value of a schema enumeration constant.
 
-    Constants can be any of the following DataTypes: BOOL, CHAR, BYTE, INT32,
-    INT64, FLOAT32, FLOAT64, STRING, DATE, TIME, DATETIME. This class provides
-    access not only to to the constant value, but also to the symbolic name,
-    the description, and the status of the constant.
+    Constants can be any of the following :class:`DataType`\ s:
+    :attr:`~DataType.BOOL`, :attr:`~DataType.CHAR`, :attr:`~DataType.BYTE`,
+    :attr:`~DataType.INT32`, :attr:`~DataType.INT64`,
+    :attr:`~DataType.FLOAT32`, :attr:`~DataType.FLOAT64`,
+    :attr:`~DataType.STRING`, :attr:`~DataType.DATE`, :attr:`~DataType.TIME`,
+    :attr:`~DataType.DATETIME`. This class provides access not only to to the
+    constant value, but also to the symbolic name, the description, and the
+    status of the constant.
 
-    'Constant' objects are read-only.
+    :class:`Constant` objects are read-only.
 
-    Application clients never create 'Constant' object directly; applications
-    will typically work with 'Constant' objects returned by other 'blpapi'
-    components.
+    Application clients never create :class:`Constant` object directly;
+    applications will typically work with :class:`Constant` objects returned
+    by other ``blpapi`` components.
     """
 
     def __init__(self, handle, sessions):
+        """
+        Args:
+            handle: Handle to the internal implementation
+            sessions: Sessions to which this object is related to
+        """
         self.__handle = handle
         self.__sessions = sessions
 
     def name(self):
-        """Return the symbolic name of this 'Constant'."""
+        """
+        Returns:
+            Name: The symbolic name of this :class:`Constant`.
+        """
         return Name._createInternally(
             internals.blpapi_Constant_name(self.__handle))
 
     def description(self):
-        """Return a human readable description of this 'Constant'."""
+        """
+        Returns:
+            str: Human readable description of this :class:`Constant`.
+        """
         return internals.blpapi_Constant_description(self.__handle)
 
     def status(self):
-        """Return the status of this 'Constant'.
+        """
+        Returns:
+            int: Status of this :class:`Constant`.
 
-        The possible return values are enumerated in 'SchemaStatus' class.
+        The possible return values are enumerated in :class:`SchemaStatus`.
         """
         return internals.blpapi_Constant_status(self.__handle)
 
     def datatype(self):
-        """Return the data type used to represent the value of this 'Constant'.
+        """
+        Returns:
+            int: Data type used to represent the value of this
+            :class:`Constant`.
 
-        The possible return values are enumerated in 'DataType' class.
+        The possible return values are enumerated in :class:`DataType`.
         """
         return internals.blpapi_Constant_datatype(self.__handle)
 
     def getValueAsInteger(self):
-        """Return the value of this object as an integer.
+        """
+        Returns:
+            int: Value of this object as an integer.
 
-        If the value cannot be converted to an integer an exception is raised.
+        Raises:
+            InvalidConversionException: If the value cannot be converted to an
+                integer.
         """
         errCode, value = internals.blpapi_Constant_getValueAsInt64(
             self.__handle)
@@ -75,9 +99,13 @@ class Constant:
         return value
 
     def getValueAsFloat(self):
-        """Return the value of this object as a float.
+        """
+        Returns:
+            float: Value of this object as a float.
 
-        If the value cannot be converted to a float an exception is raised.
+        Raises:
+            InvalidConversionException: If the value cannot be converted to a
+                float.
         """
         errCode, value = internals.blpapi_Constant_getValueAsFloat64(
             self.__handle)
@@ -85,13 +113,14 @@ class Constant:
         return value
 
     def getValueAsDatetime(self):
-        """Return the value of this object as one of the datetime types.
+        """
+        Returns:
+            datetime.time or datetime.date or datetime.datetime: Value of this
+            object as one of the datetime types.
 
-        Possible result types are: datetime.time, datetime.date or
-        datetime.datetime.
-
-        If the value cannot be converted to one of these types an exception is
-        raised.
+        Raises:
+            InvalidConversionException: If the value cannot be converted to
+                one of the datetime types.
         """
         errCode, value = internals.blpapi_Constant_getValueAsDatetime(
             self.__handle)
@@ -99,9 +128,13 @@ class Constant:
         return _DatetimeUtil.convertToNative(value)
 
     def getValueAsString(self):
-        """Return the value of this object as a string.
+        """
+        Returns:
+            str: Value of this object as a string.
 
-        If the value cannot be converted to a string an exception is raised.
+        Raises:
+            InvalidConversionException: If the value cannot be converted to a
+                string.
         """
         errCode, value = internals.blpapi_Constant_getValueAsString(
             self.__handle)
@@ -109,7 +142,10 @@ class Constant:
         return value
 
     def getValue(self):
-        """Return the value of this object as it is stored in the object."""
+        """
+        Returns:
+            Value of this object as it is stored in the object.
+        """
         datatype = self.datatype()
         valueGetter = _CONSTANT_VALUE_GETTER.get(
             datatype,
@@ -124,66 +160,87 @@ class Constant:
 class ConstantList:
     """Represents a list of schema enumeration constants.
 
-    As well as the list of 'Constant' objects, this class also provides access
-    to the symbolic name, description and status of the list as a whole. All
-    'Constant' objects in a 'ConstantsList' are of the same DataType.
+    As well as the list of :class:`Constant` objects, this class also provides
+    access to the symbolic name, description and status of the list as a whole.
+    All :class:`Constant` objects in a :class:`ConstantList` are of the same
+    :class:`DataType`.
 
-    'ConstantList' objects are read-only.
+    :class:`ConstantList` objects are read-only.
 
-    Application clients never create 'ConstantList' object directly;
-    applications will typically work with 'ConstantList' objects returned by
-    other 'blpapi' components.
+    Application clients never create :class:`ConstantList` object directly;
+    applications will typically work with :class:`ConstantList` objects
+    returned by other ``blpapi`` components.
     """
 
     def __init__(self, handle, sessions):
+        """
+        Args:
+            handle: Handle to the internal implementation
+            sessions: Sessions to which this object is related to
+        """
         self.__handle = handle
         self.__sessions = sessions
 
     def __iter__(self):
-        """Return the iterator over constants contained in this ConstantsList.
+        """
+        Returns:
+            Iterator over constants contained in this :class:`ConstantList`
         """
         return utils.Iterator(self,
                               ConstantList.numConstants,
                               ConstantList.getConstantAt)
 
     def name(self):
-        """Return the symbolic name of this 'ConstantList'."""
+        """
+        Returns:
+            Name: Symbolic name of this :class:`ConstantList`
+        """
         return Name._createInternally(
             internals.blpapi_ConstantList_name(self.__handle))
 
     def description(self):
-        """Return a human readable description of this 'ConstantList'."""
+        """
+        Returns:
+            str: Human readable description of this :class:`ConstantList`
+        """
         return internals.blpapi_ConstantList_description(self.__handle)
 
     def status(self):
-        """Return the status of this 'ConstantList'.
+        """
+        Returns:
+            int: Status of this :class:`ConstantList`
 
-        The possible return values are enumerated in 'SchemaStatus' class.
+        The possible return values are enumerated in :class:`SchemaStatus`
         """
         return internals.blpapi_ConstantList_status(self.__handle)
 
     def numConstants(self):
-        """Return the number of 'Constant' objects.
-
-        Return the number of 'Constant' objects contained in this
-        'ConstantsList'.
+        """
+        Returns:
+            int: Number of :class:`Constant` objects in this list
         """
         return internals.blpapi_ConstantList_numConstants(self.__handle)
 
     def datatype(self):
-        """Return the data type used to represent the value of this constant.
+        """
+        Returns:
+            int: Data type used to represent the value of this constant
 
-        The possible return values are enumerated in 'DataType' class.
+        The possible return values are enumerated in :class:`DataType`.
         """
         return internals.blpapi_ConstantList_datatype(self.__handle)
 
     def hasConstant(self, name):
-        """True if this 'ConstantList' contains an item with this 'name'.
+        """
+        Args:
+            name (Name or str): Name of the constant
 
-        Return True if this 'ConstantList' contains an item with the specified
-        'name', and False otherwise.
+        Returns:
+            bool: ``True`` if this :class:`ConstantList` contains an item with
+            this ``name``.
 
-        Exception is raised if 'name' is neither a Name nor a string.
+        Raises:
+            TypeError: If ``name`` is neither a :class:`Name` nor a string
         """
         names = getNamePair(name)
         return bool(internals.blpapi_ConstantList_hasConstant(self.__handle,
@@ -191,11 +248,16 @@ class ConstantList:
                                                               names[1]))
 
     def getConstant(self, name):
-        """Return the 'Constant' with the specified 'name'.
+        """
+        Args:
+            name (Name or str): Name of the constant
 
-        Return the 'Constant' in this 'ConstantsList' identified by the
-        specified 'name'. If this 'ConstantsList' does not contain a 'Constant'
-        with the specified 'name' then an exception is raised.
+        Returns:
+            Constant: Constant with the specified ``name``
+
+        Raises:
+            NotFoundException: If this :class:`ConstantList` does not contain a
+                :class:`Constant` with the specified ``name``
         """
         names = getNamePair(name)
         res = internals.blpapi_ConstantList_getConstant(self.__handle,
@@ -209,11 +271,16 @@ class ConstantList:
         return Constant(res, self.__sessions)
 
     def getConstantAt(self, position):
-        """Return the 'Constant' at the specified 'position'.
+        """
+        Args:
+            position (int): Position of the requested constant in the list
 
-        Return the 'Constant' at the specified 'position' in this
-        'ConstantList'.  If 'position' is not in the range from 0 to
-        'numConstants() - 1' then an exception is raised.
+        Returns:
+            Constant: Constant at the specified ``position``.
+
+        Raises:
+            IndexOutOfRangeException: If ``position`` is not in the range from
+                ``0`` to ``numConstants() - 1``.
         """
         res = internals.blpapi_ConstantList_getConstantAt(self.__handle,
                                                           position)

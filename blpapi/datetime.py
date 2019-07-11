@@ -21,33 +21,37 @@ class FixedOffset(_dt.tzinfo):
     Represents time zone information to be used with Python standard library
     datetime classes.
 
-    FixedOffset(offsetInMinutes) creates an object that implements
-    datetime.tzinfo interface and represents a timezone with the specified
-    'offsetInMinutes' from UTC.
-
-    This class is intended to be used as 'tzinfo' for Python standard library
-    datetime.datetime and datetime.time classes. These classes are accepted by
-    the blpapi package to set DATE, TIME or DATETIME elements. For example, the
-    DATETIME element of a request could be set as:
+    This class is intended to be used as ``tzinfo`` for Python standard library
+    :class:`datetime.datetime` and :class:`datetime.time` classes. These
+    classes are accepted by the blpapi package to set :attr:`~DataType.DATE`,
+    :attr:`~DataType.TIME` or :attr:`~DataType.DATETIME` elements. For example,
+    the :attr:`~DataType.DATETIME` element of a request could be set as::
 
         value = datetime.datetime(1941, 6, 22, 4, 0, tzinfo=FixedOffset(4*60))
         request.getElement("last_trade").setValue(value)
 
-    The TIME element could be set in a similar way:
+    The :attr:`~DataType.TIME` element could be set in a similar way::
 
         value = datetime.time(9, 0, 1, tzinfo=FixedOffset(-5*60))
         request.getElement("session_open").setValue(value)
 
-    Note that you could use any other implementations of datetime.tzinfo with
-    BLPAPI-Py, for example the widely used 'pytz' package
-    (http://pypi.python.org/pypi/pytz/).
+    Note that you could use any other implementations of
+    :class:`datetime.tzinfo` with BLPAPI-Py, for example the widely used
+    ``pytz`` package (https://pypi.python.org/pypi/pytz/).
 
     For more details see datetime module documentation at
-    http://docs.python.org/library/datetime.html
-
+    https://docs.python.org/library/datetime.html
     """
 
     def __init__(self, offsetInMinutes=0):
+        """
+        Args:
+            offsetInMinutes (int): Offset from UTC in minutes
+
+        Creates an object that implements :class:`datetime.tzinfo` interface
+        and represents a timezone with the specified ``offsetInMinutes`` from
+        UTC.
+        """
         self.__offset = _dt.timedelta(minutes=offsetInMinutes)
 
     def utcoffset(self, dt):
@@ -63,6 +67,10 @@ class FixedOffset(_dt.tzinfo):
         return self.__offset
 
     def getOffsetInMinutes(self):
+        """
+        Returns:
+            int: Offset from UTC in minutes
+        """
         return self.__offset.days * 24 * 60 + self.__offset.seconds // 60
 
     def __hash__(self):

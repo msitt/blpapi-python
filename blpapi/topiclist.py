@@ -22,10 +22,12 @@ class TopicList(object):
 
     Contains a list of topics which require creation.
 
-    Created from topic strings or from TOPIC_SUBSCRIBED or RESOLUTION_SUCCESS
-    messages.
-    This is passed to a 'createTopics()' call or 'createTopicsAsync()' call on a
-    ProviderSession. It is updated and returned by the 'createTopics()' call.
+    Created from topic strings or from ``TOPIC_SUBSCRIBED`` or
+    ``RESOLUTION_SUCCESS`` messages.  This is passed to a
+    :meth:`~ProviderSession.createTopics()` call or
+    :meth:`~ProviderSession.createTopicsAsync()` call on a
+    :class:`ProviderSession`. It is updated and returned by the
+    :meth:`~ProviderSession.createTopics()` call.
     """
 
     NOT_CREATED = internals.TOPICLIST_NOT_CREATED
@@ -33,10 +35,14 @@ class TopicList(object):
     FAILURE = internals.TOPICLIST_FAILURE
 
     def __init__(self, original=None):
-        """Create an empty TopicList or TopicList based on 'original'.
+        """Create an empty :class:`TopicList`, or a :class:`TopicList` based on
+        ``original``.
 
-        If 'original' is None - create empty TopicList. Otherwise create a
-        TopicList from 'original'.
+        Args:
+            original (TopicList): Original topiclist to copy off of
+
+        If ``original`` is ``None`` - create empty :class:`TopicList`.
+        Otherwise create a :class:`TopicList` from ``original``.
         """
         if isinstance(original, ResolutionList):
             self.__handle = \
@@ -54,24 +60,37 @@ class TopicList(object):
             pass
 
     def destroy(self):
-        """Destroy this TopicList."""
+        """Destroy this :class:`TopicList`."""
         if self.__handle:
             internals.blpapi_TopicList_destroy(self.__handle)
             self.__handle = None
 
     def add(self, topicOrMessage, correlationId=None):
-        """Add the specified topic or topic from message to this TopicList.
+        """Add the specified topic or topic from message to this
+        :class:`TopicList`.
 
-        If topic is passed as 'topicOrMessage', add the topic to this list,
-        optionally specifying a 'correlationId'. Return 0 on success or
-        negative number on failure.  After a successful call to 'add()' the
-        status for this entry is NOT_CREATED.
+        Args:
+            topicOrMessage (str or Message): Topic string or message to create
+                a topic from
+            correlationId (CorrelationId): CorrelationId to associate with the
+                topic
 
-        If Message is passed as 'topicOrMessage', add the topic contained in
-        the specified 'topicSubscribedMessage' or 'resolutionSuccessMessage' to
-        this list, optionally specifying a 'correlationId'.  Return 0 on
-        success or a negative number on failure.  After a successful call to
-        'add()' the status for this entry is NOT_CREATED.
+        Returns:
+            int: ``0`` on success or negative number on failure.
+
+        Raises:
+            TypeError: If ``correlationId`` is not an instance of
+                :class:`CorrelationId`.
+
+        If topic is passed as ``topicOrMessage``, add the topic to this list,
+        optionally specifying a ``correlationId``. After a successful call to
+        :meth:`add()` the status for this entry is ``NOT_CREATED``.
+
+        If :class:`Message` is passed as ``topicOrMessage``, add the topic
+        contained in the specified ``topicSubscribedMessage`` or
+        ``resolutionSuccessMessage`` to this list, optionally specifying a
+        ``correlationId``. After a successful call to :meth:`add()` the status
+        for this entry is ``NOT_CREATED``.
         """
         if correlationId is None:
             correlationId = CorrelationId()
@@ -89,10 +108,15 @@ class TopicList(object):
             get_handle(correlationId))
 
     def correlationIdAt(self, index):
-        """Return the CorrelationId at the specified 'index'.
+        """
+        Args:
+            index (int): Index of the entry in the list
 
-        Return the CorrelationId of the specified 'index'th entry
-        in this TopicList. An exception is raised if 'index'>=size().
+        Returns:
+            CorrelationId: Correlation id of the ``index``\ th entry.
+
+        Raises:
+            Exception: If ``index >= size()``.
         """
         errorCode, cid = internals.blpapi_TopicList_correlationIdAt(
             self.__handle,
@@ -101,11 +125,17 @@ class TopicList(object):
         return cid
 
     def topicString(self, correlationId):
-        """Return the topic of the entry identified by 'correlationId'.
+        """
+        Args:
+            correlationId (CorrelationId): Correlation id associated with the
+                topic.
 
-        Return the topic of the entry identified by 'correlationId'. If the
-        'correlationId' does not identify an entry in this TopicList then an
-        exception is raised.
+        Returns:
+            str: Topic of the entry identified by 'correlationId'.
+
+        Raises:
+            Exception: If the ``correlationId`` does not identify an entry in
+                this list.
         """
         errorCode, topic = internals.blpapi_TopicList_topicString(
             self.__handle,
@@ -114,10 +144,16 @@ class TopicList(object):
         return topic
 
     def topicStringAt(self, index):
-        """Return the full topic string at the specified 'index'.
+        """
+        Args:
+            index (int): Index of the entry
 
-        Return the full topic string of the specified 'index'th entry in this
-        TopicList. An exception is raised if 'index'>=size().
+        Returns:
+            str: The full topic string of the ``index``\ th entry in this
+            list.
+
+        Raises:
+            Exception: If ``index >= size()``.
         """
         errorCode, topic = internals.blpapi_TopicList_topicStringAt(
             self.__handle,
@@ -126,12 +162,19 @@ class TopicList(object):
         return topic
 
     def status(self, correlationId):
-        """Return the status of the entry identified by 'correlationId'.
+        """
+        Args:
+            correlationId (CorrelationId): Correlation id associated with the
+                entry
 
-        Return the status of the entry in this TopicList identified by the
-        specified 'correlationId'. This may be NOT_CREATED, CREATED and
-        FAILURE. If the 'correlationId' does not identify an entry in this
-        TopicList then an exception is raised.
+        Returns:
+            int: Status of the entry in this list identified by the
+            specified ``correlationId``. This may be :attr:`NOT_CREATED`,
+            :attr:`CREATED` and :attr:`FAILURE`.
+
+        Raises:
+            Exception: If the ``correlationId`` does not identify an entry in
+                this list.
         """
         errorCode, status = internals.blpapi_TopicList_status(
             self.__handle,
@@ -140,11 +183,16 @@ class TopicList(object):
         return status
 
     def statusAt(self, index):
-        """Return the status at the specified 'index'.
+        """
+        Args:
+            index (int): Index of the entry
 
-        Return the status of the specified 'index'th entry in this TopicList.
-        This may be NOT_CREATED, CREATED and FAILURE.
-        An exception is raised if 'index'>=size().
+        Returns:
+            int: Status of the ``index``\ th entry in this list. This may be
+            :attr:`NOT_CREATED`, :attr:`CREATED` and :attr:`FAILURE`.
+
+        Raises:
+            Exception: If ``index >= size()``.
         """
         errorCode, status = internals.blpapi_TopicList_statusAt(
             self.__handle,
@@ -153,15 +201,22 @@ class TopicList(object):
         return status
 
     def message(self, correlationId):
-        """Return the message identified by 'correlationId'.
+        """
+        Args:
+            correlationId (CorrelationId): Correlation id associated with the
+                message
 
-        Return the value of the message received during creation of the
-        topic identified by the specified 'correlationId'. If 'correlationId'
-        does not identify an entry in this TopicList or if the status of the
-        entry identify by 'correlationId' is not CREATED an exception is
-        raised.
+        Returns:
+            Message: Message received during creation of the topic identified
+            by the specified ``correlationId``.
 
-        The message returned can be used when creating an instance of Topic.
+        Raises:
+            Exception: If ``correlationId`` does not identify an entry in this
+                :class:`TopicList` or if the status of the entry identified by
+                ``correlationId`` is not :attr:`CREATED`.
+
+        The message returned can be used when creating an instance of
+        :class:`Topic`.
         """
         errorCode, message = internals.blpapi_TopicList_message(
             self.__handle,
@@ -170,14 +225,20 @@ class TopicList(object):
         return Message(message, sessions=self.__sessions)
 
     def messageAt(self, index):
-        """Return the message received during creation of entry at 'index'.
+        """
+        Args:
+            index (int): Index of the entry
 
-        Return the value of the message received during creation of the
-        specified 'index'th entry in this TopicList. If 'index' >= size() or if
-        the status of the 'index'th entry is not CREATED an exception is
-        raised.
+        Returns:
+            Message: Message received during creation of the entry at
+                ``index``.
 
-        The message returned can be used when creating an instance of Topic.
+        Raises:
+            Exception: If ``index >= size()`` or if the status of the entry
+                identify by ``correlationId`` is not :attr:`CREATED`.
+
+        The message returned can be used when creating an instance of
+        :class:`Topic`.
         """
         errorCode, message = internals.blpapi_TopicList_messageAt(
             self.__handle,
@@ -186,7 +247,7 @@ class TopicList(object):
         return Message(message, sessions=self.__sessions)
 
     def size(self):
-        """Return the number of entries in this TopicList."""
+        """Return the number of entries in this :class:`TopicList`."""
         return internals.blpapi_TopicList_size(self.__handle)
 
     def _handle(self):

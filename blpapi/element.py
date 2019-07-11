@@ -20,78 +20,84 @@ from . import internals
 # pylint: disable=useless-object-inheritance,protected-access,too-many-return-statements,too-many-public-methods
 
 class Element(object):
-    """Element represents an item in a message.
+    """Represents an item in a message.
 
-    An Element can represent: a single value of any data type supported by the
-    Bloomberg API; an array of values; a sequence or a choice.
+    An :class:`Element` can represent:
 
-    The value(s) in an Element can be queried in a number of ways. For an
-    Element which represents a single value or an array of values use the
-    'getValueAs()' functions or 'getValueAsBool()' etc. For an Element which
-    represents a sequence or choice use 'getElementAsBool()' etc. In addition,
-    for choices and sequences, 'hasElement()' and 'getElement()' are useful.
+    - A single value of any data type supported by the Bloomberg API
+    - An array of values
+    - A sequence or a choice
 
-    This example shows how to access the value of a scalar element 's' as a
-    floating point number:
+    The value(s) in an :class:`Element` can be queried in a number of ways. For
+    an :class:`Element` which represents a single value or an array of values
+    use the :meth:`getValueAsBool()` etc. functions. For an :class:`Element`
+    which represents a sequence or choice use :meth:`getElementAsBool()` etc.
+    functions. In addition, for choices and sequences, :meth:`hasElement()` and
+    :meth:`getElement()` are useful.
 
-         f = s.getValueAsFloat()
+    This example shows how to access the value of a scalar element ``s`` as a
+    floating point number::
+
+        f = s.getValueAsFloat()
 
     Similarly, this example shows how to retrieve the third value in an array
-    element 'a', as a floating point number:
+    element ``a``, as a floating point number::
 
-         f = a.getValueAsFloat(2)
+        f = a.getValueAsFloat(2)
 
-    Use 'numValues()' to determine the number of values available. For single
-    values, it will return either 0 or 1. For arrays it will return the actual
-    number of values in the array.
+    Use :meth:`numValues()` to determine the number of values available. For
+    single values, it will return either ``0`` or ``1``. For arrays it will
+    return the actual number of values in the array.
 
     To retrieve values from a complex element types (sequences and choices) use
-    the 'getElementAs...()' family of methods. This example shows how to get the
-    value of the the element 'city' in the sequence element 'address':
+    the ``getElementAs...()`` family of methods. This example shows how to get
+    the value of the element ``city`` in the sequence element ``address``::
 
-         city = address.getElementAsString("city")
+        city = address.getElementAsString("city")
 
-    Note that 'getElementAsXYZ(name)' method is a shortcut to
-    'getElement(name).getValueAsXYZ()'.
+    Note:
+        ``getElementAsXYZ(name)`` method is a shortcut to
+        ``getElement(name).getValueAsXYZ()``.
 
-    The value(s) of an Element can be set in a number of ways. For an Element
-    which represents a single value or an array of values use the 'setValue()'
-    or 'appendValue()' functions. For an element which represents a sequence
-    or a choice use the 'setElement()' functions.
+    The value(s) of an :class:`Element` can be set in a number of ways. For an
+    :class:`Element` which represents a single value or an array of values use
+    the :meth:`setValue()` or :meth:`appendValue()` functions. For an element
+    which represents a sequence or a choice use the :meth:`setElement()`
+    functions.
 
-    This example shows how to set the value of an Element 's':
+    This example shows how to set the value of an :class:`Element` ``s``::
 
-         value=5
-         s.setValue(value)
+        value=5
+        s.setValue(value)
 
-    This example shows how to append a value to an array element 'a':
+    This example shows how to append a value to an array element ``a``::
 
-         value=5;
-         s.appendValue(value);
+        value=5
+        a.appendValue(value)
 
     To set values in a complex element (a sequence or a choice) use the
-    'setElement()' family of functions. This example shows how to set the value
-    of the element 'city' in the sequence element 'address' to a string.
+    :meth:`setElement()` family of functions. This example shows how to set the
+    value of the element ``city`` in the sequence element ``address`` to a
+    string::
 
-         address.setElement("city", "New York")
+        address.setElement("city", "New York")
 
-    Methods which specify an Element name accept name in two forms:
-    'blpapi.Name' or a string. Passing 'blpapi.Name' is more efficient.
-    However, it requires the Name to have been created in the
-    global name table.
+    Methods which specify an :class:`Element` name accept name in two forms:
+    :class:`Name` or a string. Passing :class:`Name` is more efficient.
+    However, it requires the :class:`Name` to have been created in the global
+    name table.
 
     The form which takes a string is less efficient but will not cause a new
-    Name to be created in the global Name table. Because all valid Element
-    names will have already been placed in the global name table by the API if
-    the supplied string cannot be found in the global name table the
-    appropriate error or exception can be returned.
+    :class:`Name` to be created in the global name table. Because all valid
+    :class:`Element` names will have already been placed in the global name
+    table by the API if the supplied string cannot be found in the global name
+    table the appropriate error or exception can be returned.
 
     The API will convert data types as long as there is no loss of precision
     involved.
 
-    Element objects are always created by the API, never directly by the
-    application.
-
+    :class:`Element` objects are always created by the API, never directly by
+    the application.
     """
 
     __boolTraits = (
@@ -186,14 +192,15 @@ class Element(object):
         return self.toString()
 
     def name(self):
-        """Return the name of this Element.
-
-        If this Element is part of a sequence or choice Element then return the
-        Name of this Element within the sequence or choice Element that owns
-        it. If this Element is not part of a sequence Element (that is it is an
-        entire Request or Message) then return the Name of the Request or
-        Message.
-
+        """
+        Returns:
+            Name: If this :class:`Element` is part of a sequence or choice
+            :class:`Element`, then return the :class:`Name` of this
+            :class:`Element` within the sequence or choice :class:`Element`
+            that owns it. If this :class:`Element` is not part of a sequence
+            :class:`Element` (that is it is an entire :class:`Request` or
+            :class:`Message`) then return the :class:`Name` of the
+            :class:`Request` or :class:`Message`.
         """
 
         self.__assertIsValid()
@@ -201,59 +208,68 @@ class Element(object):
             internals.blpapi_Element_name(self.__handle))
 
     def datatype(self):
-        """Return the basic data type of this Element.
+        """
+        Returns:
+            int: Basic data type used to represent a value in this
+            :class:`Element`.
 
-        Return the basic data type used to represent a value in this Element.
-
-        The possible return values are enumerated in DataType class.
-
+        The possible types are enumerated in :class:`DataType`.
         """
 
         self.__assertIsValid()
         return internals.blpapi_Element_datatype(self.__handle)
 
     def isComplexType(self):
-        """Return True is this Element is a SEQUENCE or CHOICE.
-
-        Return True if 'datatype()==DataType.SEQUENCE' or
-        'datatype()==DataType.CHOICE' and False otherwise.
-
+        """
+        Returns:
+            bool: ``True`` if ``datatype()==DataType.SEQUENCE`` or
+            ``datatype()==DataType.CHOICE`` and ``False`` otherwise.
         """
 
         self.__assertIsValid()
         return bool(internals.blpapi_Element_isComplexType(self.__handle))
 
     def isArray(self):
-        """Return True is this element is an array.
+        """
+        Returns:
+            bool: ``True`` if this element is an array.
 
-        Return True if 'elementDefinition().maxValues()>1' or if
-        'elementDefinition().maxValues()==UNBOUNDED', and False otherwise.
-
+        This element is an array if ``elementDefinition().maxValues()>1`` or if
+        ``elementDefinition().maxValues()==UNBOUNDED``.
         """
 
         self.__assertIsValid()
         return bool(internals.blpapi_Element_isArray(self.__handle))
 
     def isValid(self):
-        """Return True if this Element is valid."""
+        """
+        Returns:
+            bool: ``True`` if this :class:`Element` is valid.
+        """
         return self.__handle is not None
 
     def isNull(self):
-        """Return True if this Element has a null value."""
+        """
+        Returns:
+            bool: ``True`` if this :class:`Element` has a null value.
+        """
         self.__assertIsValid()
         return bool(internals.blpapi_Element_isNull(self.__handle))
 
     def isReadOnly(self):
-        """Return True if this element cannot be modified."""
+        """
+        Returns:
+            bool: ``True`` if this :class:`Element` cannot be modified.
+        """
         self.__assertIsValid()
         return bool(internals.blpapi_Element_isReadOnly(self.__handle))
 
     def elementDefinition(self):
-        """Return a read-only SchemaElementDefinition for this Element.
-
-        Return a reference to the read-only element definition object that
-        defines the properties of this elements value.
-
+        """
+        Return:
+            SchemaElementDefinition: Reference to the read-only element
+            definition object that defines the properties of this elements
+            value.
         """
         self.__assertIsValid()
         return SchemaElementDefinition(
@@ -261,39 +277,46 @@ class Element(object):
             self._sessions())
 
     def numValues(self):
-        """Return the number of values contained by this element.
+        """
+        Returns:
+            int: Number of values contained by this element.
 
-        Return the number of values contained by this element. The number of
-        values is 0 if 'isNull()' returns True, and no greater than 1 if
-        'isComplexType()' returns True. The value returned will always be in
-        the range defined by 'elementDefinition().minValues()' and
-        'elementDefinition().maxValues()'.
-
+        The number of values is ``0`` if :meth:`isNull()` returns ``True``, and
+        no greater than ``1`` if :meth:`isComplexType()` returns ``True``. The
+        value returned will always be in the range defined by
+        ``elementDefinition().minValues()`` and
+        ``elementDefinition().maxValues()``.
         """
 
         self.__assertIsValid()
         return internals.blpapi_Element_numValues(self.__handle)
 
     def numElements(self):
-        """Return the number of elements in this Element.
+        """
+        Returns:
+            int: Number of elements in this element.
 
-        Return the number of elements contained by this element.  The number
-        of elements is 0 if 'isComplex()' returns False, and no greater than
-        1 if the Datatype is CHOICE; if the DataType is SEQUENCE this may
-        return any number (including 0).
-
+        The number of elements is ``0`` if :meth:`isComplexType()` returns
+        ``False``, and no greater than ``1`` if the :class:`DataType` is
+        :attr:`~DataType.CHOICE`; if the :class:`DataType` is
+        :attr:`~DataType.SEQUENCE` this may return any number (including
+        ``0``).
         """
 
         self.__assertIsValid()
         return internals.blpapi_Element_numElements(self.__handle)
 
     def isNullValue(self, position=0):
-        """Return True if the value at the 'position' is a null value.
+        """
+        Args:
+            position (int): Position of the sub-element
 
-        Return True if the value of the sub-element at the specified 'position'
-        in a sequence or choice element is a null value. An exception is raised
-        if 'position >= numElements()'.
+        Returns:
+            bool: ``True`` if the value of the sub-element at the ``position``
+            is a null value.
 
+        Raises:
+            Exception: If ``position >= numElements()``.
         """
 
         self.__assertIsValid()
@@ -304,16 +327,20 @@ class Element(object):
         return None # unreachable
 
     def toString(self, level=0, spacesPerLevel=4):
-        """Format this Element to the string.
+        """Format this :class:`Element` to the string at the specified
+        indentation level.
 
-        Format this Element to the string at the specified indentation level.
+        Args:
+            level (int): Indentation level
+            spacesPerLevel (int): Number of spaces per indentation level for
+                this and all nested objects
 
-        You could optionally specify 'spacesPerLevel' - the number of spaces
-        per indentation level for this and all of its nested objects. If
-        'level' is negative, suppress indentation of the first line. If
-        'spacesPerLevel' is negative, format the entire output on one line,
-        suppressing all but the initial indentation (as governed by 'level').
+        Returns:
+            str: This element formatted as a string
 
+        If ``level`` is negative, suppress indentation of the first line. If
+        ``spacesPerLevel`` is negative, format the entire output on one line,
+        suppressing all but the initial indentation (as governed by ``level``).
         """
 
         self.__assertIsValid()
@@ -322,17 +349,18 @@ class Element(object):
                                                     spacesPerLevel)
 
     def getElement(self, nameOrIndex):
-        """Return a specified sub-element.
+        """
+        Args:
+            nameOrIndex (Name or str or int): Sub-element identifier
 
-        Return a sub-element identified by the specified 'nameOrIndex', which
-        must be either a string, a Name, or an integer. If 'nameOrIndex' is a
-        string or a Name and 'hasElement(nameOrIndex) != True', or if
-        'nameOrIndex' is an integer and 'nameOrIndex >= numElements()', then
-        an exception is raised.
+        Returns:
+            Element: Sub-element identified by ``nameOrIndex``
 
-        An exception is also raised if this Element is neither a sequence nor
-        a choice.
-
+        Raises:
+            Exception: If ``nameOrIndex`` is a string or a :class:`Name` and
+                ``hasElement(nameOrIndex) != True``, or if ``nameOrIndex`` is an
+                integer and ``nameOrIndex >= numElements()``. Also if this
+                :class:`Element` is neither a sequence nor a choice.
         """
 
         if not isinstance(nameOrIndex, int):
@@ -349,9 +377,13 @@ class Element(object):
         return Element(res[1], self._getDataHolder())
 
     def elements(self):
-        """Return an iterator over elements contained in this Element.
+        """
+        Returns:
+            Iterator over elements contained in this :class:`Element`.
 
-        An exception is raised if this 'Element' is not a sequence.
+        Raises:
+            UnsupportedOperationException: If this :class:`Element` is not a
+                sequence.
         """
 
         if self.datatype() != DataType.SEQUENCE:
@@ -360,13 +392,18 @@ class Element(object):
         return utils.Iterator(self, Element.numElements, Element.getElement)
 
     def hasElement(self, name, excludeNullElements=False):
-        """Return True if this Element contains sub-element with this 'name'.
+        """
+        Args:
+            name (Name or str): Name of the element
+            excludeNullElements (bool): Whether to exclude null elements
 
-        Return True if this Element is a choice or sequence ('isComplexType()
-        == True') and it contains an Element with the specified 'name'.
+        Returns:
+            bool: ``True`` if this :class:`Element` is a choice or sequence
+            (``isComplexType() == True``) and it contains an :class:`Element`
+            with the specified ``name``.
 
-        Exception is raised if 'name' is neither a Name nor a string.
-
+        Raises:
+            Exception: If ``name`` is neither a :class:`Name` nor a string.
         """
 
         self.__assertIsValid()
@@ -380,11 +417,12 @@ class Element(object):
         return bool(res)
 
     def getChoice(self):
-        """Return the selection name of this element as Element.
+        """
+        Returns:
+            Element: The selection name of this element as :class:`Element`.
 
-        Return the selection name of this element if
-        'datatype() == DataType.CHOICE'; otherwise, an exception is raised.
-
+        Raises:
+            Exception: If ``datatype() != DataType.CHOICE``
         """
 
         self.__assertIsValid()
@@ -393,11 +431,17 @@ class Element(object):
         return Element(res[1], self._getDataHolder())
 
     def getValueAsBool(self, index=0):
-        """Return the specified 'index'th entry in the Element as a boolean.
+        """
+        Args:
+            index (int): Index of the value in the element
 
-        An exception is raised if the data type of this Element cannot be
-        converted to a boolean or if 'index >= numValues()'.
+        Returns:
+            bool: ``index``\ th entry in the :class:`Element` as a boolean.
 
+        Raises:
+            InvalidConversionException: If the data type of this
+                :class:`Element` cannot be converted to a boolean.
+            IndexOutOfRangeException: If ``index >= numValues()``.
         """
 
         self.__assertIsValid()
@@ -406,11 +450,17 @@ class Element(object):
         return bool(res[1])
 
     def getValueAsString(self, index=0):
-        """Return the specified 'index'th entry in the Element as a string.
+        """
+        Args:
+            index (int): Index of the value in the element
 
-        An exception is raised if the data type of this Element cannot be
-        converted to a string or if 'index >= numValues()'.
+        Returns:
+            str: ``index``\ th entry in the :class:`Element` as a string.
 
+        Raises:
+            InvalidConversionException: If the data type of this
+                :class:`Element` cannot be converted to a string.
+            IndexOutOfRangeException: If ``index >= numValues()``.
         """
 
         self.__assertIsValid()
@@ -419,14 +469,18 @@ class Element(object):
         return res[1]
 
     def getValueAsDatetime(self, index=0):
-        """Return the specified 'index'th entry as one of the datetime types.
+        """
+        Args:
+            index (int): Index of the value in the element
 
-        The possible result types are 'datetime.time', 'datetime.date' or
-        'datetime.datetime'.
+        Returns:
+            datetime.time or datetime.date or datetime.datetime: ``index``\ th
+            entry in the :class:`Element` as one of the datetime types.
 
-        An exception is raised if the data type of this Element cannot be
-        converted to one of these types or if 'index >= numValues()'.
-
+        Raises:
+            InvalidConversionException: If the data type of this
+                :class:`Element` cannot be converted to a datetime.
+            IndexOutOfRangeException: If ``index >= numValues()``.
         """
 
         self.__assertIsValid()
@@ -436,11 +490,17 @@ class Element(object):
         return _DatetimeUtil.convertToNative(res[1])
 
     def getValueAsInteger(self, index=0):
-        """Return the specified 'index'th entry in the Element as an integer.
+        """
+        Args:
+            index (int): Index of the value in the element
 
-        An exception is raised if the data type of this Element cannot be
-        converted to an integer or if 'index >= numValues()'.
+        Returns:
+            int: ``index``\ th entry in the :class:`Element` as a integer
 
+        Raises:
+            InvalidConversionException: If the data type of this
+                :class:`Element` cannot be converted to an integer.
+            IndexOutOfRangeException: If ``index >= numValues()``.
         """
 
         self.__assertIsValid()
@@ -449,11 +509,17 @@ class Element(object):
         return res[1]
 
     def getValueAsFloat(self, index=0):
-        """Return the specified 'index'th entry in the Element as a float.
+        """
+        Args:
+            index (int): Index of the value in the element
 
-        An exception is raised if the data type of this Element cannot be
-        converted to a float or if 'index >= numValues()'.
+        Returns:
+            float: ``index``\ th entry in the :class:`Element` as a float.
 
+        Raises:
+            InvalidConversionException: If the data type of this
+                :class:`Element` cannot be converted to an float.
+            IndexOutOfRangeException: If ``index >= numValues()``.
         """
 
         self.__assertIsValid()
@@ -462,11 +528,17 @@ class Element(object):
         return res[1]
 
     def getValueAsName(self, index=0):
-        """Return the specified 'index'th entry in the Element as a Name.
+        """
+        Args:
+            index (int): Index of the value in the element
 
-        An exception is raised if the data type of this Element cannot be
-        converted to a Name or if 'index >= numValues()'.
+        Returns:
+            Name: ``index``\ th entry in the :class:`Element` as a Name.
 
+        Raises:
+            InvalidConversionException: If the data type of this
+                :class:`Element` cannot be converted to a :class:`Name`.
+            IndexOutOfRangeException: If ``index >= numValues()``.
         """
 
         self.__assertIsValid()
@@ -475,11 +547,17 @@ class Element(object):
         return Name._createInternally(res[1])
 
     def getValueAsElement(self, index=0):
-        """Return the specified 'index'th entry in the Element as an Element.
+        """
+        Args:
+            index (int): Index of the value in the element
 
-        An exception is raised if the data type of this Element cannot be
-        converted to an Element or if 'index >= numValues()'.
+        Returns:
+            Element: ``index``\ th entry in the :class:`Element` as a Element.
 
+        Raises:
+            InvalidConversionException: If the data type of this
+                :class:`Element` cannot be converted to an :class:`Element`.
+            IndexOutOfRangeException: If ``index >= numValues()``.
         """
 
         self.__assertIsValid()
@@ -488,14 +566,18 @@ class Element(object):
         return Element(res[1], self._getDataHolder())
 
     def getValue(self, index=0):
-        """Return the specified 'index'th entry in the Element.
+        """
+        Args:
+            index (int): Index of the value in the element
 
-        Return the specified 'index'th entry in the Element in the format
-        defined by this Element datatype.
+        Returns:
+            ``index``\ th entry in the :class:`Element` defined by this
+            element's datatype.
 
-        An exception is raised if this Element either a sequence or a choice or
-        if 'index >= numValues()'.
-
+        Raises:
+            InvalidConversionException: If the data type of this
+                :class:`Element` is either a sequence or a choice.
+            IndexOutOfRangeException: If ``index >= numValues()``.
         """
 
         datatype = self.datatype()
@@ -504,10 +586,12 @@ class Element(object):
         return valueGetter(self, index)
 
     def values(self):
-        """Return an iterator over values contained in this Element.
+        """
+        Returns:
+            Iterator over values contained in this :class:`Element`.
 
-        If 'isComplexType()' returns True for this Element, the empty iterator
-        is returned.
+        If :meth:`isComplexType()` returns ``True`` for this :class:`Element`,
+        the empty iterator is returned.
         """
 
         if self.isComplexType():
@@ -518,89 +602,121 @@ class Element(object):
         return utils.Iterator(self, Element.numValues, valueGetter)
 
     def getElementAsBool(self, name):
-        """Return this Element's sub-element with 'name' as a boolean.
+        """
+        Args:
+            name (Name or str): Sub-element identifier
 
-        Exception is raised if 'name' is neither a Name nor a string, or if
-        this Element is neither a sequence nor a choice, or in case it has no
-        sub-element with the specified 'name', or in case the Element's value
-        can't be returned as a boolean.
+        Returns:
+            bool: This element's sub-element with ``name`` as a boolean
 
+        Raises:
+            Exception: If ``name`` is neither a :class:`Name` nor a string, or
+                if this :class:`Element` is neither a sequence nor a choice, or
+                in case it has no sub-element with the specified ``name``, or
+                in case the element's value can't be returned as a boolean.
         """
 
         return self.getElement(name).getValueAsBool()
 
     def getElementAsString(self, name):
-        """Return this Element's sub-element with 'name' as a string.
+        """
+        Args:
+            name (Name or str): Sub-element identifier
 
-        Exception is raised if 'name' is neither a Name nor a string, or if
-        this Element is neither a sequence nor a choice, or in case it has no
-        sub-element with the specified 'name', or in case the Element's value
-        can't be returned as a string.
+        Returns:
+            str: This element's sub-element with ``name`` as a string
 
+        Raises:
+            Exception: If ``name`` is neither a :class:`Name` nor a string, or
+                if this :class:`Element` is neither a sequence nor a choice, or
+                in case it has no sub-element with the specified ``name``, or
+                in case the element's value can't be returned as a string.
         """
 
         return self.getElement(name).getValueAsString()
 
     def getElementAsDatetime(self, name):
-        """Return this Element's sub-element with 'name' as a datetime type.
+        """
+        Args:
+            name (Name or str): Sub-element identifier
 
-        The possible result types are datetime.time, datetime.date or
-        datetime.datetime.
+        Returns:
+            datetime.time or datetime.date or datetime.datetime: This element's
+            sub-element with ``name`` as one of the datetime types
 
-        Exception is raised if 'name' is neither a Name nor a string, or if
-        this Element is neither a sequence nor a choice, or in case it has no
-        sub-element with the specified 'name', or in case the Element's value
-        can't be returned as one of datetype types.
-
+        Raises:
+            Exception: If ``name`` is neither a :class:`Name` nor a string, or
+                if this :class:`Element` is neither a sequence nor a choice, or
+                in case it has no sub-element with the specified ``name``, or
+                in case the element's value can't be returned as a datetime.
         """
 
         return self.getElement(name).getValueAsDatetime()
 
     def getElementAsInteger(self, name):
-        """Return this Element's sub-element with 'name' as an integer.
+        """
+        Args:
+            name (Name or str): Sub-element identifier
 
-        Exception is raised if 'name' is neither a Name nor a string, or if
-        this Element is neither a sequence nor a choice, or in case it has no
-        sub-element with the specified 'name', or in case the Element's value
-        can't be returned as an integer.
+        Returns:
+            int: This element's sub-element with ``name`` as an integer
 
+        Raises:
+            Exception: If ``name`` is neither a :class:`Name` nor a string, or
+                if this :class:`Element` is neither a sequence nor a choice, or
+                in case it has no sub-element with the specified ``name``, or
+                in case the element's value can't be returned as an integer.
         """
 
         return self.getElement(name).getValueAsInteger()
 
     def getElementAsFloat(self, name):
-        """Return this Element's sub-element with 'name' as a float.
+        """
+        Args:
+            name (Name or str): Sub-element identifier
 
-        Exception is raised if 'name' is neither a Name nor a string, or if
-        this Element is neither a sequence nor a choice, or in case it has no
-        sub-element with the specified 'name', or in case the Element's value
-        can't be returned as a float.
+        Returns:
+            float: This element's sub-element with ``name`` as a float
 
+        Raises:
+            Exception: If ``name`` is neither a :class:`Name` nor a string, or
+                if this :class:`Element` is neither a sequence nor a choice, or
+                in case it has no sub-element with the specified ``name``, or
+                in case the element's value can't be returned as a float.
         """
 
         return self.getElement(name).getValueAsFloat()
 
     def getElementAsName(self, name):
-        """Return this Element's sub-element with 'name' as a Name.
+        """
+        Args:
+            name (Name or str): Sub-element identifier
 
-        Exception is raised if 'name' is neither a Name nor a string, or if
-        this Element is neither a sequence nor a choice, or in case it has no
-        sub-element with the specified 'name', or in case the Element's value
-        can't be returned as a Name.
+        Returns:
+            Name: This element's sub-element with ``name`` as a :class:`Name`
 
+        Raises:
+            Exception: If ``name`` is neither a :class:`Name` nor a string, or
+                if this :class:`Element` is neither a sequence nor a choice, or
+                in case it has no sub-element with the specified ``name``, or
+                in case the element's value can't be returned as a
+                :class:`Name`.
         """
 
         return self.getElement(name).getValueAsName()
 
     def getElementValue(self, name):
-        """Return this Element's sub-element with 'name'.
+        """
+        Args:
+            name (Name or str): Sub-element identifier
 
-        The value is returned in the format defined by this Element datatype.
+        Returns:
+            This element's sub-element with ``name`` defined by its datatype
 
-        Exception is raised if 'name' is neither a Name nor a string, or if
-        this Element is neither a sequence nor a choice, or in case it has no
-        sub-element with the specified 'name'.
-
+        Raises:
+            Exception: If ``name`` is neither a :class:`Name` nor a string, or
+                if this :class:`Element` is neither a sequence nor a choice, or
+                in case it has no sub-element with the specified ``name``.
         """
 
         return self.getElement(name).getValue()
@@ -608,24 +724,29 @@ class Element(object):
     def setElement(self, name, value):
         """Set this Element's sub-element with 'name' to the specified 'value'.
 
-        This method can process the following types of 'value' without
+        Args:
+            name (Name or str): Sub-element identifier
+            value: Value to set the sub-element to
+
+        Raises:
+            Exception: If ``name`` is neither a :class:`Name` nor a string, or
+                if this element has no sub-element with the specified ``name``,
+                or if the :class:`Element` identified by the specified ``name``
+                cannot be initialized from the type of the specified ``value``.
+
+        This method can process the following types of ``value`` without
         conversion:
 
         - boolean
         - integers
         - float
         - string
-        - datetypes ('datetime.time', 'datetime.date' or 'datetime.datetime')
-        - Name
+        - datetypes (``datetime.time``, ``datetime.date`` or
+          ``datetime.datetime``)
+        - :class:`Name`
 
-        Any other 'value' will be converted to a string with 'str' function and
-        then processed in the same way as string 'value'.
-
-        An exception is raised if 'name' is neither a Name nor a string, or if
-        this element has no sub-element with the specified 'name', or if the
-        Element identified by the specified 'name' cannot be initialized from
-        the type of the specified 'value'.
-
+        Any other ``value`` will be converted to a string with ``str`` function
+        and then processed in the same way as string ``value``.
         """
 
         self.__assertIsValid()
@@ -638,24 +759,31 @@ class Element(object):
             traits[0](self.__handle, name[0], name[1], value))
 
     def setValue(self, value, index=0):
-        """Set the specified 'index'th entry in this Element to the 'value'.
+        """Set the specified ``index``\ th entry in this :class:`Element` to
+        the ``value``.
 
-        This method can process the following types of 'value' without
+        Args:
+            index (int): Index of the sub-element
+            value: Value to set the sub-element to
+
+        Raises:
+            Exception: If this :class:`Element`\ 's datatype can't be
+                initialized with the type of the specified ``value``, or if
+                ``index >= numValues()``.
+
+        This method can process the following types of ``value`` without
         conversion:
 
         - boolean
         - integers
         - float
         - string
-        - datetypes ('datetime.time', 'datetime.date' or 'datetime.datetime')
-        - Name
+        - datetypes (``datetime.time``, ``datetime.date`` or
+          ``datetime.datetime``)
+        - :class:`Name`
 
-        Any other 'value' will be converted to a string with 'str' function and
-        then processed in the same way as string 'value'.
-
-        An exception is raised if this Element's datatype can't be initialized
-        with the type of the specified 'value', or if 'index >= numValues()'.
-
+        Any other ``value`` will be converted to a string with ``str`` function
+        and then processed in the same way as string ``value``.
         """
 
         self.__assertIsValid()
@@ -665,35 +793,45 @@ class Element(object):
         _ExceptionUtil.raiseOnError(traits[1](self.__handle, value, index))
 
     def appendValue(self, value):
-        """Append the specified 'value' to this Element's entries at the end.
+        """Append the specified ``value`` to this :class:`Element`\ s entries
+        at the end.
 
-        This method can process the following types of 'value' without
+        Args:
+            value: Value to append
+
+        Raises:
+            Exception: If this :class:`Element`\ 's datatype can't be
+                initialized from the type of the specified ``value``, or if the
+                current size of this :class:`Element` (:meth:`numValues()`) is
+                equal to the maximum defined by
+                ``elementDefinition().maxValues()``.
+
+        This method can process the following types of ``value`` without
         conversion:
 
         - boolean
         - integers
         - float
         - string
-        - datetypes ('datetime.time', 'datetime.date' or 'datetime.datetime')
-        - Name
+        - datetypes (``datetime.time``, ``datetime.date`` or
+          ``datetime.datetime``)
+        - :class:`Name`
 
-        Any other 'value' will be converted to a string with 'str' function and
-        then processed in the same way as string 'value'.
-
-        An exception is raised if this Element's datatype can't be initialized
-        from the type of the specified 'value', or if the current size of this
-        Element ('numValues()') is equal to the maximum defined by
-        'elementDefinition().maxValues()'.
-
+        Any other ``value`` will be converted to a string with ``str`` function
+        and then processed in the same way as string ``value``.
         """
 
         self.setValue(value, internals.ELEMENT_INDEX_END)
 
     def appendElement(self):
-        """Append a new element to this array Element, return the new Element.
+        """Append a new element to this array :class:`Element`.
 
-        An exception is raised if this Element is not an array of sequence or
-        choice Elements.
+        Returns:
+            Element: The newly appended element
+
+        Raises:
+            Exception: If this :class:`Element` is not an array of sequence or
+                choice :class:`Element`\ s.
 
         """
 
@@ -703,11 +841,18 @@ class Element(object):
         return Element(res[1], self._getDataHolder())
 
     def setChoice(self, selectionName):
-        """Set this Element's active Element to 'selectionName'.
+        """Set this :class:`Element`\ 's active element to ``selectionName``.
 
-        Exception is raised if 'selectionName' is neither a Name nor a string,
-        or if this Element is not a choice.
+        Args:
+            selectionName (Name or str): Name of the element to set the active
+                choice
 
+        Returns:
+            Element: The newly active element
+
+        Raises:
+            Exception: If ``selectionName`` is neither a :class:`Name` nor a
+                string, or if this :class:`Element` is not a choice.
         """
 
         self.__assertIsValid()

@@ -30,26 +30,18 @@ from .compat import with_metaclass
 @with_metaclass(utils.MetaClassForClassesWithEnums)
 class SchemaStatus(object):
     """The possible deprecation statuses of a schema element or type.
-
-    Class attributes:
-
-        ACTIVE:
-            This item is current and may appear in Messages
-        DEPRECATED:
-            This item is current and may appear in Messages
-            but will be removed in due course
-        INACTIVE:
-            This item is not current and will not appear in Messages
-        PENDING_DEPRECATION:
-            This item is expected to be deprecated in the
-            future; clients are advised to migrate away from use of
-            this item.
     """
 
     ACTIVE = internals.STATUS_ACTIVE
+    """This item is current and may appear in Messages"""
     DEPRECATED = internals.STATUS_DEPRECATED
+    """This item is current and may appear in Messages but will be removed in
+    due course"""
     INACTIVE = internals.STATUS_INACTIVE
+    """This item is not current and will not appear in Messages"""
     PENDING_DEPRECATION = internals.STATUS_PENDING_DEPRECATION
+    """This item is expected to be deprecated in the future; clients are
+    advised to migrate away from use of this item."""
 
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
@@ -62,35 +54,31 @@ class SchemaElementDefinition(object):
     addition, this class offers access to metadata providing a description and
     deprecation status for the field.
 
-    'SchemaElementDefinition' objects are returned by 'Service' and 'Operation'
-    objects to define the content of requests, replies and events. The
-    'SchemaTypeDefinition' returned by
-    'SchemaElementDefinition.typeDefinition()' may itself provide access to
-    'SchemaElementDefinition' objects when the schema contains nested elements.
-    (See the 'SchemaTypeDefinition' documentation for more information on
-    complex types.)
+    :class:`SchemaElementDefinition` objects are returned by :class:`Service`
+    and :class:`Operation` objects to define the content of requests, replies
+    and events. The :class:`SchemaTypeDefinition` returned by
+    :meth:`typeDefinition()` may itself provide access to
+    :class:`SchemaElementDefinition` objects when the schema contains nested
+    elements.  (See the :class:`SchemaTypeDefinition` documentation for more
+    information on complex types.)
 
-    An optional element has 'minValues() == 0'.
+    An optional element has ``minValues() == 0``.
 
-    A mandatory element has 'minValues() >= 1'.
+    A mandatory element has ``minValues() >= 1``.
 
     An element that must constain a single value has
-    'minValues() == maxValues() == 1'.
+    ``minValues() == maxValues() == 1``.
 
-    An element containing an array has 'maxValues() > 1'.
+    An element containing an array has ``maxValues() > 1``.
 
     An element with no upper limit on the number of values has
-    'maxValues() == UNBOUNDED'.
+    ``maxValues() == UNBOUNDED``.
 
-    'SchemaElementDefinition' objects are read-only.
+    :class:`SchemaElementDefinition` objects are read-only.
 
-    Application clients need never create 'SchemaElementDefinition' objects
-    directly; applications will typically work with objects returned by other
-    'blpapi' components.
-
-    Class attributes:
-
-        UNBOUNDED - Indicates an array has an unbounded number of values.
+    Application clients need never create :class:`SchemaElementDefinition`
+    objects directly; applications will typically work with objects returned by
+    other blpapi components.
     """
 
     UNBOUNDED = internals.ELEMENTDEFINITION_UNBOUNDED
@@ -111,64 +99,71 @@ class SchemaElementDefinition(object):
         return self.toString()
 
     def name(self):
-        """Return the name of this element.
-
-        Return the name identifying this element within its containing
-        structure/type.
-
+        """
+        Returns:
+            Name: The name identifying this element within its containing
+            structure/type.
         """
 
         return Name._createInternally(
             internals.blpapi_SchemaElementDefinition_name(self.__handle))
 
     def description(self):
-        """Return a human readable description of this element."""
+        """
+        Returns:
+            str: Human readable description of this element.
+        """
         return internals.blpapi_SchemaElementDefinition_description(
             self.__handle)
 
     def status(self):
-        """Return the deprecation status of this element.
+        """
+        Returns:
+            int: The deprecation status of this element.
 
-        The possible return values are enumerated in 'SchemaStatus' class.
-
+        The possible return values are enumerated in :class:`SchemaStatus`.
         """
 
         return internals.blpapi_SchemaElementDefinition_status(self.__handle)
 
     def typeDefinition(self):
-        """Return the type of values contained in this element."""
+        """
+        Returns:
+            SchemaTypeDefinition: The type of values contained in this element.
+        """
         return SchemaTypeDefinition(
             internals.blpapi_SchemaElementDefinition_type(self.__handle),
             self.__sessions)
 
     def minValues(self):
-        """Return the minimum number of occurences of this element.
+        """
+        Returns:
+            int: The minimum number of occurences of this element.
 
         This value is always greater than or equal to zero.
-
         """
 
         return internals.blpapi_SchemaElementDefinition_minValues(
             self.__handle)
 
     def maxValues(self):
-        """Return the maximum number of occurences of this element.
+        """
+        Returns:
+            int: The maximum number of occurences of this element.
 
         This value is always greater than or equal to one.
 
-        Return value is equal to 'SchemaElementDefinition.UNBOUNDED' if this
-        item is an unbounded array.
-
+        Return value is equal to :attr:`UNBOUNDED` if this item is an unbounded
+        array.
         """
 
         return internals.blpapi_SchemaElementDefinition_maxValues(
             self.__handle)
 
     def alternateNames(self):
-        """Return the list of alternate names for this element.
-
-        The result is a list of Name objects.
-
+        """
+        Returns:
+            [Name]: The list of alternate names for this element.
         """
 
         res = []
@@ -183,16 +178,18 @@ class SchemaElementDefinition(object):
         return res
 
     def toString(self, level=0, spacesPerLevel=4):
-        """Format this 'SchemaElementDefinition' to the string.
+        """
+        Args:
+            level (int): Indentation level
+            spacesPerLevel (int): Number of spaces per indentation level for
+                this and all nested objects
 
-        Format this 'SchemaElementDefinition' to the string at the (absolute
-        value of) optionally specified indentation 'level'. If 'level' is
-        specified, optionally specify 'spacesPerLevel', the number of spaces
-        per indentation level for this and all of its nested objects. If
-        'level' is negative, suppress indentation of the first line. If
-        'spacesPerLevel' is negative, format the entire output on one line,
-        suppressing all but the initial indentation (as governed by 'level').
+        Returns:
+            str: This object formatted as a string
 
+        If ``level`` is negative, suppress indentation of the first line. If
+        ``spacesPerLevel`` is negative, format the entire output on one line,
+        suppressing all but the initial indentation (as governed by ``level``).
         """
 
         return internals.blpapi_SchemaElementDefinition_printHelper(
@@ -206,7 +203,6 @@ class SchemaElementDefinition(object):
 
 
 class SchemaTypeDefinition(object):
-
     """Representation of a "type" that can be used within a schema.
 
     This class implements a representation of a "type" that can be used within
@@ -217,16 +213,15 @@ class SchemaTypeDefinition(object):
     offers access to metadata providing a description and deprecation status
     for the type.
 
-    Each 'SchemaElementDefinition' object is associated with a single
-    'SchemaTypeDefinition'; one 'SchemaTypeDefinition' may be used by zero,
-    one, or many 'SchemaElementDefinition' objects.
+    Each :class:`SchemaElementDefinition` object is associated with a single
+    :class:`SchemaTypeDefinition`; one :class:`SchemaTypeDefinition` may be
+    used by zero, one, or many :class:`SchemaElementDefinition` objects.
 
-    'SchemaTypeDefinition' objects are read-only.
+    :class:`SchemaTypeDefinition` objects are read-only.
 
-    Application clients need never create fresh 'SchemaTypeDefinition' objects
-    directly; applications will typically work with objects returned by other
-    'blpapi' components.
-
+    Application clients need never create fresh :class:`SchemaTypeDefinition`
+    objects directly; applications will typically work with objects returned by
+    other blpapi components.
     """
 
     def __init__(self, handle, sessions):
@@ -244,86 +239,94 @@ class SchemaTypeDefinition(object):
         return self.toString()
 
     def datatype(self):
-        """Return the data type of this 'SchemaTypeDefinition'.
+        """
+        Returns:
+            int: The data type of this :class:`SchemaTypeDefinition`.
 
-        The possible return values are enumerated in 'DataType' class.
-
+        The possible return values are enumerated in :class:`DataType`.
         """
 
         return internals.blpapi_SchemaTypeDefinition_datatype(self.__handle)
 
     def name(self):
-        """Return the name of this 'SchemaTypeDefinition'."""
+        """
+        Returns:
+            Name: The name of this :class:`SchemaTypeDefinition`.
+        """
         return Name._createInternally(
             internals.blpapi_SchemaTypeDefinition_name(self.__handle))
 
     def description(self):
-        """Return a human readable description of this 'SchemaTypeDefinition'.
+        """
+        Returns:
+            str: Human readable description of this
+            :class:`SchemaTypeDefinition`.
         """
         return internals.blpapi_SchemaTypeDefinition_description(self.__handle)
 
     def status(self):
-        """Return the deprecation status of this 'SchemaTypeDefinition'.
+        """
+        Returns:
+            int: The deprecation status of this :class:`SchemaTypeDefinition`.
 
-        The possible return values are enumerated in 'SchemaStatus' class.
-
+        The possible return values are enumerated in :class:`SchemaStatus`.
         """
 
         return internals.blpapi_SchemaTypeDefinition_status(self.__handle)
 
     def numElementDefinitions(self):
-        """Return the number of 'SchemaElementDefinition' objects.
+        """
+        Returns:
+            int: The number of :class:`SchemaElementDefinition` objects.
 
-        Return the number of 'SchemaElementDefinition' objects contained by
-        this 'SchemaTypeDefinition'. If this 'SchemaTypeDefinition' is neither
-        a choice nor a sequence this will return 0.
-
+        If this :class:`SchemaTypeDefinition` is neither a choice nor a
+        sequence this will return ``0``.
         """
 
         return internals.blpapi_SchemaTypeDefinition_numElementDefinitions(
             self.__handle)
 
     def isComplexType(self):
-        """Return True if this is a sequence or choice type.
-
-        Return True if this 'SchemaTypeDefinition' represents a sequence or
-        choice type.
-
+        """
+        Returns:
+            bool: ``True`` if this :class:`SchemaTypeDefinition` represents a
+            sequence or choice type.
         """
 
         return bool(internals.blpapi_SchemaTypeDefinition_isComplexType(
             self.__handle))
 
     def isSimpleType(self):
-        """Return True if this is neither a sequence nor a choice type.
-
-        Return True if this 'SchemaTypeDefinition' represents neither a
-        sequence nor a choice type.
-
+        """
+        Returns:
+            bool: True if this :class:`SchemaTypeDefinition` represents neither
+            a sequence nor a choice type.
         """
 
         return bool(internals.blpapi_SchemaTypeDefinition_isSimpleType(
             self.__handle))
 
     def isEnumerationType(self):
-        """Return True if this is an enmeration type.
-
-        Return True if this 'SchemaTypeDefinition' represents an enmeration
-        type.
-
+        """
+        Returns:
+            bool: ``True`` if this :class:`SchemaTypeDefinition` represents an
+            enumeration type, ``False`` otherwise.
         """
 
         return bool(internals.blpapi_SchemaTypeDefinition_isEnumerationType(
             self.__handle))
 
     def hasElementDefinition(self, name):
-        """True if this object contains an item with the specified 'name'.
+        """
+        Args:
+            name (Name or str): Item identifier
 
-        Return True if this 'SchemaTypeDefinition' contains an item with the
-        specified 'name'; otherwise return False.
+        Returns:
+            bool: ``True`` if this object contains an item with the
+            specified ``name``, ``False`` otherwise
 
-        Exception is raised if 'name' is neither a Name nor a string.
-
+        Raises:
+            Exception: If ``name`` is neither a :class:`Name` nor a string.
         """
 
         name = getNamePair(name)
@@ -333,15 +336,18 @@ class SchemaTypeDefinition(object):
             name[1]))
 
     def getElementDefinition(self, nameOrIndex):
-        """Return the definition of a specified element.
+        """
+        Args:
+            nameOrIndex (Name or str or int): Name or index of the element
 
-        Return a 'SchemaElementDefinition' object describing the element
-        identified by the specified 'nameOrIndex', which must be either a
-        string or an integer. If 'nameOrIndex' is a string and
-        'hasElement(nameOrIndex) != True', then a 'NotFoundException' is
-        raised; if 'nameOrIndex' is an integer and 'nameOrIndex >=
-        numElementDefinitions()' then an 'IndexOutOfRangeException' is raised.
+        Returns:
+            SchemaElementDefinition: The definition of a specified element.
 
+        Raises:
+            NotFoundException: If ``nameOrIndex`` is a string and
+                ``hasElement(nameOrIndex) != True``.
+            IndexOutOfRangeException: If ``nameOrIndex`` is an integer and
+                ``nameOrIndex >= numElementDefinitions()``
         """
 
         if not isinstance(nameOrIndex, int):
@@ -367,11 +373,10 @@ class SchemaTypeDefinition(object):
         return SchemaElementDefinition(res, self.__sessions)
 
     def elementDefinitions(self):
-        """Return an iterator over 'SchemaElementDefinitions'.
-
-        Return an iterator over 'SchemaElementDefinitions' defined by this
-        'SchemaTypeDefinition'.
-
+        """
+        Returns:
+            Iterator over :class:`SchemaElementDefinition`\ s defined by this
+            :class:`SchemaTypeDefinition`.
         """
 
         return utils.Iterator(self,
@@ -379,29 +384,29 @@ class SchemaTypeDefinition(object):
                               SchemaTypeDefinition.getElementDefinition)
 
     def enumeration(self):
-        """Return all possible values of the enumeration defined by this type.
-
-        Return a 'ConstantList' containing all possible values of the
-        enumeration defined by this type.
-
-        Return None in case this 'SchemaTypeDefinition' is not a enumeration.
-
+        """
+        Returns:
+            ConstantList: All possible values of the enumeration defined by
+            this type. ``None`` in case this :class:`SchemaTypeDefinition` is
+            not a enumeration.
         """
 
         res = internals.blpapi_SchemaTypeDefinition_enumeration(self.__handle)
         return None if res is None else ConstantList(res, self.__sessions)
 
     def toString(self, level=0, spacesPerLevel=4):
-        """Format this 'SchemaTypeDefinition' to the string.
+        """
+        Args:
+            level (int): Indentation level
+            spacesPerLevel (int): Number of spaces per indentation level for
+                this and all nested objects
 
-        Format this 'SchemaTypeDefinition' to the string at the (absolute value
-        of) optionally specified indentation 'level'. If 'level' is specified,
-        optionally specify 'spacesPerLevel', the number of spaces per
-        indentation level for this and all of its nested objects. If 'level' is
-        negative, suppress indentation of the first line. If 'spacesPerLevel'
-        is negative, format the entire output on one line, suppressing all but
-        the initial indentation (as governed by 'level').
+        Returns:
+            str: This object formatted as a string
 
+        If ``level`` is negative, suppress indentation of the first line. If
+        ``spacesPerLevel`` is negative, format the entire output on one line,
+        suppressing all but the initial indentation (as governed by ``level``).
         """
 
         return internals.blpapi_SchemaTypeDefinition_printHelper(

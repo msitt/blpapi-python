@@ -3180,96 +3180,104 @@ SWIGINTERNINLINE PyObject*
 
 #include <time.h>  // for tm and mktime
 
-#include <Python.h> // for PyObject
 #include <stdlib.h> // for malloc() and free()
 #include <string.h> // for strncpy()
 
-int cstr_StreamWriter(const char *data, int length, void *stream)
+typedef struct StreamWriterData {
+    char *stream;
+    int size;
+} StreamWriterData;
+
+
+// this is the signature dictated by C layer
+// we are going to hijack the length and populate .size in streamData
+// to allow guiding python to array+size rather than 0-terminated option
+int cstr_StreamWriter(const char *data, int length, void *streamData)
 {
-    char **targetStr = (char **) stream;
-    *targetStr = (char *) malloc(length + 1);
-    strncpy(*targetStr, data, length + 1);
+    StreamWriterData *stream = (StreamWriterData*) streamData;
+    char *dest = (char *) malloc(length);
+    if (dest == 0) {
+        return 1;
+    }
+    memcpy(dest, data, length);
+    stream->stream = dest;
+    stream->size = length;
     return 0;
 }
 
-PyObject *blpapi_Service_printHelper(
+// in all printHelper functions if C layer fails to produce a string
+// we shall return a null-pointer and 0-size to SWIG layer,
+// which is going to treat it correctly
+void blpapi_Service_printHelper(
     blpapi_Service_t *service,
     int level,
-    int spacesPerLevel)
+    int spacesPerLevel,
+    char **output_allocated,
+    int *output_size)
 {
-    char *stream;
-    PyObject *elementStr;
-
+    StreamWriterData stream = {0};
     blpapi_Service_print(
         service,
         cstr_StreamWriter,
         &stream,
         level,
         spacesPerLevel);
-
-    elementStr = PyString_FromString(stream);
-    free(stream);
-    return elementStr;
+    *output_allocated = stream.stream;
+    *output_size = stream.size;
 }
 
-PyObject *blpapi_SchemaElementDefinition_printHelper(
+void blpapi_SchemaElementDefinition_printHelper(
     blpapi_SchemaElementDefinition_t *item,
     int level,
-    int spacesPerLevel)
+    int spacesPerLevel,
+    char **output_allocated,
+    int *output_size)
 {
-    char *stream;
-    PyObject *elementStr;
-
+    StreamWriterData stream = {0};
     blpapi_SchemaElementDefinition_print(
         item,
         cstr_StreamWriter,
         &stream,
         level,
         spacesPerLevel);
-
-    elementStr = PyString_FromString(stream);
-    free(stream);
-    return elementStr;
+    *output_allocated = stream.stream;
+    *output_size = stream.size;
 }
 
-PyObject *blpapi_SchemaTypeDefinition_printHelper(
+void blpapi_SchemaTypeDefinition_printHelper(
     blpapi_SchemaTypeDefinition_t *item,
     int level,
-    int spacesPerLevel)
+    int spacesPerLevel,
+    char **output_allocated,
+    int *output_size)
 {
-    char *stream;
-    PyObject *elementStr;
-
+    StreamWriterData stream = {0};
     blpapi_SchemaTypeDefinition_print(
         item,
         cstr_StreamWriter,
         &stream,
         level,
         spacesPerLevel);
-
-    elementStr = PyString_FromString(stream);
-    free(stream);
-    return elementStr;
+    *output_allocated = stream.stream;
+    *output_size = stream.size;
 }
 
-PyObject *blpapi_SessionOptions_printHelper(
+void blpapi_SessionOptions_printHelper(
     blpapi_SessionOptions_t *sessionOptions,
     int level,
-    int spacesPerLevel)
+    int spacesPerLevel,
+    char **output_allocated,
+    int *output_size)
 {
-    char *stream;
-    PyObject *elementStr;
-
+    StreamWriterData stream = {0};
     blpapi_SessionOptions_print(
         sessionOptions,
         cstr_StreamWriter,
         &stream,
         level,
         spacesPerLevel);
-
-    elementStr = PyString_FromString(stream);
-    free(stream);
-    return elementStr;
+    *output_allocated = stream.stream;
+    *output_size = stream.size;
 }
 
 int blpapi_SchemaTypeDefinition_hasElementDefinition(
@@ -3427,7 +3435,7 @@ int setLoggerCallbackWrapper(PyObject *cb, int severity)
 /** Convert `blpapi_TimePoint_t` value to `blpapi_Datetime_t`. Function
   * always returns UTC time.
   */
-blpapi_Datetime_t blpapi_HighPrecisionDatetime_fromTimePoint_wrapper(blpapi_TimePoint_t original) 
+blpapi_Datetime_t blpapi_HighPrecisionDatetime_fromTimePoint_wrapper(blpapi_TimePoint_t original)
 {
     blpapi_HighPrecisionDatetime_t highPrecisionDatetime;
     blpapi_Datetime_t datetime;
@@ -3595,6 +3603,35 @@ SWIG_pchar_descriptor(void)
     init = 1;
   }
   return info;
+}
+
+
+SWIGINTERNINLINE PyObject *
+SWIG_FromCharPtrAndSize(const char* carray, size_t size)
+{
+  if (carray) {
+    if (size > INT_MAX) {
+      swig_type_info* pchar_descriptor = SWIG_pchar_descriptor();
+      return pchar_descriptor ? 
+	SWIG_InternalNewPointerObj((char *)(carray), pchar_descriptor, 0) : SWIG_Py_Void();
+    } else {
+#if PY_VERSION_HEX >= 0x03000000
+#if defined(SWIG_PYTHON_STRICT_BYTE_CHAR)
+      return PyBytes_FromStringAndSize(carray, (Py_ssize_t)(size));
+#else
+#if PY_VERSION_HEX >= 0x03010000
+      return PyUnicode_DecodeUTF8(carray, (Py_ssize_t)(size), "surrogateescape");
+#else
+      return PyUnicode_FromStringAndSize(carray, (Py_ssize_t)(size));
+#endif
+#endif
+#else
+      return PyString_FromStringAndSize(carray, (Py_ssize_t)(size));
+#endif
+    }
+  } else {
+    return SWIG_Py_Void();
+  }
 }
 
 
@@ -4199,55 +4236,25 @@ int blpapi_Element_setValueFloat(
     return ret;
 }
 
-PyObject *blpapi_Element_printHelper(
+void blpapi_Element_printHelper(
     blpapi_Element_t *element,
     int level,
-    int spacesPerLevel)
+    int spacesPerLevel,
+    char **output_allocated,
+    int *output_size)
 {
-    char *stream;
-    PyObject *elementStr;
-
+    // StreamWriterData and cstr_StreamWriter are defined in internals.i
+    StreamWriterData stream = {0};
     blpapi_Element_print(
         element,
         cstr_StreamWriter,
         &stream,
         level,
         spacesPerLevel);
-
-    elementStr = PyString_FromString(stream);
-    free(stream);
-    return elementStr;
+    *output_allocated = stream.stream;
+    *output_size = stream.size;
 }
 
-
-
-SWIGINTERNINLINE PyObject *
-SWIG_FromCharPtrAndSize(const char* carray, size_t size)
-{
-  if (carray) {
-    if (size > INT_MAX) {
-      swig_type_info* pchar_descriptor = SWIG_pchar_descriptor();
-      return pchar_descriptor ? 
-	SWIG_InternalNewPointerObj((char *)(carray), pchar_descriptor, 0) : SWIG_Py_Void();
-    } else {
-#if PY_VERSION_HEX >= 0x03000000
-#if defined(SWIG_PYTHON_STRICT_BYTE_CHAR)
-      return PyBytes_FromStringAndSize(carray, (Py_ssize_t)(size));
-#else
-#if PY_VERSION_HEX >= 0x03010000
-      return PyUnicode_DecodeUTF8(carray, (Py_ssize_t)(size), "surrogateescape");
-#else
-      return PyUnicode_FromStringAndSize(carray, (Py_ssize_t)(size));
-#endif
-#endif
-#else
-      return PyString_FromStringAndSize(carray, (Py_ssize_t)(size));
-#endif
-    }
-  } else {
-    return SWIG_Py_Void();
-  }
-}
 
 
 SWIGINTERNINLINE PyObject * 
@@ -4780,17 +4787,21 @@ SWIGINTERN PyObject *_wrap_blpapi_Service_printHelper(PyObject *SWIGUNUSEDPARM(s
   blpapi_Service_t *arg1 = (blpapi_Service_t *) 0 ;
   int arg2 ;
   int arg3 ;
+  char **arg4 = (char **) 0 ;
+  int *arg5 = (int *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int val2 ;
   int ecode2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
+  char *temp4 = 0 ;
+  int tempn4 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
-  PyObject *result = 0 ;
   
+  arg4 = &temp4; arg5 = &tempn4;
   if (!PyArg_ParseTuple(args,(char *)"OOO:blpapi_Service_printHelper",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_Service, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
@@ -4809,10 +4820,14 @@ SWIGINTERN PyObject *_wrap_blpapi_Service_printHelper(PyObject *SWIGUNUSEDPARM(s
   arg3 = (int)(val3);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (PyObject *)blpapi_Service_printHelper(arg1,arg2,arg3);
+    blpapi_Service_printHelper(arg1,arg2,arg3,arg4,arg5);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
-  resultobj = result;
+  resultobj = SWIG_Py_Void();
+  if (*arg4) {
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_FromCharPtrAndSize(*arg4,*arg5));
+    free(*arg4);
+  }
   return resultobj;
 fail:
   return NULL;
@@ -4824,17 +4839,21 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaElementDefinition_printHelper(PyObject *
   blpapi_SchemaElementDefinition_t *arg1 = (blpapi_SchemaElementDefinition_t *) 0 ;
   int arg2 ;
   int arg3 ;
+  char **arg4 = (char **) 0 ;
+  int *arg5 = (int *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int val2 ;
   int ecode2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
+  char *temp4 = 0 ;
+  int tempn4 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
-  PyObject *result = 0 ;
   
+  arg4 = &temp4; arg5 = &tempn4;
   if (!PyArg_ParseTuple(args,(char *)"OOO:blpapi_SchemaElementDefinition_printHelper",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_p_void, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
@@ -4853,10 +4872,14 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaElementDefinition_printHelper(PyObject *
   arg3 = (int)(val3);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (PyObject *)blpapi_SchemaElementDefinition_printHelper(arg1,arg2,arg3);
+    blpapi_SchemaElementDefinition_printHelper(arg1,arg2,arg3,arg4,arg5);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
-  resultobj = result;
+  resultobj = SWIG_Py_Void();
+  if (*arg4) {
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_FromCharPtrAndSize(*arg4,*arg5));
+    free(*arg4);
+  }
   return resultobj;
 fail:
   return NULL;
@@ -4868,17 +4891,21 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaTypeDefinition_printHelper(PyObject *SWI
   blpapi_SchemaTypeDefinition_t *arg1 = (blpapi_SchemaTypeDefinition_t *) 0 ;
   int arg2 ;
   int arg3 ;
+  char **arg4 = (char **) 0 ;
+  int *arg5 = (int *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int val2 ;
   int ecode2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
+  char *temp4 = 0 ;
+  int tempn4 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
-  PyObject *result = 0 ;
   
+  arg4 = &temp4; arg5 = &tempn4;
   if (!PyArg_ParseTuple(args,(char *)"OOO:blpapi_SchemaTypeDefinition_printHelper",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_p_void, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
@@ -4897,10 +4924,14 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaTypeDefinition_printHelper(PyObject *SWI
   arg3 = (int)(val3);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (PyObject *)blpapi_SchemaTypeDefinition_printHelper(arg1,arg2,arg3);
+    blpapi_SchemaTypeDefinition_printHelper(arg1,arg2,arg3,arg4,arg5);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
-  resultobj = result;
+  resultobj = SWIG_Py_Void();
+  if (*arg4) {
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_FromCharPtrAndSize(*arg4,*arg5));
+    free(*arg4);
+  }
   return resultobj;
 fail:
   return NULL;
@@ -4912,17 +4943,21 @@ SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_printHelper(PyObject *SWIGUNUSE
   blpapi_SessionOptions_t *arg1 = (blpapi_SessionOptions_t *) 0 ;
   int arg2 ;
   int arg3 ;
+  char **arg4 = (char **) 0 ;
+  int *arg5 = (int *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int val2 ;
   int ecode2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
+  char *temp4 = 0 ;
+  int tempn4 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
-  PyObject *result = 0 ;
   
+  arg4 = &temp4; arg5 = &tempn4;
   if (!PyArg_ParseTuple(args,(char *)"OOO:blpapi_SessionOptions_printHelper",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_SessionOptions, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
@@ -4941,10 +4976,14 @@ SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_printHelper(PyObject *SWIGUNUSE
   arg3 = (int)(val3);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (PyObject *)blpapi_SessionOptions_printHelper(arg1,arg2,arg3);
+    blpapi_SessionOptions_printHelper(arg1,arg2,arg3,arg4,arg5);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
-  resultobj = result;
+  resultobj = SWIG_Py_Void();
+  if (*arg4) {
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_FromCharPtrAndSize(*arg4,*arg5));
+    free(*arg4);
+  }
   return resultobj;
 fail:
   return NULL;
@@ -6069,17 +6108,21 @@ SWIGINTERN PyObject *_wrap_blpapi_Element_printHelper(PyObject *SWIGUNUSEDPARM(s
   blpapi_Element_t *arg1 = (blpapi_Element_t *) 0 ;
   int arg2 ;
   int arg3 ;
+  char **arg4 = (char **) 0 ;
+  int *arg5 = (int *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int val2 ;
   int ecode2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
+  char *temp4 = 0 ;
+  int tempn4 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
-  PyObject *result = 0 ;
   
+  arg4 = &temp4; arg5 = &tempn4;
   if (!PyArg_ParseTuple(args,(char *)"OOO:blpapi_Element_printHelper",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_Element, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
@@ -6098,11 +6141,13 @@ SWIGINTERN PyObject *_wrap_blpapi_Element_printHelper(PyObject *SWIGUNUSEDPARM(s
   arg3 = (int)(val3);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (PyObject *)blpapi_Element_printHelper(arg1,arg2,arg3);
+    blpapi_Element_printHelper(arg1,arg2,arg3,arg4,arg5);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
-  {
-    resultobj = result;
+  resultobj = SWIG_Py_Void();
+  if (*arg4) {
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_FromCharPtrAndSize(*arg4,*arg5));
+    free(*arg4);
   }
   return resultobj;
 fail:
@@ -19181,61 +19226,28 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"CorrelationId_t_equals", _wrap_CorrelationId_t_equals, METH_VARARGS, NULL},
 	 { (char *)"CorrelationId_value_get", _wrap_CorrelationId_value_get, METH_VARARGS, NULL},
 	 { (char *)"new_CorrelationId", _wrap_new_CorrelationId, METH_VARARGS, (char *)"\n"
-		"A key used to identify individual subscriptions or requests.\n"
+		"``CorrelationId([value[, classId=0]])`` constructs a :class:`CorrelationId`\n"
+		"object.\n"
 		"\n"
-		"CorrelationId([value[, classId=0]]) constructs a CorrelationId object.\n"
-		"If 'value' is integer (either int or long) then created CorrelationId will have\n"
-		"type() == CorrelationId.INT_TYPE. Otherwise it will have\n"
-		"type() == CorrelationId.OBJECT_TYPE. If no arguments are specified\n"
-		"then it will have type() == CorrelationId.UNSET_TYPE.\n"
+		"If ``value`` is an integer (either :class:`int` or :class:`long`) then the\n"
+		"created :class:`CorrelationId` will have type :attr:`INT_TYPE`. Otherwise, it\n"
+		"will have type :attr:`OBJECT_TYPE`.\n"
 		"\n"
-		"Two CorrelationIds are considered equal if they have the same\n"
-		"type() and:\n"
+		"If no arguments are specified, then the type will be :attr:`UNSET_TYPE`.\n"
 		"\n"
-		"- holds the same (not just equal!) objects in case of\n"
-		"  type() == CorrelationId.OBJECT_TYPE\n"
-		"- holds equal integers in case of\n"
-		"  type() == CorrelationId.INT_TYPE or\n"
-		"  type() == CorrelationId.AUTOGEN_TYPE\n"
-		"- True otherwise\n"
-		"  (i.e. in case of type() == CorrelationId.UNSET_TYPE)\n"
-		"\n"
-		"It is possible that an user constructed CorrelationId and a\n"
-		"CorrelationId generated by the API could return the same\n"
-		"result for value(). However, they will not compare equal because\n"
-		"they have different type().\n"
-		"\n"
-		"CorrelationId objects are passed to many of the Session object\n"
-		"methods which initiate an asynchronous operations and are\n"
-		"obtained from Message objects which are delivered as a result\n"
-		"of those asynchronous operations.\n"
-		"\n"
-		"When subscribing or requesting information an application has\n"
-		"the choice of providing a CorrelationId they construct\n"
-		"themselves or allowing the session to construct one for\n"
-		"them. If the application supplies a CorrelationId it must not\n"
-		"re-use the value contained in it in another CorrelationId\n"
-		"whilst the original request or subscription is still active.\n"
-		"\n"
-		"Class attributes:\n"
-		"    MAX_CLASS_ID:\n"
-		"        The maximum value allowed for classId.\n"
-		"    Possible return values for type() method:\n"
-		"        UNSET_TYPE:\n"
-		"            The CorrelationId is unset. That is, it was created by\n"
-		"            the default CorrelationId constructor.\n"
-		"        INT_TYPE:\n"
-		"            The CorrelationId was created from an integer (or long)\n"
-		"            supplied by the user.\n"
-		"        OBJECT_TYPE:\n"
-		"            The CorrelationId was created from an object supplied by\n"
-		"            the user.\n"
-		"        AUTOGEN_TYPE:\n"
-		"            The CorrelationId was created internally by API.\n"
+		"The maximum allowed ``classId`` value is :attr:`MAX_CLASS_ID`.\n"
 		""},
 	 { (char *)"delete_CorrelationId", _wrap_delete_CorrelationId, METH_VARARGS, NULL},
-	 { (char *)"CorrelationId_type", _wrap_CorrelationId_type, METH_VARARGS, (char *)"Return the type of this CorrelationId object (see xxx_TYPE class attributes)"},
-	 { (char *)"CorrelationId_classId", _wrap_CorrelationId_classId, METH_VARARGS, (char *)"Return the user defined classification of this CorrelationId object"},
+	 { (char *)"CorrelationId_type", _wrap_CorrelationId_type, METH_VARARGS, (char *)"\n"
+		"Returns:\n"
+		"    int: The type of this CorrelationId object (see the ``xxx_TYPE`` class\n"
+		"    attributes)\n"
+		""},
+	 { (char *)"CorrelationId_classId", _wrap_CorrelationId_classId, METH_VARARGS, (char *)"\n"
+		"Returns:\n"
+		"    int: The user defined classification of this :class:`CorrelationId`\n"
+		"    object\n"
+		""},
 	 { (char *)"CorrelationId___asObject", _wrap_CorrelationId___asObject, METH_VARARGS, NULL},
 	 { (char *)"CorrelationId___asInteger", _wrap_CorrelationId___asInteger, METH_VARARGS, NULL},
 	 { (char *)"CorrelationId___toInteger", _wrap_CorrelationId___toInteger, METH_VARARGS, NULL},

@@ -14,24 +14,27 @@ from . import internals
 class EventDispatcher(object):
     """Dispatches events from one or more Sessions through callbacks
 
-    EventDispatcher objects are optionally specified when Session objects are
-    created. A single EventDispatcher can be shared by multiple Session
-    objects.
+    :class:`EventDispatcher` objects are optionally specified when Session
+    objects are created. A single :class:`EventDispatcher` can be shared by
+    multiple Session objects.
 
-    The EventDispatcher provides an event-driven interface, generating
+    The :class:`EventDispatcher` provides an event-driven interface, generating
     callbacks from one or more internal threads for one or more sessions.
     """
 
     __handle = None
 
     def __init__(self, numDispatcherThreads=1):
-        """Construct an EventDispatcher.
+        """Construct an :class:`EventDispatcher`.
 
-        If 'numDispatcherThreads' is 1 (the default) then a single internal
-        thread is created to dispatch events. If 'numDispatcherThreads' is
-        greater than 1 then an internal pool of 'numDispatcherThreads' threads
-        is created to dispatch events. The behavior is undefined if
-        'numDispatcherThreads' is 0.
+        Args:
+            numDispatcherThreads (int): Number of dispatcher threads
+
+        If ``numDispatcherThreads`` is ``1`` (the default) then a single
+        internal thread is created to dispatch events. If
+        ``numDispatcherThreads`` is greater than ``1`` then an internal pool of
+        ``numDispatcherThreads`` threads is created to dispatch events. The
+        behavior is undefined if ``numDispatcherThreads`` is ``0``.
         """
 
         self.__handle = internals.blpapi_EventDispatcher_create(
@@ -50,10 +53,8 @@ class EventDispatcher(object):
             self.__handle = None
 
     def start(self):
-        """Start generating callbacks.
-
-        Start generating callbacks for events from sessions associated with
-        this EventDispatcher.
+        """Start generating callbacks for events from sessions associated with
+        this :class:`EventDispatcher`.
         """
 
         return internals.blpapi_EventDispatcher_start(self.__handle)
@@ -61,15 +62,20 @@ class EventDispatcher(object):
     def stop(self, async_=False, **kwargs):
         """Stop generating callbacks.
 
-        Stop generating callbacks for events from sessions associated with this
-        EventDispatcher. If the specified `async_` is False (the default) then
-        this method blocks until all current callbacks which were dispatched
-        through this EventDispatcher have completed. If `async_` is True, this
-        method returns immediately and no further callbacks will be dispatched.
+        Args:
+            async\_ (bool): Whether to execute this method asynchronously
 
-        Note: If stop is called with `async_` of False from within a callback
-        dispatched by this EventDispatcher then the `async_` parameter is
-        overridden to True.
+        Stop generating callbacks for events from sessions associated with this
+        :class:`EventDispatcher`. If the specified ``async_`` is ``False`` (the
+        default) then this method blocks until all current callbacks which were
+        dispatched through this :class:`EventDispatcher` have completed. If
+        ``async_`` is ``True``, this method returns immediately and no further
+        callbacks will be dispatched.
+
+        Note:
+            If stop is called with ``async_`` of ``False`` from within a
+            callback dispatched by this :class:`EventDispatcher` then the
+            ``async_`` parameter is overridden to ``True``.
         """
 
         if 'async' in kwargs:

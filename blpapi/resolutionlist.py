@@ -21,9 +21,13 @@ from .compat import with_metaclass
 class ResolutionList(object):
     """Contains a list of topics that require resolution.
 
-    Created from topic strings or from SUBSCRIPTION_STARTED messages. This is
-    passed to a 'resolve()' call or 'resolveAsync()' call on a
-    'ProviderSession'. It is updated and returned by the 'resolve()' call.
+    Created from topic strings or from ``SUBSCRIPTION_STARTED`` messages. This
+    is passed to a :meth:`~ProviderSession.resolve()` call or
+    :meth:`ProviderSession.resolveAsync()` call on a :class:`ProviderSession`.
+    It is updated and returned by the :meth:`~ProviderSession.resolve()` call.
+
+    The class attributes represent the states in which entries of a
+    :class:`ResolutionList` can be.
     """
 
     UNRESOLVED = internals.RESOLUTIONLIST_UNRESOLVED
@@ -40,15 +44,23 @@ class ResolutionList(object):
 
     @staticmethod
     def extractAttributeFromResolutionSuccess(message, attribute):
-        """Return the value of the value in the specified 'message'.
+        """Return the value of the value in the specified ``message``.
 
-        Return the value of the value in the specified 'message' which
-        represents the specified 'attribute'. The 'message' must be a message
-        of type "RESOLUTION_SUCCESS". The 'attribute' should be an attribute
-        that was requested using 'addAttribute()' on the ResolutionList passed
-        to the 'resolve()' or 'resolveAsync()' that caused
-        this RESOLUTION_SUCCESS message.
-        If the 'attribute' is not present an empty Element is returned.
+        Args:
+            message (Message): Message to extract the attribute from
+            attribute (Name): Attribute to extract
+
+        Returns:
+            Element: Value of the value in the specified ``message`` which
+            represents the specified ``attribute``. If the ``attribute`` is not
+            present an empty :class:`Element` is returned.
+
+        The ``message`` must be a message of type ``RESOLUTION_SUCCESS``. The
+        ``attribute`` should be an attribute that was requested using
+        :meth:`addAttribute()` on the :class:`ResolutionList` passed to the
+        :meth:`~ProviderSession.resolve()` or
+        :meth:`~ProviderSession.resolveAsync()` that caused this
+        ``RESOLUTION_SUCCESS`` message.
         """
         i = internals  # to fit next line in 79 chars
         res = i.blpapi_ResolutionList_extractAttributeFromResolutionSuccess(
@@ -56,15 +68,12 @@ class ResolutionList(object):
         return Element(res, message)
 
     def __init__(self):
-        """Create an empty ResolutionList.
-
-        Create an empty ResolutionList.
-        """
+        """Create an empty :class:`ResolutionList`."""
         self.__handle = internals.blpapi_ResolutionList_create(None)
         self.__sessions = set()
 
     def __del__(self):
-        """Destroy this ResolutionList."""
+        """Destroy this :class:`ResolutionList`."""
         try:
             self.destroy()
         except (NameError, AttributeError):
@@ -79,16 +88,27 @@ class ResolutionList(object):
     def add(self, topicOrMessage, correlationId=None):
         """Add the specified topic or topic from message to this list.
 
-        If 'topicOrMessage' is of string type, add the specified
-        'topicOrMessage' to this list, optionally specifying a 'correlationId'.
-        Return 0 on success or negative number on failure. After a successful
-        call to add() the status for this entry is UNRESOLVED_TOPIC.
+        Args:
+            topicOrMessage (str or Message): Topic or message to add
+            correlationId (CorrelationId): CorrelationId to associate with this
+                operation
 
-        If 'topicOrMessage' is of Message type, add the topic contained in the
-        specified 'topicOrMessage' to this list, optionally specifying a
-        'correlationId'.  Return 0 on success or a negative number on failure.
-        After a successful call to add() the status for this entry is
-        UNRESOLVED_TOPIC.
+        Returns:
+            int: ``0`` on success, negative number on failure
+
+        Raises:
+            TypeError: If ``correlationId`` is not an instance of
+                :class:`CorrelationId`
+
+        If ``topicOrMessage`` is of string type, add the specified
+        ``topicOrMessage`` to this list, optionally specifying a
+        ``correlationId``.  After a successful call to :meth:`add()` the status
+        for this entry is ``UNRESOLVED_TOPIC``.
+
+        If ``topicOrMessage`` is of :class:`Message` type, add the topic
+        contained in the specified ``topicOrMessage`` to this list, optionally
+        specifying a ``correlationId``.  After a successful call to
+        :meth:`add()` the status for this entry is ``UNRESOLVED_TOPIC``.
         """
         if correlationId is None:
             correlationId = CorrelationId()
@@ -106,21 +126,28 @@ class ResolutionList(object):
             get_handle(correlationId))
 
     def addAttribute(self, attribute):
-        """Add the specified 'attribute' to the list of attributes.
+        """Add the specified ``attribute`` to the list of attributes.
 
-        Add the specified 'attribute' to the list of attributes requested
-        during resolution for each topic in this ResolutionList. Return 0 on
-        success or a negative number on failure.
+        Args:
+            attribute (str): Attribute to add
+
+        Returns:
+            int: ``0`` on success, negative number on failure.
         """
         attribute = Name(attribute)
         return internals.blpapi_ResolutionList_addAttribute(
             self.__handle, get_handle(attribute))
 
     def correlationIdAt(self, index):
-        """Return the CorrelationId at the specified 'index'.
+        """
+        Args:
+            index (int): Index of the correlation id
 
-        Return the CorrelationId of the specified 'index'th entry
-        in this ResolutionList. An exception is raised if 'index'>=size().
+        Returns:
+            CorrelationId: CorrelationId at the specified ``index``.
+
+        Raises:
+            IndexOutOfRangeException: If ``index >= size()``.
         """
         errorCode, cid = internals.blpapi_ResolutionList_correlationIdAt(
             self.__handle,
@@ -129,11 +156,18 @@ class ResolutionList(object):
         return cid
 
     def topicString(self, correlationId):
-        """Return the topic of the entry identified by 'correlationId'.
+        """Return the topic of the entry identified by ``correlationId``.
 
-        Return the topic of the entry identified by 'correlationId'. If the
-        'correlationId' does not identify an entry in this ResolutionList then
-        an exception is raised.
+        Args:
+            correlationId (CorrelationId): Correlation id that identifies the
+                topic
+
+        Returns:
+            str: Topic string of the entry identified by ``correlationId``.
+
+        Raises:
+            Exception: If ``correlationId`` does not identify an entry in this
+                :class:`ResolutionList`.
         """
         errorCode, topic = internals.blpapi_ResolutionList_topicString(
             self.__handle,
@@ -142,10 +176,15 @@ class ResolutionList(object):
         return topic
 
     def topicStringAt(self, index):
-        """Return the full topic string at the specified 'index'.
+        """
+        Args:
+            index (int): Index of the topic string
 
-        Return the full topic string of the specified 'index'th entry in this
-        ResolutionList. An exception is raised if 'index'>=size().
+        Returns:
+            str: Topic string at the specified ``index``.
+
+        Raises:
+            IndexOutOfRangeException: If ``index >= size()``.
         """
         errorCode, topic = internals.blpapi_ResolutionList_topicStringAt(
             self.__handle,
@@ -154,16 +193,20 @@ class ResolutionList(object):
         return topic
 
     def status(self, correlationId):
-        """Return the status of the entry in this ResolutionList.
+        """
+        Args:
+            correlationId (CorrelationId): Correlation id that identifies the
+                entry
 
-        Return the status of the entry in this ResolutionList identified by the
-        specified 'correlationId'. This may be UNRESOLVED, RESOLVED,
-        RESOLUTION_FAILURE_BAD_SERVICE,
-        RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED,
-        RESOLUTION_FAILURE_BAD_TOPIC,
-        RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED. If the 'correlationId'
-        does not identify an entry in this ResolutionList then an exception is
-        raised.
+        Returns:
+            int: status of the entry in this :class:`ResolutionList`.
+
+        Raises:
+            Exception: If the ``correlationId`` does not identify an entry in
+                this :class:`ResolutionList`.
+
+        The possible statuses are represented by the class attributes of
+        :class:`ResolutionList`.
         """
         errorCode, status = internals.blpapi_ResolutionList_status(
             self.__handle,
@@ -172,15 +215,19 @@ class ResolutionList(object):
         return status
 
     def statusAt(self, index):
-        """Return the status of the specified 'index'th entry in this list.
+        """
+        Args:
+            correlationId (CorrelationId): Correlation id that identifies the
+                entry
 
-        Return the status of the specified 'index'th entry in this
-        ResolutionList. This may be UNRESOLVED, RESOLVED,
-        RESOLUTION_FAILURE_BAD_SERVICE,
-        RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED,
-        RESOLUTION_FAILURE_BAD_TOPIC,
-        RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED. If 'index' > size() an
-        exception is raised.
+        Returns:
+            int: status of the entry in this :class:`ResolutionList`.
+
+        Raises:
+            IndexOutOfRangeException: If ``index >= size()``.
+
+        The possible statuses are represented by the class attributes of
+        :class:`ResolutionList`.
         """
         errorCode, status = internals.blpapi_ResolutionList_statusAt(
             self.__handle,
@@ -189,14 +236,22 @@ class ResolutionList(object):
         return status
 
     def attribute(self, attribute, correlationId):
-        """Return the value for the specified 'attribute' of this list entry.
+        """
+        Args:
+            attribute (str): Attribute of the entry
+            correlationId (CorrelationId): Correlation id identifying an entry
+                in this list
 
-        Return the value for the specified 'attribute' of the entry in this
-        ResolutionList identified by the specified 'correlationId'. The Element
-        returned may be empty if the resolution service cannot provide the
-        attribute. If 'correlationId' does not identify an entry in this
-        ResolutionList or if the status of the entry identified by
-        'correlationId' is not RESOLVED an exception is raised.
+        Returns:
+            Element: Value for the specified ``attribute`` of this list entry.
+
+        Raises:
+            Exception: If ``correlationId`` does not identify an entry in this
+                :class:`ResolutionList` or if the status of the entry
+                identified by ``correlationId`` is not ``RESOLVED``.
+
+        The :class:`Element` returned may be empty if the resolution service
+        cannot provide the attribute.
         """
         attribute = Name(attribute)
         errorCode, element = internals.blpapi_ResolutionList_attribute(
@@ -209,13 +264,18 @@ class ResolutionList(object):
         return Element(element, self)
 
     def attributeAt(self, attribute, index):
-        """Return the value for the specified 'attribute' of 'index'th entry.
+        """
+        Args:
+            attribute (str): Attribute of the entry
+            index (int): Index of the entry
 
-        Return the value for the specified 'attribute' of the specified
-        'index'th entry in this ResolutionList. The Element returned may be
-        empty if the resolution service cannot provide the attribute. If
-        'index' >= size() or if the status of the 'index'th entry is not
-        RESOLVED an exception is raised.
+        Returns:
+            Element: Value for the specified ``attribute`` of this list entry.
+
+        Raises:
+            Exception: If ``index >= size()`` or if the status of the
+                ``index``\ th entry identified by ``correlationId`` is not
+                ``RESOLVED``.
         """
         attribute = Name(attribute)
         errorCode, element = internals.blpapi_ResolutionList_attributeAt(
@@ -228,15 +288,24 @@ class ResolutionList(object):
         return Element(element, self)
 
     def message(self, correlationId):
-        """Return the message identified by 'correlationId'.
+        """
+        Args:
+            correlationId (CorrelationId): Correlation id that identifies an
+                entry in this list
 
-        Return the value of the message received during resolution of the topic
-        identified by the specified 'correlationId'. If 'correlationId' does
-        not identify an entry in this ResolutionList or if the status of the
-        entry identify by 'correlationId' is not RESOLVED an exception is
-        raised.
+        Returns:
+            Message: Message received during resolution of the topic
+            identified by the specified ``correlationId``.
 
-        The message returned can be used when creating an instance of Topic.
+        Raises:
+            Exception: If ``correlationId`` does not identify an entry in this
+                :class:`ResolutionList` or if the status of the entry identify
+                by ``correlationId`` is not ``RESOLVED`` an exception is
+                raised.
+
+        Note:
+            The :class:`Message` returned can be used when creating an instance
+            of :class:`Topic`.
         """
         errorCode, message = internals.blpapi_ResolutionList_message(
             self.__handle,
@@ -245,14 +314,21 @@ class ResolutionList(object):
         return Message(message, sessions=self.__sessions)
 
     def messageAt(self, index):
-        """Return the message received during resolution of entry at 'index'.
+        """
+        Args:
+            index (int): Index of an entry in this list
 
-        Return the value of the message received during resolution of the
-        specified 'index'th entry in this ResolutionList. If 'index >= size()'
-        or if the status of the 'index'th entry is not RESOLVED an exception is
-        raised.
+        Returns:
+            Message: Message received during resolution of the topic
+            specified ``index``\ th entry in this :class:`ResolutionList`.
 
-        The message returned can be used when creating an instance of Topic.
+        Raises:
+            Exception: If ``index >= size()`` or if the status of the
+                ``index``\ th entry is not ``RESOLVED`` an exception is raised.
+
+        Note:
+            The :class:`Message` returned can be used when creating an instance
+            of :class:`Topic`.
         """
         errorCode, message = internals.blpapi_ResolutionList_messageAt(
             self.__handle,
@@ -261,7 +337,10 @@ class ResolutionList(object):
         return Message(message, sessions=self.__sessions)
 
     def size(self):
-        """Return the number of entries in this ResolutionList."""
+        """
+        Returns:
+            int: Number of entries in this :class:`ResolutionList`.
+        """
         return internals.blpapi_ResolutionList_size(self.__handle)
 
     def _handle(self):

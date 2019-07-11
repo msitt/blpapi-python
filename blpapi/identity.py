@@ -19,20 +19,20 @@ from .compat import with_metaclass
 class Identity(object):
     """Provides access to the entitlements for a specific user.
 
-    An unauthorized Identity is created using 'Session.createIdentity()'. Once
-    a Identity has been created it can be authorized using
-    'Session.sendAuthorizationRequest()'. The authorized Identity can then be
-    queried or used in 'Session.subscribe()' or 'Session.sendRequest()' calls.
+    An unauthorized Identity is created using
+    :meth:`~Session.createIdentity()`. Once an :class:`Identity` has been
+    created it can be authorized using
+    :meth:`~Session.sendAuthorizationRequest()`. The authorized
+    :class:`Identity` can then be queried or used in
+    :meth:`~Session.subscribe()` or :meth:`~Session.sendRequest()` calls.
 
-    Once authorized a Identity has access to the entitlements of the user which
-    it was validated for.
+    Once authorized, an :class:`Identity` has access to the entitlements of the
+    user which it was validated for.
 
+    :class:`Identity` objects are always created by the API, never directly by
+    the application.
 
-    Seat types:
-
-    INVALID_SEAT - Unknown seat type
-    BPS          - Bloomberg Professional Service
-    NONBPS       - Non-BPS
+    The class attributes represent the various seat types.
     """
 
     INVALID_SEAT = internals.SEATTYPE_INVALID_SEAT
@@ -43,7 +43,12 @@ class Identity(object):
     """Non-BPS"""
 
     def __init__(self, handle, sessions):
-        """Create an Identity associated with the 'sessions'"""
+        """Create an :class:`Identity` associated with the ``sessions``
+
+        Args:
+            handle: Handle to the internal implementation
+            sessions: Sessions associated with this object
+        """
         self.__handle = handle
         self.__sessions = sessions
         internals.blpapi_Identity_addRef(self.__handle)
@@ -55,9 +60,9 @@ class Identity(object):
             pass
 
     def destroy(self):
-        """Destuctor.
+        """Destructor.
 
-        Destroying the last Identity for a specific user cancels any
+        Destroying the last :class:`Identity` for a specific user cancels any
         authorizations associated with it.
         """
         if self.__handle:
@@ -65,12 +70,18 @@ class Identity(object):
             self.__handle = None
 
     def hasEntitlements(self, service, entitlements):
-        """Return True if authorized for the specified Service and EIDs.
+        """
+        Args:
+            service (Service): Service to check authorization for
+            entitlements ([int] or Element): EIDs to check authorization for
 
-        Return True if this 'Identity' is authorized for the specified
-        'service' and for each of the entitlement IDs contained in the
-        specified 'entitlements', which must be a list of integers, or
-        an 'Element' which is an array of integers.
+        Returns:
+            bool: ``True`` if this :class:`Identity` is authorized for the
+            specified ``service`` and for each of the entitlement IDs contained
+            in the specified ``entitlements``.
+
+        If :class:`Element` is supplied for ``entitlements``, it must be an
+        array of integers.
         """
         if isinstance(entitlements, Element):
             res = internals.blpapi_Identity_hasEntitlements(
@@ -98,16 +109,21 @@ class Identity(object):
         return True if res else False
 
     def getFailedEntitlements(self, service, entitlements):
-        """Return a tuple containing a boolean and a list of integers.
+        """
+        Args:
+            service (Service): Service to check authorization for
+            entitlements ([int] or Element): EIDs to check authorization for
 
-        Return a tuple containing a boolean and a list of integers, where
-        the returned boolean is True if this 'Identity' is authorized for the
-        specified 'service' and all of the specified 'entitlements', which must
-        be either a list of integers or an 'Element' which is an array of
-        integers, and the returned list is the subset of 'entitlements' for
-        which this identity is not authorized. The contents of the returned
-        list are not specified if this identity is not authorized for
-        'service'.
+        Returns:
+            (bool, [int]): Tuple where the boolean is True if this
+            :class:`Identity` is authorized for the specified ``service`` and
+            all of the specified ``entitlements``, and the list is a subset of
+            ``entitlements`` for which this :class:`Identity` is not
+            authorized.
+
+        Note:
+            The contents of the returned list are not specified if this
+            identity is not authorized for ``service``.
         """
         if isinstance(entitlements, Element):
             maxFailedEIDs = entitlements.numValues()
@@ -146,10 +162,13 @@ class Identity(object):
         return (True if res else False, result)
 
     def isAuthorized(self, service):
-        """Return True if the handle is authorized for the specified Service.
+        """
+        Args:
+            service (Service): Service to check authorization for
 
-        Return True if this 'Identity' is authorized for the specified
-        'service'; otherwise return False.
+        Returns:
+            bool: ``True`` if this :class:`Identity` is authorized for the
+            specified ``service``, ``False`` otherwise.
         """
         res = internals.blpapi_Identity_isAuthorized(
             self.__handle,
@@ -157,7 +176,12 @@ class Identity(object):
         return True if res else False
 
     def getSeatType(self):
-        """Return the seat type of this identity."""
+        """
+        Returns:
+            int: Seat type of this identity.
+
+        The class attributes of :class:`Identity` represent the seat types.
+        """
         res = internals.blpapi_Identity_getSeatType(self.__handle)
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]

@@ -16,23 +16,26 @@ from .utils import get_handle, invoke_if_valid
 
 #pylint: disable=useless-object-inheritance
 class EventFormatter(object):
-    """EventFormatter is used to populate 'Event's for publishing.
+    """:class:`EventFormatter` is used to populate :class:`Event`\ s for
+    publishing.
 
-    An EventFormatter is created from an Event obtained from
-    createPublishEvent() on Service. Once the Message or Messages have been
-    appended to the Event using the EventFormatter the Event can be published
-    using 'publish()' on the ProviderSession.
+    An :class:`EventFormatter` is created from an :class:`Event` obtained from
+    :class:`~Service.createPublishEvent()` on :class:`Service`. Once the
+    :class:`Message` or :class:`Message`\ s have been appended to the
+    :class:`Event` using the :class:`EventFormatter` the :class:`Event` can be
+    published using :meth:`~ProviderSession.publish()` on the
+    :class:`ProviderSession`.
 
-    EventFormatter objects cannot be copied or as to ensure there is no
-    ambiguity about what happens if two 'EventFormatter's are both formatting
-    the same 'Event'.
+    :class:`EventFormatter` objects cannot be copied to ensure that there is
+    no ambiguity about what happens if two :class:`EventFormatter`\ s are both
+    formatting the same :class:`Event`.
 
-    The EventFormatter supportes appending message of the same type multiple
-    time in the same 'Event'. However the 'EventFormatter' supports write once
-    only to each field. It is an error to call 'setElement()' or 'pushElement()'
-    for the same name more than once at a particular level of the schema when
-    creating a message.
-
+    The :class:`EventFormatter` supports appending message of the same type
+    multiple times in the same :class:`Event`. However the
+    :class:`EventFormatter` supports write once only to each field. It is an
+    error to call :meth:`setElement()` or :meth:`pushElement()` for the same
+    name more than once at a particular level of the schema when creating a
+    message.
     """
 
     __boolTraits = (
@@ -98,12 +101,16 @@ class EventFormatter(object):
         return EventFormatter.__defaultTraits
 
     def __init__(self, event):
-        """Create an EventFormatter to create Messages in the specified 'event'
+        """Create an :class:`EventFormatter` to create :class:`Message`\ s in
+        the specified ``event``.
 
-        Create an EventFormatter to create Messages in the specified 'event'.
-        An Event may only be reference by one EventFormatter at any time.
-        Attempting to create a second EventFormatter referencing the same
-        Event will result in an exception being raised.
+        Args:
+            event (Event): Event to be formatted
+
+        An :class:`Event` may only be referenced by one :class:`EventFormatter`
+        at any time.  Attempting to create a second :class:`EventFormatter`
+        referencing the same :class:`Event` will result in an exception being
+        raised.
         """
 
         self.__handle = internals.blpapi_EventFormatter_create(
@@ -116,23 +123,28 @@ class EventFormatter(object):
             pass
 
     def destroy(self):
-        """Destroy this EventFormatter object."""
+        """Destroy this :class:`EventFormatter` object."""
         if self.__handle:
             internals.blpapi_EventFormatter_destroy(self.__handle)
             self.__handle = None
 
     def appendMessage(self, messageType, topic, sequenceNumber=None):
-        """Append an (empty) message of the specified 'messageType'.
+        """Append an (empty) message to the :class:`Event` referenced by this
+        :class:`EventFormatter`
 
-        Append an (empty) message of the specified 'messageType'
-        that will be published under the specified 'topic' with the
-        specified 'sequenceNumber' to the Event referenced by this
-        EventFormatter. It is expected that 'sequenceNumber' is
-        greater (unless the value wrapped or None is specified) than the last
-        value used in any previous message on this 'topic', otherwise the
-        behavior is undefined.
-        After a message has been appended its elements
-        can be set using the various 'setElement()' methods.
+        Args:
+            messageType (Name or str): Type of the message
+            topic (Topic): Topic to publish the message under
+            sequenceNumber (int): Sequence number of the message
+
+        After a message has been appended its elements can be set using the
+        various :meth:`setElement()` methods.
+
+        Note:
+            It is expected that ``sequenceNumber`` is greater (unless the value
+            wrapped or ``None`` is specified) than the last value used in any
+            previous message on this ``topic``, otherwise the behavior is
+            undefined.
         """
         name = getNamePair(messageType)
 
@@ -153,16 +165,29 @@ class EventFormatter(object):
                     sequenceNumber,
                     0))
 
-    def appendResponse(self, opType):
-        """Append an (empty) response message of the specified 'opType'.
+    def appendResponse(self, operationName):
+        """Append an (empty) response message for the specified
+        ``operationName``.
 
-        Append an (empty) response message of the specified 'opType'
-        that will be sent in response to previously received
-        operation request. After a message has been appended its
-        elements can be set using the various 'setElement()' methods.
-        Only one response can be appended.
+        Args:
+            operationName (Name or str): Name of the operation whose response
+                type to use
+
+        Append an (empty) response message for the specified ``operationName``
+        (e.g. ``ReferenceDataRequest``) that will be sent in response to the
+        previously received operation request. After a message for this
+        operation has been appended its elements can be set using the
+        :meth:`setElement()` method. Only one response can be appended.
+
+        Note:
+            The behavior is undefined unless the :class:`Event` is currently
+            empty.
+
+        Note:
+            For ``PermissionRequest`` messages, use the ``PermissionResponse``
+            operation name.
         """
-        name = getNamePair(opType)
+        name = getNamePair(operationName)
         _ExceptionUtil.raiseOnError(
             internals.blpapi_EventFormatter_appendResponse(
                 self.__handle,
@@ -172,24 +197,33 @@ class EventFormatter(object):
     def appendRecapMessage(self, topic, correlationId=None,
                            sequenceNumber=None,
                            fragmentType=Message.FRAGMENT_NONE):
-        """Append a (empty) recap message that will be published.
+        """Append a (empty) recap message to the :class:`Event` referenced by
+        this :class:`EventFormatter`.
 
-        Append a (empty) recap message that will be published under the
-        specified 'topic' with the specified 'sequenceNumber' to the Publish
-        Event referenced by this EventFormatter. Specify the optional
-        'correlationId' if this recap message is added in
-        response to a TOPIC_RECAP message. It is expected that
-        'sequenceNumber' is greater (unless the value wrapped or None is
-        specified) than the last value used in any previous message on this
-        'topic', otherwise the behavior is undefined.
-        After a message has been appended its elements can be set using
-        the various 'setElement()' methods. It is an error to create append
-        a recap message to an Admin event.
+        Args:
+            topic (Topic): Topic to publish under
+            correlationId (CorrelationId): Specify if recap message
+                added in response to a ``TOPIC_RECAP`` message
+            sequenceNumber (int): Sequence number of the message
+            fragmentType (int): Type of the message fragment
 
-        Single-tick recap messages should have
-        'fragmentType'= Message.FRAGMENT_NONE. Multi-tick recaps can have
-        either Message.FRAGMENT_START, Message.FRAGMENT_INTERMEDIATE, or
-        Message.FRAGMENT_END as the 'fragmentType'.
+        Specify the optional ``correlationId`` if this recap message is added
+        in response to a ``TOPIC_RECAP`` message.
+
+        After a message has been appended its elements can be set using the
+        various :meth:`setElement()` methods. It is an error to create append a
+        recap message to an Admin event.
+
+        Single-tick recap messages should have ``fragmentType`` set to
+        :attr:`Message.FRAGMENT_NONE`. Multi-tick recaps can have either
+        :attr:`Message.FRAGMENT_START`, :attr:`Message.FRAGMENT_INTERMEDIATE`,
+        or :attr:`Message.FRAGMENT_END` as the ``fragmentType``.
+
+        Note:
+            It is expected that ``sequenceNumber`` is greater (unless the value
+            wrapped or ``None`` is specified) than the last value used in any
+            previous message on this ``topic``, otherwise the behavior is
+            undefined.
         """
         # pylint: disable=line-too-long
         cIdHandle = None if correlationId is None else get_handle(correlationId)
@@ -230,17 +264,23 @@ class EventFormatter(object):
                         sequenceNumber))
 
     def setElement(self, name, value):
-        """Set the element with the specified 'name' to the specified 'value'.
+        """Set an element in the :class:`Event` referenced by this
+        :class:`EventFormatter`.
 
-        Set the element with the specified 'name' to the specified 'value' in
-        the current message in the Event referenced by this EventFormatter. If
-        the 'name' is invalid for the current message, if 'appendMessage()' has
-        never been called or if the element identified by 'name' has already
-        been set an exception is raised.
+        Args:
+            name (Name or str): Name of the element to set
+            value (bool or str or int or float or ~datetime.datetime or Name):
+                Value to set the element to
 
-        Clients wishing to format and publish null values (e.g. for the purpose
-        of cache management) should *not* use this function; use
-        'setElementNull' instead.
+        If the ``name`` is invalid for the current message, or if
+        :meth:`appendMessage()` has never been called, or if the element
+        identified by ``name`` has already been set, an exception will be
+        raised.
+
+        Note:
+            Clients wishing to format and publish null values (e.g. for the
+            purpose of cache management) should *not* use this function; use
+            :meth:`setElementNull` instead.
         """
         traits = EventFormatter.__getTraits(value)
         name = getNamePair(name)
@@ -249,11 +289,15 @@ class EventFormatter(object):
             traits[0](self.__handle, name[0], name[1], value))
 
     def setElementNull(self, name):
-        """Create a null element with the specified 'name'.
+        """Create a null element with the specified ``name``.
 
-        Create a null element with the specified 'name'. Note that whether or
-        not fields containing null values are published to subscribers is
-        dependent upon details of the service and schema configuration.
+        Args:
+            name (Name or str): Name of the element
+
+        Note:
+            Whether or not fields containing null values are published to
+            subscribers depends on the details of the service and schema
+            configuration.
         """
         name = getNamePair(name)
         _ExceptionUtil.raiseOnError(
@@ -263,22 +307,34 @@ class EventFormatter(object):
                 name[1]))
 
     def pushElement(self, name):
-        """Change the level at which this EventFormatter is operating.
+        """Change the level at which this :class:`EventFormatter` is operating.
 
-        Change the level at which this EventFormatter is operating to the
-        specified element 'name'. The element 'name' must identify either a
-        choice, a sequence or an array at the current level of the schema or
-        the behavior is undefined.  If the 'name' is invalid for the current
-        message, if 'appendMessage()' has never been called or if the element
-        identified by 'name' has already been set an exception is raised. After
-        this returns the context of the EventFormatter is set to the element
-        'name' in the schema and any calls to 'setElement()' or 'pushElement()'
-        are applied at that level. If 'name' represents an array of scalars then
-        'appendValue()' must be used to add values.
-        If 'name' represents an array of complex types then 'appendElement()'
-        creates the first entry and sets the context of the EventFormatter
-        to that element.  Calling  'appendElement()' again will create
-        another entry.
+        Args:
+            name (Name or str): Name of the element that is used to determine
+                                the level
+
+        After this returns the context of the :class:`EventFormatter` is set to
+        the element ``name`` in the schema and any calls to
+        :meth:`setElement()` or :meth:`pushElement()` are applied at that
+        level.
+
+        If ``name`` represents an array of scalars then :meth:`appendValue()`
+        must be used to add values.
+
+        If ``name`` represents an array of complex types then
+        :meth:`appendElement()` creates the first entry and sets the context of
+        the :class:`EventFormatter` to that element.
+
+        Calling :meth:`appendElement()` again will create another entry.
+
+        If the ``name`` is invalid for the current message, if
+        :meth:`appendMessage()` has never been called or if the element
+        identified by ``name`` has already been set an exception is raised.
+
+        Note:
+            The element ``name`` must identify either a choice, a sequence or
+            an array at the current level of the schema or the behavior is
+            undefined.
         """
         name = getNamePair(name)
         _ExceptionUtil.raiseOnError(
@@ -288,18 +344,24 @@ class EventFormatter(object):
                 name[1]))
 
     def popElement(self):
-        """Undo the most recent call to 'pushLevel()' on this EventFormatter.
+        """Undo the most recent call to :meth:`pushElement()` on this
+        :class:`EventFormatter`.
 
-        Undo the most recent call to 'pushLevel()' on this
-        EventFormatter and return the context of the
-        EventFormatter to where it was before the call to
-        'pushElement()'. Once 'popElement()' has been called it is
+        Undo the most recent call to :meth:`pushElement()` on this
+        :class:`EventFormatter` and return the context of the
+        :class:`EventFormatter` to where it was before the call to
+        :meth:`pushElement()`. Once :meth:`popElement()` has been called it is
         invalid to attempt to re-visit the same context.
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_EventFormatter_popElement(self.__handle))
 
     def appendValue(self, value):
+        """
+        Args:
+            value (bool or str or int or float or ~datetime.datetime or Name):
+                Value to append
+        """
         traits = EventFormatter.__getTraits(value)
         value = invoke_if_valid(traits[2], value)
         _ExceptionUtil.raiseOnError(traits[1](self.__handle, value))

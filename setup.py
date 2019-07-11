@@ -46,6 +46,7 @@ if is64bit:
 else:
     blpapiLibraryName = 'blpapi3_32'
 
+extraLinkArgs = []
 if platform == 'windows':
     blpapiLibraryPath = os.path.join(blpapiRoot, 'lib')
     extraLinkArgs = ['/MANIFEST']
@@ -58,10 +59,14 @@ if platform == 'windows':
             os.environ['VS90COMNTOOLS'] = os.environ['VS100COMNTOOLS']
 elif platform == 'linux':
     blpapiLibraryPath = os.path.join(blpapiRoot, 'Linux')
-    extraLinkArgs = []
+elif platform == 'sunos':
+    lib = "lib64" if is64bit else "lib"
+    blpapiLibraryPath = os.path.join(blpapiRoot, lib)
+elif platform == 'aix':
+    lib = "lib64" if is64bit else "lib"
+    blpapiLibraryPath = os.path.join(blpapiRoot, lib)
 elif platform == 'darwin':
     blpapiLibraryPath = os.path.join(blpapiRoot, 'Darwin')
-    extraLinkArgs = []
 else:
     raise Exception("Platform '" + platform + "' isn't supported")
 

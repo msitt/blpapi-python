@@ -14,17 +14,21 @@ from .utils import get_handle
 class Topic(object):
     """Used to identify the stream on which a message is published.
 
-    Topic objects are obtained from 'createTopic()' on 'ProviderSession'.
-    They are used when adding a message to an Event for publishing using
-    'appendMessage()' on 'EventFormatter'.
+    Topic objects are obtained from :meth:`~ProviderSession.createTopics()` on
+    :class:`ProviderSession`.  They are used when adding a message to an Event
+    for publishing using :meth:`~EventFormatter.appendMessage()` on
+    :class:`EventFormatter`.
     """
 
     def __init__(self, handle=None, sessions=None):
-        """Create a Topic object.
+        """Create a :class:`Topic` object.
 
-        Create a Topic object. A Topic created with 'handle' set to None is not
-        a valid topic and must be assigned to from a valid topic before it can
-        be used.
+        Args:
+            handle: Handle to the internal implementation
+            sessions: Sessions associated with this object
+
+        A :class:`Topic` created with ``handle`` set to ``None`` is not a valid
+        topic and must be assigned to from a valid topic before it can be used.
         """
         self.__handle = handle
         if handle is not None:
@@ -38,31 +42,31 @@ class Topic(object):
             pass
 
     def destroy(self):
-        """Destroy this Topic object."""
+        """Destroy this :class:`Topic` object."""
         if self.__handle:
             internals.blpapi_Topic_destroy(self.__handle)
             self.__handle = None
 
     def isValid(self):
-        """Return True if this Topic is valid.
-
-        Return True if this Topic is valid and can be used to publish
-        a message on.
+        """
+        Returns:
+            bool: ``True`` if this :class:`Topic` is valid and can be used to
+            publish a message on.
         """
         return self.__handle is not None
 
     def isActive(self):
-        """Return True if this topic is the primary publisher.
-
-        Return True if this topic was elected by the platform to become the
-        primary publisher.
+        """
+        Returns:
+            bool: ``True`` if this topic was elected by the platform to become
+            the primary publisher.
         """
         return bool(internals.blpapi_Topic_isActive(self.__handle))
 
     def service(self):
-        """Return the service for which this topic was created.
-
-        Return the service for which this topic was created.
+        """
+        Returns:
+            Service: The service for which this topic was created.
         """
         return Service(internals.blpapi_Topic_service(self.__handle),
                        self.__sessions)

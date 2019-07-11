@@ -1,3 +1,13 @@
+Version 3.13.1:
+===============
+- Conversions to string using print helpers ignore null-terminators
+	Previously, when converting an e.g., Element to string explicitly,
+	or when printing it, null-terminators embedded in strings
+	would cause the resulting string to be truncated to the first one.
+
+- Format docstrings to be rendered by the Sphinx documentation generator
+- Stability and performance improvements
+
 Version 3.13.0:
 ===============
 - Automated network configuration for ZFP over leased lines
@@ -45,7 +55,7 @@ Version 3.11.0:
 Version 3.10.0:
 ===============
 - Documentation change
-	Clarify the meaning of integer priorities in 'ProviderSession'. Greater 
+	Clarify the meaning of integer priorities in 'ProviderSession'. Greater
 	values indicate higher priorities.
 
 - Add support for 3.10 features

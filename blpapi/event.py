@@ -42,11 +42,11 @@ from .compat import with_metaclass
 # pylint: disable=useless-object-inheritance
 
 class MessageIterator(object):
-    """An iterator over the 'Message' objects within an Event.
+    """An iterator over the :class:`Message` objects within an :class:`Event`.
 
-    Few clients will ever make direct use of 'MessageIterator' objects; Python
-    'for' loops allow clients to operate directly in terms of 'Event' and
-    'Message' objects'. (See the usage example above.)
+    Few clients will ever make direct use of :class:`MessageIterator` objects;
+    Python ``for`` loops allow clients to operate directly in terms of
+    :class:`Event` and :class:`Message` objects.
     """
 
     def __init__(self, event):
@@ -82,71 +82,55 @@ class MessageIterator(object):
 class Event(object):
     """A single event resulting from a subscription or a request.
 
-    'Event' objects are created by the API and passed to the application either
-    through a registered 'EventHandler' or 'EventQueue' or returned either from
-    the 'Session.nextEvent()' or 'Session.tryNextEvent()' methods. 'Event'
-    objects contain 'Message' objects which can be accessed using an iteration
-    over 'Event':
+    :class:`Event` objects are created by the API and passed to the application
+    either through a registered ``eventHandler`` or :class:`EventQueue` or
+    returned either from the ``nextEvent()`` or ``tryNextEvent()`` methods.
+    :class:`Event` objects contain :class:`Message` objects which can be
+    accessed using an iteration over :class:`Event`::
 
         for message in event:
             ...
 
-    The 'Event' object is a handle to an event. The event is the basic unit of
-    work provided to applications. Each 'Event' object consists of an
-    'EventType' attribute and zero or more 'Message' objects.
+    The :class:`Event` object is a handle to an event. The event is the basic
+    unit of work provided to applications. Each :class:`Event` object consists
+    of an ``eventType`` attribute and zero or more :class:`Message` objects.
 
-    Event objects are always created by the API, never directly by the
+    :class:`Event` objects are always created by the API, never directly by the
     application.
 
-    Class attributes:
-        The possible types of event:
-            ADMIN:
-                Admin event
-            SESSION_STATUS:
-                Status updates for a session
-            SUBSCRIPTION_STATUS:
-                Status updates for a subscription
-            REQUEST_STATUS:
-                Status updates for a request
-            RESPONSE:
-                The final (possibly only) response to a request
-            PARTIAL_RESPONSE:
-                A partial response to a request
-            SUBSCRIPTION_DATA:
-                Data updates resulting from a subscription
-            SERVICE_STATUS:
-                Status updates for a service
-            TIMEOUT:
-                An Event returned from nextEvent() if it timed out
-            AUTHORIZATION_STATUS:
-                Status updates for user authorization
-            RESOLUTION_STATUS:
-                Status updates for a resolution operation
-            TOPIC_STATUS:
-                Status updates about topics for service providers
-            ROKEN_STATUS:
-                Status updates for a generate token request
-            REQUEST:
-                Request event
-            UNKNOWN:
-                Unknown event
+    The class attributes represent the possible types of event.
     """
 
     ADMIN = internals.EVENTTYPE_ADMIN
+    """Admin event"""
     SESSION_STATUS = internals.EVENTTYPE_SESSION_STATUS
+    """Status updates for a session"""
     SUBSCRIPTION_STATUS = internals.EVENTTYPE_SUBSCRIPTION_STATUS
+    """Status updates for a subscription"""
     REQUEST_STATUS = internals.EVENTTYPE_REQUEST_STATUS
+    """Status updates for a request"""
     RESPONSE = internals.EVENTTYPE_RESPONSE
+    """The final (possibly only) response to a request"""
     PARTIAL_RESPONSE = internals.EVENTTYPE_PARTIAL_RESPONSE
+    """A partial response to a request"""
     SUBSCRIPTION_DATA = internals.EVENTTYPE_SUBSCRIPTION_DATA
+    """Data updates resulting from a subscription"""
     SERVICE_STATUS = internals.EVENTTYPE_SERVICE_STATUS
+    """Status updates for a service"""
     TIMEOUT = internals.EVENTTYPE_TIMEOUT
+    """An Event returned from nextEvent() if it timed out"""
     AUTHORIZATION_STATUS = internals.EVENTTYPE_AUTHORIZATION_STATUS
+    """Status updates for user authorization"""
     RESOLUTION_STATUS = internals.EVENTTYPE_RESOLUTION_STATUS
+    """Status updates for a resolution operation"""
     TOPIC_STATUS = internals.EVENTTYPE_TOPIC_STATUS
+    """Status updates about topics for service providers"""
     TOKEN_STATUS = internals.EVENTTYPE_TOKEN_STATUS
+    """Status updates for a generate token request"""
     REQUEST = internals.EVENTTYPE_REQUEST
+    """Request event"""
     UNKNOWN = -1
+    """Unknown event"""
 
     def __init__(self, handle, sessions):
         self.__handle = handle
@@ -159,16 +143,23 @@ class Event(object):
             pass
 
     def destroy(self):
+        """Destructor"""
         if self.__handle:
             internals.blpapi_Event_release(self.__handle)
             self.__handle = None
 
     def eventType(self):
-        """Return the type of messages contained by this 'Event'."""
+        """
+        Returns:
+            int: Type of messages contained by this :class:`Event`.
+        """
         return internals.blpapi_Event_eventType(self.__handle)
 
     def __iter__(self):
-        """Return the iterator over messages contained in this 'Event'."""
+        """
+        Returns:
+            Iterator over messages contained in this :class:`Event`.
+        """
         return MessageIterator(self)
 
     def _handle(self):
@@ -188,15 +179,18 @@ class Event(object):
 class EventQueue(object):
     """A construct used to handle replies to request synchronously.
 
-    'EventQueue()' construct an empty 'EventQueue' which can be passed to
-    'Session.sendRequest()' and 'Session.sendAuthorizationRequest()' methods.
-
     When a request is submitted an application can either handle the responses
-    asynchronously as they arrive or use an 'EventQueue' to handle all
-    responses for a given request or requests synchronously. The 'EventQueue'
-    will only deliver responses to the request(s) it is associated with.
+    asynchronously as they arrive or use an :class:`EventQueue` to handle all
+    responses for a given request or requests synchronously. The
+    :class:`EventQueue` will only deliver responses to the request(s) it is
+    associated with.
     """
     def __init__(self):
+        """
+        Construct an empty :class:`EventQueue` which can be passed to
+        :meth:`~Session.sendRequest()` and
+        :meth:`~Session.sendAuthorizationRequest()` methods.
+        """
         self.__handle = internals.blpapi_EventQueue_create()
         self.__sessions = set()
 
@@ -207,29 +201,33 @@ class EventQueue(object):
             pass
 
     def destroy(self):
+        """Destructor."""
         if self.__handle:
             internals.blpapi_EventQueue_destroy(self.__handle)
             self.__handle = None
 
     def nextEvent(self, timeout=0):
-        """Return the next Event available from the 'EventQueue'.
+        """
+        Args:
+            timeout (int): Timeout threshold in milliseconds.
 
-        If the specified 'timeout' is zero this method will wait forever for
-        the next event. If the specified 'timeout' is non zero then if no
-        'Event' is available within the specified 'timeout' an 'Event' with
-        type of 'TIMEOUT' will be returned.
+        Returns:
+            Event: The next :class:`Event` available from the
+            :class:`EventQueue`.
 
-        The 'timeout' is specified in milliseconds.
+        If the specified ``timeout`` is zero this method will wait forever for
+        the next event. If the specified ``timeout`` is non zero then if no
+        :class:`Event` is available within the specified ``timeout`` an
+        :class:`Event` with type of :attr:`~Event.TIMEOUT` will be returned.
         """
         res = internals.blpapi_EventQueue_nextEvent(self.__handle, timeout)
         return Event(res, self._getSessions())
 
     def tryNextEvent(self):
-        """If the 'EventQueue' is non-empty, return the next Event available.
-
-        If the 'EventQueue' is non-empty, return the next 'Event' available. If
-        the 'EventQueue' is empty, return None with no effect the state of
-        'EventQueue'.
+        """
+        Returns:
+            Event: If the :class:`EventQueue` is non-empty, the next
+            :class:`Event` available, otherwise ``None``.
         """
         res = internals.blpapi_EventQueue_tryNextEvent(self.__handle)
         if res[0]:
@@ -237,11 +235,12 @@ class EventQueue(object):
         return Event(res[1], self._getSessions())
 
     def purge(self):
-        """Purge any 'Event' objects in this 'EventQueue'.
+        """Purge any :class:`Event` objects in this :class:`EventQueue`.
 
-        Purges any 'Event' objects in this 'EventQueue' which have not been
-        processed and cancel any pending requests linked to this 'EventQueue'.
-        The 'EventQueue' can subsequently be re-used for a subsequent request.
+        Purges any :class:`Event` objects in this :class:`EventQueue` which
+        have not been processed and cancel any pending requests linked to this
+        :class:`EventQueue`.  The :class:`EventQueue` can subsequently be
+        re-used for a subsequent request.
         """
         internals.blpapi_EventQueue_purge(self.__handle)
         self.__sessions.clear()
