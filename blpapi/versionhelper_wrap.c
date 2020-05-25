@@ -419,6 +419,7 @@ SWIG_TypeCheck(const char *c, swig_type_info *ty) {
     swig_cast_info *iter = ty->cast;
     while (iter) {
       if (strcmp(iter->type->name, c) == 0) {
+#if 0
         if (iter == ty->cast)
           return iter;
         /* Move iter to the top of the linked list */
@@ -429,6 +430,7 @@ SWIG_TypeCheck(const char *c, swig_type_info *ty) {
         iter->prev = 0;
         if (ty->cast) ty->cast->prev = iter;
         ty->cast = iter;
+#endif
         return iter;
       }
       iter = iter->next;
@@ -446,6 +448,7 @@ SWIG_TypeCheckStruct(swig_type_info *from, swig_type_info *ty) {
     swig_cast_info *iter = ty->cast;
     while (iter) {
       if (iter->type == from) {
+#if 0
         if (iter == ty->cast)
           return iter;
         /* Move iter to the top of the linked list */
@@ -456,6 +459,7 @@ SWIG_TypeCheckStruct(swig_type_info *from, swig_type_info *ty) {
         iter->prev = 0;
         if (ty->cast) ty->cast->prev = iter;
         ty->cast = iter;
+#endif
         return iter;
       }
       iter = iter->next;

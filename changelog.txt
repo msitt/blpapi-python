@@ -1,3 +1,12 @@
+Version 3.14.0:
+===============
+- Improved usage of network bandwidth for snapshot requests
+    Optimized the network bandwidth usage between endpoints and Bloomberg data
+    centers for snapshot requests. Customers can request to disable the
+    optimization by setting the 'bandwidthSaveModeDisabled' session option.
+
+- Stability and performance improvements
+
 Version 3.13.1:
 ===============
 - Conversions to string using print helpers ignore null-terminators

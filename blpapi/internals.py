@@ -993,6 +993,10 @@ def blpapi_SessionOptions_setFlushPublishedEventsTimeout(paramaters, timeoutMsec
     return _internals.blpapi_SessionOptions_setFlushPublishedEventsTimeout(paramaters, timeoutMsecs)
 blpapi_SessionOptions_setFlushPublishedEventsTimeout = _internals.blpapi_SessionOptions_setFlushPublishedEventsTimeout
 
+def blpapi_SessionOptions_setBandwidthSaveModeDisabled(parameters, disableBandwidthSaveMode):
+    return _internals.blpapi_SessionOptions_setBandwidthSaveModeDisabled(parameters, disableBandwidthSaveMode)
+blpapi_SessionOptions_setBandwidthSaveModeDisabled = _internals.blpapi_SessionOptions_setBandwidthSaveModeDisabled
+
 def blpapi_SessionOptions_serverHost(parameters):
     return _internals.blpapi_SessionOptions_serverHost(parameters)
 blpapi_SessionOptions_serverHost = _internals.blpapi_SessionOptions_serverHost
@@ -1088,6 +1092,10 @@ blpapi_SessionOptions_serviceDownloadTimeout = _internals.blpapi_SessionOptions_
 def blpapi_SessionOptions_flushPublishedEventsTimeout(parameters):
     return _internals.blpapi_SessionOptions_flushPublishedEventsTimeout(parameters)
 blpapi_SessionOptions_flushPublishedEventsTimeout = _internals.blpapi_SessionOptions_flushPublishedEventsTimeout
+
+def blpapi_SessionOptions_bandwidthSaveModeDisabled(parameters):
+    return _internals.blpapi_SessionOptions_bandwidthSaveModeDisabled(parameters)
+blpapi_SessionOptions_bandwidthSaveModeDisabled = _internals.blpapi_SessionOptions_bandwidthSaveModeDisabled
 
 def blpapi_TlsOptions_destroy(parameters):
     return _internals.blpapi_TlsOptions_destroy(parameters)

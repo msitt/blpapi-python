@@ -470,6 +470,17 @@ class SessionOptions(object):
             self.__handle,
             get_handle(tlsOptions))
 
+    def setBandwidthSaveModeDisabled(self, isDisabled):
+        """Specify whether to disable bandwidth saving measures.
+
+        Args:
+            isDisabled (bool): Whether to disable bandwidth saving measures.
+        """
+        _ExceptionUtil.raiseOnError(
+            internals.blpapi_SessionOptions_setBandwidthSaveModeDisabled(
+                self.__handle,
+                isDisabled))
+
     def serverHost(self):
         """
         Returns:
@@ -693,6 +704,14 @@ class SessionOptions(object):
         """
         return internals.blpapi_SessionOptions_serviceDownloadTimeout(
             self.__handle)
+
+    def bandwidthSaveModeDisabled(self):
+        """
+        Returns:
+            bool: Whether bandwidth saving measures are disabled.
+        """
+        return bool(internals.blpapi_SessionOptions_bandwidthSaveModeDisabled(
+            self.__handle))
 
     def _handle(self):
         """Return the internal implementation."""

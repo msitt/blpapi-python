@@ -419,6 +419,7 @@ SWIG_TypeCheck(const char *c, swig_type_info *ty) {
     swig_cast_info *iter = ty->cast;
     while (iter) {
       if (strcmp(iter->type->name, c) == 0) {
+#if 0
         if (iter == ty->cast)
           return iter;
         /* Move iter to the top of the linked list */
@@ -429,6 +430,7 @@ SWIG_TypeCheck(const char *c, swig_type_info *ty) {
         iter->prev = 0;
         if (ty->cast) ty->cast->prev = iter;
         ty->cast = iter;
+#endif
         return iter;
       }
       iter = iter->next;
@@ -446,6 +448,7 @@ SWIG_TypeCheckStruct(swig_type_info *from, swig_type_info *ty) {
     swig_cast_info *iter = ty->cast;
     while (iter) {
       if (iter->type == from) {
+#if 0
         if (iter == ty->cast)
           return iter;
         /* Move iter to the top of the linked list */
@@ -456,6 +459,7 @@ SWIG_TypeCheckStruct(swig_type_info *from, swig_type_info *ty) {
         iter->prev = 0;
         if (ty->cast) ty->cast->prev = iter;
         ty->cast = iter;
+#endif
         return iter;
       }
       iter = iter->next;
@@ -10335,6 +10339,41 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_setBandwidthSaveModeDisabled(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_SessionOptions_t *arg1 = (blpapi_SessionOptions_t *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:blpapi_SessionOptions_setBandwidthSaveModeDisabled",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_SessionOptions, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SessionOptions_setBandwidthSaveModeDisabled" "', argument " "1"" of type '" "blpapi_SessionOptions_t *""'"); 
+  }
+  arg1 = (blpapi_SessionOptions_t *)(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "blpapi_SessionOptions_setBandwidthSaveModeDisabled" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = (int)(val2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_SessionOptions_setBandwidthSaveModeDisabled(arg1,arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_serverHost(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   blpapi_SessionOptions_t *arg1 = (blpapi_SessionOptions_t *) 0 ;
@@ -10969,6 +11008,32 @@ SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_flushPublishedEventsTimeout(PyO
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     result = (int)blpapi_SessionOptions_flushPublishedEventsTimeout(arg1);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_bandwidthSaveModeDisabled(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_SessionOptions_t *arg1 = (blpapi_SessionOptions_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_SessionOptions_bandwidthSaveModeDisabled",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_SessionOptions, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SessionOptions_bandwidthSaveModeDisabled" "', argument " "1"" of type '" "blpapi_SessionOptions_t *""'"); 
+  }
+  arg1 = (blpapi_SessionOptions_t *)(argp1);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_SessionOptions_bandwidthSaveModeDisabled(arg1);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
@@ -19362,6 +19427,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"blpapi_SessionOptions_setServiceDownloadTimeout", _wrap_blpapi_SessionOptions_setServiceDownloadTimeout, METH_VARARGS, NULL},
 	 { (char *)"blpapi_SessionOptions_setTlsOptions", _wrap_blpapi_SessionOptions_setTlsOptions, METH_VARARGS, NULL},
 	 { (char *)"blpapi_SessionOptions_setFlushPublishedEventsTimeout", _wrap_blpapi_SessionOptions_setFlushPublishedEventsTimeout, METH_VARARGS, NULL},
+	 { (char *)"blpapi_SessionOptions_setBandwidthSaveModeDisabled", _wrap_blpapi_SessionOptions_setBandwidthSaveModeDisabled, METH_VARARGS, NULL},
 	 { (char *)"blpapi_SessionOptions_serverHost", _wrap_blpapi_SessionOptions_serverHost, METH_VARARGS, NULL},
 	 { (char *)"blpapi_SessionOptions_serverPort", _wrap_blpapi_SessionOptions_serverPort, METH_VARARGS, NULL},
 	 { (char *)"blpapi_SessionOptions_numServerAddresses", _wrap_blpapi_SessionOptions_numServerAddresses, METH_VARARGS, NULL},
@@ -19386,6 +19452,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"blpapi_SessionOptions_serviceCheckTimeout", _wrap_blpapi_SessionOptions_serviceCheckTimeout, METH_VARARGS, NULL},
 	 { (char *)"blpapi_SessionOptions_serviceDownloadTimeout", _wrap_blpapi_SessionOptions_serviceDownloadTimeout, METH_VARARGS, NULL},
 	 { (char *)"blpapi_SessionOptions_flushPublishedEventsTimeout", _wrap_blpapi_SessionOptions_flushPublishedEventsTimeout, METH_VARARGS, NULL},
+	 { (char *)"blpapi_SessionOptions_bandwidthSaveModeDisabled", _wrap_blpapi_SessionOptions_bandwidthSaveModeDisabled, METH_VARARGS, NULL},
 	 { (char *)"blpapi_TlsOptions_destroy", _wrap_blpapi_TlsOptions_destroy, METH_VARARGS, NULL},
 	 { (char *)"blpapi_TlsOptions_createFromFiles", _wrap_blpapi_TlsOptions_createFromFiles, METH_VARARGS, NULL},
 	 { (char *)"blpapi_TlsOptions_createFromBlobs", _wrap_blpapi_TlsOptions_createFromBlobs, METH_VARARGS, NULL},
