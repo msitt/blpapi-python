@@ -7,7 +7,7 @@ from a Session and contains zero or more 'Operations'. A service can be a
 provider service (can generate API data) or a consumer service.
 
 """
-
+import warnings
 from .event import Event
 from .name import getNamePair
 from .request import Request
@@ -185,8 +185,15 @@ class Service(object):
 
         Use an :class:`EventFormatter` to add :class:`Message`\ s to the
         :class:`Event` and set fields.
+
+        **DEPRECATED**
+        Use :meth:`Service.createPublishEvent()`.
+
         """
 
+        warnings.warn(
+            "This method is deprecated, see docstring for details",
+            DeprecationWarning)
         errCode, event = internals.blpapi_Service_createAdminEvent(
             self.__handle)
         _ExceptionUtil.raiseOnError(errCode)

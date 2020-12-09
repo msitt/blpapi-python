@@ -5,7 +5,7 @@
 from __future__ import print_function
 from . import versionhelper
 
-__version__ = "3.14.0"
+__version__ = "3.15.2"
 
 def print_version():
     """Print version information of BLPAPI python module and blpapi C++ SDK"""

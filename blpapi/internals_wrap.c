@@ -2988,66 +2988,78 @@ SWIG_Python_NonDynamicSetAttr(PyObject *obj, PyObject *name, PyObject *value) {
 /* -------- TYPES TABLE (BEGIN) -------- */
 
 #define SWIGTYPE_p_blpapi_AbstractSession swig_types[0]
-#define SWIGTYPE_p_blpapi_Constant swig_types[1]
-#define SWIGTYPE_p_blpapi_ConstantList swig_types[2]
-#define SWIGTYPE_p_blpapi_CorrelationId_t_ swig_types[3]
-#define SWIGTYPE_p_blpapi_CorrelationId_t__value swig_types[4]
-#define SWIGTYPE_p_blpapi_Datetime_tag swig_types[5]
-#define SWIGTYPE_p_blpapi_Element swig_types[6]
-#define SWIGTYPE_p_blpapi_Event swig_types[7]
-#define SWIGTYPE_p_blpapi_EventDispatcher swig_types[8]
-#define SWIGTYPE_p_blpapi_EventFormatter swig_types[9]
-#define SWIGTYPE_p_blpapi_EventQueue swig_types[10]
-#define SWIGTYPE_p_blpapi_HighPrecisionDatetime_tag swig_types[11]
-#define SWIGTYPE_p_blpapi_Identity swig_types[12]
-#define SWIGTYPE_p_blpapi_Logging_Func_t swig_types[13]
-#define SWIGTYPE_p_blpapi_Logging_Severity_t swig_types[14]
-#define SWIGTYPE_p_blpapi_ManagedPtr_t_ swig_types[15]
-#define SWIGTYPE_p_blpapi_Message swig_types[16]
-#define SWIGTYPE_p_blpapi_MessageIterator swig_types[17]
-#define SWIGTYPE_p_blpapi_Name swig_types[18]
-#define SWIGTYPE_p_blpapi_Operation swig_types[19]
-#define SWIGTYPE_p_blpapi_ProviderSession swig_types[20]
-#define SWIGTYPE_p_blpapi_Request swig_types[21]
-#define SWIGTYPE_p_blpapi_RequestTemplate swig_types[22]
-#define SWIGTYPE_p_blpapi_ResolutionList swig_types[23]
-#define SWIGTYPE_p_blpapi_Service swig_types[24]
-#define SWIGTYPE_p_blpapi_ServiceRegistrationOptions swig_types[25]
-#define SWIGTYPE_p_blpapi_Session swig_types[26]
-#define SWIGTYPE_p_blpapi_SessionOptions swig_types[27]
-#define SWIGTYPE_p_blpapi_StreamWriter_t swig_types[28]
-#define SWIGTYPE_p_blpapi_SubscriptionItrerator swig_types[29]
-#define SWIGTYPE_p_blpapi_SubscriptionList swig_types[30]
-#define SWIGTYPE_p_blpapi_TimePoint swig_types[31]
-#define SWIGTYPE_p_blpapi_TlsOptions swig_types[32]
-#define SWIGTYPE_p_blpapi_Topic swig_types[33]
-#define SWIGTYPE_p_blpapi_TopicList swig_types[34]
-#define SWIGTYPE_p_char swig_types[35]
-#define SWIGTYPE_p_double swig_types[36]
-#define SWIGTYPE_p_f_p_struct_blpapi_Event_p_struct_blpapi_ProviderSession_p_void__void swig_types[37]
-#define SWIGTYPE_p_float swig_types[38]
-#define SWIGTYPE_p_int swig_types[39]
-#define SWIGTYPE_p_intArray swig_types[40]
-#define SWIGTYPE_p_long_long swig_types[41]
-#define SWIGTYPE_p_p_blpapi_Element swig_types[42]
-#define SWIGTYPE_p_p_blpapi_Event swig_types[43]
-#define SWIGTYPE_p_p_blpapi_Message swig_types[44]
-#define SWIGTYPE_p_p_blpapi_Name swig_types[45]
-#define SWIGTYPE_p_p_blpapi_Operation swig_types[46]
-#define SWIGTYPE_p_p_blpapi_Request swig_types[47]
-#define SWIGTYPE_p_p_blpapi_RequestTemplate swig_types[48]
-#define SWIGTYPE_p_p_blpapi_Service swig_types[49]
-#define SWIGTYPE_p_p_blpapi_Topic swig_types[50]
-#define SWIGTYPE_p_p_char swig_types[51]
-#define SWIGTYPE_p_p_p_void swig_types[52]
-#define SWIGTYPE_p_p_void swig_types[53]
-#define SWIGTYPE_p_short swig_types[54]
-#define SWIGTYPE_p_unsigned_char swig_types[55]
-#define SWIGTYPE_p_unsigned_int swig_types[56]
-#define SWIGTYPE_p_unsigned_long_long swig_types[57]
-#define SWIGTYPE_p_unsigned_short swig_types[58]
-static swig_type_info *swig_types[60];
-static swig_module_info swig_module = {swig_types, 59, 0, 0, 0, 0};
+#define SWIGTYPE_p_blpapi_AuthApplication swig_types[1]
+#define SWIGTYPE_p_blpapi_AuthOptions swig_types[2]
+#define SWIGTYPE_p_blpapi_AuthToken swig_types[3]
+#define SWIGTYPE_p_blpapi_AuthUser swig_types[4]
+#define SWIGTYPE_p_blpapi_Constant swig_types[5]
+#define SWIGTYPE_p_blpapi_ConstantList swig_types[6]
+#define SWIGTYPE_p_blpapi_CorrelationId_t_ swig_types[7]
+#define SWIGTYPE_p_blpapi_CorrelationId_t__value swig_types[8]
+#define SWIGTYPE_p_blpapi_Datetime_tag swig_types[9]
+#define SWIGTYPE_p_blpapi_Element swig_types[10]
+#define SWIGTYPE_p_blpapi_Event swig_types[11]
+#define SWIGTYPE_p_blpapi_EventDispatcher swig_types[12]
+#define SWIGTYPE_p_blpapi_EventFormatter swig_types[13]
+#define SWIGTYPE_p_blpapi_EventQueue swig_types[14]
+#define SWIGTYPE_p_blpapi_HighPrecisionDatetime_tag swig_types[15]
+#define SWIGTYPE_p_blpapi_Identity swig_types[16]
+#define SWIGTYPE_p_blpapi_Logging_Func_t swig_types[17]
+#define SWIGTYPE_p_blpapi_Logging_Severity_t swig_types[18]
+#define SWIGTYPE_p_blpapi_ManagedPtr_t_ swig_types[19]
+#define SWIGTYPE_p_blpapi_Message swig_types[20]
+#define SWIGTYPE_p_blpapi_MessageFormatter swig_types[21]
+#define SWIGTYPE_p_blpapi_MessageIterator swig_types[22]
+#define SWIGTYPE_p_blpapi_MessageProperties swig_types[23]
+#define SWIGTYPE_p_blpapi_Name swig_types[24]
+#define SWIGTYPE_p_blpapi_Operation swig_types[25]
+#define SWIGTYPE_p_blpapi_ProviderSession swig_types[26]
+#define SWIGTYPE_p_blpapi_Request swig_types[27]
+#define SWIGTYPE_p_blpapi_RequestTemplate swig_types[28]
+#define SWIGTYPE_p_blpapi_ResolutionList swig_types[29]
+#define SWIGTYPE_p_blpapi_SchemaElementDefinition swig_types[30]
+#define SWIGTYPE_p_blpapi_Service swig_types[31]
+#define SWIGTYPE_p_blpapi_ServiceRegistrationOptions swig_types[32]
+#define SWIGTYPE_p_blpapi_Session swig_types[33]
+#define SWIGTYPE_p_blpapi_SessionOptions swig_types[34]
+#define SWIGTYPE_p_blpapi_StreamWriter_t swig_types[35]
+#define SWIGTYPE_p_blpapi_SubscriptionItrerator swig_types[36]
+#define SWIGTYPE_p_blpapi_SubscriptionList swig_types[37]
+#define SWIGTYPE_p_blpapi_TimePoint swig_types[38]
+#define SWIGTYPE_p_blpapi_TlsOptions swig_types[39]
+#define SWIGTYPE_p_blpapi_Topic swig_types[40]
+#define SWIGTYPE_p_blpapi_TopicList swig_types[41]
+#define SWIGTYPE_p_char swig_types[42]
+#define SWIGTYPE_p_double swig_types[43]
+#define SWIGTYPE_p_f_p_struct_blpapi_Event_p_struct_blpapi_ProviderSession_p_void__void swig_types[44]
+#define SWIGTYPE_p_float swig_types[45]
+#define SWIGTYPE_p_int swig_types[46]
+#define SWIGTYPE_p_intArray swig_types[47]
+#define SWIGTYPE_p_long_long swig_types[48]
+#define SWIGTYPE_p_p_blpapi_AuthApplication swig_types[49]
+#define SWIGTYPE_p_p_blpapi_AuthOptions swig_types[50]
+#define SWIGTYPE_p_p_blpapi_AuthToken swig_types[51]
+#define SWIGTYPE_p_p_blpapi_AuthUser swig_types[52]
+#define SWIGTYPE_p_p_blpapi_Element swig_types[53]
+#define SWIGTYPE_p_p_blpapi_Event swig_types[54]
+#define SWIGTYPE_p_p_blpapi_Identity swig_types[55]
+#define SWIGTYPE_p_p_blpapi_Message swig_types[56]
+#define SWIGTYPE_p_p_blpapi_Name swig_types[57]
+#define SWIGTYPE_p_p_blpapi_Operation swig_types[58]
+#define SWIGTYPE_p_p_blpapi_Request swig_types[59]
+#define SWIGTYPE_p_p_blpapi_RequestTemplate swig_types[60]
+#define SWIGTYPE_p_p_blpapi_SchemaElementDefinition swig_types[61]
+#define SWIGTYPE_p_p_blpapi_Service swig_types[62]
+#define SWIGTYPE_p_p_blpapi_Topic swig_types[63]
+#define SWIGTYPE_p_p_char swig_types[64]
+#define SWIGTYPE_p_p_void swig_types[65]
+#define SWIGTYPE_p_short swig_types[66]
+#define SWIGTYPE_p_unsigned_char swig_types[67]
+#define SWIGTYPE_p_unsigned_int swig_types[68]
+#define SWIGTYPE_p_unsigned_long_long swig_types[69]
+#define SWIGTYPE_p_unsigned_short swig_types[70]
+static swig_type_info *swig_types[72];
+static swig_module_info swig_module = {swig_types, 71, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -3149,6 +3161,7 @@ SWIGINTERNINLINE PyObject*
 }
 
 
+#include "blpapi_authoptions.h"
 #include "blpapi_constant.h"
 #include "blpapi_datetime.h"
 #include "blpapi_diagnosticsutil.h"
@@ -3176,6 +3189,7 @@ SWIGINTERNINLINE PyObject*
 #include "blpapi_resolutionlist.h"
 #include "blpapi_topic.h"
 #include "blpapi_topiclist.h"
+
 
 #ifndef MAX_GROUP_ID_SIZE
 // MAX_GROUP_ID_SIZE is not defined in BLPAPI, but docs say its value is 64
@@ -3373,12 +3387,6 @@ PyObject *blpapi_DiagnosticsUtil_memoryInfo_wrapper()
     return diagnostics_str;
 }
 
-typedef void (*blpapi_Logging_Func_t)(blpapi_UInt64_t    threadId,
-                                      int                severity,
-                                      blpapi_Datetime_t  timestamp,
-                                      const char        *category,
-                                      const char        *message);
-
 // Shared global object guarded by GIL
 PyObject* loggerCallback = 0;
 
@@ -3436,10 +3444,10 @@ int setLoggerCallbackWrapper(PyObject *cb, int severity)
     return 0;
 }
 
-/** Convert `blpapi_TimePoint_t` value to `blpapi_Datetime_t`. Function
+/** Convert `blpapi_TimePoint_t` value to `blpapi_HighPrecisionDatetime_t`. Function
   * always returns UTC time.
   */
-blpapi_Datetime_t blpapi_HighPrecisionDatetime_fromTimePoint_wrapper(blpapi_TimePoint_t original)
+blpapi_HighPrecisionDatetime_t blpapi_HighPrecisionDatetime_fromTimePoint_wrapper(blpapi_TimePoint_t original)
 {
     blpapi_HighPrecisionDatetime_t highPrecisionDatetime;
     blpapi_Datetime_t datetime;
@@ -3449,11 +3457,8 @@ blpapi_Datetime_t blpapi_HighPrecisionDatetime_fromTimePoint_wrapper(blpapi_Time
         &original,
         0);
 
-    datetime = highPrecisionDatetime.datetime;
-
-    return datetime;
+    return highPrecisionDatetime;
 }
-
 
 
 SWIGINTERN int
@@ -4642,7 +4647,7 @@ SWIGINTERN PyObject *_wrap_blpapi_HighPrecisionDatetime_fromTimePoint_wrapper(Py
   void *argp1 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  blpapi_Datetime_t result;
+  blpapi_HighPrecisionDatetime_t result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:blpapi_HighPrecisionDatetime_fromTimePoint_wrapper",&obj0)) SWIG_fail;
   {
@@ -4661,7 +4666,7 @@ SWIGINTERN PyObject *_wrap_blpapi_HighPrecisionDatetime_fromTimePoint_wrapper(Py
     result = blpapi_HighPrecisionDatetime_fromTimePoint_wrapper(arg1);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
-  resultobj = SWIG_NewPointerObj((blpapi_Datetime_t *)memcpy((blpapi_Datetime_t *)calloc(1,sizeof(blpapi_Datetime_t)),&result,sizeof(blpapi_Datetime_t)), SWIGTYPE_p_blpapi_Datetime_tag, SWIG_POINTER_OWN |  0 );
+  resultobj = SWIG_NewPointerObj((blpapi_HighPrecisionDatetime_t *)memcpy((blpapi_HighPrecisionDatetime_t *)calloc(1,sizeof(blpapi_HighPrecisionDatetime_t)),&result,sizeof(blpapi_HighPrecisionDatetime_t)), SWIGTYPE_p_blpapi_HighPrecisionDatetime_tag, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -4859,7 +4864,7 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaElementDefinition_printHelper(PyObject *
   
   arg4 = &temp4; arg5 = &tempn4;
   if (!PyArg_ParseTuple(args,(char *)"OOO:blpapi_SchemaElementDefinition_printHelper",&obj0,&obj1,&obj2)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_p_void, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_SchemaElementDefinition, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SchemaElementDefinition_printHelper" "', argument " "1"" of type '" "blpapi_SchemaElementDefinition_t *""'"); 
   }
@@ -6230,7 +6235,7 @@ SWIGINTERN PyObject *_wrap_blpapi_Element_definition(PyObject *SWIGUNUSEDPARM(se
     result = (blpapi_SchemaElementDefinition_t *)blpapi_Element_definition((struct blpapi_Element const *)arg1);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_p_void, 0 |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_blpapi_SchemaElementDefinition, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -6616,8 +6621,7 @@ SWIGINTERN PyObject *_wrap_blpapi_Element_getValueAsBool(PyObject *SWIGUNUSEDPAR
   size_t arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  blpapi_Bool_t temp2 ;
-  int res2 = SWIG_TMPOBJ ;
+  int temp2 ;
   size_t val3 ;
   int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
@@ -6642,12 +6646,7 @@ SWIGINTERN PyObject *_wrap_blpapi_Element_getValueAsBool(PyObject *SWIGUNUSEDPAR
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  if (SWIG_IsTmpObj(res2)) {
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_int((*arg2)));
-  } else {
-    int new_flags = SWIG_IsNewObj(res2) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg2), SWIGTYPE_p_int, new_flags));
-  }
+  resultobj = SWIG_Python_AppendOutput(resultobj, PyInt_FromLong(*arg2));
   return resultobj;
 fail:
   return NULL;
@@ -7247,10 +7246,10 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_blpapi_Element_setValueDatetime(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_blpapi_Element_setValueHighPrecisionDatetime(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   blpapi_Element_t *arg1 = (blpapi_Element_t *) 0 ;
-  blpapi_Datetime_t *arg2 = (blpapi_Datetime_t *) 0 ;
+  blpapi_HighPrecisionDatetime_t *arg2 = (blpapi_HighPrecisionDatetime_t *) 0 ;
   size_t arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -7263,25 +7262,25 @@ SWIGINTERN PyObject *_wrap_blpapi_Element_setValueDatetime(PyObject *SWIGUNUSEDP
   PyObject * obj2 = 0 ;
   int result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOO:blpapi_Element_setValueDatetime",&obj0,&obj1,&obj2)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:blpapi_Element_setValueHighPrecisionDatetime",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_Element, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_Element_setValueDatetime" "', argument " "1"" of type '" "blpapi_Element_t *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_Element_setValueHighPrecisionDatetime" "', argument " "1"" of type '" "blpapi_Element_t *""'"); 
   }
   arg1 = (blpapi_Element_t *)(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_blpapi_Datetime_tag, 0 |  0 );
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_blpapi_HighPrecisionDatetime_tag, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_Element_setValueDatetime" "', argument " "2"" of type '" "blpapi_Datetime_t const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_Element_setValueHighPrecisionDatetime" "', argument " "2"" of type '" "blpapi_HighPrecisionDatetime_t const *""'"); 
   }
-  arg2 = (blpapi_Datetime_t *)(argp2);
+  arg2 = (blpapi_HighPrecisionDatetime_t *)(argp2);
   ecode3 = SWIG_AsVal_size_t(obj2, &val3);
   if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "blpapi_Element_setValueDatetime" "', argument " "3"" of type '" "size_t""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "blpapi_Element_setValueHighPrecisionDatetime" "', argument " "3"" of type '" "size_t""'");
   } 
   arg3 = (size_t)(val3);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (int)blpapi_Element_setValueDatetime(arg1,(struct blpapi_Datetime_tag const *)arg2,arg3);
+    result = (int)blpapi_Element_setValueHighPrecisionDatetime(arg1,(struct blpapi_HighPrecisionDatetime_tag const *)arg2,arg3);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
@@ -7562,12 +7561,12 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_blpapi_Element_setElementDatetime(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_blpapi_Element_setElementHighPrecisionDatetime(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   blpapi_Element_t *arg1 = (blpapi_Element_t *) 0 ;
   char *arg2 = (char *) 0 ;
   blpapi_Name_t *arg3 = (blpapi_Name_t *) 0 ;
-  blpapi_Datetime_t *arg4 = (blpapi_Datetime_t *) 0 ;
+  blpapi_HighPrecisionDatetime_t *arg4 = (blpapi_HighPrecisionDatetime_t *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int res2 ;
@@ -7583,30 +7582,30 @@ SWIGINTERN PyObject *_wrap_blpapi_Element_setElementDatetime(PyObject *SWIGUNUSE
   PyObject * obj3 = 0 ;
   int result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:blpapi_Element_setElementDatetime",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:blpapi_Element_setElementHighPrecisionDatetime",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_Element, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_Element_setElementDatetime" "', argument " "1"" of type '" "blpapi_Element_t *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_Element_setElementHighPrecisionDatetime" "', argument " "1"" of type '" "blpapi_Element_t *""'"); 
   }
   arg1 = (blpapi_Element_t *)(argp1);
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_Element_setElementDatetime" "', argument " "2"" of type '" "char const *""'");
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_Element_setElementHighPrecisionDatetime" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = (char *)(buf2);
   res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_blpapi_Name, 0 |  0 );
   if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_Element_setElementDatetime" "', argument " "3"" of type '" "blpapi_Name_t const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_Element_setElementHighPrecisionDatetime" "', argument " "3"" of type '" "blpapi_Name_t const *""'"); 
   }
   arg3 = (blpapi_Name_t *)(argp3);
-  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_blpapi_Datetime_tag, 0 |  0 );
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_blpapi_HighPrecisionDatetime_tag, 0 |  0 );
   if (!SWIG_IsOK(res4)) {
-    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "blpapi_Element_setElementDatetime" "', argument " "4"" of type '" "blpapi_Datetime_t const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "blpapi_Element_setElementHighPrecisionDatetime" "', argument " "4"" of type '" "blpapi_HighPrecisionDatetime_t const *""'"); 
   }
-  arg4 = (blpapi_Datetime_t *)(argp4);
+  arg4 = (blpapi_HighPrecisionDatetime_t *)(argp4);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (int)blpapi_Element_setElementDatetime(arg1,(char const *)arg2,(struct blpapi_Name const *)arg3,(struct blpapi_Datetime_tag const *)arg4);
+    result = (int)blpapi_Element_setElementHighPrecisionDatetime(arg1,(char const *)arg2,(struct blpapi_Name const *)arg3,(struct blpapi_HighPrecisionDatetime_tag const *)arg4);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
@@ -8561,12 +8560,12 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_blpapi_EventFormatter_setValueDatetime(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_blpapi_EventFormatter_setValueHighPrecisionDatetime(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   blpapi_EventFormatter_t *arg1 = (blpapi_EventFormatter_t *) 0 ;
   char *arg2 = (char *) 0 ;
   blpapi_Name_t *arg3 = (blpapi_Name_t *) 0 ;
-  blpapi_Datetime_t *arg4 = (blpapi_Datetime_t *) 0 ;
+  blpapi_HighPrecisionDatetime_t *arg4 = (blpapi_HighPrecisionDatetime_t *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int res2 ;
@@ -8582,30 +8581,30 @@ SWIGINTERN PyObject *_wrap_blpapi_EventFormatter_setValueDatetime(PyObject *SWIG
   PyObject * obj3 = 0 ;
   int result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:blpapi_EventFormatter_setValueDatetime",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:blpapi_EventFormatter_setValueHighPrecisionDatetime",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_EventFormatter, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_EventFormatter_setValueDatetime" "', argument " "1"" of type '" "blpapi_EventFormatter_t *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_EventFormatter_setValueHighPrecisionDatetime" "', argument " "1"" of type '" "blpapi_EventFormatter_t *""'"); 
   }
   arg1 = (blpapi_EventFormatter_t *)(argp1);
   res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_EventFormatter_setValueDatetime" "', argument " "2"" of type '" "char const *""'");
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_EventFormatter_setValueHighPrecisionDatetime" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = (char *)(buf2);
   res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_blpapi_Name, 0 |  0 );
   if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_EventFormatter_setValueDatetime" "', argument " "3"" of type '" "blpapi_Name_t const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_EventFormatter_setValueHighPrecisionDatetime" "', argument " "3"" of type '" "blpapi_Name_t const *""'"); 
   }
   arg3 = (blpapi_Name_t *)(argp3);
-  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_blpapi_Datetime_tag, 0 |  0 );
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_blpapi_HighPrecisionDatetime_tag, 0 |  0 );
   if (!SWIG_IsOK(res4)) {
-    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "blpapi_EventFormatter_setValueDatetime" "', argument " "4"" of type '" "blpapi_Datetime_t const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "blpapi_EventFormatter_setValueHighPrecisionDatetime" "', argument " "4"" of type '" "blpapi_HighPrecisionDatetime_t const *""'"); 
   }
-  arg4 = (blpapi_Datetime_t *)(argp4);
+  arg4 = (blpapi_HighPrecisionDatetime_t *)(argp4);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (int)blpapi_EventFormatter_setValueDatetime(arg1,(char const *)arg2,(struct blpapi_Name const *)arg3,(struct blpapi_Datetime_tag const *)arg4);
+    result = (int)blpapi_EventFormatter_setValueHighPrecisionDatetime(arg1,(char const *)arg2,(struct blpapi_Name const *)arg3,(struct blpapi_HighPrecisionDatetime_tag const *)arg4);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
@@ -8992,10 +8991,10 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_blpapi_EventFormatter_appendValueDatetime(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_blpapi_EventFormatter_appendValueHighPrecisionDatetime(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   blpapi_EventFormatter_t *arg1 = (blpapi_EventFormatter_t *) 0 ;
-  blpapi_Datetime_t *arg2 = (blpapi_Datetime_t *) 0 ;
+  blpapi_HighPrecisionDatetime_t *arg2 = (blpapi_HighPrecisionDatetime_t *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
@@ -9004,20 +9003,20 @@ SWIGINTERN PyObject *_wrap_blpapi_EventFormatter_appendValueDatetime(PyObject *S
   PyObject * obj1 = 0 ;
   int result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:blpapi_EventFormatter_appendValueDatetime",&obj0,&obj1)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:blpapi_EventFormatter_appendValueHighPrecisionDatetime",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_EventFormatter, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_EventFormatter_appendValueDatetime" "', argument " "1"" of type '" "blpapi_EventFormatter_t *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_EventFormatter_appendValueHighPrecisionDatetime" "', argument " "1"" of type '" "blpapi_EventFormatter_t *""'"); 
   }
   arg1 = (blpapi_EventFormatter_t *)(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_blpapi_Datetime_tag, 0 |  0 );
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_blpapi_HighPrecisionDatetime_tag, 0 |  0 );
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_EventFormatter_appendValueDatetime" "', argument " "2"" of type '" "blpapi_Datetime_t const *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_EventFormatter_appendValueHighPrecisionDatetime" "', argument " "2"" of type '" "blpapi_HighPrecisionDatetime_t const *""'"); 
   }
-  arg2 = (blpapi_Datetime_t *)(argp2);
+  arg2 = (blpapi_HighPrecisionDatetime_t *)(argp2);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (int)blpapi_EventFormatter_appendValueDatetime(arg1,(struct blpapi_Datetime_tag const *)arg2);
+    result = (int)blpapi_EventFormatter_appendValueHighPrecisionDatetime(arg1,(struct blpapi_HighPrecisionDatetime_tag const *)arg2);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
@@ -9366,6 +9365,681 @@ SWIGINTERN PyObject *_wrap_ProviderSession_terminateSubscriptionsOnTopic(PyObjec
   return resultobj;
 fail:
   if (alloc3 == SWIG_NEWOBJ) free((char*)buf3);
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthOptions_create_default(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthOptions_t **arg1 = (blpapi_AuthOptions_t **) 0 ;
+  blpapi_AuthOptions_t *temp1 = 0 ;
+  int result;
+  
+  arg1 = &temp1;
+  if (!PyArg_ParseTuple(args,(char *)":blpapi_AuthOptions_create_default")) SWIG_fail;
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthOptions_create_default(arg1);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg1), SWIGTYPE_p_blpapi_AuthOptions, 0));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthOptions_create_forUserMode(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthOptions_t **arg1 = (blpapi_AuthOptions_t **) 0 ;
+  blpapi_AuthUser_t *arg2 = (blpapi_AuthUser_t *) 0 ;
+  blpapi_AuthOptions_t *temp1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  arg1 = &temp1;
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_AuthOptions_create_forUserMode",&obj0)) SWIG_fail;
+  res2 = SWIG_ConvertPtr(obj0, &argp2,SWIGTYPE_p_blpapi_AuthUser, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthOptions_create_forUserMode" "', argument " "2"" of type '" "blpapi_AuthUser_t const *""'"); 
+  }
+  arg2 = (blpapi_AuthUser_t *)(argp2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthOptions_create_forUserMode(arg1,(struct blpapi_AuthUser const *)arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg1), SWIGTYPE_p_blpapi_AuthOptions, 0));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthOptions_create_forAppMode(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthOptions_t **arg1 = (blpapi_AuthOptions_t **) 0 ;
+  blpapi_AuthApplication_t *arg2 = (blpapi_AuthApplication_t *) 0 ;
+  blpapi_AuthOptions_t *temp1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  arg1 = &temp1;
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_AuthOptions_create_forAppMode",&obj0)) SWIG_fail;
+  res2 = SWIG_ConvertPtr(obj0, &argp2,SWIGTYPE_p_blpapi_AuthApplication, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthOptions_create_forAppMode" "', argument " "2"" of type '" "blpapi_AuthApplication_t const *""'"); 
+  }
+  arg2 = (blpapi_AuthApplication_t *)(argp2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthOptions_create_forAppMode(arg1,(struct blpapi_AuthApplication const *)arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg1), SWIGTYPE_p_blpapi_AuthOptions, 0));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthOptions_create_forUserAndAppMode(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthOptions_t **arg1 = (blpapi_AuthOptions_t **) 0 ;
+  blpapi_AuthUser_t *arg2 = (blpapi_AuthUser_t *) 0 ;
+  blpapi_AuthApplication_t *arg3 = (blpapi_AuthApplication_t *) 0 ;
+  blpapi_AuthOptions_t *temp1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int result;
+  
+  arg1 = &temp1;
+  if (!PyArg_ParseTuple(args,(char *)"OO:blpapi_AuthOptions_create_forUserAndAppMode",&obj0,&obj1)) SWIG_fail;
+  res2 = SWIG_ConvertPtr(obj0, &argp2,SWIGTYPE_p_blpapi_AuthUser, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthOptions_create_forUserAndAppMode" "', argument " "2"" of type '" "blpapi_AuthUser_t const *""'"); 
+  }
+  arg2 = (blpapi_AuthUser_t *)(argp2);
+  res3 = SWIG_ConvertPtr(obj1, &argp3,SWIGTYPE_p_blpapi_AuthApplication, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_AuthOptions_create_forUserAndAppMode" "', argument " "3"" of type '" "blpapi_AuthApplication_t const *""'"); 
+  }
+  arg3 = (blpapi_AuthApplication_t *)(argp3);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthOptions_create_forUserAndAppMode(arg1,(struct blpapi_AuthUser const *)arg2,(struct blpapi_AuthApplication const *)arg3);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg1), SWIGTYPE_p_blpapi_AuthOptions, 0));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthOptions_create_forToken(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthOptions_t **arg1 = (blpapi_AuthOptions_t **) 0 ;
+  blpapi_AuthToken_t *arg2 = (blpapi_AuthToken_t *) 0 ;
+  blpapi_AuthOptions_t *temp1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  arg1 = &temp1;
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_AuthOptions_create_forToken",&obj0)) SWIG_fail;
+  res2 = SWIG_ConvertPtr(obj0, &argp2,SWIGTYPE_p_blpapi_AuthToken, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthOptions_create_forToken" "', argument " "2"" of type '" "blpapi_AuthToken_t const *""'"); 
+  }
+  arg2 = (blpapi_AuthToken_t *)(argp2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthOptions_create_forToken(arg1,(struct blpapi_AuthToken const *)arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg1), SWIGTYPE_p_blpapi_AuthOptions, 0));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthOptions_duplicate(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthOptions_t **arg1 = (blpapi_AuthOptions_t **) 0 ;
+  blpapi_AuthOptions_t *arg2 = (blpapi_AuthOptions_t *) 0 ;
+  blpapi_AuthOptions_t *temp1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  arg1 = &temp1;
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_AuthOptions_duplicate",&obj0)) SWIG_fail;
+  res2 = SWIG_ConvertPtr(obj0, &argp2,SWIGTYPE_p_blpapi_AuthOptions, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthOptions_duplicate" "', argument " "2"" of type '" "blpapi_AuthOptions_t const *""'"); 
+  }
+  arg2 = (blpapi_AuthOptions_t *)(argp2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthOptions_duplicate(arg1,(struct blpapi_AuthOptions const *)arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg1), SWIGTYPE_p_blpapi_AuthOptions, 0));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthOptions_copy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthOptions_t *arg1 = (blpapi_AuthOptions_t *) 0 ;
+  blpapi_AuthOptions_t *arg2 = (blpapi_AuthOptions_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:blpapi_AuthOptions_copy",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_AuthOptions, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_AuthOptions_copy" "', argument " "1"" of type '" "blpapi_AuthOptions_t *""'"); 
+  }
+  arg1 = (blpapi_AuthOptions_t *)(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_blpapi_AuthOptions, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthOptions_copy" "', argument " "2"" of type '" "blpapi_AuthOptions_t const *""'"); 
+  }
+  arg2 = (blpapi_AuthOptions_t *)(argp2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthOptions_copy(arg1,(struct blpapi_AuthOptions const *)arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthOptions_destroy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthOptions_t *arg1 = (blpapi_AuthOptions_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_AuthOptions_destroy",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_AuthOptions, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_AuthOptions_destroy" "', argument " "1"" of type '" "blpapi_AuthOptions_t *""'"); 
+  }
+  arg1 = (blpapi_AuthOptions_t *)(argp1);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    blpapi_AuthOptions_destroy(arg1);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthUser_createWithLogonName(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthUser_t **arg1 = (blpapi_AuthUser_t **) 0 ;
+  blpapi_AuthUser_t *temp1 = 0 ;
+  int result;
+  
+  arg1 = &temp1;
+  if (!PyArg_ParseTuple(args,(char *)":blpapi_AuthUser_createWithLogonName")) SWIG_fail;
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthUser_createWithLogonName(arg1);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg1), SWIGTYPE_p_blpapi_AuthUser, 0));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthUser_createWithActiveDirectoryProperty(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthUser_t **arg1 = (blpapi_AuthUser_t **) 0 ;
+  char *arg2 = (char *) 0 ;
+  blpapi_AuthUser_t *temp1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  arg1 = &temp1;
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_AuthUser_createWithActiveDirectoryProperty",&obj0)) SWIG_fail;
+  res2 = SWIG_AsCharPtrAndSize(obj0, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthUser_createWithActiveDirectoryProperty" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = (char *)(buf2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthUser_createWithActiveDirectoryProperty(arg1,(char const *)arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg1), SWIGTYPE_p_blpapi_AuthUser, 0));
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthUser_createWithManualOptions(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthUser_t **arg1 = (blpapi_AuthUser_t **) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  blpapi_AuthUser_t *temp1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int result;
+  
+  arg1 = &temp1;
+  if (!PyArg_ParseTuple(args,(char *)"OO:blpapi_AuthUser_createWithManualOptions",&obj0,&obj1)) SWIG_fail;
+  res2 = SWIG_AsCharPtrAndSize(obj0, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthUser_createWithManualOptions" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = (char *)(buf2);
+  res3 = SWIG_AsCharPtrAndSize(obj1, &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_AuthUser_createWithManualOptions" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = (char *)(buf3);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthUser_createWithManualOptions(arg1,(char const *)arg2,(char const *)arg3);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg1), SWIGTYPE_p_blpapi_AuthUser, 0));
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  if (alloc3 == SWIG_NEWOBJ) free((char*)buf3);
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  if (alloc3 == SWIG_NEWOBJ) free((char*)buf3);
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthUser_duplicate(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthUser_t **arg1 = (blpapi_AuthUser_t **) 0 ;
+  blpapi_AuthUser_t *arg2 = (blpapi_AuthUser_t *) 0 ;
+  blpapi_AuthUser_t *temp1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  arg1 = &temp1;
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_AuthUser_duplicate",&obj0)) SWIG_fail;
+  res2 = SWIG_ConvertPtr(obj0, &argp2,SWIGTYPE_p_blpapi_AuthUser, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthUser_duplicate" "', argument " "2"" of type '" "blpapi_AuthUser_t const *""'"); 
+  }
+  arg2 = (blpapi_AuthUser_t *)(argp2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthUser_duplicate(arg1,(struct blpapi_AuthUser const *)arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg1), SWIGTYPE_p_blpapi_AuthUser, 0));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthUser_copy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthUser_t *arg1 = (blpapi_AuthUser_t *) 0 ;
+  blpapi_AuthUser_t *arg2 = (blpapi_AuthUser_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:blpapi_AuthUser_copy",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_AuthUser, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_AuthUser_copy" "', argument " "1"" of type '" "blpapi_AuthUser_t *""'"); 
+  }
+  arg1 = (blpapi_AuthUser_t *)(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_blpapi_AuthUser, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthUser_copy" "', argument " "2"" of type '" "blpapi_AuthUser_t const *""'"); 
+  }
+  arg2 = (blpapi_AuthUser_t *)(argp2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthUser_copy(arg1,(struct blpapi_AuthUser const *)arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthUser_destroy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthUser_t *arg1 = (blpapi_AuthUser_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_AuthUser_destroy",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_AuthUser, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_AuthUser_destroy" "', argument " "1"" of type '" "blpapi_AuthUser_t *""'"); 
+  }
+  arg1 = (blpapi_AuthUser_t *)(argp1);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    blpapi_AuthUser_destroy(arg1);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthApplication_create(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthApplication_t **arg1 = (blpapi_AuthApplication_t **) 0 ;
+  char *arg2 = (char *) 0 ;
+  blpapi_AuthApplication_t *temp1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  arg1 = &temp1;
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_AuthApplication_create",&obj0)) SWIG_fail;
+  res2 = SWIG_AsCharPtrAndSize(obj0, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthApplication_create" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = (char *)(buf2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthApplication_create(arg1,(char const *)arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg1), SWIGTYPE_p_blpapi_AuthApplication, 0));
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthApplication_duplicate(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthApplication_t **arg1 = (blpapi_AuthApplication_t **) 0 ;
+  blpapi_AuthApplication_t *arg2 = (blpapi_AuthApplication_t *) 0 ;
+  blpapi_AuthApplication_t *temp1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  arg1 = &temp1;
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_AuthApplication_duplicate",&obj0)) SWIG_fail;
+  res2 = SWIG_ConvertPtr(obj0, &argp2,SWIGTYPE_p_blpapi_AuthApplication, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthApplication_duplicate" "', argument " "2"" of type '" "blpapi_AuthApplication_t const *""'"); 
+  }
+  arg2 = (blpapi_AuthApplication_t *)(argp2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthApplication_duplicate(arg1,(struct blpapi_AuthApplication const *)arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg1), SWIGTYPE_p_blpapi_AuthApplication, 0));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthApplication_copy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthApplication_t *arg1 = (blpapi_AuthApplication_t *) 0 ;
+  blpapi_AuthApplication_t *arg2 = (blpapi_AuthApplication_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:blpapi_AuthApplication_copy",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_AuthApplication, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_AuthApplication_copy" "', argument " "1"" of type '" "blpapi_AuthApplication_t *""'"); 
+  }
+  arg1 = (blpapi_AuthApplication_t *)(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_blpapi_AuthApplication, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthApplication_copy" "', argument " "2"" of type '" "blpapi_AuthApplication_t const *""'"); 
+  }
+  arg2 = (blpapi_AuthApplication_t *)(argp2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthApplication_copy(arg1,(struct blpapi_AuthApplication const *)arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthApplication_destroy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthApplication_t *arg1 = (blpapi_AuthApplication_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_AuthApplication_destroy",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_AuthApplication, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_AuthApplication_destroy" "', argument " "1"" of type '" "blpapi_AuthApplication_t *""'"); 
+  }
+  arg1 = (blpapi_AuthApplication_t *)(argp1);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    blpapi_AuthApplication_destroy(arg1);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthToken_create(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthToken_t **arg1 = (blpapi_AuthToken_t **) 0 ;
+  char *arg2 = (char *) 0 ;
+  blpapi_AuthToken_t *temp1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  arg1 = &temp1;
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_AuthToken_create",&obj0)) SWIG_fail;
+  res2 = SWIG_AsCharPtrAndSize(obj0, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthToken_create" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = (char *)(buf2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthToken_create(arg1,(char const *)arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg1), SWIGTYPE_p_blpapi_AuthToken, 0));
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthToken_duplicate(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthToken_t **arg1 = (blpapi_AuthToken_t **) 0 ;
+  blpapi_AuthToken_t *arg2 = (blpapi_AuthToken_t *) 0 ;
+  blpapi_AuthToken_t *temp1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  arg1 = &temp1;
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_AuthToken_duplicate",&obj0)) SWIG_fail;
+  res2 = SWIG_ConvertPtr(obj0, &argp2,SWIGTYPE_p_blpapi_AuthToken, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthToken_duplicate" "', argument " "2"" of type '" "blpapi_AuthToken_t const *""'"); 
+  }
+  arg2 = (blpapi_AuthToken_t *)(argp2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthToken_duplicate(arg1,(struct blpapi_AuthToken const *)arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg1), SWIGTYPE_p_blpapi_AuthToken, 0));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthToken_copy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthToken_t *arg1 = (blpapi_AuthToken_t *) 0 ;
+  blpapi_AuthToken_t *arg2 = (blpapi_AuthToken_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:blpapi_AuthToken_copy",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_AuthToken, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_AuthToken_copy" "', argument " "1"" of type '" "blpapi_AuthToken_t *""'"); 
+  }
+  arg1 = (blpapi_AuthToken_t *)(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_blpapi_AuthToken, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AuthToken_copy" "', argument " "2"" of type '" "blpapi_AuthToken_t const *""'"); 
+  }
+  arg2 = (blpapi_AuthToken_t *)(argp2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AuthToken_copy(arg1,(struct blpapi_AuthToken const *)arg2);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AuthToken_destroy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AuthToken_t *arg1 = (blpapi_AuthToken_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:blpapi_AuthToken_destroy",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_AuthToken, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_AuthToken_destroy" "', argument " "1"" of type '" "blpapi_AuthToken_t *""'"); 
+  }
+  arg1 = (blpapi_AuthToken_t *)(argp1);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    blpapi_AuthToken_destroy(arg1);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
   return NULL;
 }
 
@@ -9880,6 +10554,50 @@ SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_setAutoRestartOnDisconnection(P
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_setSessionIdentityOptions(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_SessionOptions_t *arg1 = (blpapi_SessionOptions_t *) 0 ;
+  blpapi_AuthOptions_t *arg2 = (blpapi_AuthOptions_t *) 0 ;
+  blpapi_CorrelationId_t *arg3 = (blpapi_CorrelationId_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:blpapi_SessionOptions_setSessionIdentityOptions",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_SessionOptions, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SessionOptions_setSessionIdentityOptions" "', argument " "1"" of type '" "blpapi_SessionOptions_t *""'"); 
+  }
+  arg1 = (blpapi_SessionOptions_t *)(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_blpapi_AuthOptions, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_SessionOptions_setSessionIdentityOptions" "', argument " "2"" of type '" "blpapi_AuthOptions_t const *""'"); 
+  }
+  arg2 = (blpapi_AuthOptions_t *)(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_blpapi_CorrelationId_t_, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_SessionOptions_setSessionIdentityOptions" "', argument " "3"" of type '" "blpapi_CorrelationId_t *""'"); 
+  }
+  arg3 = (blpapi_CorrelationId_t *)(argp3);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_SessionOptions_setSessionIdentityOptions(arg1,(struct blpapi_AuthOptions const *)arg2,arg3);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
   return resultobj;
 fail:
   return NULL;
@@ -11687,7 +12405,6 @@ SWIGINTERN PyObject *_wrap_blpapi_SubscriptionList_isResolvedAt(PyObject *SWIGUN
   void *argp1 = 0 ;
   int res1 = 0 ;
   int temp2 ;
-  int res2 = SWIG_TMPOBJ ;
   size_t val3 ;
   int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
@@ -11712,12 +12429,7 @@ SWIGINTERN PyObject *_wrap_blpapi_SubscriptionList_isResolvedAt(PyObject *SWIGUN
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  if (SWIG_IsTmpObj(res2)) {
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_int((*arg2)));
-  } else {
-    int new_flags = SWIG_IsNewObj(res2) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg2), SWIGTYPE_p_int, new_flags));
-  }
+  resultobj = SWIG_Python_AppendOutput(resultobj, PyInt_FromLong(*arg2));
   return resultobj;
 fail:
   return NULL;
@@ -13231,14 +13943,14 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaElementDefinition_name(PyObject *SWIGUNU
   blpapi_Name_t *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:blpapi_SchemaElementDefinition_name",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_p_void, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_SchemaElementDefinition, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SchemaElementDefinition_name" "', argument " "1"" of type '" "blpapi_SchemaElementDefinition_t const *""'"); 
   }
   arg1 = (blpapi_SchemaElementDefinition_t *)(argp1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (blpapi_Name_t *)blpapi_SchemaElementDefinition_name((void *const *)arg1);
+    result = (blpapi_Name_t *)blpapi_SchemaElementDefinition_name((struct blpapi_SchemaElementDefinition const *)arg1);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_blpapi_Name, 0 |  0 );
@@ -13257,14 +13969,14 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaElementDefinition_description(PyObject *
   char *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:blpapi_SchemaElementDefinition_description",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_p_void, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_SchemaElementDefinition, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SchemaElementDefinition_description" "', argument " "1"" of type '" "blpapi_SchemaElementDefinition_t const *""'"); 
   }
   arg1 = (blpapi_SchemaElementDefinition_t *)(argp1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (char *)blpapi_SchemaElementDefinition_description((void *const *)arg1);
+    result = (char *)blpapi_SchemaElementDefinition_description((struct blpapi_SchemaElementDefinition const *)arg1);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_FromCharPtr((const char *)result);
@@ -13283,14 +13995,14 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaElementDefinition_status(PyObject *SWIGU
   int result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:blpapi_SchemaElementDefinition_status",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_p_void, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_SchemaElementDefinition, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SchemaElementDefinition_status" "', argument " "1"" of type '" "blpapi_SchemaElementDefinition_t const *""'"); 
   }
   arg1 = (blpapi_SchemaElementDefinition_t *)(argp1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (int)blpapi_SchemaElementDefinition_status((void *const *)arg1);
+    result = (int)blpapi_SchemaElementDefinition_status((struct blpapi_SchemaElementDefinition const *)arg1);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
@@ -13309,14 +14021,14 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaElementDefinition_type(PyObject *SWIGUNU
   blpapi_SchemaTypeDefinition_t *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:blpapi_SchemaElementDefinition_type",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_p_void, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_SchemaElementDefinition, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SchemaElementDefinition_type" "', argument " "1"" of type '" "blpapi_SchemaElementDefinition_t const *""'"); 
   }
   arg1 = (blpapi_SchemaElementDefinition_t *)(argp1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (blpapi_SchemaTypeDefinition_t *)blpapi_SchemaElementDefinition_type((void *const *)arg1);
+    result = (blpapi_SchemaTypeDefinition_t *)blpapi_SchemaElementDefinition_type((struct blpapi_SchemaElementDefinition const *)arg1);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_p_void, 0 |  0 );
@@ -13335,14 +14047,14 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaElementDefinition_numAlternateNames(PyOb
   size_t result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:blpapi_SchemaElementDefinition_numAlternateNames",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_p_void, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_SchemaElementDefinition, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SchemaElementDefinition_numAlternateNames" "', argument " "1"" of type '" "blpapi_SchemaElementDefinition_t const *""'"); 
   }
   arg1 = (blpapi_SchemaElementDefinition_t *)(argp1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = blpapi_SchemaElementDefinition_numAlternateNames((void *const *)arg1);
+    result = blpapi_SchemaElementDefinition_numAlternateNames((struct blpapi_SchemaElementDefinition const *)arg1);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_size_t((size_t)(result));
@@ -13365,7 +14077,7 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaElementDefinition_getAlternateName(PyObj
   blpapi_Name_t *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:blpapi_SchemaElementDefinition_getAlternateName",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_p_void, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_SchemaElementDefinition, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SchemaElementDefinition_getAlternateName" "', argument " "1"" of type '" "blpapi_SchemaElementDefinition_t const *""'"); 
   }
@@ -13377,7 +14089,7 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaElementDefinition_getAlternateName(PyObj
   arg2 = (size_t)(val2);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (blpapi_Name_t *)blpapi_SchemaElementDefinition_getAlternateName((void *const *)arg1,arg2);
+    result = (blpapi_Name_t *)blpapi_SchemaElementDefinition_getAlternateName((struct blpapi_SchemaElementDefinition const *)arg1,arg2);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_blpapi_Name, 0 |  0 );
@@ -13396,14 +14108,14 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaElementDefinition_minValues(PyObject *SW
   size_t result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:blpapi_SchemaElementDefinition_minValues",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_p_void, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_SchemaElementDefinition, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SchemaElementDefinition_minValues" "', argument " "1"" of type '" "blpapi_SchemaElementDefinition_t const *""'"); 
   }
   arg1 = (blpapi_SchemaElementDefinition_t *)(argp1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = blpapi_SchemaElementDefinition_minValues((void *const *)arg1);
+    result = blpapi_SchemaElementDefinition_minValues((struct blpapi_SchemaElementDefinition const *)arg1);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_size_t((size_t)(result));
@@ -13422,14 +14134,14 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaElementDefinition_maxValues(PyObject *SW
   size_t result;
   
   if (!PyArg_ParseTuple(args,(char *)"O:blpapi_SchemaElementDefinition_maxValues",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_p_void, 0 |  0 );
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_SchemaElementDefinition, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SchemaElementDefinition_maxValues" "', argument " "1"" of type '" "blpapi_SchemaElementDefinition_t const *""'"); 
   }
   arg1 = (blpapi_SchemaElementDefinition_t *)(argp1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = blpapi_SchemaElementDefinition_maxValues((void *const *)arg1);
+    result = blpapi_SchemaElementDefinition_maxValues((struct blpapi_SchemaElementDefinition const *)arg1);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_size_t((size_t)(result));
@@ -13685,7 +14397,7 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaTypeDefinition_getElementDefinition(PyOb
     result = (blpapi_SchemaElementDefinition_t *)blpapi_SchemaTypeDefinition_getElementDefinition((void *const *)arg1,(char const *)arg2,(struct blpapi_Name const *)arg3);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_p_void, 0 |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_blpapi_SchemaElementDefinition, 0 |  0 );
   if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
   return resultobj;
 fail:
@@ -13722,7 +14434,7 @@ SWIGINTERN PyObject *_wrap_blpapi_SchemaTypeDefinition_getElementDefinitionAt(Py
     result = (blpapi_SchemaElementDefinition_t *)blpapi_SchemaTypeDefinition_getElementDefinitionAt((void *const *)arg1,arg2);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_p_void, 0 |  0 );
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_blpapi_SchemaElementDefinition, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -13941,7 +14653,7 @@ SWIGINTERN PyObject *_wrap_blpapi_Operation_requestDefinition(PyObject *SWIGUNUS
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg2), SWIGTYPE_p_p_void, 0));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg2), SWIGTYPE_p_blpapi_SchemaElementDefinition, 0));
   return resultobj;
 fail:
   return NULL;
@@ -14006,7 +14718,46 @@ SWIGINTERN PyObject *_wrap_blpapi_Operation_responseDefinition(PyObject *SWIGUNU
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg2), SWIGTYPE_p_p_void, 0));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg2), SWIGTYPE_p_blpapi_SchemaElementDefinition, 0));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_Operation_responseDefinitionFromName(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_Operation_t *arg1 = (blpapi_Operation_t *) 0 ;
+  blpapi_SchemaElementDefinition_t **arg2 = (blpapi_SchemaElementDefinition_t **) 0 ;
+  blpapi_Name_t *arg3 = (blpapi_Name_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  blpapi_SchemaElementDefinition_t *temp2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int result;
+  
+  arg2 = &temp2;
+  if (!PyArg_ParseTuple(args,(char *)"OO:blpapi_Operation_responseDefinitionFromName",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_Operation, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_Operation_responseDefinitionFromName" "', argument " "1"" of type '" "blpapi_Operation_t *""'"); 
+  }
+  arg1 = (blpapi_Operation_t *)(argp1);
+  res3 = SWIG_ConvertPtr(obj1, &argp3,SWIGTYPE_p_blpapi_Name, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_Operation_responseDefinitionFromName" "', argument " "3"" of type '" "blpapi_Name_t const *""'"); 
+  }
+  arg3 = (blpapi_Name_t *)(argp3);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_Operation_responseDefinitionFromName(arg1,arg2,(struct blpapi_Name const *)arg3);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg2), SWIGTYPE_p_blpapi_SchemaElementDefinition, 0));
   return resultobj;
 fail:
   return NULL;
@@ -14326,7 +15077,7 @@ SWIGINTERN PyObject *_wrap_blpapi_Service_getEventDefinition(PyObject *SWIGUNUSE
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg2), SWIGTYPE_p_p_void, 0));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg2), SWIGTYPE_p_blpapi_SchemaElementDefinition, 0));
   if (alloc3 == SWIG_NEWOBJ) free((char*)buf3);
   return resultobj;
 fail:
@@ -14367,7 +15118,7 @@ SWIGINTERN PyObject *_wrap_blpapi_Service_getEventDefinitionAt(PyObject *SWIGUNU
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg2), SWIGTYPE_p_p_void, 0));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg2), SWIGTYPE_p_blpapi_SchemaElementDefinition, 0));
   return resultobj;
 fail:
   return NULL;
@@ -15368,7 +16119,6 @@ SWIGINTERN PyObject *_wrap_blpapi_Identity_getSeatType(PyObject *SWIGUNUSEDPARM(
   void *argp1 = 0 ;
   int res1 = 0 ;
   int temp2 ;
-  int res2 = SWIG_TMPOBJ ;
   PyObject * obj0 = 0 ;
   int result;
   
@@ -15385,12 +16135,7 @@ SWIGINTERN PyObject *_wrap_blpapi_Identity_getSeatType(PyObject *SWIGUNUSEDPARM(
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  if (SWIG_IsTmpObj(res2)) {
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_int((*arg2)));
-  } else {
-    int new_flags = SWIG_IsNewObj(res2) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg2), SWIGTYPE_p_int, new_flags));
-  }
+  resultobj = SWIG_Python_AppendOutput(resultobj, PyInt_FromLong(*arg2));
   return resultobj;
 fail:
   return NULL;
@@ -15829,6 +16574,89 @@ SWIGINTERN PyObject *_wrap_blpapi_AbstractSession_createIdentity(PyObject *SWIGU
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_blpapi_Identity, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AbstractSession_generateAuthorizedIdentityAsync(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AbstractSession_t *arg1 = (blpapi_AbstractSession_t *) 0 ;
+  blpapi_AuthOptions_t *arg2 = (blpapi_AuthOptions_t *) 0 ;
+  blpapi_CorrelationId_t *arg3 = (blpapi_CorrelationId_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:blpapi_AbstractSession_generateAuthorizedIdentityAsync",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_AbstractSession, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_AbstractSession_generateAuthorizedIdentityAsync" "', argument " "1"" of type '" "blpapi_AbstractSession_t *""'"); 
+  }
+  arg1 = (blpapi_AbstractSession_t *)(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_blpapi_AuthOptions, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AbstractSession_generateAuthorizedIdentityAsync" "', argument " "2"" of type '" "blpapi_AuthOptions_t const *""'"); 
+  }
+  arg2 = (blpapi_AuthOptions_t *)(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_blpapi_CorrelationId_t_, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_AbstractSession_generateAuthorizedIdentityAsync" "', argument " "3"" of type '" "blpapi_CorrelationId_t *""'"); 
+  }
+  arg3 = (blpapi_CorrelationId_t *)(argp3);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AbstractSession_generateAuthorizedIdentityAsync(arg1,(struct blpapi_AuthOptions const *)arg2,arg3);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_AbstractSession_getAuthorizedIdentity(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_AbstractSession_t *arg1 = (blpapi_AbstractSession_t *) 0 ;
+  blpapi_CorrelationId_t *arg2 = (blpapi_CorrelationId_t *) 0 ;
+  blpapi_Identity_t **arg3 = (blpapi_Identity_t **) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  blpapi_Identity_t *temp3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int result;
+  
+  arg3 = &temp3;
+  if (!PyArg_ParseTuple(args,(char *)"OO:blpapi_AbstractSession_getAuthorizedIdentity",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_blpapi_AbstractSession, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_AbstractSession_getAuthorizedIdentity" "', argument " "1"" of type '" "blpapi_AbstractSession_t *""'"); 
+  }
+  arg1 = (blpapi_AbstractSession_t *)(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_blpapi_CorrelationId_t_, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_AbstractSession_getAuthorizedIdentity" "', argument " "2"" of type '" "blpapi_CorrelationId_t const *""'"); 
+  }
+  arg2 = (blpapi_CorrelationId_t *)(argp2);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_AbstractSession_getAuthorizedIdentity(arg1,(struct blpapi_CorrelationId_t_ const *)arg2,arg3);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((*arg3), SWIGTYPE_p_blpapi_Identity, 0));
   return resultobj;
 fail:
   return NULL;
@@ -16857,7 +17685,6 @@ SWIGINTERN PyObject *_wrap_blpapi_ResolutionList_status(PyObject *SWIGUNUSEDPARM
   void *argp1 = 0 ;
   int res1 = 0 ;
   int temp2 ;
-  int res2 = SWIG_TMPOBJ ;
   void *argp3 = 0 ;
   int res3 = 0 ;
   PyObject * obj0 = 0 ;
@@ -16882,12 +17709,7 @@ SWIGINTERN PyObject *_wrap_blpapi_ResolutionList_status(PyObject *SWIGUNUSEDPARM
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  if (SWIG_IsTmpObj(res2)) {
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_int((*arg2)));
-  } else {
-    int new_flags = SWIG_IsNewObj(res2) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg2), SWIGTYPE_p_int, new_flags));
-  }
+  resultobj = SWIG_Python_AppendOutput(resultobj, PyInt_FromLong(*arg2));
   return resultobj;
 fail:
   return NULL;
@@ -16902,7 +17724,6 @@ SWIGINTERN PyObject *_wrap_blpapi_ResolutionList_statusAt(PyObject *SWIGUNUSEDPA
   void *argp1 = 0 ;
   int res1 = 0 ;
   int temp2 ;
-  int res2 = SWIG_TMPOBJ ;
   size_t val3 ;
   int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
@@ -16927,12 +17748,7 @@ SWIGINTERN PyObject *_wrap_blpapi_ResolutionList_statusAt(PyObject *SWIGUNUSEDPA
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  if (SWIG_IsTmpObj(res2)) {
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_int((*arg2)));
-  } else {
-    int new_flags = SWIG_IsNewObj(res2) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg2), SWIGTYPE_p_int, new_flags));
-  }
+  resultobj = SWIG_Python_AppendOutput(resultobj, PyInt_FromLong(*arg2));
   return resultobj;
 fail:
   return NULL;
@@ -17548,7 +18364,6 @@ SWIGINTERN PyObject *_wrap_blpapi_TopicList_status(PyObject *SWIGUNUSEDPARM(self
   void *argp1 = 0 ;
   int res1 = 0 ;
   int temp2 ;
-  int res2 = SWIG_TMPOBJ ;
   void *argp3 = 0 ;
   int res3 = 0 ;
   PyObject * obj0 = 0 ;
@@ -17573,12 +18388,7 @@ SWIGINTERN PyObject *_wrap_blpapi_TopicList_status(PyObject *SWIGUNUSEDPARM(self
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  if (SWIG_IsTmpObj(res2)) {
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_int((*arg2)));
-  } else {
-    int new_flags = SWIG_IsNewObj(res2) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg2), SWIGTYPE_p_int, new_flags));
-  }
+  resultobj = SWIG_Python_AppendOutput(resultobj, PyInt_FromLong(*arg2));
   return resultobj;
 fail:
   return NULL;
@@ -17593,7 +18403,6 @@ SWIGINTERN PyObject *_wrap_blpapi_TopicList_statusAt(PyObject *SWIGUNUSEDPARM(se
   void *argp1 = 0 ;
   int res1 = 0 ;
   int temp2 ;
-  int res2 = SWIG_TMPOBJ ;
   size_t val3 ;
   int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
@@ -17618,12 +18427,7 @@ SWIGINTERN PyObject *_wrap_blpapi_TopicList_statusAt(PyObject *SWIGUNUSEDPARM(se
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  if (SWIG_IsTmpObj(res2)) {
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_int((*arg2)));
-  } else {
-    int new_flags = SWIG_IsNewObj(res2) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg2), SWIGTYPE_p_int, new_flags));
-  }
+  resultobj = SWIG_Python_AppendOutput(resultobj, PyInt_FromLong(*arg2));
   return resultobj;
 fail:
   return NULL;
@@ -18804,7 +19608,6 @@ SWIGINTERN PyObject *_wrap_blpapi_ProviderSession_flushPublishedEvents(PyObject 
   void *argp1 = 0 ;
   int res1 = 0 ;
   int temp2 ;
-  int res2 = SWIG_TMPOBJ ;
   int val3 ;
   int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
@@ -18829,12 +19632,7 @@ SWIGINTERN PyObject *_wrap_blpapi_ProviderSession_flushPublishedEvents(PyObject 
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  if (SWIG_IsTmpObj(res2)) {
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_From_int((*arg2)));
-  } else {
-    int new_flags = SWIG_IsNewObj(res2) ? (SWIG_POINTER_OWN |  0 ) :  0 ;
-    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_NewPointerObj((void*)(arg2), SWIGTYPE_p_int, new_flags));
-  }
+  resultobj = SWIG_Python_AppendOutput(resultobj, PyInt_FromLong(*arg2));
   return resultobj;
 fail:
   return NULL;
@@ -19352,13 +20150,13 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"blpapi_Element_setValueInt32", _wrap_blpapi_Element_setValueInt32, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Element_setValueInt64", _wrap_blpapi_Element_setValueInt64, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Element_setValueString", _wrap_blpapi_Element_setValueString, METH_VARARGS, NULL},
-	 { (char *)"blpapi_Element_setValueDatetime", _wrap_blpapi_Element_setValueDatetime, METH_VARARGS, NULL},
+	 { (char *)"blpapi_Element_setValueHighPrecisionDatetime", _wrap_blpapi_Element_setValueHighPrecisionDatetime, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Element_setValueFromName", _wrap_blpapi_Element_setValueFromName, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Element_setElementBool", _wrap_blpapi_Element_setElementBool, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Element_setElementInt32", _wrap_blpapi_Element_setElementInt32, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Element_setElementInt64", _wrap_blpapi_Element_setElementInt64, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Element_setElementString", _wrap_blpapi_Element_setElementString, METH_VARARGS, NULL},
-	 { (char *)"blpapi_Element_setElementDatetime", _wrap_blpapi_Element_setElementDatetime, METH_VARARGS, NULL},
+	 { (char *)"blpapi_Element_setElementHighPrecisionDatetime", _wrap_blpapi_Element_setElementHighPrecisionDatetime, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Element_setElementFromName", _wrap_blpapi_Element_setElementFromName, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Element_appendElement", _wrap_blpapi_Element_appendElement, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Element_setChoice", _wrap_blpapi_Element_setChoice, METH_VARARGS, NULL},
@@ -19377,7 +20175,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"blpapi_EventFormatter_setValueChar", _wrap_blpapi_EventFormatter_setValueChar, METH_VARARGS, NULL},
 	 { (char *)"blpapi_EventFormatter_setValueInt32", _wrap_blpapi_EventFormatter_setValueInt32, METH_VARARGS, NULL},
 	 { (char *)"blpapi_EventFormatter_setValueInt64", _wrap_blpapi_EventFormatter_setValueInt64, METH_VARARGS, NULL},
-	 { (char *)"blpapi_EventFormatter_setValueDatetime", _wrap_blpapi_EventFormatter_setValueDatetime, METH_VARARGS, NULL},
+	 { (char *)"blpapi_EventFormatter_setValueHighPrecisionDatetime", _wrap_blpapi_EventFormatter_setValueHighPrecisionDatetime, METH_VARARGS, NULL},
 	 { (char *)"blpapi_EventFormatter_setValueString", _wrap_blpapi_EventFormatter_setValueString, METH_VARARGS, NULL},
 	 { (char *)"blpapi_EventFormatter_setValueFromName", _wrap_blpapi_EventFormatter_setValueFromName, METH_VARARGS, NULL},
 	 { (char *)"blpapi_EventFormatter_setValueNull", _wrap_blpapi_EventFormatter_setValueNull, METH_VARARGS, NULL},
@@ -19387,7 +20185,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"blpapi_EventFormatter_appendValueChar", _wrap_blpapi_EventFormatter_appendValueChar, METH_VARARGS, NULL},
 	 { (char *)"blpapi_EventFormatter_appendValueInt32", _wrap_blpapi_EventFormatter_appendValueInt32, METH_VARARGS, NULL},
 	 { (char *)"blpapi_EventFormatter_appendValueInt64", _wrap_blpapi_EventFormatter_appendValueInt64, METH_VARARGS, NULL},
-	 { (char *)"blpapi_EventFormatter_appendValueDatetime", _wrap_blpapi_EventFormatter_appendValueDatetime, METH_VARARGS, NULL},
+	 { (char *)"blpapi_EventFormatter_appendValueHighPrecisionDatetime", _wrap_blpapi_EventFormatter_appendValueHighPrecisionDatetime, METH_VARARGS, NULL},
 	 { (char *)"blpapi_EventFormatter_appendValueString", _wrap_blpapi_EventFormatter_appendValueString, METH_VARARGS, NULL},
 	 { (char *)"blpapi_EventFormatter_appendValueFromName", _wrap_blpapi_EventFormatter_appendValueFromName, METH_VARARGS, NULL},
 	 { (char *)"blpapi_EventFormatter_appendElement", _wrap_blpapi_EventFormatter_appendElement, METH_VARARGS, NULL},
@@ -19399,6 +20197,28 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"ProviderSession_createHelper", _wrap_ProviderSession_createHelper, METH_VARARGS, NULL},
 	 { (char *)"ProviderSession_destroyHelper", _wrap_ProviderSession_destroyHelper, METH_VARARGS, NULL},
 	 { (char *)"ProviderSession_terminateSubscriptionsOnTopic", _wrap_ProviderSession_terminateSubscriptionsOnTopic, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthOptions_create_default", _wrap_blpapi_AuthOptions_create_default, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthOptions_create_forUserMode", _wrap_blpapi_AuthOptions_create_forUserMode, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthOptions_create_forAppMode", _wrap_blpapi_AuthOptions_create_forAppMode, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthOptions_create_forUserAndAppMode", _wrap_blpapi_AuthOptions_create_forUserAndAppMode, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthOptions_create_forToken", _wrap_blpapi_AuthOptions_create_forToken, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthOptions_duplicate", _wrap_blpapi_AuthOptions_duplicate, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthOptions_copy", _wrap_blpapi_AuthOptions_copy, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthOptions_destroy", _wrap_blpapi_AuthOptions_destroy, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthUser_createWithLogonName", _wrap_blpapi_AuthUser_createWithLogonName, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthUser_createWithActiveDirectoryProperty", _wrap_blpapi_AuthUser_createWithActiveDirectoryProperty, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthUser_createWithManualOptions", _wrap_blpapi_AuthUser_createWithManualOptions, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthUser_duplicate", _wrap_blpapi_AuthUser_duplicate, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthUser_copy", _wrap_blpapi_AuthUser_copy, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthUser_destroy", _wrap_blpapi_AuthUser_destroy, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthApplication_create", _wrap_blpapi_AuthApplication_create, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthApplication_duplicate", _wrap_blpapi_AuthApplication_duplicate, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthApplication_copy", _wrap_blpapi_AuthApplication_copy, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthApplication_destroy", _wrap_blpapi_AuthApplication_destroy, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthToken_create", _wrap_blpapi_AuthToken_create, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthToken_duplicate", _wrap_blpapi_AuthToken_duplicate, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthToken_copy", _wrap_blpapi_AuthToken_copy, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AuthToken_destroy", _wrap_blpapi_AuthToken_destroy, METH_VARARGS, NULL},
 	 { (char *)"blpapi_getLastErrorDescription", _wrap_blpapi_getLastErrorDescription, METH_VARARGS, NULL},
 	 { (char *)"blpapi_SessionOptions_create", _wrap_blpapi_SessionOptions_create, METH_VARARGS, NULL},
 	 { (char *)"blpapi_SessionOptions_destroy", _wrap_blpapi_SessionOptions_destroy, METH_VARARGS, NULL},
@@ -19414,6 +20234,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"blpapi_SessionOptions_setClientMode", _wrap_blpapi_SessionOptions_setClientMode, METH_VARARGS, NULL},
 	 { (char *)"blpapi_SessionOptions_setMaxPendingRequests", _wrap_blpapi_SessionOptions_setMaxPendingRequests, METH_VARARGS, NULL},
 	 { (char *)"blpapi_SessionOptions_setAutoRestartOnDisconnection", _wrap_blpapi_SessionOptions_setAutoRestartOnDisconnection, METH_VARARGS, NULL},
+	 { (char *)"blpapi_SessionOptions_setSessionIdentityOptions", _wrap_blpapi_SessionOptions_setSessionIdentityOptions, METH_VARARGS, NULL},
 	 { (char *)"blpapi_SessionOptions_setAuthenticationOptions", _wrap_blpapi_SessionOptions_setAuthenticationOptions, METH_VARARGS, NULL},
 	 { (char *)"blpapi_SessionOptions_setNumStartAttempts", _wrap_blpapi_SessionOptions_setNumStartAttempts, METH_VARARGS, NULL},
 	 { (char *)"blpapi_SessionOptions_setMaxEventQueueSize", _wrap_blpapi_SessionOptions_setMaxEventQueueSize, METH_VARARGS, NULL},
@@ -19553,6 +20374,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"blpapi_Operation_requestDefinition", _wrap_blpapi_Operation_requestDefinition, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Operation_numResponseDefinitions", _wrap_blpapi_Operation_numResponseDefinitions, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Operation_responseDefinition", _wrap_blpapi_Operation_responseDefinition, METH_VARARGS, NULL},
+	 { (char *)"blpapi_Operation_responseDefinitionFromName", _wrap_blpapi_Operation_responseDefinitionFromName, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Service_name", _wrap_blpapi_Service_name, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Service_description", _wrap_blpapi_Service_description, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Service_numOperations", _wrap_blpapi_Service_numOperations, METH_VARARGS, NULL},
@@ -19605,6 +20427,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"blpapi_AbstractSession_generateManualToken", _wrap_blpapi_AbstractSession_generateManualToken, METH_VARARGS, NULL},
 	 { (char *)"blpapi_AbstractSession_getService", _wrap_blpapi_AbstractSession_getService, METH_VARARGS, NULL},
 	 { (char *)"blpapi_AbstractSession_createIdentity", _wrap_blpapi_AbstractSession_createIdentity, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AbstractSession_generateAuthorizedIdentityAsync", _wrap_blpapi_AbstractSession_generateAuthorizedIdentityAsync, METH_VARARGS, NULL},
+	 { (char *)"blpapi_AbstractSession_getAuthorizedIdentity", _wrap_blpapi_AbstractSession_getAuthorizedIdentity, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Session_start", _wrap_blpapi_Session_start, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Session_startAsync", _wrap_blpapi_Session_startAsync, METH_VARARGS, NULL},
 	 { (char *)"blpapi_Session_stop", _wrap_blpapi_Session_stop, METH_VARARGS, NULL},
@@ -19702,6 +20526,10 @@ static void *_p_intArrayTo_p_int(void *x, int *SWIGUNUSEDPARM(newmemory)) {
     return (void *)((int *)  ((intArray *) x));
 }
 static swig_type_info _swigt__p_blpapi_AbstractSession = {"_p_blpapi_AbstractSession", "struct blpapi_AbstractSession *|blpapi_AbstractSession_t *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_blpapi_AuthApplication = {"_p_blpapi_AuthApplication", "blpapi_AuthApplication_t *|struct blpapi_AuthApplication *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_blpapi_AuthOptions = {"_p_blpapi_AuthOptions", "struct blpapi_AuthOptions *|blpapi_AuthOptions_t *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_blpapi_AuthToken = {"_p_blpapi_AuthToken", "blpapi_AuthToken_t *|struct blpapi_AuthToken *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_blpapi_AuthUser = {"_p_blpapi_AuthUser", "struct blpapi_AuthUser *|blpapi_AuthUser_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_Constant = {"_p_blpapi_Constant", "struct blpapi_Constant *|blpapi_Constant_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_ConstantList = {"_p_blpapi_ConstantList", "struct blpapi_ConstantList *|blpapi_ConstantList_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_CorrelationId_t_ = {"_p_blpapi_CorrelationId_t_", "struct blpapi_CorrelationId_t_ *|blpapi_CorrelationId_t_ *|blpapi_CorrelationId_t *", 0, 0, (void*)0, 0};
@@ -19718,13 +20546,16 @@ static swig_type_info _swigt__p_blpapi_Logging_Func_t = {"_p_blpapi_Logging_Func
 static swig_type_info _swigt__p_blpapi_Logging_Severity_t = {"_p_blpapi_Logging_Severity_t", "enum blpapi_Logging_Severity_t *|blpapi_Logging_Severity_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_ManagedPtr_t_ = {"_p_blpapi_ManagedPtr_t_", "blpapi_ManagedPtr_t *|struct blpapi_ManagedPtr_t_ *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_Message = {"_p_blpapi_Message", "struct blpapi_Message *|blpapi_Message_t *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_blpapi_MessageFormatter = {"_p_blpapi_MessageFormatter", "struct blpapi_MessageFormatter *|blpapi_MessageFormatter_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_MessageIterator = {"_p_blpapi_MessageIterator", "struct blpapi_MessageIterator *|blpapi_MessageIterator_t *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_blpapi_MessageProperties = {"_p_blpapi_MessageProperties", "blpapi_MessageProperties_t *|struct blpapi_MessageProperties *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_Name = {"_p_blpapi_Name", "struct blpapi_Name *|blpapi_Name_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_Operation = {"_p_blpapi_Operation", "blpapi_Operation_t *|struct blpapi_Operation *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_ProviderSession = {"_p_blpapi_ProviderSession", "struct blpapi_ProviderSession *|blpapi_ProviderSession_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_Request = {"_p_blpapi_Request", "struct blpapi_Request *|blpapi_Request_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_RequestTemplate = {"_p_blpapi_RequestTemplate", "blpapi_RequestTemplate_t *|struct blpapi_RequestTemplate *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_ResolutionList = {"_p_blpapi_ResolutionList", "struct blpapi_ResolutionList *|blpapi_ResolutionList_t *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_blpapi_SchemaElementDefinition = {"_p_blpapi_SchemaElementDefinition", "blpapi_SchemaElementDefinition_t *|struct blpapi_SchemaElementDefinition *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_Service = {"_p_blpapi_Service", "blpapi_Service_t *|struct blpapi_Service *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_ServiceRegistrationOptions = {"_p_blpapi_ServiceRegistrationOptions", "struct blpapi_ServiceRegistrationOptions *|blpapi_ServiceRegistrationOptions_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_Session = {"_p_blpapi_Session", "struct blpapi_Session *|blpapi_Session_t *", 0, 0, (void*)0, 0};
@@ -19743,18 +20574,23 @@ static swig_type_info _swigt__p_float = {"_p_float", "blpapi_Float32_t *|float *
 static swig_type_info _swigt__p_int = {"_p_int", "blpapi_Bool_t *|int *|blpapi_Int32_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_intArray = {"_p_intArray", "intArray *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_long_long = {"_p_long_long", "blpapi_Int64_t *|long long *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_p_blpapi_AuthApplication = {"_p_p_blpapi_AuthApplication", "struct blpapi_AuthApplication **|blpapi_AuthApplication_t **", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_p_blpapi_AuthOptions = {"_p_p_blpapi_AuthOptions", "blpapi_AuthOptions_t **|struct blpapi_AuthOptions **", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_p_blpapi_AuthToken = {"_p_p_blpapi_AuthToken", "blpapi_AuthToken_t **|struct blpapi_AuthToken **", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_p_blpapi_AuthUser = {"_p_p_blpapi_AuthUser", "blpapi_AuthUser_t **|struct blpapi_AuthUser **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_blpapi_Element = {"_p_p_blpapi_Element", "struct blpapi_Element **|blpapi_Element_t **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_blpapi_Event = {"_p_p_blpapi_Event", "struct blpapi_Event **|blpapi_Event_t **", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_p_blpapi_Identity = {"_p_p_blpapi_Identity", "blpapi_Identity_t **|struct blpapi_Identity **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_blpapi_Message = {"_p_p_blpapi_Message", "blpapi_Message_t **|struct blpapi_Message **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_blpapi_Name = {"_p_p_blpapi_Name", "struct blpapi_Name **|blpapi_Name_t **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_blpapi_Operation = {"_p_p_blpapi_Operation", "struct blpapi_Operation **|blpapi_Operation_t **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_blpapi_Request = {"_p_p_blpapi_Request", "blpapi_Request_t **|struct blpapi_Request **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_blpapi_RequestTemplate = {"_p_p_blpapi_RequestTemplate", "struct blpapi_RequestTemplate **|blpapi_RequestTemplate_t **", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_p_blpapi_SchemaElementDefinition = {"_p_p_blpapi_SchemaElementDefinition", "struct blpapi_SchemaElementDefinition **|blpapi_SchemaElementDefinition_t **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_blpapi_Service = {"_p_p_blpapi_Service", "blpapi_Service_t **|struct blpapi_Service **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_blpapi_Topic = {"_p_p_blpapi_Topic", "struct blpapi_Topic **|blpapi_Topic_t **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_char = {"_p_p_char", "char **", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_p_p_void = {"_p_p_p_void", "blpapi_SchemaElementDefinition_t **|void ***", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_p_void = {"_p_p_void", "blpapi_SchemaElementDefinition_t *|blpapi_SchemaTypeDefinition_t *|void **", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_p_void = {"_p_p_void", "blpapi_SchemaTypeDefinition_t *|void **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_short = {"_p_short", "short *|blpapi_Int16_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_unsigned_char = {"_p_unsigned_char", "unsigned char *|blpapi_UChar_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_unsigned_int = {"_p_unsigned_int", "blpapi_UInt32_t *|unsigned int *", 0, 0, (void*)0, 0};
@@ -19763,6 +20599,10 @@ static swig_type_info _swigt__p_unsigned_short = {"_p_unsigned_short", "unsigned
 
 static swig_type_info *swig_type_initial[] = {
   &_swigt__p_blpapi_AbstractSession,
+  &_swigt__p_blpapi_AuthApplication,
+  &_swigt__p_blpapi_AuthOptions,
+  &_swigt__p_blpapi_AuthToken,
+  &_swigt__p_blpapi_AuthUser,
   &_swigt__p_blpapi_Constant,
   &_swigt__p_blpapi_ConstantList,
   &_swigt__p_blpapi_CorrelationId_t_,
@@ -19779,13 +20619,16 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_blpapi_Logging_Severity_t,
   &_swigt__p_blpapi_ManagedPtr_t_,
   &_swigt__p_blpapi_Message,
+  &_swigt__p_blpapi_MessageFormatter,
   &_swigt__p_blpapi_MessageIterator,
+  &_swigt__p_blpapi_MessageProperties,
   &_swigt__p_blpapi_Name,
   &_swigt__p_blpapi_Operation,
   &_swigt__p_blpapi_ProviderSession,
   &_swigt__p_blpapi_Request,
   &_swigt__p_blpapi_RequestTemplate,
   &_swigt__p_blpapi_ResolutionList,
+  &_swigt__p_blpapi_SchemaElementDefinition,
   &_swigt__p_blpapi_Service,
   &_swigt__p_blpapi_ServiceRegistrationOptions,
   &_swigt__p_blpapi_Session,
@@ -19804,17 +20647,22 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_int,
   &_swigt__p_intArray,
   &_swigt__p_long_long,
+  &_swigt__p_p_blpapi_AuthApplication,
+  &_swigt__p_p_blpapi_AuthOptions,
+  &_swigt__p_p_blpapi_AuthToken,
+  &_swigt__p_p_blpapi_AuthUser,
   &_swigt__p_p_blpapi_Element,
   &_swigt__p_p_blpapi_Event,
+  &_swigt__p_p_blpapi_Identity,
   &_swigt__p_p_blpapi_Message,
   &_swigt__p_p_blpapi_Name,
   &_swigt__p_p_blpapi_Operation,
   &_swigt__p_p_blpapi_Request,
   &_swigt__p_p_blpapi_RequestTemplate,
+  &_swigt__p_p_blpapi_SchemaElementDefinition,
   &_swigt__p_p_blpapi_Service,
   &_swigt__p_p_blpapi_Topic,
   &_swigt__p_p_char,
-  &_swigt__p_p_p_void,
   &_swigt__p_p_void,
   &_swigt__p_short,
   &_swigt__p_unsigned_char,
@@ -19824,6 +20672,10 @@ static swig_type_info *swig_type_initial[] = {
 };
 
 static swig_cast_info _swigc__p_blpapi_AbstractSession[] = {  {&_swigt__p_blpapi_AbstractSession, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_blpapi_AuthApplication[] = {  {&_swigt__p_blpapi_AuthApplication, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_blpapi_AuthOptions[] = {  {&_swigt__p_blpapi_AuthOptions, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_blpapi_AuthToken[] = {  {&_swigt__p_blpapi_AuthToken, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_blpapi_AuthUser[] = {  {&_swigt__p_blpapi_AuthUser, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_Constant[] = {  {&_swigt__p_blpapi_Constant, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_ConstantList[] = {  {&_swigt__p_blpapi_ConstantList, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_CorrelationId_t_[] = {  {&_swigt__p_blpapi_CorrelationId_t_, 0, 0, 0},{0, 0, 0, 0}};
@@ -19840,13 +20692,16 @@ static swig_cast_info _swigc__p_blpapi_Logging_Func_t[] = {  {&_swigt__p_blpapi_
 static swig_cast_info _swigc__p_blpapi_Logging_Severity_t[] = {  {&_swigt__p_blpapi_Logging_Severity_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_ManagedPtr_t_[] = {  {&_swigt__p_blpapi_ManagedPtr_t_, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_Message[] = {  {&_swigt__p_blpapi_Message, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_blpapi_MessageFormatter[] = {  {&_swigt__p_blpapi_MessageFormatter, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_MessageIterator[] = {  {&_swigt__p_blpapi_MessageIterator, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_blpapi_MessageProperties[] = {  {&_swigt__p_blpapi_MessageProperties, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_Name[] = {  {&_swigt__p_blpapi_Name, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_Operation[] = {  {&_swigt__p_blpapi_Operation, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_ProviderSession[] = {  {&_swigt__p_blpapi_ProviderSession, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_Request[] = {  {&_swigt__p_blpapi_Request, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_RequestTemplate[] = {  {&_swigt__p_blpapi_RequestTemplate, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_ResolutionList[] = {  {&_swigt__p_blpapi_ResolutionList, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_blpapi_SchemaElementDefinition[] = {  {&_swigt__p_blpapi_SchemaElementDefinition, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_Service[] = {  {&_swigt__p_blpapi_Service, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_ServiceRegistrationOptions[] = {  {&_swigt__p_blpapi_ServiceRegistrationOptions, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_Session[] = {  {&_swigt__p_blpapi_Session, 0, 0, 0},{0, 0, 0, 0}};
@@ -19865,17 +20720,22 @@ static swig_cast_info _swigc__p_float[] = {  {&_swigt__p_float, 0, 0, 0},{0, 0, 
 static swig_cast_info _swigc__p_int[] = {  {&_swigt__p_intArray, _p_intArrayTo_p_int, 0, 0},  {&_swigt__p_int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_intArray[] = {  {&_swigt__p_intArray, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_long_long[] = {  {&_swigt__p_long_long, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_p_blpapi_AuthApplication[] = {  {&_swigt__p_p_blpapi_AuthApplication, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_p_blpapi_AuthOptions[] = {  {&_swigt__p_p_blpapi_AuthOptions, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_p_blpapi_AuthToken[] = {  {&_swigt__p_p_blpapi_AuthToken, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_p_blpapi_AuthUser[] = {  {&_swigt__p_p_blpapi_AuthUser, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_blpapi_Element[] = {  {&_swigt__p_p_blpapi_Element, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_blpapi_Event[] = {  {&_swigt__p_p_blpapi_Event, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_p_blpapi_Identity[] = {  {&_swigt__p_p_blpapi_Identity, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_blpapi_Message[] = {  {&_swigt__p_p_blpapi_Message, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_blpapi_Name[] = {  {&_swigt__p_p_blpapi_Name, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_blpapi_Operation[] = {  {&_swigt__p_p_blpapi_Operation, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_blpapi_Request[] = {  {&_swigt__p_p_blpapi_Request, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_blpapi_RequestTemplate[] = {  {&_swigt__p_p_blpapi_RequestTemplate, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_p_blpapi_SchemaElementDefinition[] = {  {&_swigt__p_p_blpapi_SchemaElementDefinition, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_blpapi_Service[] = {  {&_swigt__p_p_blpapi_Service, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_blpapi_Topic[] = {  {&_swigt__p_p_blpapi_Topic, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_char[] = {  {&_swigt__p_p_char, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_p_p_void[] = {  {&_swigt__p_p_p_void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_void[] = {  {&_swigt__p_p_void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_short[] = {  {&_swigt__p_short, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_unsigned_char[] = {  {&_swigt__p_unsigned_char, 0, 0, 0},{0, 0, 0, 0}};
@@ -19885,6 +20745,10 @@ static swig_cast_info _swigc__p_unsigned_short[] = {  {&_swigt__p_unsigned_short
 
 static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_blpapi_AbstractSession,
+  _swigc__p_blpapi_AuthApplication,
+  _swigc__p_blpapi_AuthOptions,
+  _swigc__p_blpapi_AuthToken,
+  _swigc__p_blpapi_AuthUser,
   _swigc__p_blpapi_Constant,
   _swigc__p_blpapi_ConstantList,
   _swigc__p_blpapi_CorrelationId_t_,
@@ -19901,13 +20765,16 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_blpapi_Logging_Severity_t,
   _swigc__p_blpapi_ManagedPtr_t_,
   _swigc__p_blpapi_Message,
+  _swigc__p_blpapi_MessageFormatter,
   _swigc__p_blpapi_MessageIterator,
+  _swigc__p_blpapi_MessageProperties,
   _swigc__p_blpapi_Name,
   _swigc__p_blpapi_Operation,
   _swigc__p_blpapi_ProviderSession,
   _swigc__p_blpapi_Request,
   _swigc__p_blpapi_RequestTemplate,
   _swigc__p_blpapi_ResolutionList,
+  _swigc__p_blpapi_SchemaElementDefinition,
   _swigc__p_blpapi_Service,
   _swigc__p_blpapi_ServiceRegistrationOptions,
   _swigc__p_blpapi_Session,
@@ -19926,17 +20793,22 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_int,
   _swigc__p_intArray,
   _swigc__p_long_long,
+  _swigc__p_p_blpapi_AuthApplication,
+  _swigc__p_p_blpapi_AuthOptions,
+  _swigc__p_p_blpapi_AuthToken,
+  _swigc__p_p_blpapi_AuthUser,
   _swigc__p_p_blpapi_Element,
   _swigc__p_p_blpapi_Event,
+  _swigc__p_p_blpapi_Identity,
   _swigc__p_p_blpapi_Message,
   _swigc__p_p_blpapi_Name,
   _swigc__p_p_blpapi_Operation,
   _swigc__p_p_blpapi_Request,
   _swigc__p_p_blpapi_RequestTemplate,
+  _swigc__p_p_blpapi_SchemaElementDefinition,
   _swigc__p_p_blpapi_Service,
   _swigc__p_p_blpapi_Topic,
   _swigc__p_p_char,
-  _swigc__p_p_p_void,
   _swigc__p_p_void,
   _swigc__p_short,
   _swigc__p_unsigned_char,
@@ -20713,6 +21585,9 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "MESSAGE_RECAPTYPE_UNSOLICITED",SWIG_From_int((int)(2)));
   SWIG_Python_SetConstant(d, "ZFPUTIL_REMOTE_8194",SWIG_From_int((int)(8194)));
   SWIG_Python_SetConstant(d, "ZFPUTIL_REMOTE_8196",SWIG_From_int((int)(8196)));
+  SWIG_Python_SetConstant(d, "IDENTITYUTIL_USERTYPE_UNKNOWN",SWIG_From_int((int)((-2))));
+  SWIG_Python_SetConstant(d, "IDENTITYUTIL_USERTYPE_APP_PORTAL",SWIG_From_int((int)(8)));
+  SWIG_Python_SetConstant(d, "IDENTITYUTIL_USERTYPE_SANDBOX_EXCEL",SWIG_From_int((int)(9)));
   SWIG_Python_SetConstant(d, "DATATYPE_BOOL",SWIG_From_int((int)(BLPAPI_DATATYPE_BOOL)));
   SWIG_Python_SetConstant(d, "DATATYPE_CHAR",SWIG_From_int((int)(BLPAPI_DATATYPE_CHAR)));
   SWIG_Python_SetConstant(d, "DATATYPE_BYTE",SWIG_From_int((int)(BLPAPI_DATATYPE_BYTE)));
@@ -20766,6 +21641,7 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "ERROR_DS_LOOKUP_FAILED",SWIG_From_int((int)((0x00000|18))));
   SWIG_Python_SetConstant(d, "ERROR_UNSUPPORTED_OPERATION",SWIG_From_int((int)((0x80000|19))));
   SWIG_Python_SetConstant(d, "ERROR_DS_PROPERTY_NOT_FOUND",SWIG_From_int((int)((0x60000|20))));
+  SWIG_Python_SetConstant(d, "ERROR_MSG_TOO_LARGE",SWIG_From_int((int)((0x20000|21))));
   
   /* Initialize threading */
   SWIG_PYTHON_INITIALIZE_THREADS;

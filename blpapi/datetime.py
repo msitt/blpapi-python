@@ -111,24 +111,19 @@ class _DatetimeUtil(object):
             blpapiDatetimeObj,
             internals.blpapi_HighPrecisionDatetime_tag)
 
-        if isHighPrecision:
-            # used for (get/set)Element, (get/set/append)Value methods
-            blpapiDatetime = blpapiDatetimeObj.datetime
-        else:
-            # used by:
-            # * blpapi_Constant_getValue
-            # * blpapi_HighResolutionClock_now_wrapper
-            blpapiDatetime = blpapiDatetimeObj
+        if not isHighPrecision:
+            raise ValueError(
+                "Datetime object is not high precision",
+                blpapiDatetimeObj)
 
+        blpapiDatetime = blpapiDatetimeObj.datetime
         parts = blpapiDatetime.parts
         hasDate = parts & internals.DATETIME_DATE_PART == \
             internals.DATETIME_DATE_PART
-        hasTime = parts & internals.DATETIME_TIME_PART == \
-            internals.DATETIME_TIME_PART
-        microsecs = blpapiDatetime.milliSeconds * 1000 if parts & \
-            internals.DATETIME_MILLISECONDS_PART else 0
-        if isHighPrecision and parts & internals.DATETIME_FRACSECONDS_PART:
-            microsecs += blpapiDatetimeObj.picoseconds // 1000 // 1000
+        hasTime = parts & internals.DATETIME_TIMEFRACSECONDS_PART != 0
+        microsecs = (blpapiDatetime.milliSeconds * 1000 +
+                     blpapiDatetimeObj.picoseconds // 1000 // 1000) \
+            if parts & internals.DATETIME_FRACSECONDS_PART else 0
         tzinfo = FixedOffset(blpapiDatetime.offset) if parts & \
             internals.DATETIME_OFFSET_PART else None
         if hasDate:
@@ -165,7 +160,8 @@ class _DatetimeUtil(object):
     @staticmethod
     def convertToBlpapi(dtime):
         "Convert a Python date/time object to a BLPAPI Datetime object."""
-        res = internals.blpapi_Datetime_tag()
+        highPrecDatetime = internals.blpapi_HighPrecisionDatetime_tag()
+        res = highPrecDatetime.datetime
         offset = None
         if isinstance(dtime, _dt.datetime):
             offset = dtime.utcoffset()
@@ -175,9 +171,11 @@ class _DatetimeUtil(object):
             res.hours = dtime.hour
             res.minutes = dtime.minute
             res.seconds = dtime.second
-            res.milliSeconds = dtime.microsecond // 1000
+            (res.milliSeconds, highPrecDatetime.picoseconds) = \
+                    divmod(dtime.microsecond, 1000)
+            highPrecDatetime.picoseconds *= 1000 * 1000
             res.parts = internals.DATETIME_DATE_PART | \
-                internals.DATETIME_TIMEMILLI_PART
+                internals.DATETIME_TIMEFRACSECONDS_PART
         elif isinstance(dtime, _dt.date):
             res.year = dtime.year
             res.month = dtime.month
@@ -188,15 +186,17 @@ class _DatetimeUtil(object):
             res.hours = dtime.hour
             res.minutes = dtime.minute
             res.seconds = dtime.second
-            res.milliSeconds = dtime.microsecond // 1000
-            res.parts = internals.DATETIME_TIMEMILLI_PART
+            (res.milliSeconds, highPrecDatetime.picoseconds) = \
+                    divmod(dtime.microsecond, 1000)
+            highPrecDatetime.picoseconds *= 1000 * 1000
+            res.parts = internals.DATETIME_TIMEFRACSECONDS_PART
         else:
             raise TypeError("Datetime could be created only from \
 datetime.datetime, datetime.date or datetime.time")
         if offset is not None:
             res.offset = offset.seconds // 60
             res.parts |= internals.DATETIME_OFFSET_PART
-        return res
+        return highPrecDatetime
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

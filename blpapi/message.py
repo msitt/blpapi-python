@@ -10,6 +10,7 @@ inside an event and containing elements.
 
 from __future__ import absolute_import
 import sys
+import warnings
 import weakref
 from blpapi.datetime import _DatetimeUtil, UTC
 from .element import Element
@@ -144,7 +145,26 @@ class Message(object):
         Returns:
             str: Topic string of this message. If there is no topic associated
             with the message, empty string is returned.
+
+        **DEPRECATED**
+
+        This function has been deprecated because messages could contain
+        multiple payloads with different correlation ids, and each of these
+        correlation ids may map to different topic strings.
+
+        In such a scenario, it would be incorrect to choose one out of the
+        multiple topics (for the various correlation id's in the message) as
+        the topic name for the message. Trying to make this correct would
+        result in extra look up costs.
+
+        For correctness, users are encouraged to maintain a data structure in
+        their application to help retrieve the topic name associated with the
+        cid's present in the delivered message.
         """
+
+        warnings.warn(
+            "This method is deprecated, see docstring for details",
+            DeprecationWarning)
 
         return internals.blpapi_Message_topicName(self.__handle)
 

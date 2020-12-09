@@ -165,13 +165,14 @@ class ServiceRegistrationOptions(object):
             # otherwise we'll get an error in SWIG wrapper.
 
     def setServicePriority(self, priority):
-        """Set the priority with which a service will be registered.
+        """Set the priority with which a subscription service will be
+        registered.
 
         Args:
             priority (int): The service priority
 
-        Set the priority with which a service will be registered to the
-        specified ``priority``, where numerically greater values of
+        Set the priority with which a subscription service will be registered
+        to the specified ``priority``, where numerically greater values of
         ``priority`` indicate higher priorities. The behavior is undefined
         unless ``priority`` is non-negative. Note that while the values
         pre-defined in ``ServiceRegistrationOptions`` are suitable for use
@@ -179,6 +180,8 @@ class ServiceRegistrationOptions(object):
 
         By default, a service will be registered with priority
         :attr:`PRIORITY_HIGH`.
+
+        Note this has no effect for request-response or resolution services.
         """
         return internals.blpapi_ServiceRegistrationOptions_setServicePriority(
             self.__handle,
@@ -197,7 +200,8 @@ class ServiceRegistrationOptions(object):
     def getServicePriority(self):
         """
         Returns:
-            int: The value of the service priority in this instance.
+            int: The value of the priority for subscription services in this
+                 instance.
         """
         priority = \
             internals.blpapi_ServiceRegistrationOptions_getServicePriority(
@@ -550,6 +554,9 @@ class ProviderSession(AbstractSession):
         an asynchronous :class:`ProviderSession` then this :class:`Event` may
         be processed by the registered :class:`Event` before
         :meth:`registerService()` has returned.
+
+        When ``identity`` is not provided, the session identity will be used if
+        it has been authorized.
         """
         if options is None:
             options = ServiceRegistrationOptions()
@@ -594,6 +601,9 @@ class ProviderSession(AbstractSession):
         :class:`~Event.SERVICE_STATUS` :class:`Event` which will be generated
         once the service has been successfully registered or registration has
         failed.
+
+        When ``identity`` is not provided, the session identity will be used if
+        it has been authorized.
         """
         if correlationId is None:
             correlationId = CorrelationId()
@@ -641,6 +651,9 @@ class ProviderSession(AbstractSession):
         asynchronous :class:`ProviderSession` then these :class:`Event`\ s may
         be processed by the registered ``eventHandler`` before
         :meth:`resolve()` has returned.
+
+        When ``identity`` is not provided, the session identity will be used if
+        it has been authorized.
         """
         resolutionList._addSession(self)
         _ExceptionUtil.raiseOnError(
@@ -676,6 +689,9 @@ class ProviderSession(AbstractSession):
         :attr:`AUTO_REGISTER_SERVICES` is specified :attr:`~Event.SERVICE_STATUS`
         events may also be generated before or after :meth:`resolveAsync()`
         returns.
+
+        When ``identity`` is not provided, the session identity will be used if
+        it has been authorized.
         """
         resolutionList._addSession(self)
         _ExceptionUtil.raiseOnError(
@@ -773,6 +789,9 @@ class ProviderSession(AbstractSession):
         asynchronous :class:`ProviderSession` then these :class:`Event`\ s may
         be processed by the registered ``eventHandler`` before
         :meth:`createTopics()` has returned.
+
+        When ``identity`` is not provided, the session identity will be used if
+        it has been authorized.
         """
         topicList._addSession(self)
         _ExceptionUtil.raiseOnError(
@@ -805,6 +824,9 @@ class ProviderSession(AbstractSession):
         asynchronous :class:`ProviderSession` then these :class:`Event`\ s may
         be processed by the registered ``eventHandler`` before
         :meth:`createTopics()` has returned.
+
+        When ``identity`` is not provided, the session identity will be used if
+        it has been authorized.
         """
         topicList._addSession(self)
         _ExceptionUtil.raiseOnError(

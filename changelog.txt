@@ -1,3 +1,45 @@
+Version 3.15.2:
+===============
+- Stability and performance improvements
+
+Version 3.15.1:
+===============
+- 'blpapi.Service.createAdminEvent()' is now deprecated. Use 'blpapi.Service.createPublishEvent()' instead
+
+- Stability and performance improvements
+
+Version 3.15.0:
+===============
+- Provided a simplified interface to handle authentication and authorization
+	- Simplified authentication settings through the new set of strongly-typed
+	  overloads described with 'AuthOptions' class.
+
+	- Simplified existing multi-phased approach to authorization so that both
+	  token generation and authorization can be done by the SDK.
+		- If 'AuthOptions' instance is provided to the session through the
+		  newly introduced 'setSessionIdentityOptions' (part of'SessionOptions'),
+		  both token generation and subsequent authorization will be done by the
+		  SDK. Successfully authorized identity would become the default
+		  identity for the session that's used for all future requests unless
+		  a different one is specified explicitly.
+
+		- Additionally, two new session methods that simplify creation of
+		  additional identities have been introduced:
+			- 'generateAuthorizedIdentity' - generates authorized identity
+			  based on the provided 'AuthOptions'.
+		- 'getAuthorizedIdentity' - returns authorized identity that's
+		  associated with the 'generateAuthorizedIdentity' call.
+
+- Improved usage of network bandwidth through support for compression
+
+- 'blpapi.Message.topicName()' is now deprecated
+
+- Stability and performance improvements
+
+Version 3.14.1:
+===============
+- Stability and performance improvements
+
 Version 3.14.0:
 ===============
 - Improved usage of network bandwidth for snapshot requests

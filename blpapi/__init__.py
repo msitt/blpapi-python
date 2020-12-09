@@ -11,6 +11,7 @@ except ImportError as error:
     raise debug_load_error(error)
 
 from .abstractsession import AbstractSession
+from .auth import AuthOptions, AuthUser
 from .constant import Constant, ConstantList
 from .datatype import DataType
 from .datetime import FixedOffset

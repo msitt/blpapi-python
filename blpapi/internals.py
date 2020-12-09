@@ -200,6 +200,9 @@ MESSAGE_RECAPTYPE_SOLICITED = _internals.MESSAGE_RECAPTYPE_SOLICITED
 MESSAGE_RECAPTYPE_UNSOLICITED = _internals.MESSAGE_RECAPTYPE_UNSOLICITED
 ZFPUTIL_REMOTE_8194 = _internals.ZFPUTIL_REMOTE_8194
 ZFPUTIL_REMOTE_8196 = _internals.ZFPUTIL_REMOTE_8196
+IDENTITYUTIL_USERTYPE_UNKNOWN = _internals.IDENTITYUTIL_USERTYPE_UNKNOWN
+IDENTITYUTIL_USERTYPE_APP_PORTAL = _internals.IDENTITYUTIL_USERTYPE_APP_PORTAL
+IDENTITYUTIL_USERTYPE_SANDBOX_EXCEL = _internals.IDENTITYUTIL_USERTYPE_SANDBOX_EXCEL
 DATATYPE_BOOL = _internals.DATATYPE_BOOL
 DATATYPE_CHAR = _internals.DATATYPE_CHAR
 DATATYPE_BYTE = _internals.DATATYPE_BYTE
@@ -664,9 +667,9 @@ def blpapi_Element_setValueString(element, value, index):
     return _internals.blpapi_Element_setValueString(element, value, index)
 blpapi_Element_setValueString = _internals.blpapi_Element_setValueString
 
-def blpapi_Element_setValueDatetime(element, value, index):
-    return _internals.blpapi_Element_setValueDatetime(element, value, index)
-blpapi_Element_setValueDatetime = _internals.blpapi_Element_setValueDatetime
+def blpapi_Element_setValueHighPrecisionDatetime(element, value, index):
+    return _internals.blpapi_Element_setValueHighPrecisionDatetime(element, value, index)
+blpapi_Element_setValueHighPrecisionDatetime = _internals.blpapi_Element_setValueHighPrecisionDatetime
 
 def blpapi_Element_setValueFromName(element, value, index):
     return _internals.blpapi_Element_setValueFromName(element, value, index)
@@ -688,9 +691,9 @@ def blpapi_Element_setElementString(element, nameString, name, value):
     return _internals.blpapi_Element_setElementString(element, nameString, name, value)
 blpapi_Element_setElementString = _internals.blpapi_Element_setElementString
 
-def blpapi_Element_setElementDatetime(element, nameString, name, value):
-    return _internals.blpapi_Element_setElementDatetime(element, nameString, name, value)
-blpapi_Element_setElementDatetime = _internals.blpapi_Element_setElementDatetime
+def blpapi_Element_setElementHighPrecisionDatetime(element, nameString, name, value):
+    return _internals.blpapi_Element_setElementHighPrecisionDatetime(element, nameString, name, value)
+blpapi_Element_setElementHighPrecisionDatetime = _internals.blpapi_Element_setElementHighPrecisionDatetime
 
 def blpapi_Element_setElementFromName(element, elementName, name, buffer):
     return _internals.blpapi_Element_setElementFromName(element, elementName, name, buffer)
@@ -764,9 +767,9 @@ def blpapi_EventFormatter_setValueInt64(formatter, typeString, typeName, value):
     return _internals.blpapi_EventFormatter_setValueInt64(formatter, typeString, typeName, value)
 blpapi_EventFormatter_setValueInt64 = _internals.blpapi_EventFormatter_setValueInt64
 
-def blpapi_EventFormatter_setValueDatetime(formatter, typeString, typeName, value):
-    return _internals.blpapi_EventFormatter_setValueDatetime(formatter, typeString, typeName, value)
-blpapi_EventFormatter_setValueDatetime = _internals.blpapi_EventFormatter_setValueDatetime
+def blpapi_EventFormatter_setValueHighPrecisionDatetime(formatter, typeString, typeName, value):
+    return _internals.blpapi_EventFormatter_setValueHighPrecisionDatetime(formatter, typeString, typeName, value)
+blpapi_EventFormatter_setValueHighPrecisionDatetime = _internals.blpapi_EventFormatter_setValueHighPrecisionDatetime
 
 def blpapi_EventFormatter_setValueString(formatter, typeString, typeName, value):
     return _internals.blpapi_EventFormatter_setValueString(formatter, typeString, typeName, value)
@@ -804,9 +807,9 @@ def blpapi_EventFormatter_appendValueInt64(formatter, value):
     return _internals.blpapi_EventFormatter_appendValueInt64(formatter, value)
 blpapi_EventFormatter_appendValueInt64 = _internals.blpapi_EventFormatter_appendValueInt64
 
-def blpapi_EventFormatter_appendValueDatetime(formatter, value):
-    return _internals.blpapi_EventFormatter_appendValueDatetime(formatter, value)
-blpapi_EventFormatter_appendValueDatetime = _internals.blpapi_EventFormatter_appendValueDatetime
+def blpapi_EventFormatter_appendValueHighPrecisionDatetime(formatter, value):
+    return _internals.blpapi_EventFormatter_appendValueHighPrecisionDatetime(formatter, value)
+blpapi_EventFormatter_appendValueHighPrecisionDatetime = _internals.blpapi_EventFormatter_appendValueHighPrecisionDatetime
 
 def blpapi_EventFormatter_appendValueString(formatter, value):
     return _internals.blpapi_EventFormatter_appendValueString(formatter, value)
@@ -851,6 +854,94 @@ ProviderSession_destroyHelper = _internals.ProviderSession_destroyHelper
 def ProviderSession_terminateSubscriptionsOnTopic(sessionHandle, topic, message):
     return _internals.ProviderSession_terminateSubscriptionsOnTopic(sessionHandle, topic, message)
 ProviderSession_terminateSubscriptionsOnTopic = _internals.ProviderSession_terminateSubscriptionsOnTopic
+
+def blpapi_AuthOptions_create_default():
+    return _internals.blpapi_AuthOptions_create_default()
+blpapi_AuthOptions_create_default = _internals.blpapi_AuthOptions_create_default
+
+def blpapi_AuthOptions_create_forUserMode(user):
+    return _internals.blpapi_AuthOptions_create_forUserMode(user)
+blpapi_AuthOptions_create_forUserMode = _internals.blpapi_AuthOptions_create_forUserMode
+
+def blpapi_AuthOptions_create_forAppMode(app):
+    return _internals.blpapi_AuthOptions_create_forAppMode(app)
+blpapi_AuthOptions_create_forAppMode = _internals.blpapi_AuthOptions_create_forAppMode
+
+def blpapi_AuthOptions_create_forUserAndAppMode(user, app):
+    return _internals.blpapi_AuthOptions_create_forUserAndAppMode(user, app)
+blpapi_AuthOptions_create_forUserAndAppMode = _internals.blpapi_AuthOptions_create_forUserAndAppMode
+
+def blpapi_AuthOptions_create_forToken(token):
+    return _internals.blpapi_AuthOptions_create_forToken(token)
+blpapi_AuthOptions_create_forToken = _internals.blpapi_AuthOptions_create_forToken
+
+def blpapi_AuthOptions_duplicate(dup):
+    return _internals.blpapi_AuthOptions_duplicate(dup)
+blpapi_AuthOptions_duplicate = _internals.blpapi_AuthOptions_duplicate
+
+def blpapi_AuthOptions_copy(lhs, rhs):
+    return _internals.blpapi_AuthOptions_copy(lhs, rhs)
+blpapi_AuthOptions_copy = _internals.blpapi_AuthOptions_copy
+
+def blpapi_AuthOptions_destroy(options):
+    return _internals.blpapi_AuthOptions_destroy(options)
+blpapi_AuthOptions_destroy = _internals.blpapi_AuthOptions_destroy
+
+def blpapi_AuthUser_createWithLogonName():
+    return _internals.blpapi_AuthUser_createWithLogonName()
+blpapi_AuthUser_createWithLogonName = _internals.blpapi_AuthUser_createWithLogonName
+
+def blpapi_AuthUser_createWithActiveDirectoryProperty(propertyName):
+    return _internals.blpapi_AuthUser_createWithActiveDirectoryProperty(propertyName)
+blpapi_AuthUser_createWithActiveDirectoryProperty = _internals.blpapi_AuthUser_createWithActiveDirectoryProperty
+
+def blpapi_AuthUser_createWithManualOptions(userId, ipAddress):
+    return _internals.blpapi_AuthUser_createWithManualOptions(userId, ipAddress)
+blpapi_AuthUser_createWithManualOptions = _internals.blpapi_AuthUser_createWithManualOptions
+
+def blpapi_AuthUser_duplicate(dup):
+    return _internals.blpapi_AuthUser_duplicate(dup)
+blpapi_AuthUser_duplicate = _internals.blpapi_AuthUser_duplicate
+
+def blpapi_AuthUser_copy(lhs, rhs):
+    return _internals.blpapi_AuthUser_copy(lhs, rhs)
+blpapi_AuthUser_copy = _internals.blpapi_AuthUser_copy
+
+def blpapi_AuthUser_destroy(user):
+    return _internals.blpapi_AuthUser_destroy(user)
+blpapi_AuthUser_destroy = _internals.blpapi_AuthUser_destroy
+
+def blpapi_AuthApplication_create(appName):
+    return _internals.blpapi_AuthApplication_create(appName)
+blpapi_AuthApplication_create = _internals.blpapi_AuthApplication_create
+
+def blpapi_AuthApplication_duplicate(dup):
+    return _internals.blpapi_AuthApplication_duplicate(dup)
+blpapi_AuthApplication_duplicate = _internals.blpapi_AuthApplication_duplicate
+
+def blpapi_AuthApplication_copy(lhs, rhs):
+    return _internals.blpapi_AuthApplication_copy(lhs, rhs)
+blpapi_AuthApplication_copy = _internals.blpapi_AuthApplication_copy
+
+def blpapi_AuthApplication_destroy(app):
+    return _internals.blpapi_AuthApplication_destroy(app)
+blpapi_AuthApplication_destroy = _internals.blpapi_AuthApplication_destroy
+
+def blpapi_AuthToken_create(tokenStr):
+    return _internals.blpapi_AuthToken_create(tokenStr)
+blpapi_AuthToken_create = _internals.blpapi_AuthToken_create
+
+def blpapi_AuthToken_duplicate(dup):
+    return _internals.blpapi_AuthToken_duplicate(dup)
+blpapi_AuthToken_duplicate = _internals.blpapi_AuthToken_duplicate
+
+def blpapi_AuthToken_copy(lhs, rhs):
+    return _internals.blpapi_AuthToken_copy(lhs, rhs)
+blpapi_AuthToken_copy = _internals.blpapi_AuthToken_copy
+
+def blpapi_AuthToken_destroy(token):
+    return _internals.blpapi_AuthToken_destroy(token)
+blpapi_AuthToken_destroy = _internals.blpapi_AuthToken_destroy
 UNKNOWN_CLASS = _internals.UNKNOWN_CLASS
 INVALIDSTATE_CLASS = _internals.INVALIDSTATE_CLASS
 INVALIDARG_CLASS = _internals.INVALIDARG_CLASS
@@ -880,6 +971,7 @@ ERROR_LOGON_LOOKUP_FAILED = _internals.ERROR_LOGON_LOOKUP_FAILED
 ERROR_DS_LOOKUP_FAILED = _internals.ERROR_DS_LOOKUP_FAILED
 ERROR_UNSUPPORTED_OPERATION = _internals.ERROR_UNSUPPORTED_OPERATION
 ERROR_DS_PROPERTY_NOT_FOUND = _internals.ERROR_DS_PROPERTY_NOT_FOUND
+ERROR_MSG_TOO_LARGE = _internals.ERROR_MSG_TOO_LARGE
 
 def blpapi_getLastErrorDescription(resultCode):
     return _internals.blpapi_getLastErrorDescription(resultCode)
@@ -940,6 +1032,10 @@ blpapi_SessionOptions_setMaxPendingRequests = _internals.blpapi_SessionOptions_s
 def blpapi_SessionOptions_setAutoRestartOnDisconnection(parameters, autoRestart):
     return _internals.blpapi_SessionOptions_setAutoRestartOnDisconnection(parameters, autoRestart)
 blpapi_SessionOptions_setAutoRestartOnDisconnection = _internals.blpapi_SessionOptions_setAutoRestartOnDisconnection
+
+def blpapi_SessionOptions_setSessionIdentityOptions(parameters, authOptions, cid):
+    return _internals.blpapi_SessionOptions_setSessionIdentityOptions(parameters, authOptions, cid)
+blpapi_SessionOptions_setSessionIdentityOptions = _internals.blpapi_SessionOptions_setSessionIdentityOptions
 
 def blpapi_SessionOptions_setAuthenticationOptions(parameters, authOptions):
     return _internals.blpapi_SessionOptions_setAuthenticationOptions(parameters, authOptions)
@@ -1447,25 +1543,29 @@ def blpapi_RequestTemplate_release(requestTemplate):
     return _internals.blpapi_RequestTemplate_release(requestTemplate)
 blpapi_RequestTemplate_release = _internals.blpapi_RequestTemplate_release
 
-def blpapi_Operation_name(service):
-    return _internals.blpapi_Operation_name(service)
+def blpapi_Operation_name(operation):
+    return _internals.blpapi_Operation_name(operation)
 blpapi_Operation_name = _internals.blpapi_Operation_name
 
-def blpapi_Operation_description(service):
-    return _internals.blpapi_Operation_description(service)
+def blpapi_Operation_description(operation):
+    return _internals.blpapi_Operation_description(operation)
 blpapi_Operation_description = _internals.blpapi_Operation_description
 
-def blpapi_Operation_requestDefinition(service):
-    return _internals.blpapi_Operation_requestDefinition(service)
+def blpapi_Operation_requestDefinition(operation):
+    return _internals.blpapi_Operation_requestDefinition(operation)
 blpapi_Operation_requestDefinition = _internals.blpapi_Operation_requestDefinition
 
-def blpapi_Operation_numResponseDefinitions(service):
-    return _internals.blpapi_Operation_numResponseDefinitions(service)
+def blpapi_Operation_numResponseDefinitions(operation):
+    return _internals.blpapi_Operation_numResponseDefinitions(operation)
 blpapi_Operation_numResponseDefinitions = _internals.blpapi_Operation_numResponseDefinitions
 
-def blpapi_Operation_responseDefinition(service, index):
-    return _internals.blpapi_Operation_responseDefinition(service, index)
+def blpapi_Operation_responseDefinition(operation, index):
+    return _internals.blpapi_Operation_responseDefinition(operation, index)
 blpapi_Operation_responseDefinition = _internals.blpapi_Operation_responseDefinition
+
+def blpapi_Operation_responseDefinitionFromName(operation, name):
+    return _internals.blpapi_Operation_responseDefinitionFromName(operation, name)
+blpapi_Operation_responseDefinitionFromName = _internals.blpapi_Operation_responseDefinitionFromName
 
 def blpapi_Service_name(service):
     return _internals.blpapi_Service_name(service)
@@ -1674,6 +1774,14 @@ blpapi_AbstractSession_getService = _internals.blpapi_AbstractSession_getService
 def blpapi_AbstractSession_createIdentity(session):
     return _internals.blpapi_AbstractSession_createIdentity(session)
 blpapi_AbstractSession_createIdentity = _internals.blpapi_AbstractSession_createIdentity
+
+def blpapi_AbstractSession_generateAuthorizedIdentityAsync(session, authOptions, cid):
+    return _internals.blpapi_AbstractSession_generateAuthorizedIdentityAsync(session, authOptions, cid)
+blpapi_AbstractSession_generateAuthorizedIdentityAsync = _internals.blpapi_AbstractSession_generateAuthorizedIdentityAsync
+
+def blpapi_AbstractSession_getAuthorizedIdentity(session, cid):
+    return _internals.blpapi_AbstractSession_getAuthorizedIdentity(session, cid)
+blpapi_AbstractSession_getAuthorizedIdentity = _internals.blpapi_AbstractSession_getAuthorizedIdentity
 
 def blpapi_Session_start(session):
     return _internals.blpapi_Session_start(session)

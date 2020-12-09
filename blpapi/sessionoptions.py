@@ -22,6 +22,8 @@ The following snippet shows how to use the SessionOptions when creating a
 
 from __future__ import absolute_import
 from .exception import _ExceptionUtil
+from . import AuthOptions
+from . import CorrelationId
 from . import internals
 from . import utils
 from .utils import get_handle
@@ -254,8 +256,60 @@ class SessionOptions(object):
             self.__handle,
             maxPendingRequests)
 
+    def setSessionIdentityOptions(self,
+                                  authOptions,
+                                  correlationId=None):
+        """Sets the specified ``authOptions`` as the :class:`AuthOptions` for
+        the session identity, enabling automatic authorization of the session
+        identity during startup.
+
+        Args:
+            authOptions (AuthOptions): the authorization options to use for the
+                session identity.
+            correlationId (CorrelationId): Optional. Used to identify the
+                messages associated with the session identity.
+
+        Returns:
+            CorrelationId: The actual :class:`CorrelationId` that identifies
+            the messages associated with the session identity.
+
+        The session identity lifetime is tied to the session's lifetime, so it
+        is guaranteed that the session identity will remain authorized during
+        the entire duration of the session. The identity will be authorized
+        before the session starts. The session will terminate if the identity
+        fails to authorize or is revoked.
+
+        The session identity is used to send requests and make subscriptions if
+        no other identity is provided.
+
+        By default the session identity is not authorized.
+
+        It is possible to pass ``None`` as ``authOptions``, to reset this value
+        to its default state.
+        """
+        if correlationId is None:
+            correlationId = CorrelationId()
+
+        if authOptions is None:
+            # Use an 'empty' authoptions instance to reset the value
+            retcode, authOptions_handle = internals \
+                .blpapi_AuthOptions_create_default()
+            _ExceptionUtil.raiseOnError(retcode)
+            authOptions = AuthOptions(authOptions_handle)
+
+        retcode = internals.blpapi_SessionOptions_setSessionIdentityOptions(
+            self._handle(),
+            get_handle(authOptions),
+            get_handle(correlationId))
+        _ExceptionUtil.raiseOnError(retcode)
+        return correlationId
+
     def setAuthenticationOptions(self, authOptions):
-        """Set the specified ``authOptions`` as authentication option."""
+        """Set the specified ``authOptions`` as the authentication options.
+
+        Args:
+            authOptions (str): The options used during authentication.
+        """
         internals.blpapi_SessionOptions_setAuthenticationOptions(
             self.__handle,
             authOptions)

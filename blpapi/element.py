@@ -106,8 +106,8 @@ class Element(object):
         None)
 
     __datetimeTraits = (
-        internals.blpapi_Element_setElementDatetime,
-        internals.blpapi_Element_setValueDatetime,
+        internals.blpapi_Element_setElementHighPrecisionDatetime,
+        internals.blpapi_Element_setValueHighPrecisionDatetime,
         _DatetimeUtil.convertToBlpapi)
 
     __int32Traits = (

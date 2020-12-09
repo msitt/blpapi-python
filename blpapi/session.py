@@ -304,6 +304,9 @@ class Session(AbstractSession):
 
         A :attr:`~Event.SUBSCRIPTION_STATUS` :class:`Event` will be generated
         for each entry in the ``subscriptionList``.
+
+        When ``identity`` is not provided, the session identity will be used if
+        it has been authorized.
         """
         _ExceptionUtil.raiseOnError(internals.blpapi_Session_subscribe(
             self.__handle,
@@ -433,14 +436,16 @@ class Session(AbstractSession):
             CorrelationId: The actual correlation id associated with the
             request
 
-        Send the specified ``request`` using the specified ``identity`` for
-        authorization. If the optionally specified ``correlationId`` is
-        supplied use it, otherwise create a :class:`CorrelationId`. The actual
-        :class:`CorrelationId` used is returned. If the optionally specified
-        ``eventQueue`` is supplied all events relating to this :class:`Request`
-        will arrive on that :class:`EventQueue`. If the optional
-        ``requestLabel`` is provided it defines a string which will be recorded
-        along with any diagnostics for this operation.
+        Send the specified ``request`` using the optionally specified
+        ``identity`` for authorization. If ``identity`` is not provided, then
+        the request will be sent using the session identity. If the optionally
+        specified ``correlationId`` is supplied use it, otherwise create a
+        :class:`CorrelationId`. The actual :class:`CorrelationId` used is
+        returned. If the optionally specified ``eventQueue`` is supplied all
+        events relating to this :class:`Request` will arrive on that
+        :class:`EventQueue`. If the optional ``requestLabel`` is provided it
+        defines a string which will be recorded along with any diagnostics for
+        this operation.
 
         A successful request will generate zero or more
         :class:`~Event.PARTIAL_RESPONSE` :class:`Message`\ s followed by
@@ -450,6 +455,9 @@ class Session(AbstractSession):
         the request fails at any stage a :class:`~Event.REQUEST_STATUS` will be
         generated after which the :class:`CorrelationId` associated with the
         request may be re-used.
+
+        When ``identity`` is not provided, the session identity will be used if
+        it has been authorized.
         """
         if correlationId is None:
             correlationId = CorrelationId()
@@ -579,6 +587,9 @@ class Session(AbstractSession):
         object goes out of scope while there are still some outstanding
         requests left, snapshot service request template will be destroyed
         automatically when the last request gets a final response.
+
+        When ``identity`` is ``None``, the session identity will be used if it
+        has been authorized.
         """
         rc, template = internals.blpapi_Session_createSnapshotRequestTemplate(
             self.__handle,

@@ -44,8 +44,8 @@ class EventFormatter(object):
         None)
 
     __datetimeTraits = (
-        internals.blpapi_EventFormatter_setValueDatetime,
-        internals.blpapi_EventFormatter_appendValueDatetime,
+        internals.blpapi_EventFormatter_setValueHighPrecisionDatetime,
+        internals.blpapi_EventFormatter_appendValueHighPrecisionDatetime,
         _DatetimeUtil.convertToBlpapi)
 
     __int32Traits = (

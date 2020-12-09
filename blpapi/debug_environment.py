@@ -18,6 +18,23 @@ try:
 except ImportError:
     from io import StringIO
 
+def _path_diagnostics(print_to_str):
+    # Information for PATH related issues
+    print_to_str("blpapi 64-bit will be loaded from: \"%s\""
+                 % util.find_library("blpapi3_64"))
+    print_to_str("blpapi 32-bit will be loaded from: \"%s\""
+                 % util.find_library("blpapi3_32"))
+    print_to_str("System PATH: (* marks locations where blpapi was found)")
+    for p in os.environ["PATH"].split(os.pathsep):
+        if p: # Skip empty entries
+            dll_32 = os.path.join(p, "blpapi3_32.dll")
+            dll_64 = os.path.join(p, "blpapi3_64.dll")
+            found_blpapi_dll = os.path.isfile(dll_32) or os.path.isfile(dll_64)
+            print_to_str("  %s \"%s\"" % ("*" if found_blpapi_dll else " ", p))
+    print_to_str()
+
+def _add_dll_directory_diagnostics(print_to_str):
+    print_to_str("This Python version does not use PATH to find dlls")
 
 def get_env_diagnostics():
     """
@@ -35,20 +52,10 @@ def get_env_diagnostics():
     print_to_str("Python implementation:", platform.python_implementation())
     print_to_str()
 
-    # Information for PATH related issues
-    print_to_str("blpapi 64-bit will be loaded from: \"%s\""
-                 % util.find_library("blpapi3_64"))
-    print_to_str("blpapi 32-bit will be loaded from: \"%s\""
-                 % util.find_library("blpapi3_32"))
-    print_to_str("System PATH: (* marks locations where blpapi was found)")
-    for p in os.environ["PATH"].split(os.pathsep):
-        if p: # Skip empty entries
-            dll_32 = os.path.join(p, "blpapi3_32.dll")
-            dll_64 = os.path.join(p, "blpapi3_64.dll")
-            found_blpapi_dll = os.path.isfile(dll_32) or os.path.isfile(dll_64)
-            print_to_str("  %s \"%s\"" % ("*" if found_blpapi_dll else " ", p))
-    print_to_str()
-
+    if not 'add_dll_directory' in dir(os):
+        _path_diagnostics(print_to_str)
+    else:
+        _add_dll_directory_diagnostics(print_to_str)
     # Check if the blpapi package has been installed. If not,
     # include information about the current python environment
     blpapi_package_found = False

@@ -76,11 +76,22 @@ Could not open the C++ SDK library.
 Download and install the latest C++ SDK from:
 
     http://www.bloomberg.com/professional/api-library
+""" % str(error)
 
+    if 'add_dll_directory' in dir(os):
+        msg += """
+If the C++ SDK is already installed, Python 3.8+ on Windows requires that the
+path to the library is added to 'add_dll_directory', i.e.:
+
+    with os.add_dll_directory('<path to blpapi dlls>'):
+        import blpapi
+"""
+    else:
+        msg += """
 If the C++ SDK is already installed, please ensure that the path to the library
 was added to %s before entering the interpreter.
 
-""" % (str(error), _linker_env())
+""" % _linker_env()
     return msg
 
 

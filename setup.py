@@ -28,6 +28,20 @@ def find_version_number():
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
 
+def lib_in_release():
+    """Returns the right library folder name for each platform"""
+    if platform == 'windows':
+        return 'lib'
+    if platform == 'linux':
+        return 'Linux'
+    if platform == 'sunos':
+        return "lib64" if is64bit else "lib"
+    if platform == 'aix':
+        return "lib64" if is64bit else "lib"
+    if platform == 'darwin':
+        return 'Darwin'
+    raise Exception("Platform '" + platform + "' isn't supported")
+
 if version < '2.6':
     raise Exception(
         "Python versions before 2.6 are not supported (current version is "
@@ -38,7 +52,8 @@ blpapiIncludesVar = os.environ.get('BLPAPI_INCDIR')
 blpapiLibVar = os.environ.get('BLPAPI_LIBDIR')
 
 assert blpapiRoot or (blpapiIncludesVar and blpapiLibVar), \
-        "BLPAPI_ROOT environment variable isn't defined"
+        "BLPAPI_ROOT (or BLPAPI_INCDIR/BLPAPI_LIBDIR) " + \
+        "environment variable isn't defined"
 
 is64bit = plat.architecture()[0] == '64bit'
 if is64bit:
@@ -48,7 +63,6 @@ else:
 
 extraLinkArgs = []
 if platform == 'windows':
-    blpapiLibraryPath = os.path.join(blpapiRoot, 'lib')
     extraLinkArgs = ['/MANIFEST']
 
     # Handle the very frequent case when user need to use Visual C++ 2010
@@ -57,20 +71,8 @@ if platform == 'windows':
         if (not 'VS90COMNTOOLS' in os.environ) and \
                 ('VS100COMNTOOLS' in os.environ):
             os.environ['VS90COMNTOOLS'] = os.environ['VS100COMNTOOLS']
-elif platform == 'linux':
-    blpapiLibraryPath = os.path.join(blpapiRoot, 'Linux')
-elif platform == 'sunos':
-    lib = "lib64" if is64bit else "lib"
-    blpapiLibraryPath = os.path.join(blpapiRoot, lib)
-elif platform == 'aix':
-    lib = "lib64" if is64bit else "lib"
-    blpapiLibraryPath = os.path.join(blpapiRoot, lib)
-elif platform == 'darwin':
-    blpapiLibraryPath = os.path.join(blpapiRoot, 'Darwin')
-else:
-    raise Exception("Platform '" + platform + "' isn't supported")
 
-blpapiLibraryPath = blpapiLibVar or blpapiLibraryPath
+blpapiLibraryPath = blpapiLibVar or os.path.join(blpapiRoot, lib_in_release())
 blpapiIncludes = blpapiIncludesVar or os.path.join(blpapiRoot, 'include')
 
 blpapi_wrap = Extension(

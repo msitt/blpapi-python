@@ -204,7 +204,7 @@ class AbstractSession(object):
         re-used.
 
         The ``identity`` supplied must have been returned from this Session's
-        :meth:`createIdentity()` method.
+        :meth:`createIdentity()` method and must not be the session identity.
         """
 
         if correlationId is None:
@@ -333,11 +333,73 @@ class AbstractSession(object):
             internals.blpapi_AbstractSession_createIdentity(self.__handle),
             self)
 
+    def generateAuthorizedIdentity(self,
+                                   authOptions,
+                                   correlationId=None):
+        """Generates an authorized :class:`Identity` with the specified
+        ``authOptions`` and ``correlationId``.
+
+        Args:
+            authOptions (AuthOptions): Used to generate the :class:`Identity`.
+            correlationId (CorrelationId): Optional. Will identify the messages
+                associated with the generated :class:`Identity`.
+        Returns:
+            CorrelationId: Identifies the aforementioned events and the
+            generated :class:`Identity`.
+
+        If this is an asynchronous session then an :class:`Event` may be
+        delivered to the registered ``EventHandler`` before
+        :meth:`generateAuthorizedIdentity()` has returned.
+
+        One or more :attr:`Event.AUTHORIZATION_STATUS` events, zero or more
+        :attr:`Event.TOKEN_STATUS` events, and zero or more
+        :attr:`Event.SERVICE_STATUS` events are generated.
+
+        The behavior is undefined if either ``authOptions`` or
+        ``correlationId`` is ``None``.
+        """
+        if correlationId is None:
+            correlationId = CorrelationId()
+        retcode = internals \
+            .blpapi_AbstractSession_generateAuthorizedIdentityAsync(
+                self.__handle,
+                get_handle(authOptions),
+                get_handle(correlationId))
+        _ExceptionUtil.raiseOnError(retcode)
+        return correlationId
+
+    def getAuthorizedIdentity(self, correlationId=None):
+        """Returns the authorized :class:`Identity` associated with
+        ``correlationId``. If ``correlationId`` is not given, returns the
+        session identity.
+
+        Args:
+            correlationId (CorrelationId): Optional. Associated with an
+                :class:`Identity`.
+
+        Returns:
+            Identity: the :class:`Identity` associated with ``correlationId``.
+
+        Raises:
+            NotFoundException: If there is no :class:`Identity` associated
+                with ``correlationId``, if the associated :class:`Identity` is
+                not authorized, or if ``correlationId`` is not given and the
+                session identity is not authorized.
+        """
+        if correlationId is None:
+            correlationId = CorrelationId()
+        retcode, identity_handle = internals \
+            .blpapi_AbstractSession_getAuthorizedIdentity(
+                self.__handle,
+                get_handle(correlationId))
+        _ExceptionUtil.raiseOnError(retcode)
+        return Identity(identity_handle, self)
+
     # Protect enumeration constant(s) defined in this class and in classes
     # derived from this class from changes:
 
 __copyright__ = """
-Copyright 2012. Bloomberg Finance L.P.
+Copyright 2019. Bloomberg Finance L.P.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to
