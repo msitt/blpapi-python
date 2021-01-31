@@ -2,11 +2,19 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import blpapi
 import copy
 import datetime
 from optparse import OptionParser, Option, OptionValueError
 
+import os
+import platform as plat
+import sys
+if sys.version_info >= (3, 8) and plat.system().lower() == "windows":
+    # pylint: disable=no-member
+    with os.add_dll_directory(os.getenv('BLPAPI_LIBDIR')):
+        import blpapi
+else:
+    import blpapi
 
 BAR_DATA = blpapi.Name("barData")
 BAR_TICK_DATA = blpapi.Name("barTickData")

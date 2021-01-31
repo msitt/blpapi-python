@@ -73,3 +73,10 @@ if sys.version.startswith('2'):
     int_typelist = (int, long)
 else:
     int_typelist = (int,)
+
+# NOTE: string typelist for different python versions
+# to use with isinstance builtin function
+if sys.version.startswith('2'):
+    str_typelist = (str, unicode)
+else:
+    str_typelist = (bytes, str)

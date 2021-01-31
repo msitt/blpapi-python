@@ -9,6 +9,7 @@ Session.
 
 import weakref
 from .element import Element
+from .exception import _ExceptionUtil
 from . import internals
 
 # pylint: disable=useless-object-inheritance
@@ -87,6 +88,23 @@ class Request(object):
         """Equivalent to :meth:`asElement().getElement(name)
         <Element.getElement>`."""
         return self.asElement().getElement(name)
+
+    def getRequestId(self):
+        """
+        Return the request's id if one exists, otherwise return ``None``.
+
+        If there are issues with this request, the request id
+        can be reported to Bloomberg for troubleshooting purposes.
+
+        Note that request id is not the same as correlation
+        id and should not be used for correlation purposes.
+
+        Returns:
+            str: The request id of the request.
+        """
+        rc, requestId = internals.blpapi_Request_getRequestId(self.__handle)
+        _ExceptionUtil.raiseOnError(rc)
+        return requestId
 
     def toString(self, level=0, spacesPerLevel=4):
         """Equivalent to :meth:`asElement().toString(level, spacesPerLevel)

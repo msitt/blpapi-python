@@ -2,17 +2,19 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import blpapi
-import time
-from optparse import OptionParser
+from optparse import OptionParser, OptionValueError
 
-TOKEN_SUCCESS = blpapi.Name("TokenGenerationSuccess")
-TOKEN_FAILURE = blpapi.Name("TokenGenerationFailure")
-AUTHORIZATION_SUCCESS = blpapi.Name("AuthorizationSuccess")
+import os
+import platform as plat
+import sys
+if sys.version_info >= (3, 8) and plat.system().lower() == "windows":
+    # pylint: disable=no-member
+    with os.add_dll_directory(os.getenv('BLPAPI_LIBDIR')):
+        import blpapi
+else:
+    import blpapi
+
 REFERENCE_DATA_RESPONSE = blpapi.Name("ReferenceDataResponse")
-TOKEN = blpapi.Name("token")
-AUTH_SERVICE = "//blp/apiauth"
-
 
 ELEMENT_DATATYPE_NAMES = {
     blpapi.DataType.BOOL: "BOOL",
@@ -43,6 +45,46 @@ SCHEMA_STATUS_NAMES = {
 }
 
 
+def authOptionCallback(option, opt, value, parser):
+    """Parse authorization options from user input"""
+
+    vals = value.split('=', 1)
+
+    if value == "user":
+        authUser = blpapi.AuthUser.createWithLogonName()
+        authOptions = blpapi.AuthOptions.createWithUser(authUser)
+    elif value == "none":
+        authOptions = None
+    elif vals[0] == "app" and len(vals) == 2:
+        appName = vals[1]
+        authOptions = blpapi.AuthOptions.createWithApp(appName)
+    elif vals[0] == "userapp" and len(vals) == 2:
+        appName = vals[1]
+        authUser = blpapi.AuthUser.createWithLogonName()
+        authOptions = blpapi.AuthOptions\
+            .createWithUserAndApp(authUser, appName)
+    elif vals[0] == "dir" and len(vals) == 2:
+        activeDirectoryProperty = vals[1]
+        authUser = blpapi.AuthUser\
+            .createWithActiveDirectoryProperty(activeDirectoryProperty)
+        authOptions = blpapi.AuthOptions.createWithUser(authUser)
+    elif vals[0] == "manual":
+        parts = []
+        if len(vals) == 2:
+            parts = vals[1].split(',')
+
+        if len(parts) != 3:
+            raise OptionValueError("Invalid auth option {}".format(value))
+
+        appName, ip, userId = parts
+
+        authUser = blpapi.AuthUser.createWithManualOptions(userId, ip)
+        authOptions = blpapi.AuthOptions.createWithUserAndApp(authUser, appName)
+    else:
+        raise OptionValueError("Invalid auth option '{}'".format(value))
+
+    parser.values.auth = {'option' : authOptions}
+
 def parseCmdLine():
     parser = OptionParser()
     parser.add_option("-a",
@@ -63,120 +105,28 @@ def parseCmdLine():
                       default="//blp/apiflds",
                       help="SERVICE to print the schema of "
                       "('//blp/apiflds' by default)")
-    parser.add_option("",
-                      "--auth-type",
-                      type="choice",
-                      choices=["LOGON", "NONE", "APPLICATION", "DIRSVC",
-                      "USER_APP"],
-                      dest="authType",
-                      help="Authentification type: LOGON (default), NONE, "
-                      "APPLICATION, DIRSVC or USER_APP",
-                      default="LOGON")
-    parser.add_option("",
-                      "--auth-name",
-                      dest="authName",
-                      help="The name of application or directory service",
-                      default="")
-
-    (options, args) = parser.parse_args()
-
-    options.auth = getAuthentificationOptions(options.authType,
-                                              options.authName)
-
+    parser.add_option("--auth",
+                      dest="auth",
+                      help="authentication option: "
+                           "user|none|app=<app>|userapp=<app>|dir=<property>"
+                           "|manual=<app,ip,user>"
+                           " (default: user)\n"
+                           "'none' is applicable to Desktop API product "
+                           "that requires Bloomberg Professional service "
+                           "to be installed locally.",
+                      metavar="option",
+                      action="callback",
+                      callback=authOptionCallback,
+                      type="string",
+                      default={"option" :
+                               blpapi.AuthOptions.createWithUser(
+                                      blpapi.AuthUser.createWithLogonName())})
+    (options, _) = parser.parse_args()
     return options
 
 
-def getAuthentificationOptions(type, name):
-    if type == "NONE":
-        return None
-    elif type == "USER_APP":
-        return "AuthenticationMode=USER_AND_APPLICATION;"\
-            "AuthenticationType=OS_LOGON;"\
-            "ApplicationAuthenticationType=APPNAME_AND_KEY;"\
-            "ApplicationName=" + name
-    elif type == "APPLICATION":
-        return "AuthenticationMode=APPLICATION_ONLY;"\
-            "ApplicationAuthenticationType=APPNAME_AND_KEY;"\
-            "ApplicationName=" + name
-    elif type == "DIRSVC":
-        return "AuthenticationType=DIRECTORY_SERVICE;"\
-            "DirSvcPropertyName=" + name
-    else:
-        return "AuthenticationType=OS_LOGON"
-
-
 def printMessage(msg):
-    if msg.messageType() != REFERENCE_DATA_RESPONSE:
-        print("[{0}]: {1}".format(", ".join(map(str, msg.correlationIds())),
-                                  msg))
-    else:
-        # This case demonstrates how to get values of individual elements
-        securityDataArray = msg.getElement("securityData")
-        for securityData in securityDataArray.values():
-            securityName = securityData.getElementValue("security")
-            print(securityName)
-            fieldData = securityData.getElement("fieldData")
-            for fieldName in options.field:
-                try:
-                    fieldValue = fieldData.getElementValue(fieldName)
-                    print(("%s %s" % (fieldName, fieldValue)))
-                except:
-                    print(("%s n/a" % fieldName))
-
-
-def auth(session):
-    eq = blpapi.EventQueue()
-
-    # Generate token
-    session.generateToken(eventQueue=eq)
-
-    # Process related response
-    ev = eq.nextEvent()
-    token = None
-    if ev.eventType() == blpapi.Event.TOKEN_STATUS:
-        for msg in ev:
-            printMessage(msg)
-            if msg.messageType() == TOKEN_SUCCESS:
-                token = msg.getElementAsString(TOKEN)
-            elif msg.messageType() == TOKEN_FAILURE:
-                break
-    if not token:
-        raise Exception("Failed to get token")
-
-    # Purge EventQueue to reuse one for the next request
-    eq.purge()
-
-    # Open authentification service
-    if not session.openService(AUTH_SERVICE):
-        raise Exception("Failed to open auth service")
-
-    # Obtain opened service
-    authService = session.getService(AUTH_SERVICE)
-
-    # Create and fill the authorization request
-    authRequest = authService.createAuthorizationRequest()
-    authRequest.set(TOKEN, token)
-
-    # Create Identity
-    identity = session.createIdentity()
-
-    # Send authorization request to "fill" the Identity
-    session.sendAuthorizationRequest(authRequest, identity, eventQueue=eq)
-
-    # Process related responses
-    while True:
-        ev = eq.nextEvent()
-        if ev.eventType() in set([
-                blpapi.Event.RESPONSE,
-                blpapi.Event.PARTIAL_RESPONSE,
-                blpapi.Event.REQUEST_STATUS]):
-            for msg in ev:
-                printMessage(msg)
-                if msg.messageType() == AUTHORIZATION_SUCCESS:
-                    # auth passed, identity "filled"
-                    return identity
-                else:
-                    raise Exception("Authorization failed")
+    print("[{0}]: {1}".format(", ".join(map(str, msg.correlationIds())), msg))
 
 
 def getIndent(level):
@@ -273,8 +223,7 @@ def main():
     sessionOptions = blpapi.SessionOptions()
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(options.port)
-    if options.auth:
-        sessionOptions.setAuthenticationOptions(options.auth)
+    sessionOptions.setSessionIdentityOptions(options.auth['option'])
 
     # Create a Session
     session = blpapi.Session(sessionOptions)
@@ -285,17 +234,6 @@ def main():
 
     try:
         print("Session started.")
-
-        # Perform authentification
-        if options.auth:
-            identity = auth(session)
-            print("Authentification passed ({0})".format(
-                {-1: "Unknown seat type",
-                 0: "BPS",
-                 1: "No BPS"}[identity.getSeatType()]))
-        else:
-            identity = None
-            print("No authentification specified")
 
         # Open service to get reference data from
         if not session.openService(options.service):

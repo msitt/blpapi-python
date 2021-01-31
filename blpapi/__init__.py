@@ -1,6 +1,7 @@
 # __init__.py
 
 # pylint: disable=missing-docstring,redefined-builtin,wildcard-import
+# pylint: disable=raise-missing-from
 
 try:
     from .internals import CorrelationId
@@ -36,6 +37,9 @@ from .topic import Topic
 from .topiclist import TopicList
 from .zfputil import ZfpUtil
 from .version import __version__, version, cpp_sdk_version, print_version
+
+# blpapi.test module
+from .test import *
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

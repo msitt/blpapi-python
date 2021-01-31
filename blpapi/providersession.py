@@ -76,7 +76,7 @@ from . import utils
 from .utils import get_handle
 from .compat import with_metaclass
 
-# pylint: disable=line-too-long,bad-continuation,useless-object-inheritance,too-many-lines
+# pylint: disable=line-too-long,useless-object-inheritance,too-many-lines
 # pylint: disable=protected-access,too-many-public-methods,bare-except,too-many-function-args
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
@@ -160,9 +160,7 @@ class ServiceRegistrationOptions(object):
         are considered as Group Id.
         """
         internals.blpapi_ServiceRegistrationOptions_setGroupId(
-            self.__handle, groupId.encode('utf-8'))
-            # NOTE: we should convert groupId to bytes here because
-            # otherwise we'll get an error in SWIG wrapper.
+            self.__handle, groupId)
 
     def setServicePriority(self, priority):
         """Set the priority with which a subscription service will be
@@ -301,7 +299,7 @@ class ProviderSession(AbstractSession):
     __handlerProxy = None
 
     @staticmethod
-    def __dispatchEvent(sessionRef, eventHandle):
+    def __dispatchEvent(sessionRef, eventHandle): # pragma: no cover
         """Use sessions ref to dispatch an event"""
         try:
             session = sessionRef()

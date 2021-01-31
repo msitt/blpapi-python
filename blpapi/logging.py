@@ -6,10 +6,10 @@
  register a callback for logging"""
 
 from __future__ import absolute_import
-from datetime import datetime
 from blpapi import internals
 from . import utils
 from .compat import with_metaclass
+from .datetime import _DatetimeUtil
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
 class Logger:
@@ -25,6 +25,8 @@ class Logger:
     SEVERITY_DEBUG = internals.blpapi_Logging_SEVERITY_DEBUG
     SEVERITY_TRACE = internals.blpapi_Logging_SEVERITY_TRACE
 
+    loggerCallbacksLocal = [] # needed for temporary ref. holding
+
     @staticmethod
     def registerCallback(callback, thresholdSeverity=SEVERITY_INFO):
         """Register the specified 'callback' that will be called for all log
@@ -32,17 +34,26 @@ class Logger:
         'thresholdSeverity'.  The callback needs to be registered before the
         start of all sessions.  If this function is called multiple times, only
         the last registered callback will take effect. An exception of type
-        'RuntimeError' will be thrown if 'callback' cannot be registered."""
+        'RuntimeError' will be thrown if 'callback' cannot be registered.
+        If callback is None, any existing callback shall be removed."""
         def callbackWrapper(threadId, severity, ts, category, message):
-            dt = datetime.fromtimestamp(ts)
+            dt = _DatetimeUtil.convertToNativeNotHighPrecision(ts)
             callback(threadId, severity, dt, category, message)
 
+        callbackRef = None if callback is None else callbackWrapper
+        # we store a reference to callbackWrapper (that binds callback)
+        # for as long as it may be needed, i.e. until gc or re-register
+        Logger.loggerCallbacksLocal.append(callbackRef)
         err_code = internals.setLoggerCallbackWrapper(
-            callbackWrapper, thresholdSeverity)
+            callbackRef, thresholdSeverity)
+
+        if len(Logger.loggerCallbacksLocal) > 1:
+            # we have a new cb now, let the previous one go
+            Logger.loggerCallbacksLocal.pop(0)
 
         if err_code == -1:
             raise ValueError("parameter must be a function")
-        elif err_code == -2:
+        if err_code == -2:
             raise RuntimeError("unable to register callback")
 
     @staticmethod

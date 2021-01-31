@@ -2,6 +2,14 @@
 
 """Internal utils."""
 
+import functools
+import warnings
+
+MIN_32BIT_INT = -(2**31)
+MAX_32BIT_INT = 2**31 - 1
+MIN_64BIT_INT = -(2**63)
+MAX_64BIT_INT = 2**63 - 1
+
 #pylint: disable=too-few-public-methods, useless-object-inheritance
 class Iterator(object):
     """Universal iterator for many of BLPAPI objects.
@@ -39,10 +47,9 @@ class Iterator(object):
     def __next__(self):
         if self.__index == self.__num:
             raise StopIteration()
-        else:
-            res = self.__getter(self.__obj, self.__index)
-            self.__index += 1
-            return res
+        res = self.__getter(self.__obj, self.__index)
+        self.__index += 1
+        return res
 
     next = __next__
 
@@ -58,7 +65,6 @@ class MetaClassForClassesWithEnums(type):
     class EnumError(TypeError):
         """Raise this on attempt to change value of an enumeration constant.
         """
-        pass
 
     def __setattr__(cls, name, value):
         """Change the value of an attribute if it is not an enum.
@@ -67,8 +73,7 @@ class MetaClassForClassesWithEnums(type):
         """
         if name.isupper() and name in cls.__dict__:
             raise cls.EnumError("Can't change value of enum %s" % name)
-        else:
-            type.__setattr__(cls, name, value)
+        type.__setattr__(cls, name, value)
 
     def __delattr__(cls, name):
         """Unbind the attribute if it is not an enum.
@@ -77,8 +82,7 @@ class MetaClassForClassesWithEnums(type):
         """
         if name.isupper() and name in cls.__dict__:
             raise cls.EnumError("Can't unbind enum %s" % name)
-        else:
-            type.__delattr__(cls, name)
+        type.__delattr__(cls, name)
 
 def get_handle(thing):
     """Returns the result of thing._handle() or None if thing is None"""
@@ -89,6 +93,51 @@ def invoke_if_valid(cb, value):
     if cb is None or not callable(cb):
         return value
     return cb(value)
+
+def deprecated(func_or_reason):
+    '''
+    This is a decorator which can be used to mark classes or functions
+    as deprecated. It results in a warning being emitted when the class or the
+    function is called.
+
+    To use this, decorate the deprecated class or function with
+    **@deprecated** with or without a message:
+
+        code-block:: python
+
+        from blpapi.util import deprecated
+
+        @deprecated
+        def old_function(msg):
+            print(msg)
+
+        @deprecated
+        class OldClass:
+
+            @deprecated("use another function")
+            def old_function(self, msg);
+                print(msg)
+    '''
+
+    is_func = callable(func_or_reason)
+    message = "see docstring for details." if is_func else func_or_reason
+
+    def decorate(func):
+
+        @functools.wraps(func)
+        def wrap_func(*args, **kwargs):
+            warnings.warn(
+                "%s is deprecated, %s." % (func.__name__, message),
+                category=DeprecationWarning,
+                stacklevel=2)
+            return func(*args, **kwargs)
+
+        return wrap_func
+
+    if is_func:
+        return decorate(func_or_reason)
+
+    return decorate
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

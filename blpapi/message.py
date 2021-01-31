@@ -10,13 +10,13 @@ inside an event and containing elements.
 
 from __future__ import absolute_import
 import sys
-import warnings
 import weakref
 from blpapi.datetime import _DatetimeUtil, UTC
 from .element import Element
+from .exception import _ExceptionUtil
 from .name import Name
 from . import internals
-from . import utils
+from .utils import deprecated, MetaClassForClassesWithEnums
 from .compat import with_metaclass
 
 # pylint: disable=useless-object-inheritance,protected-access
@@ -28,7 +28,7 @@ if service is None:
     from . import service
 
 
-@with_metaclass(utils.MetaClassForClassesWithEnums)
+@with_metaclass(MetaClassForClassesWithEnums)
 class Message(object):
     """A handle to a single message.
 
@@ -140,6 +140,7 @@ class Message(object):
         return internals.blpapi_Message_recapType(self.__handle)
 
 
+    @deprecated
     def topicName(self):
         """
         Returns:
@@ -161,11 +162,6 @@ class Message(object):
         their application to help retrieve the topic name associated with the
         cid's present in the delivered message.
         """
-
-        warnings.warn(
-            "This method is deprecated, see docstring for details",
-            DeprecationWarning)
-
         return internals.blpapi_Message_topicName(self.__handle)
 
     def service(self):
@@ -243,6 +239,24 @@ class Message(object):
         <Element.getElementAsDatetime()>`."""
         return self.asElement().getElementAsDatetime(name)
 
+    def getRequestId(self):
+        """Return the message's request id if one exists, otherwise return
+        ``None``.
+
+        When present, the request id can be reported to Bloomberg to
+        troubleshoot the cause of failure messages, or issues with the data
+        contained in the message.
+
+        Note that request id is not the same as correlation id and should
+        not be used for correlation purposes.
+
+        Returns:
+            str: The request id of the message.
+        """
+        rc, requestId = internals.blpapi_Message_getRequestId(self.__handle)
+        _ExceptionUtil.raiseOnError(rc)
+        return requestId
+
     def asElement(self):
         """
         Returns:
@@ -274,7 +288,10 @@ class Message(object):
         ``spacesPerLevel`` is negative, format the entire output on one line,
         suppressing all but the initial indentation (as governed by ``level``).
         """
-        return self.asElement().toString(level, spacesPerLevel)
+        return internals.blpapi_Message_printHelper(
+            self.__handle,
+            level,
+            spacesPerLevel)
 
     def timeReceived(self, tzinfo=UTC):
         """Get the time when the message was received by the SDK.

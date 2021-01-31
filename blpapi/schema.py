@@ -197,6 +197,10 @@ class SchemaElementDefinition(object):
             level,
             spacesPerLevel)
 
+    def _handle(self):
+        """Return the internal implementation."""
+        return self.__handle
+
     def _sessions(self):
         """Return session(s) this object is related to. For internal use."""
         return self.__sessions

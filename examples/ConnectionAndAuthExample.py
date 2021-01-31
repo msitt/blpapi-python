@@ -5,10 +5,18 @@ using different host and ports, with a session identity.
 """
 
 from __future__ import print_function
-
-from argparse import ArgumentParser, Action
-import blpapi
-from blpapi import AuthOptions, AuthUser
+from argparse import ArgumentParser, Action, RawTextHelpFormatter
+import os
+import sys
+import platform as plat
+if sys.version_info >= (3, 8) and plat.system().lower() == "windows":
+    # pylint: disable=no-member
+    with os.add_dll_directory(os.getenv('BLPAPI_LIBDIR')):
+        import blpapi
+        from blpapi import AuthOptions, AuthUser
+else:
+    import blpapi
+    from blpapi import AuthOptions, AuthUser
 
 NONE = "none"
 USER = "user"
@@ -25,7 +33,7 @@ class AuthOptionsAction(Action):  # pylint: disable=too-few-public-methods
 
         auth = None
         if vals[0] == NONE:
-            auth = AuthOptions.createDefault()
+            auth = None
         elif vals[0] == USER:
             user = AuthUser.createWithLogonName()
             auth = AuthOptions.createWithUser(user)
@@ -101,8 +109,9 @@ def getTlsOptions(args):
 def parseCmdLine():
     """Parse command line arguments"""
 
-    parser = ArgumentParser(description="Connection and Auth example")
-
+    parser = ArgumentParser(description="Connection and Auth example",
+                            formatter_class=lambda prog: RawTextHelpFormatter(
+                                                               prog, width=99))
     defaultUser = AuthUser.createWithLogonName()
     defaultAuthOptions = AuthOptions.createWithUser(defaultUser)
 
@@ -111,7 +120,10 @@ def parseCmdLine():
                         help="authentication option: "
                         "user|none|app=<app>|userapp=<app>|dir=<property>|"
                         "manual=<app,ip,user>"
-                        " (default: user)",
+                        " (default: user)\n"
+                        "'none' is applicable to Desktop API product "
+                        "that requires Bloomberg Professional service "
+                        "to be installed locally.",
                         metavar="option",
                         action=AuthOptionsAction,
                         default=defaultAuthOptions)

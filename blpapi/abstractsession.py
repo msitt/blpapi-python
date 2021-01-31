@@ -110,7 +110,8 @@ class AbstractSession(object):
             serviceName (str): Name of the service
 
         Returns:
-            Service: service identified by the specified ``serviceName``.
+            bool: ``True`` if the service is opened successfully, ``False``
+            otherwise.
 
         Attempt to open the service identified by the specified ``serviceName``
         and block until the service is either opened successfully or has failed
@@ -216,8 +217,8 @@ class AbstractSession(object):
                 get_handle(identity),
                 get_handle(correlationId),
                 get_handle(eventQueue),
-                None,  # no request label
-                0))    # request label length 0
+                None # no request label
+                ))
         if eventQueue is not None:
             eventQueue._registerSession(self)
         return correlationId
@@ -249,8 +250,7 @@ class AbstractSession(object):
             self.__handle,
             get_handle(correlationId),
             1,     # number of correlation IDs supplied
-            None,  # no request label
-            0))    # request label length 0
+            None))   # no request label
 
     def generateToken(self, correlationId=None,
                       eventQueue=None, authId=None, ipAddress=None):

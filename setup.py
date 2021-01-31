@@ -101,7 +101,7 @@ setup(
     description='Python SDK for Bloomberg BLPAPI',
     ext_modules=[blpapi_wrap, versionhelper_wrap],
     url='http://www.bloomberglabs.com/api/',
-    packages=["blpapi"],
+    packages=["blpapi", "blpapi.test"],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

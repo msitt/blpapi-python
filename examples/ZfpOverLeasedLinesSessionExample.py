@@ -10,55 +10,55 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 from argparse import ArgumentParser, Action
-import blpapi
+
+import os
+import platform as plat
+import sys
+if sys.version_info >= (3, 8) and plat.system().lower() == "windows":
+    # pylint: disable=no-member
+    with os.add_dll_directory(os.getenv('BLPAPI_LIBDIR')):
+        import blpapi
+        from blpapi import AuthOptions, AuthUser
+else:
+    import blpapi
+    from blpapi import AuthOptions, AuthUser
 
 class AuthOptionsAction(Action):  # pylint: disable=too-few-public-methods
     """Parse authorization args from user input"""
 
     def __call__(self, parser, args, values, option_string=None):
-
-        value = values
-        vals = value.split("=", 1)
+        vals = values.split("=", 1)
 
         auth = None
-        value = values
-        if value == "user":
-            auth = {"option" : "AuthenticationType=OS_LOGON"}
-        elif value == "none":
-            auth = {"option" : None}
+        if vals[0] == "none":
+            auth = None
+        elif vals[0] == "user":
+            user = AuthUser.createWithLogonName()
+            auth = AuthOptions.createWithUser(user)
         elif vals[0] == "app" and len(vals) == 2:
-            auth = {
-                "option" : "AuthenticationMode=APPLICATION_ONLY;"
-                           "ApplicationAuthenticationType=APPNAME_AND_KEY;"
-                           "ApplicationName=" + vals[1]}
+            appName = vals[1]
+            auth = AuthOptions.createWithApp(appName)
         elif vals[0] == "userapp" and len(vals) == 2:
-            auth = {
-                "option" : "AuthenticationMode"
-                           "=USER_AND_APPLICATION;AuthenticationType=OS_LOGON;"
-                           "ApplicationAuthenticationType=APPNAME_AND_KEY;"
-                           "ApplicationName=" + vals[1]}
+            appName = vals[1]
+            user = AuthUser.createWithLogonName()
+            auth = AuthOptions.createWithUserAndApp(user, appName)
         elif vals[0] == "dir" and len(vals) == 2:
-            auth = {
-                "option" : "AuthenticationType=DIRECTORY_SERVICE;"
-                           "DirSvcPropertyName=" + vals[1]}
+            dirProperty = vals[1]
+            user = AuthUser.createWithActiveDirectoryProperty(dirProperty)
+            auth = AuthOptions.createWithUser(user)
         elif vals[0] == "manual":
             parts = []
             if len(vals) == 2:
                 parts = vals[1].split(",")
 
             if len(parts) != 3:
-                raise ValueError("Invalid auth option '%s'" % value)
+                raise ValueError("Invalid auth option '%s'" % values)
 
-            option = ("AuthenticationMode=USER_AND_APPLICATION;"
-                      "AuthenticationType=MANUAL;"
-                      "ApplicationAuthenticationType=APPNAME_AND_KEY;"
-                      "ApplicationName=") + parts[0]
-
-            auth = {"option" : option,
-                    "manual" : {"ip"   : parts[1],
-                                "user" : parts[2]}}
+            appName, ipAddress, userId = parts
+            user = AuthUser.createWithManualOptions(userId, ipAddress)
+            auth = AuthOptions.createWithUserAndApp(user, appName)
         else:
-            raise ValueError("Invalid auth option '%s'" % value)
+            raise ValueError("Invalid auth option '%s'" % values)
 
         setattr(args, self.dest, auth)
 
@@ -74,16 +74,18 @@ def parseCmdLine():
                         type=int,
                         default=8194,
                         metavar="port")
-
     parser.add_argument("--auth",
                         dest="auth",
                         help="authentication option: "
                         "user|none|app=<app>|userapp=<app>|dir=<property>|"
                         "manual=<app,ip,user>"
-                        " (default: none)",
+                        " (default: none)\n"
+                        "'none' is applicable to Desktop API product "
+                        "that requires Bloomberg Professional service "
+                        "to be installed locally.",
                         metavar="option",
                         action=AuthOptionsAction,
-                        default={"option" : None})
+                        default=None)
 
     # TLS Options
     parser.add_argument("--tls-client-credentials",
@@ -164,7 +166,7 @@ def main():
 
     # Fill SessionOptions
     sessionOptions = prepareZfpSessionOptions(args)
-    sessionOptions.setAuthenticationOptions(args.auth['option'])
+    sessionOptions.setSessionIdentityOptions(args.auth)
     sessionOptions.setAutoRestartOnDisconnection(True)
 
     numHosts = sessionOptions.numServerAddresses()

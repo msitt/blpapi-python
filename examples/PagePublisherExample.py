@@ -2,21 +2,24 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import blpapi
-# compatibility between python 2 and 3
-from blpapi.compat import with_metaclass
 import time
 from optparse import OptionParser, OptionValueError
 import datetime
 import threading
 
-AUTHORIZATION_SUCCESS = blpapi.Name("AuthorizationSuccess")
+import os
+import platform as plat
+import sys
+if sys.version_info >= (3, 8) and plat.system().lower() == "windows":
+    # pylint: disable=no-member
+    with os.add_dll_directory(os.getenv('BLPAPI_LIBDIR')):
+        import blpapi
+else:
+    import blpapi
+
 RESOLUTION_SUCCESS = blpapi.Name("ResolutionSuccess")
 PERMISSION_REQUEST = blpapi.Name("PermissionRequest")
 SESSION_TERMINATED = blpapi.Name("SessionTerminated")
-TOKEN = blpapi.Name("token")
-TOKEN_SUCCESS = blpapi.Name("TokenGenerationSuccess")
-TOKEN_FAILURE = blpapi.Name("TokenGenerationFailure")
 TOPICS = blpapi.Name("topics")
 TOPIC_CREATED = blpapi.Name("TopicCreated")
 TOPIC_RECAP = blpapi.Name("TopicRecap")
@@ -26,16 +29,6 @@ TOPIC_UNSUBSCRIBED = blpapi.Name("TopicUnsubscribed")
 
 g_running = True
 g_mutex = threading.Lock()
-
-
-@with_metaclass(blpapi.utils.MetaClassForClassesWithEnums)
-class AuthorizationStatus:
-    WAITING = 1
-    AUTHORIZED = 2
-    FAILED = 3
-
-
-g_authorizationStatus = dict()
 
 
 class MyStream(object):
@@ -204,42 +197,48 @@ class MyEventHandler(object):
         else:
             for msg in event:
                 print(msg)
-                cids = msg.correlationIds()
-                with g_mutex:
-                    for cid in cids:
-                        if cid in g_authorizationStatus:
-                            if msg.messageType() == AUTHORIZATION_SUCCESS:
-                                g_authorizationStatus[cid] = \
-                                    AuthorizationStatus.AUTHORIZED
-                            else:
-                                g_authorizationStatus[cid] = \
-                                    AuthorizationStatus.FAILED
-
         return True
 
 
 def authOptionCallback(option, opt, value, parser):
+    """Parse authorization options from user input"""
+
     vals = value.split('=', 1)
 
     if value == "user":
-        parser.values.auth = "AuthenticationType=OS_LOGON"
+        authUser = blpapi.AuthUser.createWithLogonName()
+        authOptions = blpapi.AuthOptions.createWithUser(authUser)
     elif value == "none":
-        parser.values.auth = None
+        authOptions = None
     elif vals[0] == "app" and len(vals) == 2:
-        parser.values.auth = "AuthenticationMode=APPLICATION_ONLY;"\
-            "ApplicationAuthenticationType=APPNAME_AND_KEY;"\
-            "ApplicationName=" + vals[1]
+        appName = vals[1]
+        authOptions = blpapi.AuthOptions.createWithApp(appName)
     elif vals[0] == "userapp" and len(vals) == 2:
-        parser.values.auth = "AuthenticationMode=USER_AND_APPLICATION;"\
-            "AuthenticationType=OS_LOGON;"\
-            "ApplicationAuthenticationType=APPNAME_AND_KEY;"\
-            "ApplicationName=" + vals[1]
+        appName = vals[1]
+        authUser = blpapi.AuthUser.createWithLogonName()
+        authOptions = blpapi.AuthOptions\
+            .createWithUserAndApp(authUser, appName)
     elif vals[0] == "dir" and len(vals) == 2:
-        parser.values.auth = "AuthenticationType=DIRECTORY_SERVICE;"\
-            "DirSvcPropertyName=" + vals[1]
-    else:
-        raise OptionValueError("Invalid auth option '%s'" % value)
+        activeDirectoryProperty = vals[1]
+        authUser = blpapi.AuthUser\
+            .createWithActiveDirectoryProperty(activeDirectoryProperty)
+        authOptions = blpapi.AuthOptions.createWithUser(authUser)
+    elif vals[0] == "manual":
+        parts = []
+        if len(vals) == 2:
+            parts = vals[1].split(',')
 
+        if len(parts) != 3:
+            raise OptionValueError("Invalid auth option {}".format(value))
+
+        appName, ip, userId = parts
+
+        authUser = blpapi.AuthUser.createWithManualOptions(userId, ip)
+        authOptions = blpapi.AuthOptions.createWithUserAndApp(authUser, appName)
+    else:
+        raise OptionValueError("Invalid auth option '{}'".format(value))
+
+    parser.values.auth = {'option' : authOptions}
 
 def parseCmdLine():
     parser = OptionParser(description="Publish on a topic.")
@@ -275,67 +274,26 @@ def parseCmdLine():
     parser.add_option("--auth",
                       dest="auth",
                       help="authentication option: "
-                      "user|none|app=<app>|userapp=<app>|dir=<property>"
-                      " (default: %default)",
+                           "user|none|app=<app>|userapp=<app>|dir=<property>"
+                           "|manual=<app,ip,user>"
+                           " (default: user)\n"
+                           "'none' is applicable to Desktop API product "
+                           "that requires Bloomberg Professional service "
+                           "to be installed locally.",
                       metavar="option",
                       action="callback",
                       callback=authOptionCallback,
                       type="string",
-                      default="user")
+                      default={"option" :
+                               blpapi.AuthOptions.createWithUser(
+                                      blpapi.AuthUser.createWithLogonName())})
 
-    (options, args) = parser.parse_args()
+    (options, _) = parser.parse_args()
 
     if not options.hosts:
         options.hosts = ["localhost"]
 
     return options
-
-
-def authorize(authService, identity, session, cid):
-    with g_mutex:
-        g_authorizationStatus[cid] = AuthorizationStatus.WAITING
-
-    tokenEventQueue = blpapi.EventQueue()
-
-    # Generate token
-    session.generateToken(eventQueue=tokenEventQueue)
-
-    # Process related response
-    ev = tokenEventQueue.nextEvent()
-    token = None
-    if ev.eventType() == blpapi.Event.TOKEN_STATUS or \
-            ev.eventType() == blpapi.Event.REQUEST_STATUS:
-        for msg in ev:
-            print(msg)
-            if msg.messageType() == TOKEN_SUCCESS:
-                token = msg.getElementAsString(TOKEN)
-            elif msg.messageType() == TOKEN_FAILURE:
-                break
-    if not token:
-        print("Failed to get token")
-        return False
-
-    # Create and fill the authorization request
-    authRequest = authService.createAuthorizationRequest()
-    authRequest.set(TOKEN, token)
-
-    # Send authorization request to "fill" the Identity
-    session.sendAuthorizationRequest(authRequest, identity, cid)
-
-    # Process related responses
-    startTime = datetime.datetime.today()
-    WAIT_TIME_SECONDS = datetime.timedelta(seconds=10)
-    while True:
-        with g_mutex:
-            if AuthorizationStatus.WAITING != g_authorizationStatus[cid]:
-                return AuthorizationStatus.AUTHORIZED == \
-                    g_authorizationStatus[cid]
-
-        endTime = datetime.datetime.today()
-        if endTime - startTime > WAIT_TIME_SECONDS:
-            return False
-
-        time.sleep(1)
 
 
 def main():
@@ -345,7 +303,7 @@ def main():
     sessionOptions = blpapi.SessionOptions()
     for idx, host in enumerate(options.hosts):
         sessionOptions.setServerAddress(host, options.port, idx)
-    sessionOptions.setAuthenticationOptions(options.auth)
+    sessionOptions.setSessionIdentityOptions(options.auth['option'])
     sessionOptions.setAutoRestartOnDisconnection(True)
     sessionOptions.setNumStartAttempts(len(options.hosts))
 
@@ -363,34 +321,20 @@ def main():
         print("Failed to start session.")
         return
 
-    providerIdentity = session.createIdentity()
-
-    if options.auth:
-        isAuthorized = False
-        authServiceName = "//blp/apiauth"
-        if session.openService(authServiceName):
-            authService = session.getService(authServiceName)
-            isAuthorized = authorize(
-                authService, providerIdentity, session,
-                blpapi.CorrelationId("auth"))
-        if not isAuthorized:
-            print("No authorization")
-            return
-
     serviceOptions = blpapi.ServiceRegistrationOptions()
     if options.groupId is not None:
         serviceOptions.setGroupId(options.groupId)
     serviceOptions.setServicePriority(options.priority)
 
-    if not session.registerService(options.service,
-                                   providerIdentity,
-                                   serviceOptions):
-        print("Failed to register '%s'" % options.service)
-        return
-
-    service = session.getService(options.service)
-
     try:
+        if not session.registerService(options.service,
+                                       session.getAuthorizedIdentity(),
+                                       serviceOptions):
+            print("Failed to register '%s'" % options.service)
+            return
+
+        service = session.getService(options.service)
+
         # Now we will start publishing
         value = 1
         while g_running:

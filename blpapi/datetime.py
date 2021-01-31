@@ -151,6 +151,46 @@ class _DatetimeUtil(object):
                         blpapiDatetime.seconds,
                         microsecs,
                         tzinfo)
+    @staticmethod
+    def convertToNativeNotHighPrecision(blpapiDatetime):
+        """Convert BLPAPI Datetime object to a suitable Python object.
+        This version should only be used for logging callback which does not
+        provide a high precision datetime alternative."""
+
+        parts = blpapiDatetime.parts
+        hasDate = parts & internals.DATETIME_DATE_PART == \
+            internals.DATETIME_DATE_PART
+        hasTime = parts & internals.DATETIME_TIME_PART == \
+            internals.DATETIME_TIME_PART
+        microsecs = blpapiDatetime.milliSeconds * 1000 if parts & \
+            internals.DATETIME_MILLISECONDS_PART else 0
+        tzinfo = FixedOffset(blpapiDatetime.offset) if parts & \
+            internals.DATETIME_OFFSET_PART else None
+        if hasDate:
+            if hasTime:
+                return _dt.datetime(blpapiDatetime.year,
+                                    blpapiDatetime.month,
+                                    blpapiDatetime.day,
+                                    blpapiDatetime.hours,
+                                    blpapiDatetime.minutes,
+                                    blpapiDatetime.seconds,
+                                    microsecs,
+                                    tzinfo)
+            # Skip an offset, because it's not informative in case of
+            # there is a date without the time
+            return _dt.date(blpapiDatetime.year,
+                            blpapiDatetime.month,
+                            blpapiDatetime.day)
+
+        if not hasTime:
+            raise ValueError(
+                "Datetime object misses both time and date parts",
+                blpapiDatetime)
+        return _dt.time(blpapiDatetime.hours,
+                        blpapiDatetime.minutes,
+                        blpapiDatetime.seconds,
+                        microsecs,
+                        tzinfo)
 
     @staticmethod
     def isDatetime(dtime):

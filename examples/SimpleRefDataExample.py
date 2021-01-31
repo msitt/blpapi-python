@@ -2,9 +2,17 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import blpapi
 from optparse import OptionParser
 
+import os
+import platform as plat
+import sys
+if sys.version_info >= (3, 8) and plat.system().lower() == "windows":
+    # pylint: disable=no-member
+    with os.add_dll_directory(os.getenv('BLPAPI_LIBDIR')):
+        import blpapi
+else:
+    import blpapi
 
 def parseCmdLine():
     parser = OptionParser(description="Retrieve reference data.")

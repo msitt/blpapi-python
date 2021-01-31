@@ -3,8 +3,18 @@ from __future__ import print_function
 
 # pylint: disable=deprecated-module
 from optparse import OptionParser, OptionValueError
-import blpapi
-from blpapi import AuthOptions, AuthUser
+
+import os
+import platform as plat
+import sys
+if sys.version_info >= (3, 8) and plat.system().lower() == "windows":
+    # pylint: disable=no-member
+    with os.add_dll_directory(os.getenv('BLPAPI_LIBDIR')):
+        import blpapi
+        from blpapi import AuthOptions, AuthUser
+else:
+    import blpapi
+    from blpapi import AuthOptions, AuthUser
 
 NONE = "none"
 USER = "user"
@@ -47,7 +57,10 @@ def parseCmdLine():
                       dest="authType",
                       help="authorization option: "
                            "none|user|app=<appName>|userapp=<appName>"
-                           " (default: user)",
+                           " (default: user)\n"
+                           "'none' is applicable to Desktop API product "
+                           "that requires Bloomberg Professional service "
+                           "to be installed locally.",
                       metavar="option",
                       action="callback",
                       callback=authOptionCallback,
@@ -82,7 +95,7 @@ class SessionIdentityExample: # pylint: disable=too-few-public-methods
                 .createWithUserAndApp(AuthUser.createWithLogonName(),
                                       self.appName)
         else:
-            authOptions = AuthOptions.createDefault()
+            authOptions = None
 
         sessionOptions = blpapi.SessionOptions()
         sessionOptions.setServerAddress(self.host, self.port, 0)

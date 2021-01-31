@@ -2,9 +2,17 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import blpapi
 from optparse import OptionParser
 
+import os
+import platform as plat
+import sys
+if sys.version_info >= (3, 8) and plat.system().lower() == "windows":
+    # pylint: disable=no-member
+    with os.add_dll_directory(os.getenv('BLPAPI_LIBDIR')):
+        import blpapi
+else:
+    import blpapi
 
 class Window(object):
     def __init__(self, name):
@@ -88,7 +96,7 @@ def main():
                     window = msg.correlationIds()[0].value()
                     window.displaySecurityInfo(msg)
 
-            # Response completly received, so we could exit
+            # Response completely received, so we could exit
             if event.eventType() == blpapi.Event.RESPONSE:
                 break
     finally:

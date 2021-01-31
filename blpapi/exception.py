@@ -39,7 +39,6 @@ class DuplicateCorrelationIdException(Exception):
 
     The class defines an exception for non unique :class:`CorrelationId`.
     """
-    pass
 
 
 class InvalidStateException(Exception):
@@ -48,7 +47,6 @@ class InvalidStateException(Exception):
     This class defines an exception for calling methods on an object that is
     not in a valid state.
     """
-    pass
 
 
 class InvalidArgumentException(Exception):
@@ -57,7 +55,6 @@ class InvalidArgumentException(Exception):
     This class defines an exception for invalid arguments on method
     invocations.
     """
-    pass
 
 
 class InvalidConversionException(Exception):
@@ -65,7 +62,6 @@ class InvalidConversionException(Exception):
 
     This class defines an exception for invalid conversion of data.
     """
-    pass
 
 
 class IndexOutOfRangeException(Exception):
@@ -74,7 +70,6 @@ class IndexOutOfRangeException(Exception):
     This class defines an exception to capture the error when an invalid index
     is used for an operation that needs index.
     """
-    pass
 
 
 class NotFoundException(Exception):
@@ -84,7 +79,6 @@ class NotFoundException(Exception):
     found for an operation.
 
     """
-    pass
 
 
 class FieldNotFoundException(Exception):
@@ -95,7 +89,6 @@ class FieldNotFoundException(Exception):
 
     **DEPRECATED**
     """
-    pass
 
 
 class UnsupportedOperationException(Exception):
@@ -103,7 +96,6 @@ class UnsupportedOperationException(Exception):
 
     This class defines an exception for unsupported operations.
     """
-    pass
 
 
 class UnknownErrorException(Exception):
@@ -112,7 +104,6 @@ class UnknownErrorException(Exception):
     This class defines an exception for errors that do not fall in any
     predefined category.
     """
-    pass
 
 
 class _ExceptionUtil(object):

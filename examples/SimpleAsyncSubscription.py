@@ -2,26 +2,28 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import blpapi
 import time
-import traceback
 try:
     import thread
 except ImportError:
     import _thread as thread
-import weakref
-from optparse import OptionParser
-from blpapi import Event as EventType
+from optparse import OptionParser, OptionValueError
+
+import os
+import platform as plat
+import sys
+if sys.version_info >= (3, 8) and plat.system().lower() == "windows":
+    # pylint: disable=no-member
+    with os.add_dll_directory(os.getenv('BLPAPI_LIBDIR')):
+        import blpapi
+        from blpapi import Event as EventType
+else:
+    import blpapi
+    from blpapi import Event as EventType
+
 
 SESSION_STARTED = blpapi.Name("SessionStarted")
 SESSION_STARTUP_FAILURE = blpapi.Name("SessionStartupFailure")
-TOKEN_SUCCESS = blpapi.Name("TokenGenerationSuccess")
-TOKEN_FAILURE = blpapi.Name("TokenGenerationFailure")
-AUTHORIZATION_SUCCESS = blpapi.Name("AuthorizationSuccess")
-AUTHORIZATION_FAILURE = blpapi.Name("AuthorizationFailure")
-TOKEN = blpapi.Name("token")
-AUTH_SERVICE = "//blp/apiauth"
-
 
 EVENT_TYPE_NAMES = {
     EventType.ADMIN: "ADMIN",
@@ -45,25 +47,6 @@ class Error(Exception):
     pass
 
 
-def getAuthentificationOptions(type, name):
-    if type == "NONE":
-        return None
-    elif type == "USER_APP":
-        return "AuthenticationMode=USER_AND_APPLICATION;"\
-            "AuthenticationType=OS_LOGON;"\
-            "ApplicationAuthenticationType=APPNAME_AND_KEY;"\
-            "ApplicationName=" + name
-    elif type == "APPLICATION":
-        return "AuthenticationMode=APPLICATION_ONLY;"\
-            "ApplicationAuthenticationType=APPNAME_AND_KEY;"\
-            "ApplicationName=" + name
-    elif type == "DIRSVC":
-        return "AuthenticationType=DIRECTORY_SERVICE;"\
-            "DirSvcPropertyName=" + name
-    else:
-        return "AuthenticationType=OS_LOGON"
-
-
 def topicName(security):
     if security.startswith("//"):
         return security
@@ -78,6 +61,45 @@ def printMessage(msg, eventType):
         EVENT_TYPE_NAMES[eventType],
         msg))
 
+def authOptionCallback(option, opt, value, parser):
+    """Parse authorization options from user input"""
+
+    vals = value.split('=', 1)
+
+    if value == "user":
+        authUser = blpapi.AuthUser.createWithLogonName()
+        authOptions = blpapi.AuthOptions.createWithUser(authUser)
+    elif value == "none":
+        authOptions = None
+    elif vals[0] == "app" and len(vals) == 2:
+        appName = vals[1]
+        authOptions = blpapi.AuthOptions.createWithApp(appName)
+    elif vals[0] == "userapp" and len(vals) == 2:
+        appName = vals[1]
+        authUser = blpapi.AuthUser.createWithLogonName()
+        authOptions = blpapi.AuthOptions\
+            .createWithUserAndApp(authUser, appName)
+    elif vals[0] == "dir" and len(vals) == 2:
+        activeDirectoryProperty = vals[1]
+        authUser = blpapi.AuthUser\
+            .createWithActiveDirectoryProperty(activeDirectoryProperty)
+        authOptions = blpapi.AuthOptions.createWithUser(authUser)
+    elif vals[0] == "manual":
+        parts = []
+        if len(vals) == 2:
+            parts = vals[1].split(',')
+
+        if len(parts) != 3:
+            raise OptionValueError("Invalid auth option {}".format(value))
+
+        appName, ip, userId = parts
+
+        authUser = blpapi.AuthUser.createWithManualOptions(userId, ip)
+        authOptions = blpapi.AuthOptions.createWithUserAndApp(authUser, appName)
+    else:
+        raise OptionValueError("Invalid auth option '{}'".format(value))
+
+    parser.values.auth = {'option' : authOptions}
 
 def parseCmdLine():
     parser = OptionParser()
@@ -110,28 +132,27 @@ def parseCmdLine():
                       "('LAST_PRICE,BID,ASK' by default)",
                       metavar="FIELDS",
                       default="LAST_PRICE,BID,ASK")
-    parser.add_option("",
-                      "--auth-type",
-                      type="choice",
-                      choices=["LOGON", "NONE", "APPLICATION", "DIRSVC",
-                      "USER_APP"],
-                      dest="authType",
-                      help="Authentification type: LOGON (default), NONE, "
-                      "APPLICATION, DIRSVC or USER_APP",
-                      default="LOGON")
-    parser.add_option("",
-                      "--auth-name",
-                      dest="authName",
-                      help="The name of application or directory service",
-                      default="")
+    parser.add_option("--auth",
+                      dest="auth",
+                      help="authentication option: "
+                           "user|none|app=<app>|userapp=<app>|dir=<property>"
+                           "|manual=<app,ip,user>"
+                           " (default: user)\n"
+                           "'none' is applicable to Desktop API product "
+                           "that requires Bloomberg Professional service "
+                           "to be installed locally.",
+                      metavar="option",
+                      action="callback",
+                      callback=authOptionCallback,
+                      type="string",
+                      default={"option" :
+                               blpapi.AuthOptions.createWithUser(
+                                      blpapi.AuthUser.createWithLogonName())})
 
-    (options, args) = parser.parse_args()
+    (options, _) = parser.parse_args()
 
     if not options.securities:
         options.securities = ["IBM US Equity"]
-
-    options.auth = getAuthentificationOptions(options.authType,
-                                              options.authName)
     return options
 
 
@@ -160,50 +181,11 @@ def processEvent(event, session):
             if eventType == EventType.SESSION_STATUS:
                 if msg.messageType() == SESSION_STARTED:
                     # Session.startAsync completed successfully
-                    # Start the authorization if needed
-                    if options.auth:
-                        # Generate token
-                        session.generateToken()
-                    else:
-                        identity = None
-                        # Subscribe for the specified securities/fields
-                        subscribe(session, options)
+                    # Subscribe for the specified securities/fields
+                    subscribe(session, options)
                 elif msg.messageType() == SESSION_STARTUP_FAILURE:
                     # Session.startAsync failed, raise exception to exit
                     raise Error("Can't start session")
-
-            elif eventType == EventType.TOKEN_STATUS:
-                if msg.messageType() == TOKEN_SUCCESS:
-                    # Token generated successfully
-                    # Continue the authorization
-                    # Get generated token
-                    token = msg.getElementAsString(TOKEN)
-                    # Open auth service (we do it syncroniously, just in case)
-                    if not session.openService(AUTH_SERVICE):
-                        raise Error("Failed to open auth service")
-                    # Obtain opened service
-                    authService = session.getService(AUTH_SERVICE)
-                    # Create and fill the authorization request
-                    authRequest = authService.createAuthorizationRequest()
-                    authRequest.set(TOKEN, token)
-                    # Create Identity
-                    identity = session.createIdentity()
-                    # Send authorization request to "fill" the Identity
-                    session.sendAuthorizationRequest(authRequest, identity)
-                else:
-                    # Token generation failed, raise exception to exit
-                    raise Error("Failed to generate token")
-
-            elif eventType == EventType.RESPONSE \
-                    or eventType == EventType.PARTIAL_RESPONSE:
-                if msg.messageType() == AUTHORIZATION_SUCCESS:
-                    # Authorization passed, identity "filled" and can be used
-                    # Subscribe for the specified securities/fields with using
-                    # of the identity
-                    subscribe(session, options, identity)
-                elif msg.messageType() == AUTHORIZATION_FAILURE:
-                    # Authorization failed, raise exception to exit
-                    raise Error("Failed to pass authorization")
     except Error as ex:
         print("Error in event handler:", ex)
         # Interrupt a "sleep loop" in main thread
@@ -218,8 +200,7 @@ def main():
     sessionOptions = blpapi.SessionOptions()
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(options.port)
-    if options.auth:
-        sessionOptions.setAuthenticationOptions(options.auth)
+    sessionOptions.setSessionIdentityOptions(options.auth['option'])
 
     # Create an EventDispatcher with 2 processing threads
     dispatcher = blpapi.EventDispatcher(2)

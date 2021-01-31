@@ -2,14 +2,23 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import datetime
 from optparse import OptionParser, OptionValueError
-import blpapi
 
-TOKEN_SUCCESS = blpapi.Name("TokenGenerationSuccess")
-TOKEN_FAILURE = blpapi.Name("TokenGenerationFailure")
-AUTHORIZATION_SUCCESS = blpapi.Name("AuthorizationSuccess")
-TOKEN = blpapi.Name("token")
+import os
+import platform as plat
+import sys
+if sys.version_info >= (3, 8) and plat.system().lower() == "windows":
+    # pylint: disable=no-member
+    with os.add_dll_directory(os.getenv('BLPAPI_LIBDIR')):
+        import blpapi
+else:
+    import blpapi
+
+SUBSCRIPTION_FAILURE = blpapi.Name("SubscriptionFailure")
+SUBSCRIPTION_TERMINATED = blpapi.Name("SubscriptionTerminated")
+SESSION_STARTUP_FAILURE = blpapi.Name("SessionStartupFailure")
+SESSION_TERMINATED = blpapi.Name("SessionTerminated")
+SERVICE_OPEN_FAILURE = blpapi.Name("ServiceOpenFailure")
 
 def authOptionCallback(option, opt, value, parser):
     """Parse authorization options from user input"""
@@ -17,43 +26,39 @@ def authOptionCallback(option, opt, value, parser):
     vals = value.split('=', 1)
 
     if value == "user":
-        parser.values.auth = {'option' : "AuthenticationType=OS_LOGON"}
+        authUser = blpapi.AuthUser.createWithLogonName()
+        authOptions = blpapi.AuthOptions.createWithUser(authUser)
     elif value == "none":
-        parser.values.auth = {'option' : None}
+        authOptions = None
     elif vals[0] == "app" and len(vals) == 2:
-        parser.values.auth = {
-            'option' : "AuthenticationMode=APPLICATION_ONLY;"
-                       "ApplicationAuthenticationType=APPNAME_AND_KEY;"
-                       "ApplicationName=" + vals[1]}
+        appName = vals[1]
+        authOptions = blpapi.AuthOptions.createWithApp(appName)
     elif vals[0] == "userapp" and len(vals) == 2:
-        parser.values.auth = {
-            'option' : "AuthenticationMode=USER_AND_APPLICATION;"
-                       "AuthenticationType=OS_LOGON;"
-                       "ApplicationAuthenticationType=APPNAME_AND_KEY;"
-                       "ApplicationName=" + vals[1]}
+        appName = vals[1]
+        authUser = blpapi.AuthUser.createWithLogonName()
+        authOptions = blpapi.AuthOptions\
+            .createWithUserAndApp(authUser, appName)
     elif vals[0] == "dir" and len(vals) == 2:
-        parser.values.auth = {
-            'option' : "AuthenticationType=DIRECTORY_SERVICE;"
-                       "DirSvcPropertyName=" + vals[1]}
+        activeDirectoryProperty = vals[1]
+        authUser = blpapi.AuthUser\
+            .createWithActiveDirectoryProperty(activeDirectoryProperty)
+        authOptions = blpapi.AuthOptions.createWithUser(authUser)
     elif vals[0] == "manual":
         parts = []
         if len(vals) == 2:
             parts = vals[1].split(',')
 
-        # TODO: Add support for user+ip only
         if len(parts) != 3:
-            raise OptionValueError("Invalid auth option '%s'" % value)
+            raise OptionValueError("Invalid auth option {}".format(value))
 
-        option = "AuthenticationMode=USER_AND_APPLICATION;" + \
-                 "AuthenticationType=MANUAL;" + \
-                 "ApplicationAuthenticationType=APPNAME_AND_KEY;" + \
-                 "ApplicationName=" + parts[0]
+        appName, ip, userId = parts
 
-        parser.values.auth = {'option' : option,
-                              'manual' : {'ip'   : parts[1],
-                                          'user' : parts[2]}}
+        authUser = blpapi.AuthUser.createWithManualOptions(userId, ip)
+        authOptions = blpapi.AuthOptions.createWithUserAndApp(authUser, appName)
     else:
-        raise OptionValueError("Invalid auth option '%s'" % value)
+        raise OptionValueError("Invalid auth option '{}'".format(value))
+
+    parser.values.auth = {'option' : authOptions}
 
 def parseCmdLine():
     """Parse command line arguments"""
@@ -106,7 +111,10 @@ def parseCmdLine():
                       help="authentication option: "
                            "user|none|app=<app>|userapp=<app>|dir=<property>"
                            "|manual=<app,ip,user>"
-                           " (default: %default)",
+                           " (default: none)\n"
+                           "'none' is applicable to Desktop API product "
+                           "that requires Bloomberg Professional service "
+                           "to be installed locally.",
                       metavar="option",
                       action="callback",
                       callback=authOptionCallback,
@@ -168,63 +176,9 @@ def parseCmdLine():
         elif options.zfpPort == 8196:
             options.remote = blpapi.ZfpUtil.REMOTE_8196
         else:
-            raise RuntimeError("Invalid ZFP port: " + options.zfpPort)
+            raise RuntimeError("Invalid ZFP port: {}".format(options.zfpPort))
 
     return options
-
-def authorize(authService, identity, session, cid, manual_options=None):
-    """Authorize the identity"""
-
-    tokenEventQueue = blpapi.EventQueue()
-
-    if manual_options:
-        session.generateToken(authId=manual_options['user'],
-                              ipAddress=manual_options['ip'],
-                              eventQueue=tokenEventQueue)
-    else:
-        session.generateToken(eventQueue=tokenEventQueue)
-
-    # Process related response
-    ev = tokenEventQueue.nextEvent()
-    token = None
-    if ev.eventType() == blpapi.Event.TOKEN_STATUS or \
-            ev.eventType() == blpapi.Event.REQUEST_STATUS:
-        for msg in ev:
-            print(msg)
-            if msg.messageType() == TOKEN_SUCCESS:
-                token = msg.getElementAsString(TOKEN)
-            elif msg.messageType() == TOKEN_FAILURE:
-                break
-
-    if not token:
-        print("Failed to get token")
-        return False
-
-    # Create and fill the authorization request
-    authRequest = authService.createAuthorizationRequest()
-    authRequest.set(TOKEN, token)
-
-    # Send authorization request to "fill" the Identity
-    session.sendAuthorizationRequest(authRequest, identity, cid)
-
-    # Process related responses
-    startTime = datetime.datetime.today()
-    WAIT_TIME_SECONDS = 10
-    while True:
-        event = session.nextEvent(WAIT_TIME_SECONDS * 1000)
-        if event.eventType() == blpapi.Event.RESPONSE or \
-            event.eventType() == blpapi.Event.REQUEST_STATUS or \
-                event.eventType() == blpapi.Event.PARTIAL_RESPONSE:
-            for msg in event:
-                print(msg)
-                if msg.messageType() == AUTHORIZATION_SUCCESS:
-                    return True
-                print("Authorization failed")
-                return False
-
-        endTime = datetime.datetime.today()
-        if endTime - startTime > datetime.timedelta(seconds=WAIT_TIME_SECONDS):
-            return False
 
 def getTlsOptions(options):
     """Parse TlsOptions from user input"""
@@ -252,24 +206,13 @@ def getTlsOptions(options):
         options.tls_trust_material)
 
 def prepareStandardSessionOptions(options):
-    """Prepare SessionOptions for a regular session"""
+    """Prepares SessionOptions for connections other than ZFP Leased Line connections."""
 
     sessionOptions = blpapi.SessionOptions()
     for idx, host in enumerate(options.hosts):
         sessionOptions.setServerAddress(host, options.port, idx)
 
-    # NOTE: If running without a backup server, make many attempts to
-    # connect/reconnect to give that host a chance to come back up (the
-    # larger the number, the longer it will take for SessionStartupFailure
-    # to come on startup, or SessionTerminated due to inability to fail
-    # over).  We don't have to do that in a redundant configuration - it's
-    # expected at least one server is up and reachable at any given time,
-    # so only try to connect to each server once.
-    sessionOptions.setNumStartAttempts(len(options.hosts)
-                                       if len(options.hosts) > 1 else 1000)
-
-    print("Connecting to port %d on %s" % (
-        options.port, ", ".join(options.hosts)))
+    print("Connecting to port {} on {}".format(options.port, ", ".join(options.hosts) ))
 
     if options.tlsOptions:
         sessionOptions.setTlsOptions(options.tlsOptions)
@@ -277,13 +220,105 @@ def prepareStandardSessionOptions(options):
     return sessionOptions
 
 def prepareZfpSessionOptions(options):
-    """Prepare SessionOptions for a ZFP session"""
+    """Prepares SessionOptions for ZFP Leased Line connections."""
 
     print("Creating a ZFP connection for leased lines.")
     sessionOptions = blpapi.ZfpUtil.getZfpOptionsForLeasedLines(
         options.remote,
         options.tlsOptions)
     return sessionOptions
+
+def checkFailures(session):
+    """Checks failure events published by the session."""
+
+    # Note that the loop uses 'session.tryNextEvent' as all events have
+    # been produced before calling this function, but there could be no events
+    # at all in the queue if the OS fails to allocate resources.
+    while True:
+        event = session.tryNextEvent()
+        if event is None:
+            return
+
+        eventType = event.eventType()
+        for msg in event:
+            print(msg)
+            if processGenericMessage(eventType, msg):
+                return
+
+def processSubscriptionEvents(session, maxEvents):
+    eventCount = 0
+    while True:
+        # Specify timeout to give a chance for Ctrl-C
+        event = session.nextEvent(1000)
+        eventType = event.eventType()
+        for msg in event:
+            print(msg)
+            messageType = msg.messageType()
+            if eventType == blpapi.Event.SUBSCRIPTION_STATUS:
+                if messageType == SUBSCRIPTION_FAILURE \
+                        or messageType == SUBSCRIPTION_TERMINATED:
+                    errorDescription = msg.getElement("reason") \
+                        .getElementAsString("description")
+                    print("Subscription failed: {}".format(errorDescription))
+                    printContactSupportMessage(msg)
+            elif eventType == blpapi.Event.SUBSCRIPTION_DATA:
+                if msg.recapType() == blpapi.Message.RECAPTYPE_SOLICITED:
+                    if msg.getRequestId() is not None:
+                        # An init paint tick can have an associated
+                        # RequestId that is used to identify the
+                        # source of the data and can be used when
+                        # contacting support
+                        print("Received init paint with RequestId {}".format(msg.getRequestId()))
+            else:
+
+                # SESSION_STATUS events can happen at any time and
+                # should be handled as the session can be terminated,
+                # e.g. session identity can be revoked at a later
+                # time, which terminates the session.
+                if processGenericMessage(eventType, msg):
+                    return
+
+        if event.eventType() == blpapi.Event.SUBSCRIPTION_DATA:
+            eventCount += 1
+            if eventCount >= maxEvents:
+                break
+
+def processGenericMessage(eventType, message):
+    """Prints error information if the 'message' is a failure message."""
+
+    messageType = message.messageType()
+
+    # When using a session identity, i.e.
+    # 'SessionOptions.setSessionIdentityOptions(AuthOptions)', token
+    # generation failure, authorization failure or revocation terminates the
+    # session, in which case, applications only need to check session status
+    # messages. Applications don't need to handle token or authorization messages
+    if eventType == blpapi.Event.SESSION_STATUS:
+        if messageType == SESSION_TERMINATED or \
+        messageType == SESSION_STARTUP_FAILURE:
+            error = message.getElement("reason").getElementAsString("description")
+            print("Session failed to start or terminated: {}".format(error))
+            printContactSupportMessage(message)
+            # Session failed to start/terminated
+            return True
+    elif eventType == blpapi.Event.SERVICE_STATUS:
+        if messageType == SERVICE_OPEN_FAILURE:
+            serviceName = message.getElementAsString("serviceName")
+            error = message.getElement("reason").getElementAsString("description")
+            print("Failed to open {}: {}".format(serviceName, error))
+            printContactSupportMessage(message)
+
+    # Session OK
+    return False
+
+def printContactSupportMessage(msg):
+    """Prints contact support message."""
+
+    # Messages can have associated RequestIds which
+    # identify operations (related to them) through the network.
+    requestId = msg.getRequestId()
+    if requestId is not None:
+        print("When contacting support, please provide RequestId {}".format(requestId))
 
 def main():
     """Main function"""
@@ -294,55 +329,29 @@ def main():
     sessionOptions = prepareZfpSessionOptions(options) \
         if options.remote \
         else prepareStandardSessionOptions(options)
-    sessionOptions.setAuthenticationOptions(options.auth['option'])
-    sessionOptions.setAutoRestartOnDisconnection(True)
+    sessionOptions.setSessionIdentityOptions(options.auth['option'])
 
     session = blpapi.Session(sessionOptions)
-
-    if not session.start():
-        print("Failed to start session.")
-        return
-
-    subscriptionIdentity = session.createIdentity()
-
-    if options.auth['option']:
-        isAuthorized = False
-        authServiceName = "//blp/apiauth"
-        if session.openService(authServiceName):
-            authService = session.getService(authServiceName)
-            isAuthorized = authorize(
-                authService, subscriptionIdentity, session,
-                blpapi.CorrelationId("auth"),
-                options.auth.get('manual'))
-        if not isAuthorized:
-            print("No authorization")
+    try:
+        if not session.start():
+            checkFailures(session)
+            print("Failed to start session.")
             return
 
-    subscriptions = blpapi.SubscriptionList()
-    for t in options.topics:
-        topic = options.service + t
-        subscriptions.add(topic,
-                          options.fields,
-                          options.options,
-                          blpapi.CorrelationId(topic))
+        if not session.openService(options.service):
+            checkFailures(session)
+            return
 
-    session.subscribe(subscriptions, subscriptionIdentity)
+        subscriptions = blpapi.SubscriptionList()
+        for t in options.topics:
+            topic = options.service + t
+            subscriptions.add(topic,
+                              options.fields,
+                              options.options,
+                              blpapi.CorrelationId(topic))
+        session.subscribe(subscriptions)
 
-    try:
-        eventCount = 0
-        while True:
-            # Specify timeout to give a chance for Ctrl-C
-            event = session.nextEvent(1000)
-            for msg in event:
-                if event.eventType() == blpapi.Event.SUBSCRIPTION_STATUS or \
-                        event.eventType() == blpapi.Event.SUBSCRIPTION_DATA:
-                    print("%s - %s" % (msg.correlationIds()[0].value(), msg))
-                else:
-                    print(msg)
-            if event.eventType() == blpapi.Event.SUBSCRIPTION_DATA:
-                eventCount += 1
-                if eventCount >= options.maxEvents:
-                    break
+        processSubscriptionEvents(session, options.maxEvents)
     finally:
         session.stop()
 

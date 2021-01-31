@@ -5,13 +5,11 @@
 This component implements a list of topics that require resolution.
 """
 
-from .element import Element
 from .exception import _ExceptionUtil
 from .message import Message
-from .name import Name
 from . import internals
 from . import utils
-from .utils import get_handle
+from .utils import deprecated, get_handle
 from .internals import CorrelationId
 from .compat import with_metaclass
 
@@ -43,29 +41,17 @@ class ResolutionList(object):
         internals.RESOLUTIONLIST_RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED
 
     @staticmethod
+    @deprecated("attributes are no longer supported.")
+    # pylint: disable=unused-argument,no-self-use
     def extractAttributeFromResolutionSuccess(message, attribute):
-        """Return the value of the value in the specified ``message``.
-
-        Args:
-            message (Message): Message to extract the attribute from
-            attribute (Name): Attribute to extract
-
-        Returns:
-            Element: Value of the value in the specified ``message`` which
-            represents the specified ``attribute``. If the ``attribute`` is not
-            present an empty :class:`Element` is returned.
-
-        The ``message`` must be a message of type ``RESOLUTION_SUCCESS``. The
-        ``attribute`` should be an attribute that was requested using
-        :meth:`addAttribute()` on the :class:`ResolutionList` passed to the
-        :meth:`~ProviderSession.resolve()` or
-        :meth:`~ProviderSession.resolveAsync()` that caused this
-        ``RESOLUTION_SUCCESS`` message.
         """
-        i = internals  # to fit next line in 79 chars
-        res = i.blpapi_ResolutionList_extractAttributeFromResolutionSuccess(
-            get_handle(message), get_handle(attribute))
-        return Element(res, message)
+        Raises:
+            UnsupportedOperationException: Unconditionally.
+
+        **DEPRECATED**
+        Attributes are no longer supported.
+        """
+        _ExceptionUtil.raiseOnError(internals.ERROR_UNSUPPORTED_OPERATION)
 
     def __init__(self):
         """Create an empty :class:`ResolutionList`."""
@@ -125,18 +111,17 @@ class ResolutionList(object):
             topicOrMessage,
             get_handle(correlationId))
 
+    @deprecated("attributes are no longer supported.")
+    # pylint: disable=unused-argument,no-self-use
     def addAttribute(self, attribute):
-        """Add the specified ``attribute`` to the list of attributes.
-
-        Args:
-            attribute (str): Attribute to add
-
-        Returns:
-            int: ``0`` on success, negative number on failure.
         """
-        attribute = Name(attribute)
-        return internals.blpapi_ResolutionList_addAttribute(
-            self.__handle, get_handle(attribute))
+        Raises:
+            UnsupportedOperationException: Unconditionally.
+
+        **DEPRECATED**
+        Attributes are no longer supported.
+        """
+        _ExceptionUtil.raiseOnError(internals.ERROR_UNSUPPORTED_OPERATION)
 
     def correlationIdAt(self, index):
         """
@@ -235,57 +220,31 @@ class ResolutionList(object):
         _ExceptionUtil.raiseOnError(errorCode)
         return status
 
+    @deprecated("attributes are no longer supported")
+    # pylint: disable=unused-argument,no-self-use
     def attribute(self, attribute, correlationId):
         """
-        Args:
-            attribute (str): Attribute of the entry
-            correlationId (CorrelationId): Correlation id identifying an entry
-                in this list
-
-        Returns:
-            Element: Value for the specified ``attribute`` of this list entry.
-
         Raises:
-            Exception: If ``correlationId`` does not identify an entry in this
-                :class:`ResolutionList` or if the status of the entry
-                identified by ``correlationId`` is not ``RESOLVED``.
+            UnsupportedOperationException: Unconditionally.
 
-        The :class:`Element` returned may be empty if the resolution service
-        cannot provide the attribute.
+        **DEPRECATED**
+        Attributes are no longer supported.
         """
-        attribute = Name(attribute)
-        errorCode, element = internals.blpapi_ResolutionList_attribute(
-            self.__handle,
-            get_handle(attribute),
-            get_handle(correlationId))
 
-        _ExceptionUtil.raiseOnError(errorCode)
+        # pylint no-self-use
+        _ExceptionUtil.raiseOnError(internals.ERROR_UNSUPPORTED_OPERATION)
 
-        return Element(element, self)
-
+    @deprecated("attributes are no longer supported")
+    # pylint: disable=unused-argument,no-self-use
     def attributeAt(self, attribute, index):
         """
-        Args:
-            attribute (str): Attribute of the entry
-            index (int): Index of the entry
-
-        Returns:
-            Element: Value for the specified ``attribute`` of this list entry.
-
         Raises:
-            Exception: If ``index >= size()`` or if the status of the
-                ``index``\ th entry identified by ``correlationId`` is not
-                ``RESOLVED``.
+            UnsupportedOperationException: Unconditionally.
+
+        **DEPRECATED**
+        Attributes are no longer supported.
         """
-        attribute = Name(attribute)
-        errorCode, element = internals.blpapi_ResolutionList_attributeAt(
-            self.__handle,
-            get_handle(attribute),
-            index)
-
-        _ExceptionUtil.raiseOnError(errorCode)
-
-        return Element(element, self)
+        _ExceptionUtil.raiseOnError(internals.ERROR_UNSUPPORTED_OPERATION)
 
     def message(self, correlationId):
         """

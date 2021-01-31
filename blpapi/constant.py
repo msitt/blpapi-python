@@ -20,7 +20,7 @@ from .datetime import _DatetimeUtil
 from . import utils
 from . import internals
 
-# pylint: disable=protected-access,old-style-class
+# pylint: disable=protected-access
 
 class Constant:
     """Represents the value of a schema enumeration constant.
@@ -93,8 +93,12 @@ class Constant:
             InvalidConversionException: If the value cannot be converted to an
                 integer.
         """
-        errCode, value = internals.blpapi_Constant_getValueAsInt64(
-            self.__handle)
+        if self.datatype() == DataType.INT32:
+            errCode, value = internals.blpapi_Constant_getValueAsInt32(
+                self.__handle)
+        else:
+            errCode, value = internals.blpapi_Constant_getValueAsInt64(
+                self.__handle)
         _ExceptionUtil.raiseOnError(errCode)
         return value
 
@@ -107,8 +111,12 @@ class Constant:
             InvalidConversionException: If the value cannot be converted to a
                 float.
         """
-        errCode, value = internals.blpapi_Constant_getValueAsFloat64(
-            self.__handle)
+        if self.datatype() == DataType.FLOAT32:
+            errCode, value = internals.blpapi_Constant_getValueAsFloat32(
+                self.__handle)
+        else:
+            errCode, value = internals.blpapi_Constant_getValueAsFloat64(
+                self.__handle)
         _ExceptionUtil.raiseOnError(errCode)
         return value
 
@@ -125,7 +133,7 @@ class Constant:
         errCode, value = internals.blpapi_Constant_getValueAsDatetime(
             self.__handle)
         _ExceptionUtil.raiseOnError(errCode)
-        return _DatetimeUtil.convertToNative(value)
+        return _DatetimeUtil.convertToNativeNotHighPrecision(value)
 
     def getValueAsString(self):
         """
@@ -136,8 +144,12 @@ class Constant:
             InvalidConversionException: If the value cannot be converted to a
                 string.
         """
-        errCode, value = internals.blpapi_Constant_getValueAsString(
-            self.__handle)
+        if self.datatype() == DataType.CHAR:
+            errCode, value = internals.blpapi_Constant_getValueAsChar(
+                self.__handle)
+        else:
+            errCode, value = internals.blpapi_Constant_getValueAsString(
+                self.__handle)
         _ExceptionUtil.raiseOnError(errCode)
         return value
 
