@@ -393,7 +393,7 @@ class Session(AbstractSession):
         received.
 
         Args:
-            service (Service): The service which from which the status messages
+            service (Service): The service from which the status messages
                 are received
             correlationId (CorrelationId): Correlation id to associate with the
                 service status messages

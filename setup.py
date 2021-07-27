@@ -34,10 +34,6 @@ def lib_in_release():
         return 'lib'
     if platform == 'linux':
         return 'Linux'
-    if platform == 'sunos':
-        return "lib64" if is64bit else "lib"
-    if platform == 'aix':
-        return "lib64" if is64bit else "lib"
     if platform == 'darwin':
         return 'Darwin'
     raise Exception("Platform '" + platform + "' isn't supported")

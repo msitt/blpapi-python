@@ -1,5 +1,0 @@
-include README changelog.txt NOTES License.txt
-
-recursive-include examples *.py
-
-prune cpp-licenses

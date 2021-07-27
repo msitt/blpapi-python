@@ -248,7 +248,7 @@ def clientRun(session, options):
 
     request.set("timestamp", time.time())
 
-    print("Sendind Request:", request)
+    print("Sending Request:", request)
 
     eventQueue = blpapi.EventQueue()
     session.sendRequest(

@@ -37,19 +37,29 @@ class TopicList(CHandle):
 
     def __init__(self, original=None):
         """Create an empty :class:`TopicList`, or a :class:`TopicList` based on
-        ``original``.
+        ``original`` :class:`ResolutionList`.
 
         Args:
-            original (TopicList): Original topiclist to copy off of
+            ``original`` (:class:`ResolutionList`): Original resolution list to use.
+
+        Raises:
+            TypeError: If ``original`` is not an instance of
+                :class:`ResolutionList`.
 
         If ``original`` is ``None`` - create empty :class:`TopicList`.
         Otherwise create a :class:`TopicList` from ``original``.
+        In this case ``original`` is used by handle, so if the caller
+        modifies original resolution list after the call,
+        :class:`TopicList` also changes because owns the same handle.
         """
         if isinstance(original, ResolutionList):
             selfhandle = \
                 internals.blpapi_TopicList_createFromResolutionList(
                     get_handle(original))
             self.__sessions = original._sessions()
+        elif original is not None:
+            raise TypeError(
+                        "'original' should be an instance of 'ResolutionList'")
         else:
             selfhandle = internals.blpapi_TopicList_create(None)
             self.__sessions = set()
@@ -243,7 +253,7 @@ class TopicList(CHandle):
         return internals.blpapi_TopicList_size(self.__handle)
 
     def _sessions(self):
-        """Return session(s) that this 'ResolutionList' is related to.
+        """Return session(s) that this 'TopicList' is related to.
 
         For internal use."""
         return self.__sessions

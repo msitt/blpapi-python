@@ -1,3 +1,15 @@
+Version 3.16.5:
+===============
+- Stability and performance improvements
+
+Version 3.16.4:
+===============
+- Stability and performance improvements
+
+Version 3.16.3:
+===============
+- Stability and performance improvements
+
 Version 3.16.2:
 ===============
 - Stability and performance improvements
