@@ -9,7 +9,7 @@ import platform as plat
 import re
 import codecs
 
-from sys import version
+from sys import argv, version
 from setuptools import setup, Extension
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
@@ -17,7 +17,7 @@ platform = plat.system().lower()
 
 def find_version_number():
     """Load the version number from blpapi/version.py"""
-    version_path = os.path.abspath(os.path.join('blpapi', 'version.py'))
+    version_path = os.path.abspath(os.path.join('src', 'blpapi', 'version.py'))
     version_file = None
     with codecs.open(version_path, 'r') as fp:
         version_file = fp.read()
@@ -62,6 +62,7 @@ else:
     blpapiLibraryName = 'blpapi3_32'
 
 extraLinkArgs = []
+package_data = {}
 if platform == 'windows':
     extraLinkArgs = ['/MANIFEST']
 
@@ -72,12 +73,18 @@ if platform == 'windows':
                 ('VS100COMNTOOLS' in os.environ):
             os.environ['VS90COMNTOOLS'] = os.environ['VS100COMNTOOLS']
 
+    if 'bdist_wheel' in argv:
+        # get src/blpapi/*.dll
+        package_data = {
+            "blpapi": ["blpapi3_64.dll" if is64bit else "blpapi3_32.dll"]
+        }
+
 blpapiLibraryPath = blpapiLibVar or os.path.join(blpapiRoot, lib_in_release())
 blpapiIncludes = blpapiIncludesVar or os.path.join(blpapiRoot, 'include')
 
 blpapi_wrap = Extension(
     'blpapi._internals',
-    sources=['blpapi/internals_wrap.c'],
+    sources=['src/blpapi/internals_wrap.c'],
     include_dirs=[blpapiIncludes],
     library_dirs=[blpapiLibraryPath],
     libraries=[blpapiLibraryName],
@@ -86,7 +93,7 @@ blpapi_wrap = Extension(
 
 versionhelper_wrap = Extension(
     'blpapi._versionhelper',
-    sources=['blpapi/versionhelper_wrap.c'],
+    sources=['src/blpapi/versionhelper_wrap.c'],
     include_dirs=[blpapiIncludes],
     library_dirs=[blpapiLibraryPath],
     libraries=[blpapiLibraryName],
@@ -102,6 +109,8 @@ setup(
     ext_modules=[blpapi_wrap, versionhelper_wrap],
     url='http://www.bloomberglabs.com/api/',
     packages=["blpapi", "blpapi.test"],
+    package_dir={'': 'src'},
+    package_data=package_data,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

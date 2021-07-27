@@ -1,43 +1,32 @@
-# requesttemplate.py
+# chandle.py
 
+"""A module which defines base class for blpapi classes.
+
+This file defines a 'CHandle' class.
+It handles the life of an object with a handle from C layer.
 """
-This component provides a class, RequestTemplate, that can be used to obtain
-snapshots from subscription data without having to handle the ticks on an
-actual subscription.
-
-Request templates are obtained from a Session and should be always used with
-the session that creates the template. When a session is terminated, any
-request templates associated with that session become invalid. Results of
-sending or canceling of invalid request templates is undefined.
-
-In order to send a request represented by a template,
-'blpapi.Session.sendRequestTemplate' method should be called.
-
-Check 'blpapi.Session.createSnapshotRequestTemplate' for details about creation
-and management of snapshot request templates.
-"""
-
-from . import internals
 
 # pylint: disable=useless-object-inheritance
 
-class RequestTemplate(object):
-    """Request templates cache the necessary information to make a request and
-    eliminate the need to create new requests for snapshot services.
-    """
+class CHandle(object):
+    """A base class for objects that rely on C handles"""
 
-    def __init__(self, handle):
+    def __init__(self, handle, dtor):
+        """ Set the handle and the dtor """
         self.__handle = handle
+        self._dtor = dtor
 
     def __del__(self):
+        """ Destroy the object """
         try:
             self.destroy()
         except (NameError, AttributeError):
             pass
 
     def destroy(self):
+        """ Destroy the handle using stored dtor """
         if self.__handle:
-            internals.blpapi_RequestTemplate_release(self.__handle)
+            self._dtor(self.__handle)
             self.__handle = None
 
     def _handle(self):
@@ -45,12 +34,12 @@ class RequestTemplate(object):
         return self.__handle
 
 __copyright__ = """
-Copyright 2018. Bloomberg Finance L.P.
+Copyright 2020. Bloomberg Finance L.P.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to
 deal in the Software without restriction, including without limitation the
-rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+rights to use, co, modify, merge, publish, distribute, sublicense, and/or
 sell copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:  The above
 copyright notice and this permission notice shall be included in all copies

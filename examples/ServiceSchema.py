@@ -45,7 +45,7 @@ SCHEMA_STATUS_NAMES = {
 }
 
 
-def authOptionCallback(option, opt, value, parser):
+def authOptionCallback(_option, _opt, value, parser):
     """Parse authorization options from user input"""
 
     vals = value.split('=', 1)
@@ -201,7 +201,7 @@ def printElementDefinition(ed, level=0):
             printElementDefinition(i, level + 1)
 
 
-def printOperation(operation, service):
+def printOperation(operation, _service):
     print("{0} \"{1}\" Request:".format(
         operation.name(),
         operation.description()))

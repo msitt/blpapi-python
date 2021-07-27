@@ -74,7 +74,7 @@ class SubscriptionEventHandler(object):
         for msg in event:
             print("%s: %s" % (timeStamp, msg.messageType()))
 
-    def processEvent(self, event, session):
+    def processEvent(self, event, _session):
         try:
             if event.eventType() == blpapi.Event.SUBSCRIPTION_DATA:
                 return self.processSubscriptionDataEvent(event)
@@ -120,7 +120,7 @@ def parseCmdLine():
                       action="append",
                       default=[])
 
-    (options, args) = parser.parse_args()
+    options,_ = parser.parse_args()
 
     if not options.topics:
         options.topics = ["IBM US Equity"]

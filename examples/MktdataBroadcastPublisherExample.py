@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 import time
 from optparse import OptionParser, OptionValueError
-
+from threading import Event
 import os
 import platform as plat
 import sys
@@ -17,27 +17,26 @@ else:
 
 SESSION_TERMINATED = blpapi.Name("SessionTerminated")
 
-g_running = True
-
 
 class MyStream(object):
-    def __init__(self, id=""):
-        self.id = id
+    def __init__(self, sid=""):
+        self.id = sid
 
 
 class MyEventHandler(object):
-    def processEvent(self, event, session):
-        global g_running
+    def __init__(self, stop):
+        self.stop = stop
 
+    def processEvent(self, event, _session):
         for msg in event:
             print(msg)
             if event.eventType() == blpapi.Event.SESSION_STATUS:
                 if msg.messageType() == SESSION_TERMINATED:
-                    g_running = False
+                    self.stop.set()
                 continue
 
 
-def authOptionCallback(option, opt, value, parser):
+def authOptionCallback(_option, _opt, value, parser):
     """Parse authorization options from user input"""
 
     vals = value.split('=', 1)
@@ -163,7 +162,8 @@ def main():
     # so only try to connect to each server once.
     sessionOptions.setNumStartAttempts(1 if len(options.hosts) > 1 else 1000)
 
-    myEventHandler = MyEventHandler()
+    stop = Event()
+    myEventHandler = MyEventHandler(stop)
 
     # Create a Session
     session = blpapi.ProviderSession(sessionOptions,
@@ -218,7 +218,7 @@ def main():
     try:
         # Now we will start publishing
         tickCount = 1
-        while streams and g_running:
+        while streams and not stop.is_set():
             event = service.createPublishEvent()
             eventFormatter = blpapi.EventFormatter(event)
 

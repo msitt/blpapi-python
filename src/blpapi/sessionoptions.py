@@ -28,11 +28,12 @@ from . import internals
 from . import utils
 from .utils import get_handle
 from .compat import with_metaclass
+from .chandle import CHandle
 
-# pylint: disable=useless-object-inheritance,too-many-public-methods,line-too-long
+# pylint: disable=too-many-public-methods
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
-class SessionOptions(object):
+class SessionOptions(CHandle):
     """Options which the user can specify when creating a session.
 
     To use non-default options on a :class:`Session`, create a
@@ -53,13 +54,11 @@ class SessionOptions(object):
     def __init__(self):
         """Create a :class:`SessionOptions` with all options set to the
         defaults"""
-        self.__handle = internals.blpapi_SessionOptions_create()
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
+        selfhandle = internals.blpapi_SessionOptions_create()
+        super(SessionOptions, self).__init__(
+            selfhandle,
+            internals.blpapi_SessionOptions_destroy)
+        self.__handle = selfhandle
 
     def __str__(self):
         """x.__str__() <==> str(x)
@@ -70,12 +69,6 @@ class SessionOptions(object):
 
         """
         return self.toString()
-
-    def destroy(self):
-        """Destroy this :class:`SessionOptions`."""
-        if self.__handle:
-            internals.blpapi_SessionOptions_destroy(self.__handle)
-            self.__handle = None
 
     def setServerHost(self, serverHost):
         """Set the API server host to connect to when using the server API.
@@ -767,10 +760,6 @@ class SessionOptions(object):
         return bool(internals.blpapi_SessionOptions_bandwidthSaveModeDisabled(
             self.__handle))
 
-    def _handle(self):
-        """Return the internal implementation."""
-        return self.__handle
-
     def toString(self, level=0, spacesPerLevel=4):
         """Format this :class:`SessionOptions` to the string.
 
@@ -791,7 +780,7 @@ class SessionOptions(object):
             level,
             spacesPerLevel)
 
-class TlsOptions(object):
+class TlsOptions(CHandle):
     """SSL configuration options
 
     :class:`TlsOptions` instances maintain client credentials and trust
@@ -807,22 +796,9 @@ class TlsOptions(object):
     """
 
     def __init__(self, handle):
+        super(TlsOptions, self).__init__(
+            handle, internals.blpapi_TlsOptions_destroy)
         self.__handle = handle
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        """Destructor."""
-        if self.__handle:
-            internals.blpapi_TlsOptions_destroy(self.__handle)
-            self.__handle = None
-
-    def _handle(self):
-        return self.__handle
 
     def setTlsHandshakeTimeoutMs(self, timeoutMs):
         """

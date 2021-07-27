@@ -31,7 +31,7 @@ CATEGORY = blpapi.Name("category")
 MESSAGE = blpapi.Name("message")
 
 
-def checkDateTime(option, opt, value):
+def checkDateTime(_option, opt, value):
     try:
         return datetime.datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
     except ValueError as ex:
@@ -99,7 +99,7 @@ def parseCmdLine():
                       action="store_true",
                       default=False)
 
-    (options, args) = parser.parse_args()
+    options,_ = parser.parse_args()
 
     return options
 
@@ -115,7 +115,7 @@ def processMessage(msg):
 
     for bar in data.values():
         time = bar.getElementAsDatetime(TIME)
-        open = bar.getElementAsFloat(OPEN)
+        open_ = bar.getElementAsFloat(OPEN)
         high = bar.getElementAsFloat(HIGH)
         low = bar.getElementAsFloat(LOW)
         close = bar.getElementAsFloat(CLOSE)
@@ -123,7 +123,7 @@ def processMessage(msg):
         volume = bar.getElementAsInteger(VOLUME)
 
         print("%s\t\t%.3f\t\t%.3f\t\t%.3f\t\t%.3f\t\t%d\t\t%d" % \
-            (time.strftime("%m/%d/%y %H:%M"), open, high, low, close,
+            (time.strftime("%m/%d/%y %H:%M"), open_, high, low, close,
              numEvents, volume))
 
 

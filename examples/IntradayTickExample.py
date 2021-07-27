@@ -27,7 +27,7 @@ CATEGORY = blpapi.Name("category")
 MESSAGE = blpapi.Name("message")
 SESSION_TERMINATED = blpapi.Name("SessionTerminated")
 
-def authOptionCallback(option, opt, value, parser):
+def authOptionCallback(_option, _opt, value, parser):
     """Parse authorization options from user input"""
 
     vals = value.split('=', 1)
@@ -68,7 +68,7 @@ def authOptionCallback(option, opt, value, parser):
     parser.values.auth = {'option' : authOptions}
 
 
-def checkDateTime(option, opt, value):
+def checkDateTime(_option, opt, value):
     try:
         return datetime.datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
     except ValueError as ex:
@@ -169,9 +169,9 @@ def processMessage(msg):
     print("----\t\t\t\t----\t-----\t\t----\t--")
 
     for item in data.values():
-        time = item.getElementAsDatetime(TIME)
+        item.getElementAsDatetime(TIME)
         timeString = item.getElementAsString(TIME)
-        type = item.getElementAsString(TYPE)
+        type_ = item.getElementAsString(TYPE)
         value = item.getElementAsFloat(VALUE)
         size = item.getElementAsInteger(TICK_SIZE)
         if item.hasElement(COND_CODE):
@@ -179,7 +179,7 @@ def processMessage(msg):
         else:
             cc = ""
 
-        print("%s\t%s\t%.3f\t\t%d\t%s" % (timeString, type, value, size, cc))
+        print("%s\t%s\t%.3f\t\t%d\t%s" % (timeString, type_, value, size, cc))
 
 
 def processResponseEvent(event):

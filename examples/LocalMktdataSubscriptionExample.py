@@ -20,7 +20,7 @@ SESSION_STARTUP_FAILURE = blpapi.Name("SessionStartupFailure")
 SESSION_TERMINATED = blpapi.Name("SessionTerminated")
 SERVICE_OPEN_FAILURE = blpapi.Name("ServiceOpenFailure")
 
-def authOptionCallback(option, opt, value, parser):
+def authOptionCallback(_option, _opt, value, parser):
     """Parse authorization options from user input"""
 
     vals = value.split('=', 1)
@@ -156,7 +156,7 @@ def parseCmdLine():
                       metavar="port",
                       type="int")
 
-    (options, args) = parser.parse_args()
+    options,_ = parser.parse_args()
 
     if not options.hosts:
         options.hosts = ["localhost"]
@@ -257,9 +257,7 @@ def processSubscriptionEvents(session, maxEvents):
             if eventType == blpapi.Event.SUBSCRIPTION_STATUS:
                 if messageType == SUBSCRIPTION_FAILURE \
                         or messageType == SUBSCRIPTION_TERMINATED:
-                    errorDescription = msg.getElement("reason") \
-                        .getElementAsString("description")
-                    print("Subscription failed: {}".format(errorDescription))
+                    print("Subscription failed")
                     printContactSupportMessage(msg)
             elif eventType == blpapi.Event.SUBSCRIPTION_DATA:
                 if msg.recapType() == blpapi.Message.RECAPTYPE_SOLICITED:
@@ -296,16 +294,14 @@ def processGenericMessage(eventType, message):
     if eventType == blpapi.Event.SESSION_STATUS:
         if messageType == SESSION_TERMINATED or \
         messageType == SESSION_STARTUP_FAILURE:
-            error = message.getElement("reason").getElementAsString("description")
-            print("Session failed to start or terminated: {}".format(error))
+            print("Session failed to start or terminated")
             printContactSupportMessage(message)
             # Session failed to start/terminated
             return True
     elif eventType == blpapi.Event.SERVICE_STATUS:
         if messageType == SERVICE_OPEN_FAILURE:
             serviceName = message.getElementAsString("serviceName")
-            error = message.getElement("reason").getElementAsString("description")
-            print("Failed to open {}: {}".format(serviceName, error))
+            print("Failed to open {}".format(serviceName))
             printContactSupportMessage(message)
 
     # Session OK

@@ -140,8 +140,7 @@ def parseCmdLine():
                         help="number of connection retries "
                         "(default: number of hosts)",
                         metavar="option",
-                        type=int,
-                        action=AuthOptionsAction)
+                        type=int)
 
     # TLS Options
     parser.add_argument("--tls-client-credentials",
@@ -223,7 +222,7 @@ def main():
 
     try:
         example.run()
-    except Exception as err: # pylint: disable=W0703
+    except blpapi.Exception as err:
         print("Exception caught: {}".format(err))
 
 

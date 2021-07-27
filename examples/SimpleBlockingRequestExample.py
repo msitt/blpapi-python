@@ -18,7 +18,7 @@ LAST_PRICE = blpapi.Name("LAST_PRICE")
 
 
 class MyEventHandler(object):
-    def processEvent(self, event, session):
+    def processEvent(self, event, _session):
         try:
             if event.eventType() == blpapi.Event.SUBSCRIPTION_DATA:
                 for msg in event:
@@ -26,7 +26,7 @@ class MyEventHandler(object):
                         field = msg.getElement(LAST_PRICE)
                         print(field.name(), "=", field.getValueAsString())
             return True
-        except Exception as e:
+        except blpapi.Exception as e:
             print("Exception:", e)
             return False
 
@@ -46,13 +46,12 @@ def parseCmdLine():
                       metavar="tcpPort",
                       default=8194)
 
-    (options, args) = parser.parse_args()
+    poptions,_ = parser.parse_args()
 
-    return options
+    return poptions
 
 
 def main():
-    global options
     options = parseCmdLine()
 
     # Fill SessionOptions

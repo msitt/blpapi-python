@@ -18,8 +18,7 @@ from .name import Name
 from . import internals
 from .utils import deprecated, MetaClassForClassesWithEnums
 from .compat import with_metaclass
-
-# pylint: disable=useless-object-inheritance,protected-access
+from .chandle import CHandle
 
 # Handling a circular dependancy between modules:
 #   service->event->message->service
@@ -27,9 +26,10 @@ service = sys.modules.get('blpapi.service')
 if service is None:
     from . import service
 
+# pylint: disable=protected-access
 
 @with_metaclass(MetaClassForClassesWithEnums)
-class Message(object):
+class Message(CHandle):
     """A handle to a single message.
 
     :class:`Message` objects are obtained by iterating an :class:`Event`. Each
@@ -55,8 +55,6 @@ class Message(object):
     the application.
     """
 
-    __handle = None
-
     FRAGMENT_NONE = internals.MESSAGE_FRAGMENT_NONE
     """Unfragmented message"""
     FRAGMENT_START = internals.MESSAGE_FRAGMENT_START
@@ -81,6 +79,7 @@ class Message(object):
             sessions: Sessions that this object is associated with
         """
         internals.blpapi_Message_addRef(handle)
+        super(Message, self).__init__(handle, internals.blpapi_Message_release)
         self.__handle = handle
         if event is None:
             if sessions is None:
@@ -91,17 +90,6 @@ class Message(object):
             self.__sessions = event._sessions()
 
         self.__element = None
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        if self.__handle is not None:
-            internals.blpapi_Message_release(self.__handle)
-            self.__handle = None
 
     def __str__(self):
         """x.__str__() <==> str(x)
@@ -321,9 +309,6 @@ class Message(object):
 
         native = _DatetimeUtil.convertToNative(original)
         return native.astimezone(tzinfo)
-
-    def _handle(self):
-        return self.__handle
 
     def _sessions(self):
         """Return session(s) this Message related to. For internal use."""

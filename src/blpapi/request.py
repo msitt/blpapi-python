@@ -11,10 +11,9 @@ import weakref
 from .element import Element
 from .exception import _ExceptionUtil
 from . import internals
+from .chandle import CHandle
 
-# pylint: disable=useless-object-inheritance
-
-class Request(object):
+class Request(CHandle):
     """A single request to a single service.
 
     :class:`Request` objects are created using :meth:`Service.createRequest()`
@@ -33,21 +32,10 @@ class Request(object):
     """
 
     def __init__(self, handle, sessions):
+        super(Request, self).__init__(handle, internals.blpapi_Request_destroy)
         self.__handle = handle
         self.__sessions = sessions
         self.__element = None
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        """Destructor."""
-        if self.__handle:
-            internals.blpapi_Request_destroy(self.__handle)
-            self.__handle = None
 
     def __str__(self):
         """x.__str__() <==> str(x)
@@ -110,9 +98,6 @@ class Request(object):
         """Equivalent to :meth:`asElement().toString(level, spacesPerLevel)
         <Element.toString>`."""
         return self.asElement().toString(level, spacesPerLevel)
-
-    def _handle(self):
-        return self.__handle
 
     def _sessions(self):
         """Return session(s) this Request related to. For internal use."""

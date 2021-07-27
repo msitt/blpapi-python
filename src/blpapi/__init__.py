@@ -3,6 +3,24 @@
 # pylint: disable=missing-docstring,redefined-builtin,wildcard-import
 # pylint: disable=raise-missing-from
 
+# pylint: disable=no-member
+import platform
+if platform.system().lower() == 'windows':
+    import glob
+    import os
+
+    blpapi_dir = os.path.abspath(os.path.dirname(__file__))
+    is_64bit = platform.architecture()[0].startswith("64")
+    dll_glob = "*64.dll" if is_64bit else "*32.dll"
+
+    # Attempt to read dlls at the root of blpapi installation
+    # We do not copy the dlls for the source distribution so they are not
+    # guaranteed to be there.
+    # In that case, the next block is going to be skipped entirely.
+    for filename in glob.glob(os.path.join(blpapi_dir, dll_glob)):
+        from ctypes import CDLL
+        CDLL(os.path.abspath(filename))
+
 try:
     from .internals import CorrelationId
 except ImportError as error:

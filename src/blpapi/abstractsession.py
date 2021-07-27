@@ -16,7 +16,7 @@ identifiers without upper-case characters.  Note that the <namespace> and
 <service-name> cannot contain the character '/'.
 """
 
-# pylint: disable=protected-access,useless-object-inheritance
+# pylint: disable=protected-access
 
 from . import exception
 from .exception import _ExceptionUtil
@@ -27,9 +27,10 @@ from .internals import CorrelationId
 from . import utils
 from .utils import get_handle
 from .compat import with_metaclass
+from .chandle import CHandle
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
-class AbstractSession(object):
+class AbstractSession(CHandle):
     """A common interface shared between publish and consumer sessions.
 
     This class provides an abstract session which defines shared interface
@@ -84,7 +85,7 @@ class AbstractSession(object):
     ``nextEvent()``.
     """
 
-    def __init__(self, handle=None):
+    def __init__(self, handle=None, dtor=None):
         """Instantiate an :class:`AbstractSession` with the specified handle.
 
         Args:
@@ -101,6 +102,7 @@ class AbstractSession(object):
         if self.__class__ is AbstractSession:
             raise NotImplementedError("Don't instantiate this class directly.\
  Create sessions using one of the concrete subclasses of this class.")
+        super(AbstractSession, self).__init__(handle, dtor)
         self.__handle = handle
 
     def openService(self, serviceName):
@@ -224,14 +226,14 @@ class AbstractSession(object):
         return correlationId
 
     def cancel(self, correlationId):
-        """Cancel ``correlationId`` request.
+        """Cancel request(s) with a single ``correlationId`` or a list.
 
         Args:
-            correlationId (CorrelationId or [CorrelationId]): Correlation id
-                associated with the request to cancel
+            correlationId (CorrelationId or [CorrelationId]): Correlation id(s)
+                associated with the request(s) to cancel
 
-        If the specified ``correlationId`` identifies a current
-        request then cancel that request.
+        For all specified ``correlationId`` values that identify
+        an ongoing request cancel that request.
 
         Once this call returns the specified ``correlationId`` will not be seen
         in any subsequent :class:`Message` obtained from a
@@ -245,12 +247,14 @@ class AbstractSession(object):
         as this method returns it is preferable not to aggressively re-use
         correlation IDs, particularly with an asynchronous Session.
         """
-
+        if isinstance(correlationId, list):
+            cids = correlationId
+        else:
+            cids = [correlationId]
         _ExceptionUtil.raiseOnError(internals.blpapi_AbstractSession_cancel(
             self.__handle,
-            get_handle(correlationId),
-            1,     # number of correlation IDs supplied
-            None))   # no request label
+            cids,
+            None))  # no request label
 
     def generateToken(self, correlationId=None,
                       eventQueue=None, authId=None, ipAddress=None):

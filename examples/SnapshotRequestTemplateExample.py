@@ -2,7 +2,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import datetime
 from optparse import OptionParser, OptionValueError
 
 import os
@@ -15,7 +14,7 @@ if sys.version_info >= (3, 8) and plat.system().lower() == "windows":
 else:
     import blpapi
 
-def authOptionCallback(option, opt, value, parser):
+def authOptionCallback(_option, _opt, value, parser):
     """Parse authorization options from user input"""
 
     vals = value.split('=', 1)
@@ -130,7 +129,6 @@ def parseCmdLine():
 
 def main():
     """main entry point"""
-    global options
     options = parseCmdLine()
 
     # Fill SessionOptions

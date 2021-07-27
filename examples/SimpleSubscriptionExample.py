@@ -35,7 +35,7 @@ def parseCmdLine():
                       metavar="maxEvents",
                       default=1000000)
 
-    (options, args) = parser.parse_args()
+    options,_ = parser.parse_args()
 
     return options
 

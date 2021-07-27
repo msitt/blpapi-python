@@ -15,7 +15,7 @@ else:
     import blpapi
 
 
-def authOptionCallback(option, opt, value, parser):
+def authOptionCallback(_option, _opt, value, parser):
     vals = value.split('=', 1)
 
     if value == "user":

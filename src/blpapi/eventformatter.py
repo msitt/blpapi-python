@@ -5,17 +5,15 @@
 This component adds messages to an Event which can be later published.
 """
 
-
-
-from .exception import _ExceptionUtil
+from .exception import _ExceptionUtil, InvalidConversionException
 from .datetime import _DatetimeUtil
 from .message import Message
 from .name import Name, getNamePair
 from . import internals
 from .utils import get_handle, invoke_if_valid
+from .chandle import CHandle
 
-#pylint: disable=useless-object-inheritance
-class EventFormatter(object):
+class EventFormatter(CHandle):
     """:class:`EventFormatter` is used to populate :class:`Event`\ s for
     publishing.
 
@@ -91,7 +89,8 @@ class EventFormatter(object):
                 return EventFormatter.__int32Traits
             if -(2 ** 63) <= value <= (2 ** 63 - 1):
                 return EventFormatter.__int64Traits
-            raise ValueError("value is out of supported range")
+            raise InvalidConversionException(
+                "Value is out of supported range (INT64): {}".format(value), 0)
         if isinstance(value, float):
             return EventFormatter.__floatTraits
         if _DatetimeUtil.isDatetime(value):
@@ -112,21 +111,11 @@ class EventFormatter(object):
         referencing the same :class:`Event` will result in an exception being
         raised.
         """
-
-        self.__handle = internals.blpapi_EventFormatter_create(
-            get_handle(event))
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        """Destroy this :class:`EventFormatter` object."""
-        if self.__handle:
-            internals.blpapi_EventFormatter_destroy(self.__handle)
-            self.__handle = None
+        selfhandle = internals.blpapi_EventFormatter_create(get_handle(event))
+        super(EventFormatter, self).__init__(
+            selfhandle,
+            internals.blpapi_EventFormatter_destroy)
+        self.__handle = selfhandle
 
     def appendMessage(self, messageType, topic, sequenceNumber=None):
         """Append an (empty) message to the :class:`Event` referenced by this
@@ -369,10 +358,6 @@ class EventFormatter(object):
     def appendElement(self):
         _ExceptionUtil.raiseOnError(
             internals.blpapi_EventFormatter_appendElement(self.__handle))
-
-    def _handle(self):
-        """Return the internal implementation."""
-        return self.__handle
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

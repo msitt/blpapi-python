@@ -13,11 +13,12 @@ from . import utils
 from .utils import get_handle
 from .internals import CorrelationId
 from .compat import with_metaclass
+from .chandle import CHandle
 
-# pylint: disable=useless-object-inheritance,protected-access
+# pylint: disable=protected-access
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
-class TopicList(object):
+class TopicList(CHandle):
     """A list of topics which require creation.
 
     Contains a list of topics which require creation.
@@ -45,25 +46,16 @@ class TopicList(object):
         Otherwise create a :class:`TopicList` from ``original``.
         """
         if isinstance(original, ResolutionList):
-            self.__handle = \
+            selfhandle = \
                 internals.blpapi_TopicList_createFromResolutionList(
                     get_handle(original))
             self.__sessions = original._sessions()
         else:
-            self.__handle = internals.blpapi_TopicList_create(None)
+            selfhandle = internals.blpapi_TopicList_create(None)
             self.__sessions = set()
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        """Destroy this :class:`TopicList`."""
-        if self.__handle:
-            internals.blpapi_TopicList_destroy(self.__handle)
-            self.__handle = None
+        super(TopicList, self).__init__(
+            selfhandle, internals.blpapi_TopicList_destroy)
+        self.__handle = selfhandle
 
     def add(self, topicOrMessage, correlationId=None):
         """Add the specified topic or topic from message to this
@@ -249,10 +241,6 @@ class TopicList(object):
     def size(self):
         """Return the number of entries in this :class:`TopicList`."""
         return internals.blpapi_TopicList_size(self.__handle)
-
-    def _handle(self):
-        """Return the internal implementation."""
-        return self.__handle
 
     def _sessions(self):
         """Return session(s) that this 'ResolutionList' is related to.

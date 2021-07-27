@@ -10,10 +10,11 @@ form for efficient string comparison.
 from . import internals
 from .compat import conv2str, tolong, isstr
 from .utils import get_handle
+from .chandle import CHandle
 
-# pylint: disable=useless-object-inheritance,broad-except
+# pylint: disable=broad-except
 
-class Name(object):
+class Name(CHandle):
     """:class:`Name` represents a string in a form which is efficient for
     comparison.
 
@@ -47,8 +48,6 @@ class Name(object):
         an unbounded manner.
     """
 
-    __handle = None
-
     @staticmethod
     def findName(nameString):
         """
@@ -80,21 +79,11 @@ class Name(object):
         return Name(None, handle)
 
     def __init__(self, nameString, internalHandle=None):
-        if internalHandle is not None:
-            self.__handle = internalHandle
-        else:
-            self.__handle = internals.blpapi_Name_create(nameString)
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        if self.__handle:
-            internals.blpapi_Name_destroy(self.__handle)
-            self.__handle = None
+        selfhandle = internalHandle
+        if selfhandle is None:
+            selfhandle = internals.blpapi_Name_create(nameString)
+        super(Name, self).__init__(selfhandle, internals.blpapi_Name_destroy)
+        self.__handle = selfhandle
 
     def __len__(self):
         """Return the length of the string that this Name represents.
@@ -130,9 +119,6 @@ class Name(object):
     def __hash__(self):
         """x.__hash__() <==> hash(x)"""
         return tolong(self.__handle)
-
-    def _handle(self):
-        return self.__handle
 
 
 def getNamePair(name):

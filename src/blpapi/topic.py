@@ -8,10 +8,10 @@ This component provides a topic that is used for publishing data on.
 from . import internals
 from .service import Service
 from .utils import get_handle
+from .chandle import CHandle
 
-# pylint: disable=useless-object-inheritance
 
-class Topic(object):
+class Topic(CHandle):
     """Used to identify the stream on which a message is published.
 
     Topic objects are obtained from :meth:`~ProviderSession.createTopics()` on
@@ -30,22 +30,12 @@ class Topic(object):
         A :class:`Topic` created with ``handle`` set to ``None`` is not a valid
         topic and must be assigned to from a valid topic before it can be used.
         """
-        self.__handle = handle
+        selfhandle = handle
         if handle is not None:
-            self.__handle = internals.blpapi_Topic_create(handle)
+            selfhandle = internals.blpapi_Topic_create(handle)
+        super(Topic, self).__init__(selfhandle, internals.blpapi_Topic_destroy)
+        self.__handle = selfhandle
         self.__sessions = sessions
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        """Destroy this :class:`Topic` object."""
-        if self.__handle:
-            internals.blpapi_Topic_destroy(self.__handle)
-            self.__handle = None
 
     def isValid(self):
         """
@@ -86,10 +76,6 @@ class Topic(object):
         """2-way comparison of Topic objects."""
         return internals.blpapi_Topic_compare(
             self.__handle, get_handle(other)) == 0
-
-    def _handle(self):
-        """Return the internal implementation."""
-        return self.__handle
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

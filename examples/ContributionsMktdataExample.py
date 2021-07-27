@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 import time
 from optparse import OptionParser, OptionValueError
-
+from threading import Event
 import os
 import platform as plat
 import sys
@@ -18,31 +18,29 @@ else:
 MARKET_DATA = blpapi.Name("MarketData")
 SESSION_TERMINATED = blpapi.Name("SessionTerminated")
 
-g_running = True
-
 class MyStream(object):  # pylint: disable=too-few-public-methods
 
-    def __init__(self, id=""):
-        self.id = id
+    def __init__(self, sid=""):
+        self.id = sid
 
 class MyEventHandler(object):  # pylint: disable=too-few-public-methods
     """Event handler for the session"""
 
-    def processEvent(self, event, session):
-        """Process session event"""
+    def __init__(self, stop):
+        """ Construct a handler """
+        self.stop = stop
 
-        global g_running
+    def processEvent(self, event, _sesssion):
+        """Process session event"""
 
         for msg in event:
             print(msg)
             if event.eventType() == blpapi.Event.SESSION_STATUS:
                 if msg.messageType() == SESSION_TERMINATED:
-                    g_running = False
+                    self.stop.set()
                 continue
 
-            cids = msg.correlationIds()
-
-def authOptionCallback(option, opt, value, parser):
+def authOptionCallback(_option, _opt, value, parser):
     """Parse authorization options from user input"""
 
     vals = value.split('=', 1)
@@ -242,7 +240,8 @@ def main():
     sessionOptions.setSessionIdentityOptions(options.auth['option'])
     sessionOptions.setAutoRestartOnDisconnection(True)
 
-    myEventHandler = MyEventHandler()
+    stop = Event()
+    myEventHandler = MyEventHandler(stop)
 
     # Create a Session
     session = blpapi.ProviderSession(sessionOptions,
@@ -281,7 +280,7 @@ def main():
     try:
         # Now we will start publishing
         value = 1
-        while streams and g_running:
+        while streams and not stop.is_set():
             event = service.createPublishEvent()
             eventFormatter = blpapi.EventFormatter(event)
 

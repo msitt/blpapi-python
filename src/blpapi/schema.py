@@ -210,12 +210,12 @@ class SchemaTypeDefinition(object):
     """Representation of a "type" that can be used within a schema.
 
     This class implements a representation of a "type" that can be used within
-    a schema, including both simple atomic types (integers, dates, strings,
-    etc.) as well as "complex" types defined a sequences of or choice among a
-    collection (named) elements, each of which is in turn described by another
-    type. In addition to accessors for the type's structure, this class also
-    offers access to metadata providing a description and deprecation status
-    for the type.
+    a schema, including both plain types (integers, dates, strings, etc.)
+    and "complex" types. The latter may be a "sequence" or a "choice" allowing
+    either all or one of the named elements respectively. Those elements
+    in turn are each described by a type. In addition to accessors
+    for the type's structure, this class also offers access to metadata
+    providing a description and deprecation status for the type.
 
     Each :class:`SchemaElementDefinition` object is associated with a single
     :class:`SchemaTypeDefinition`; one :class:`SchemaTypeDefinition` may be
@@ -223,7 +223,7 @@ class SchemaTypeDefinition(object):
 
     :class:`SchemaTypeDefinition` objects are read-only.
 
-    Application clients need never create fresh :class:`SchemaTypeDefinition`
+    Application clients need never create :class:`SchemaTypeDefinition`
     objects directly; applications will typically work with objects returned by
     other blpapi components.
     """

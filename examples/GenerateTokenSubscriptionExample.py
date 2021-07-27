@@ -19,14 +19,6 @@ AUTHORIZATION_FAILURE = blpapi.Name("AuthorizationFailure")
 TOKEN_SUCCESS = blpapi.Name("TokenGenerationSuccess")
 TOKEN_FAILURE = blpapi.Name("TokenGenerationFailure")
 
-
-g_session = None
-g_identity = None
-g_securities = None
-g_fields = None
-g_options = None
-
-
 def parseCmdLine():
     parser = OptionParser(description="Generate a token for authorization")
     parser.add_option("-a",
@@ -64,7 +56,7 @@ def parseCmdLine():
                       help="dirSvcProperty",
                       metavar="dirSvcProperty")
 
-    (options, args) = parser.parse_args()
+    options,_ = parser.parse_args()
 
     if not options.securities:
         options.securities = ["IBM US Equity"]
@@ -75,22 +67,21 @@ def parseCmdLine():
     return options
 
 
-def subscribe():
+def subscribe(session, identity, securities, fields, soptions = None):
     # Create a SubscriptionList and populate it with securities, fields etc
     subscriptions = blpapi.SubscriptionList()
 
-    for i, security in enumerate(g_securities):
+    for i, security in enumerate(securities):
         subscriptions.add(security,
-                          g_fields,
-                          g_options,
+                          fields,
+                          soptions,
                           blpapi.CorrelationId(i))
 
     print("Subscribing...")
-    g_session.subscribe(subscriptions, g_identity)
+    session.subscribe(subscriptions, identity)
 
 
-def processTokenStatus(event):
-    global g_identity
+def processTokenStatus(event, session):
     print("processTokenEvents")
 
     for msg in event:
@@ -98,29 +89,29 @@ def processTokenStatus(event):
             print(msg)
 
             # Authentication phase has passed; send authorization request
-            authService = g_session.getService("//blp/apiauth")
+            authService = session.getService("//blp/apiauth")
             authRequest = authService.createAuthorizationRequest()
             authRequest.set("token", msg.getElementAsString("token"))
-            g_identity = g_session.createIdentity()
-            g_session.sendAuthorizationRequest(
+            identity = session.createIdentity()
+            session.sendAuthorizationRequest(
                 authRequest,
-                g_identity,
+                identity,
                 blpapi.CorrelationId(1))
         elif msg.messageType() == TOKEN_FAILURE:
             # Token generation failure
             print(msg)
-            return False
-    return True
+            return None
+    return identity
 
 
-def processEvent(event):
+def processEvent(event, session, identity, securities, fields):
     print("processEvent")
 
     for msg in event:
         if msg.messageType() == AUTHORIZATION_SUCCESS:
             # Authorization phase has passed; subscribe to market data
             print("Authorization SUCCESS")
-            subscribe()
+            subscribe(session, identity, securities, fields)
         elif msg.messageType() == AUTHORIZATION_FAILURE:
             # Authorization failure
             print("Authorization FAILED")
@@ -132,7 +123,6 @@ def processEvent(event):
 
 
 def main():
-    global g_session, g_securities, g_fields
 
     print("GenerateTokenSubscriptionExample")
     options = parseCmdLine()
@@ -148,42 +138,45 @@ def main():
     print("authOptions = %s" % authOptions)
     sessionOptions.setAuthenticationOptions(authOptions)
 
-    g_securities = options.securities
-    g_fields = options.fields
+    securities = options.securities
+    fields = options.fields
 
     print("Connecting to %s:%s" % (options.host, options.port))
-    g_session = blpapi.Session(sessionOptions)
-    if not g_session.start():
+    session = blpapi.Session(sessionOptions)
+    if not session.start():
         print("Failed to start session.")
         return
 
     # Open market data service
-    if not g_session.openService("//blp/mktdata"):
+    if not session.openService("//blp/mktdata"):
         print("Failed to open //blp/mktdata")
         return
 
     # Open authorization service
-    if not g_session.openService("//blp/apiauth"):
+    if not session.openService("//blp/apiauth"):
         print("Failed to open //blp/apiauth")
         return
 
     # Submit a token generation request
     tokenReqId = blpapi.CorrelationId(99)
-    g_session.generateToken(tokenReqId)
+    session.generateToken(tokenReqId)
+
+    identity = None
 
     # Handle and respond to incoming events
     while True:
         # nextEvent() method below is called with a timeout to let
         # the program catch Ctrl-C between arrivals of new events
-        event = g_session.nextEvent(1000)
+        event = session.nextEvent(1000)
         if event.eventType() != blpapi.Event.TIMEOUT:
             if event.eventType() == blpapi.Event.TOKEN_STATUS:
                 # Handle response to token generation request
-                if not processTokenStatus(event):
+                identity = processTokenStatus(event, session)
+                if identity is None:
                     break
             else:
                 # Handle all other events
-                if not processEvent(event):
+                if not processEvent(event, session, identity, securities, fields):
                     break
 
 

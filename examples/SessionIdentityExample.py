@@ -55,12 +55,12 @@ def parseCmdLine():
                       default=8194)
     parser.add_option("--auth",
                       dest="authType",
-                      help="authorization option: "
-                           "none|user|app=<appName>|userapp=<appName>"
-                           " (default: user)\n"
-                           "'none' is applicable to Desktop API product "
-                           "that requires Bloomberg Professional service "
-                           "to be installed locally.",
+                       help="authentication option: "
+                            "user|none|app=<app>|userapp=<app>"
+                            " (default: user)\n"
+                            "'none' is applicable to Desktop API product "
+                            "that requires Bloomberg Professional service "
+                            "to be installed locally.",
                       metavar="option",
                       action="callback",
                       callback=authOptionCallback,
@@ -125,7 +125,7 @@ def main():
 
     try:
         example.run()
-    except Exception as e: # pylint: disable=broad-except
+    except blpapi.Exception as e:
         print("Blpapi exception: {}".format(e))
 
 

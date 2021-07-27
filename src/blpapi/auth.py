@@ -5,9 +5,9 @@
 from blpapi import internals
 from blpapi.utils import get_handle
 from blpapi.exception import _ExceptionUtil
+from .chandle import CHandle
 
-
-class AuthOptions:
+class AuthOptions(CHandle):
     """Defines the authorization options which the user can set on
     :class:`SessionOptions` as the authorization options for the session
     identity or use to authorize other identities.
@@ -15,9 +15,13 @@ class AuthOptions:
 
     def __init__(self, handle, **kwargs):
         """For internal use only."""
+        super(AuthOptions, self).__init__(handle, None)
         self.__handle = handle
         self.__app_handle = kwargs.get("app_handle")
         self.__token_handle = kwargs.get("token_handle")
+        self._options_dtor = internals.blpapi_AuthOptions_destroy
+        self._app_dtor = internals.blpapi_AuthApplication_destroy
+        self._token_dtor = internals.blpapi_AuthToken_destroy
 
     @classmethod
     def createWithUser(cls, user):
@@ -97,27 +101,17 @@ class AuthOptions:
         _ExceptionUtil.raiseOnError(retcode)
         return cls(authOptions_handle, app_handle=app_handle)
 
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
     def destroy(self):
         """Destroy this :class:`AuthOptions`."""
         if self.__handle:
-            internals.blpapi_AuthOptions_destroy(self.__handle)
+            self._options_dtor(self.__handle)
             self.__handle = None
         if self.__app_handle:
-            internals.blpapi_AuthApplication_destroy(self.__app_handle)
+            self._app_dtor(self.__app_handle)
             self.__app_handle = None
         if self.__token_handle:
-            internals.blpapi_AuthToken_destroy(self.__token_handle)
+            self._token_dtor(self.__token_handle)
             self.__token_handle = None
-
-    def _handle(self):
-        """For internal use only."""
-        return self.__handle
 
     @staticmethod
     def _create_app_handle(appName):
@@ -136,24 +130,14 @@ class AuthOptions:
         return token_handle
 
 
-class AuthUser:
+class AuthUser(CHandle):
     """Contains user-specific authorization options."""
 
     def __init__(self, handle):
         """For internal use only."""
+        super(AuthUser, self).__init__(
+            handle, internals.blpapi_AuthUser_destroy)
         self.__handle = handle
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        """Destroy this :class:`AuthUser`."""
-        if self.__handle:
-            internals.blpapi_AuthUser_destroy(self.__handle)
-            self.__handle = None
 
     @classmethod
     def createWithLogonName(cls):
@@ -208,11 +192,6 @@ class AuthUser:
             .blpapi_AuthUser_createWithManualOptions(userId, ipAddress)
         _ExceptionUtil.raiseOnError(retcode)
         return cls(handle)
-
-    def _handle(self):
-        """For internal use only."""
-        return self.__handle
-
 
 __copyright__ = """
 Copyright 2020. Bloomberg Finance L.P.

@@ -8,10 +8,9 @@ Sessions through callbacks.
 
 import warnings
 from . import internals
+from .chandle import CHandle
 
-# pylint: disable=useless-object-inheritance
-
-class EventDispatcher(object):
+class EventDispatcher(CHandle):
     """Dispatches events from one or more Sessions through callbacks
 
     :class:`EventDispatcher` objects are optionally specified when Session
@@ -36,21 +35,11 @@ class EventDispatcher(object):
         ``numDispatcherThreads`` threads is created to dispatch events. The
         behavior is undefined if ``numDispatcherThreads`` is ``0``.
         """
-
-        self.__handle = internals.blpapi_EventDispatcher_create(
-            numDispatcherThreads)
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        """Destructor."""
-        if self.__handle:
-            internals.blpapi_EventDispatcher_destroy(self.__handle)
-            self.__handle = None
+        selfhandle = internals.blpapi_EventDispatcher_create(numDispatcherThreads)
+        super(EventDispatcher, self).__init__(
+            selfhandle,
+            internals.blpapi_EventDispatcher_destroy)
+        self.__handle = selfhandle
 
     def start(self):
         """Start generating callbacks for events from sessions associated with
@@ -91,10 +80,6 @@ class EventDispatcher(object):
                 "compatibility.")
 
         return internals.blpapi_EventDispatcher_stop(self.__handle, async_)
-
-    def _handle(self):
-        """Return the internal implementation."""
-        return self.__handle
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

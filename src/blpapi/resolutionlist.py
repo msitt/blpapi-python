@@ -12,11 +12,11 @@ from . import utils
 from .utils import deprecated, get_handle
 from .internals import CorrelationId
 from .compat import with_metaclass
+from .chandle import CHandle
 
-# pylint: disable=useless-object-inheritance
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
-class ResolutionList(object):
+class ResolutionList(CHandle):
     """Contains a list of topics that require resolution.
 
     Created from topic strings or from ``SUBSCRIPTION_STARTED`` messages. This
@@ -55,21 +55,12 @@ class ResolutionList(object):
 
     def __init__(self):
         """Create an empty :class:`ResolutionList`."""
-        self.__handle = internals.blpapi_ResolutionList_create(None)
+        selfhandle = internals.blpapi_ResolutionList_create(None)
+        super(ResolutionList, self).__init__(
+            selfhandle,
+            internals.blpapi_ResolutionList_destroy)
+        self.__handle = selfhandle
         self.__sessions = set()
-
-    def __del__(self):
-        """Destroy this :class:`ResolutionList`."""
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        """Destroy resolutionlist"""
-        if self.__handle:
-            internals.blpapi_ResolutionList_destroy(self.__handle)
-            self.__handle = None
 
     def add(self, topicOrMessage, correlationId=None):
         """Add the specified topic or topic from message to this list.
@@ -301,10 +292,6 @@ class ResolutionList(object):
             int: Number of entries in this :class:`ResolutionList`.
         """
         return internals.blpapi_ResolutionList_size(self.__handle)
-
-    def _handle(self):
-        """Return the internal implementation."""
-        return self.__handle
 
     def _sessions(self):
         """Return session(s) that this 'ResolutionList' is related to.

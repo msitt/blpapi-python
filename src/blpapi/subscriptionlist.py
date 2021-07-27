@@ -88,10 +88,10 @@ from . import internals
 from .internals import CorrelationId
 from .compat import conv2str, isstr
 from .utils import get_handle
+from .chandle import CHandle
 
-# pylint: disable=useless-object-inheritance
 
-class SubscriptionList(object):
+class SubscriptionList(CHandle):
     """A list of subscriptions.
 
     Contains a list of subscriptions used when subscribing and unsubscribing.
@@ -135,19 +135,11 @@ class SubscriptionList(object):
     """
     def __init__(self):
         """Create an empty :class:`SubscriptionList`."""
-        self.__handle = internals.blpapi_SubscriptionList_create()
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        """Destroy this :class:`SubscriptionList`."""
-        if self.__handle:
-            internals.blpapi_SubscriptionList_destroy(self.__handle)
-            self.__handle = None
+        selfhandle = internals.blpapi_SubscriptionList_create()
+        super(SubscriptionList, self).__init__(
+            selfhandle,
+            internals.blpapi_SubscriptionList_destroy)
+        self.__handle = selfhandle
 
     def add(self, topic, fields=None, options=None, correlationId=None):
         """Add the specified ``topic`` to this :class:`SubscriptionList`.
@@ -295,10 +287,6 @@ class SubscriptionList(object):
             self.__handle, index)
         _ExceptionUtil.raiseOnError(err)
         return res
-
-    def _handle(self):
-        """Return the internal implementation."""
-        return self.__handle
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

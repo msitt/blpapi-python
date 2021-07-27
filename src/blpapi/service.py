@@ -16,8 +16,8 @@ from .exception import _ExceptionUtil
 from . import utils
 from .utils import get_handle
 from . import internals
+from .chandle import CHandle
 
-# pylint: disable=useless-object-inheritance
 
 class Operation(object):
     """Defines an operation which can be performed by a :class:`Service`.
@@ -104,7 +104,7 @@ class Operation(object):
         return self.__sessions
 
 
-class Service(object):
+class Service(CHandle):
     """Defines a service which provides access to API data.
 
     A :class:`Service` object is obtained from a :class:`Session` and contains
@@ -123,20 +123,10 @@ class Service(object):
     """
 
     def __init__(self, handle, sessions):
+        super(Service, self).__init__(handle, internals.blpapi_Service_release)
         self.__handle = handle
         self.__sessions = sessions
         internals.blpapi_Service_addRef(self.__handle)
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        if self.__handle:
-            internals.blpapi_Service_release(self.__handle)
-            self.__handle = None
 
     def __str__(self):
         """Convert the service schema to a string."""
@@ -417,10 +407,6 @@ class Service(object):
             authorizationOperation)
         _ExceptionUtil.raiseOnError(errCode)
         return Request(request, self.__sessions)
-
-    def _handle(self):
-        """Return the internal implementation."""
-        return self.__handle
 
     def _sessions(self):
         """Return session(s) this object is related to. For internal use."""

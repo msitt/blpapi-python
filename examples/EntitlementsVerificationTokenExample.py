@@ -23,11 +23,6 @@ REFRENCEDATA_REQUEST = "ReferenceDataRequest"
 APIAUTH_SVC = "//blp/apiauth"
 REFDATA_SVC = "//blp/refdata"
 
-g_securities = None
-g_tokens = None
-g_session = None
-g_identities = []
-
 
 def printEvent(event):
     for msg in event:
@@ -38,6 +33,10 @@ def printEvent(event):
 
 
 class SessionEventHandler(object):
+    def __init__(self, identities, tokens):
+        self.identities = identities
+        self.tokens = tokens
+
     def printFailedEntitlements(self, listOfFailedEIDs):
         print(listOfFailedEIDs)
 
@@ -55,7 +54,7 @@ class SessionEventHandler(object):
             if (entitlements is not None and
                     entitlements.isValid() and
                     entitlements.numValues() > 0):
-                for j, identity in enumerate(g_identities):
+                for j, identity in enumerate(self.identities):
                     if identity.hasEntitlements(service, entitlements):
                         print("User: %s is entitled to get data for: %s" % \
                             (j + 1, ticker))
@@ -66,19 +65,19 @@ class SessionEventHandler(object):
                             identity.getFailedEntitlements(service,
                                                            entitlements)[1])
             else:
-                for token in g_tokens:
+                for token in self.tokens:
                     print("User: %s is entitled to get data for: %s" % \
                         (token, ticker))
                     # Now Distribute message to the user.
 
     def processResponseEvent(self, event):
         for msg in event:
-            if msg.hasElement("RESPONSE_ERROR"):
+            if msg.hasElement("RESPONSE_ERROR") or msg.hasElement("responseError"):
                 print(msg)
                 continue
             self.distributeMessage(msg)
 
-    def processEvent(self, event, session):
+    def processEvent(self, event, _session):
         if (event.eventType() == blpapi.Event.SESSION_STATUS or
                 event.eventType() == blpapi.Event.SERVICE_STATUS or
                 event.eventType() == blpapi.Event.REQUEST_STATUS or
@@ -123,7 +122,7 @@ def parseCmdLine():
                       metavar="tcpPort",
                       default=8194)
 
-    (options, args) = parser.parse_args()
+    options,_ = parser.parse_args()
 
     if not options.securities:
         options.securities = ["MSFT US Equity"]
@@ -131,19 +130,19 @@ def parseCmdLine():
     return options
 
 
-def authorizeUsers():
-    authService = g_session.getService(APIAUTH_SVC)
+def authorizeUsers(session, tokens, identities):
+    authService = session.getService(APIAUTH_SVC)
     is_any_user_authorized = False
 
     # Authorize each of the users
-    for index, token in enumerate(g_tokens):
-        identity = g_session.createIdentity()
-        g_identities.append(identity)
+    for index, token in enumerate(tokens):
+        identity = session.createIdentity()
+        identities.append(identity)
         authRequest = authService.createAuthorizationRequest()
         authRequest.set("token", token)
         correlator = blpapi.CorrelationId(token)
         eventQueue = blpapi.EventQueue()
-        g_session.sendAuthorizationRequest(authRequest,
+        session.sendAuthorizationRequest(authRequest,
                                            identity,
                                            correlator,
                                            eventQueue)
@@ -160,14 +159,14 @@ def authorizeUsers():
     return is_any_user_authorized
 
 
-def sendRefDataRequest():
-    refDataService = g_session.getService(REFDATA_SVC)
+def sendRefDataRequest(session, securities):
+    refDataService = session.getService(REFDATA_SVC)
     request = refDataService.createRequest(REFRENCEDATA_REQUEST)
 
     # Add securities to the request
-    securities = request.getElement("securities")
-    for security in g_securities:
-        securities.appendValue(security)
+    securitiesEl = request.getElement("securities")
+    for security in securities:
+        securitiesEl.appendValue(security)
 
     # Add fields to the request
     fields = request.getElement("fields")
@@ -178,11 +177,10 @@ def sendRefDataRequest():
 
     # Send the request using the server's credentials
     print("Sending RefDataRequest using server credentials...")
-    g_session.sendRequest(request)
+    session.sendRequest(request)
 
 
 def main():
-    global g_session, g_securities, g_tokens
     options = parseCmdLine()
 
     # Create SessionOptions object and populate it with data
@@ -190,36 +188,38 @@ def main():
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(options.port)
 
-    g_securities = options.securities
+    securities = options.securities
     if not options.tokens:
         print("No tokens were specified")
         return
 
-    g_tokens = options.tokens
-    print(g_tokens)
+    tokens = options.tokens
+    print(tokens)
+
+    identities = []
 
     # Create Session object and connect to Bloomberg services
     print("Connecting to %s:%s" % (options.host, options.port))
-    eventHandler = SessionEventHandler()
-    g_session = blpapi.Session(sessionOptions, eventHandler.processEvent)
-    if not g_session.start():
+    eventHandler = SessionEventHandler(identities, tokens)
+    session = blpapi.Session(sessionOptions, eventHandler.processEvent)
+    if not session.start():
         print("Failed to start session.")
         return
 
     # Open authorization service
-    if not g_session.openService("//blp/apiauth"):
+    if not session.openService("//blp/apiauth"):
         print("Failed to open //blp/apiauth")
         return
 
     # Open reference data service
-    if not g_session.openService("//blp/refdata"):
+    if not session.openService("//blp/refdata"):
         print("Failed to open //blp/refdata")
         return
 
     # Authorize all the users that are interested in receiving data
-    if authorizeUsers():
+    if authorizeUsers(session, tokens, identities):
         # Make the various requests that we need to make
-        sendRefDataRequest()
+        sendRefDataRequest(session, securities)
 
     try:
         # Wait for enter key to exit application
@@ -227,7 +227,7 @@ def main():
         input()
     finally:
         # Stop the session
-        g_session.stop()
+        session.stop()
 
 if __name__ == "__main__":
     print("EntitlementsVerificationTokenExample")

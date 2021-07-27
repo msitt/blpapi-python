@@ -12,6 +12,7 @@ import sys
 import traceback
 import os
 import functools
+import atexit
 from .abstractsession import AbstractSession
 from .event import Event
 from . import exception
@@ -98,7 +99,7 @@ class Session(AbstractSession):
     __handlerProxy = None
 
     @staticmethod
-    def __dispatchEvent(sessionRef, eventHandle):
+    def __dispatchEvent(sessionRef, eventHandle): # pragma: no cover
         """ event dispatcher """
         try:
             session = sessionRef()
@@ -163,20 +164,16 @@ class Session(AbstractSession):
             get_handle(options),
             self.__handlerProxy,
             get_handle(eventDispatcher))
+
+        _destroy = internals.Session_destroyHelper
+        # note: AbstractSession destroy passes AbstractSession handle
+        _dtor = lambda hndl: _destroy(self.__handle, self.__handlerProxy)
+        atexit.register(self.stop) # we must stop session before shutdown
+
         AbstractSession.__init__(
             self,
-            internals.blpapi_Session_getAbstractSession(self.__handle))
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        if self.__handle:
-            internals.Session_destroyHelper(self.__handle, self.__handlerProxy)
-            self.__handle = None
+            internals.blpapi_Session_getAbstractSession(self.__handle),
+            _dtor)
 
     def start(self):
         """Start this :class:`Session` in synchronous mode.
@@ -226,6 +223,8 @@ class Session(AbstractSession):
         deadlock. Once a :class:`Session` has been stopped it can only be
         destroyed.
         """
+        if sys.version_info >= (3, 6):
+            atexit.unregister(self.stop)
         return internals.blpapi_Session_stop(self.__handle) == 0
 
     def stopAsync(self):

@@ -61,7 +61,7 @@ def printMessage(msg, eventType):
         EVENT_TYPE_NAMES[eventType],
         msg))
 
-def authOptionCallback(option, opt, value, parser):
+def authOptionCallback(_option, _opt, value, parser):
     """Parse authorization options from user input"""
 
     vals = value.split('=', 1)
@@ -149,51 +149,51 @@ def parseCmdLine():
                                blpapi.AuthOptions.createWithUser(
                                       blpapi.AuthUser.createWithLogonName())})
 
-    (options, _) = parser.parse_args()
+    poptions,_ = parser.parse_args()
 
-    if not options.securities:
-        options.securities = ["IBM US Equity"]
-    return options
+    if not poptions.securities:
+        poptions.securities = ["IBM US Equity"]
+    return poptions
 
 
 # Subscribe 'session' for the securities and fields specified in 'options'
-def subscribe(session, options, identity=None):
+def subscribe(session, poptions, identity=None):
     sl = blpapi.SubscriptionList()
-    for s in options.securities:
+    for s in poptions.securities:
         topic = topicName(s)
         cid = blpapi.CorrelationId(s)
         print("Subscribing {0} => {1}".format(cid, topic))
-        sl.add(topic, options.fields, correlationId=cid)
+        sl.add(topic, poptions.fields, correlationId=cid)
     session.subscribe(sl, identity)
 
 
 # Event handler
-def processEvent(event, session):
-    global identity
-    global options
+class MyEventHandler(object):
+    def __init__(self, poptions):
+        self.options = poptions
 
-    try:
-        eventType = event.eventType()
-        for msg in event:
-            # Print all aincoming messages including the SubscriptionData
-            printMessage(msg, eventType)
+    def processEvent(self, event, session):
+        try:
+            eventType = event.eventType()
+            for msg in event:
+                # Print all aincoming messages including the SubscriptionData
+                printMessage(msg, eventType)
 
-            if eventType == EventType.SESSION_STATUS:
-                if msg.messageType() == SESSION_STARTED:
-                    # Session.startAsync completed successfully
-                    # Subscribe for the specified securities/fields
-                    subscribe(session, options)
-                elif msg.messageType() == SESSION_STARTUP_FAILURE:
-                    # Session.startAsync failed, raise exception to exit
-                    raise Error("Can't start session")
-    except Error as ex:
-        print("Error in event handler:", ex)
-        # Interrupt a "sleep loop" in main thread
-        thread.interrupt_main()
+                if eventType == EventType.SESSION_STATUS:
+                    if msg.messageType() == SESSION_STARTED:
+                        # Session.startAsync completed successfully
+                        # Subscribe for the specified securities/fields
+                        subscribe(session, self.options)
+                    elif msg.messageType() == SESSION_STARTUP_FAILURE:
+                        # Session.startAsync failed, raise exception to exit
+                        raise Error("Can't start session")
+        except Error as ex:
+            print("Error in event handler:", ex)
+            # Interrupt a "sleep loop" in main thread
+            thread.interrupt_main()
 
 
 def main():
-    global options
     options = parseCmdLine()
 
     # Fill SessionOptions
@@ -202,11 +202,14 @@ def main():
     sessionOptions.setServerPort(options.port)
     sessionOptions.setSessionIdentityOptions(options.auth['option'])
 
+    # Create a handler
+    handler = MyEventHandler(options)
+
     # Create an EventDispatcher with 2 processing threads
     dispatcher = blpapi.EventDispatcher(2)
 
     # Create a Session
-    session = blpapi.Session(sessionOptions, processEvent, dispatcher)
+    session = blpapi.Session(sessionOptions, handler.processEvent, dispatcher)
 
     # Start dispatcher to "pump" the received events
     dispatcher.start()

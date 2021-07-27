@@ -3,7 +3,6 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import time
-import threading
 from optparse import OptionParser, OptionValueError
 
 import os
@@ -19,23 +18,19 @@ else:
 RESOLUTION_SUCCESS = blpapi.Name("ResolutionSuccess")
 SESSION_TERMINATED = blpapi.Name("SessionTerminated")
 
-g_running = True
-g_mutex = threading.Lock()
-
 
 class MyProviderEventHandler(object):
     def __init__(self, serviceName):
         self.serviceName = serviceName
 
     def processEvent(self, event, session):
-        global g_running
 
         print("Server received an event")
         if event.eventType() == blpapi.Event.SESSION_STATUS:
             for msg in event:
                 print(msg)
                 if msg.messageType() == SESSION_TERMINATED:
-                    g_running = False
+                    pass
 
         elif event.eventType() == blpapi.Event.RESOLUTION_STATUS:
             for msg in event:
@@ -97,13 +92,13 @@ class MyProviderEventHandler(object):
 
 
 class MyRequesterEventHandler(object):
-    def processEvent(self, event, session):
+    def processEvent(self, event, _session):
         print("Client received an event")
         for msg in event:
             print(msg)
 
 
-def authOptionCallback(option, opt, value, parser):
+def authOptionCallback(_option, _opt, value, parser):
     """Parse authorization options from user input"""
 
     vals = value.split('=', 1)
@@ -268,12 +263,11 @@ def clientRun(session, options):
 
         print("Client received an event")
         for msg in event:
-            with g_mutex:
-                if event.eventType() == blpapi.Event.RESPONSE:
-                    if msg.hasElement("timestamp"):
-                        responseTime = msg.getElementAsFloat("timestamp")
-                        print("Response latency =", time.time() - responseTime)
-                print(msg)
+            if event.eventType() == blpapi.Event.RESPONSE:
+                if msg.hasElement("timestamp"):
+                    responseTime = msg.getElementAsFloat("timestamp")
+                    print("Response latency =", time.time() - responseTime)
+            print(msg)
 
         if event.eventType() == blpapi.Event.RESPONSE:
             break

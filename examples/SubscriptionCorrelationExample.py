@@ -19,7 +19,7 @@ class GridWindow(object):
         self.name = name
         self.securities = securities
 
-    def processSecurityUpdate(self, msg, row):
+    def processSecurityUpdate(self, _msg, row):
         topicName = self.securities[row]
         print("%s:%s,%s" % (self.name, row, topicName))
 
@@ -45,7 +45,7 @@ def parseCmdLine():
                       metavar="maxEvents",
                       default=1000000)
 
-    (options, args) = parser.parse_args()
+    options,_ = parser.parse_args()
 
     return options
 

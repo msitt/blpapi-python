@@ -64,6 +64,7 @@ import sys
 import traceback
 import os
 import functools
+import atexit
 from .abstractsession import AbstractSession
 from .event import Event
 from . import exception
@@ -75,12 +76,13 @@ from .topic import Topic
 from . import utils
 from .utils import get_handle
 from .compat import with_metaclass
+from .chandle import CHandle
 
-# pylint: disable=line-too-long,useless-object-inheritance,too-many-lines
+# pylint: disable=line-too-long,too-many-lines
 # pylint: disable=protected-access,too-many-public-methods,bare-except,too-many-function-args
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
-class ServiceRegistrationOptions(object):
+class ServiceRegistrationOptions(CHandle):
     """Contains the options which can be specified when registering a service.
 
     To use non-default options to :meth:`~ProviderSession.registerService()`,
@@ -134,19 +136,11 @@ class ServiceRegistrationOptions(object):
 
     def __init__(self):
         """Create :class:`ServiceRegistrationOptions` with default options."""
-        self.__handle = internals.blpapi_ServiceRegistrationOptions_create()
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        """Destroy this :class:`ServiceRegistrationOptions`."""
-        if self.__handle:
-            internals.blpapi_ServiceRegistrationOptions_destroy(self.__handle)
-            self.__handle = None
+        selfhandle = internals.blpapi_ServiceRegistrationOptions_create()
+        super(ServiceRegistrationOptions, self).__init__(
+            selfhandle,
+            internals.blpapi_ServiceRegistrationOptions_destroy)
+        self.__handle = selfhandle
 
     def setGroupId(self, groupId):
         """Set the Group ID for the service to be registered.
@@ -255,10 +249,6 @@ class ServiceRegistrationOptions(object):
         """
         return internals.blpapi_ServiceRegistrationOptions_getPartsToRegister(
                 self.__handle)
-
-    def _handle(self):
-        """Return the internal implementation."""
-        return self.__handle
 
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
@@ -371,23 +361,16 @@ class ProviderSession(AbstractSession):
             get_handle(options),
             self.__handlerProxy,
             get_handle(eventDispatcher))
+
+        _destroy = internals.ProviderSession_destroyHelper
+        # note: AbstractSession destroy passes AbstractSession handle
+        _dtor = lambda hndl: _destroy(self.__handle, self.__handlerProxy)
+
+        atexit.register(self.stop) # we must stop session before shutdown
         AbstractSession.__init__(
             self,
-            internals.blpapi_ProviderSession_getAbstractSession(self.__handle))
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        """Destructor."""
-        if self.__handle:
-            internals.ProviderSession_destroyHelper(
-                self.__handle,
-                self.__handlerProxy)
-            self.__handle = None
+            internals.blpapi_ProviderSession_getAbstractSession(self.__handle),
+            _dtor)
 
     def start(self):
         """Start this :class:`Session` in synchronous mode.
@@ -461,6 +444,8 @@ class ProviderSession(AbstractSession):
         deadlock. Once a :class:`Session` has been stopped it can only be
         destroyed.
         """
+        if sys.version_info >= (3, 6):
+            atexit.unregister(self.stop)
         return internals.blpapi_ProviderSession_stop(self.__handle) == 0
 
     def stopAsync(self):
@@ -996,10 +981,6 @@ class ProviderSession(AbstractSession):
                     topicsCArraySize))
         finally:
             internals.delete_topicPtrArray(topicsCArray)
-
-    def _handle(self):
-        """Return the internal implementation."""
-        return self.__handle
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

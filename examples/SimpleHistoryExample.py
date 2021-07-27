@@ -29,7 +29,7 @@ def parseCmdLine():
                       metavar="tcpPort",
                       default=8194)
 
-    (options, args) = parser.parse_args()
+    options,_ = parser.parse_args()
 
     return options
 

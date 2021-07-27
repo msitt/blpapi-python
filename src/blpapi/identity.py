@@ -12,11 +12,10 @@ from . import internals
 from . import utils
 from .utils import get_handle
 from .compat import with_metaclass
-
-# pylint: disable=useless-object-inheritance
+from .chandle import CHandle
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
-class Identity(object):
+class Identity(CHandle):
     """Provides access to the entitlements for a specific user.
 
     An unauthorized Identity is created using
@@ -49,25 +48,11 @@ class Identity(object):
             handle: Handle to the internal implementation
             sessions: Sessions associated with this object
         """
+        super(Identity, self).__init__(
+            handle, internals.blpapi_Identity_release)
         self.__handle = handle
         self.__sessions = sessions
         internals.blpapi_Identity_addRef(self.__handle)
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        """Destructor.
-
-        Destroying the last :class:`Identity` for a specific user cancels any
-        authorizations associated with it.
-        """
-        if self.__handle:
-            internals.blpapi_Identity_release(self.__handle)
-            self.__handle = None
 
     def hasEntitlements(self, service, entitlements):
         """
@@ -185,10 +170,6 @@ class Identity(object):
         res = internals.blpapi_Identity_getSeatType(self.__handle)
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
-
-    def _handle(self):
-        """Return the internal implementation."""
-        return self.__handle
 
     # Protect enumeration constant(s) defined in this class and in classes
     # derived from this class from changes:

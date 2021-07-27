@@ -19,13 +19,6 @@ AUTHORIZATION_FAILURE = blpapi.Name("AuthorizationFailure")
 TOKEN_SUCCESS = blpapi.Name("TokenGenerationSuccess")
 TOKEN_FAILURE = blpapi.Name("TokenGenerationFailure")
 
-
-g_session = None
-g_identity = None
-g_securities = None
-g_fields = None
-
-
 def parseCmdLine():
     # Parse command-line parameters
     parser = OptionParser(description="Generate a token for authorization")
@@ -58,7 +51,7 @@ def parseCmdLine():
                       help="dirSvcProperty",
                       metavar="dirSvcProperty")
 
-    (options, args) = parser.parse_args()
+    options,_ = parser.parse_args()
 
     if not options.securities:
         options.securities = ["IBM US Equity"]
@@ -69,26 +62,25 @@ def parseCmdLine():
     return options
 
 
-def sendRequest():
-    refDataService = g_session.getService("//blp/refdata")
+def sendRequest(session, identity, securities, fields):
+    refDataService = session.getService("//blp/refdata")
     request = refDataService.createRequest("ReferenceDataRequest")
 
     # Add securities to the request
-    securities = request.getElement("securities")
-    for security in g_securities:
-        securities.appendValue(security)
+    securitiesEl = request.getElement("securities")
+    for security in securities:
+        securitiesEl.appendValue(security)
 
     # Add fields to the request
-    fields = request.getElement("fields")
-    for field in g_fields:
-        fields.appendValue(field)
+    fieldsEl = request.getElement("fields")
+    for field in fields:
+        fieldsEl.appendValue(field)
 
     print("Sending request: %s" % request)
-    g_session.sendRequest(request, g_identity)
+    session.sendRequest(request, identity)
 
 
-def processTokenStatus(event):
-    global g_identity
+def processTokenStatus(event, session):
     print("processTokenEvents")
 
     # Handle response to token generation request
@@ -97,24 +89,24 @@ def processTokenStatus(event):
             print(msg)
 
             # Authentication phase has passed; send authorization request
-            authService = g_session.getService("//blp/apiauth")
+            authService = session.getService("//blp/apiauth")
             authRequest = authService.createAuthorizationRequest()
             authRequest.set("token",
                             msg.getElementAsString("token"))
 
-            g_identity = g_session.createIdentity()
-            g_session.sendAuthorizationRequest(
+            identity = session.createIdentity()
+            session.sendAuthorizationRequest(
                 authRequest,
-                g_identity,
+                identity,
                 blpapi.CorrelationId(1))
         elif msg.messageType() == TOKEN_FAILURE:
             # Token generation failure
             print(msg)
-            return False
-    return True
+            return None
+    return identity
 
 
-def processEvent(event):
+def processEvent(event, session, identity, securities, fields):
     print("processEvent")
 
     # Handle response to authorization request; handle reference data
@@ -122,7 +114,7 @@ def processEvent(event):
         if msg.messageType() == AUTHORIZATION_SUCCESS:
             # Authorization phase has passed; request data
             print("Authorization SUCCESS")
-            sendRequest()
+            sendRequest(session, identity, securities, fields)
         elif msg.messageType() == AUTHORIZATION_FAILURE:
             # Authorization failure
             print("Authorization FAILED")
@@ -138,7 +130,6 @@ def processEvent(event):
 
 
 def main():
-    global g_session, g_securities, g_fields
     options = parseCmdLine()
 
     # Create SessionOptions object and populate it with data
@@ -152,37 +143,39 @@ def main():
     print("authOptions = %s" % authOptions)
     sessionOptions.setAuthenticationOptions(authOptions)
 
-    g_securities = options.securities
-    g_fields = options.fields
+    securities = options.securities
+    fields = options.fields
 
     # Create Session object and connect to Bloomberg services
     print("Connecting to %s:%s" % (options.host, options.port))
-    g_session = blpapi.Session(sessionOptions)
-    if not g_session.start():
+    session = blpapi.Session(sessionOptions)
+    if not session.start():
         print("Failed to start session.")
         return
 
     # Open reference data service
-    if not g_session.openService("//blp/refdata"):
+    if not session.openService("//blp/refdata"):
         print("Failed to open //blp/refdata")
         return
 
     # Open authorization service
-    if not g_session.openService("//blp/apiauth"):
+    if not session.openService("//blp/apiauth"):
         print("Failed to open //blp/apiauth")
         return
 
     # Submit a token generation request
     tokenReqId = blpapi.CorrelationId(99)
-    g_session.generateToken(tokenReqId)
+    session.generateToken(tokenReqId)
+    identity = None
 
     while True:
-        event = g_session.nextEvent()
+        event = session.nextEvent()
         if event.eventType() == blpapi.Event.TOKEN_STATUS:
-            if not processTokenStatus(event):
+            identity = processTokenStatus(event, session)
+            if identity is None:
                 break
         else:
-            if not processEvent(event):
+            if not processEvent(event, session, identity, securities, fields):
                 break
 
 

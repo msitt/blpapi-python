@@ -38,10 +38,9 @@ from . import internals
 from . import utils
 from .utils import get_handle
 from .compat import with_metaclass
+from .chandle import CHandle
 
-# pylint: disable=useless-object-inheritance
-
-class MessageIterator(object):
+class MessageIterator(CHandle):
     """An iterator over the :class:`Message` objects within an :class:`Event`.
 
     Few clients will ever make direct use of :class:`MessageIterator` objects;
@@ -50,20 +49,12 @@ class MessageIterator(object):
     """
 
     def __init__(self, event):
-        self.__handle = \
-            internals.blpapi_MessageIterator_create(get_handle(event))
+        selfhandle = internals.blpapi_MessageIterator_create(get_handle(event))
+        super(MessageIterator, self).__init__(
+            selfhandle,
+            internals.blpapi_MessageIterator_destroy)
+        self.__handle = selfhandle
         self.__event = event
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        if self.__handle:
-            internals.blpapi_MessageIterator_destroy(self.__handle)
-            self.__handle = None
 
     def __iter__(self):
         return self
@@ -79,7 +70,7 @@ class MessageIterator(object):
 
 
 @with_metaclass(utils.MetaClassForClassesWithEnums)
-class Event(object):
+class Event(CHandle):
     """A single event resulting from a subscription or a request.
 
     :class:`Event` objects are created by the API and passed to the application
@@ -133,20 +124,9 @@ class Event(object):
     """Unknown event"""
 
     def __init__(self, handle, sessions):
+        super(Event, self).__init__(handle, internals.blpapi_Event_release)
         self.__handle = handle
         self.__sessions = sessions
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        """Destructor"""
-        if self.__handle:
-            internals.blpapi_Event_release(self.__handle)
-            self.__handle = None
 
     def eventType(self):
         """
@@ -162,10 +142,6 @@ class Event(object):
         """
         return MessageIterator(self)
 
-    def _handle(self):
-        """Return the internal implementation."""
-        return self.__handle
-
     def _sessions(self):
         """Return session(s) that this 'Event' is related to.
 
@@ -176,7 +152,7 @@ class Event(object):
     # derived from this class from changes:
 
 
-class EventQueue(object):
+class EventQueue(CHandle):
     """A construct used to handle replies to request synchronously.
 
     When a request is submitted an application can either handle the responses
@@ -191,20 +167,12 @@ class EventQueue(object):
         :meth:`~Session.sendRequest()` and
         :meth:`~Session.sendAuthorizationRequest()` methods.
         """
-        self.__handle = internals.blpapi_EventQueue_create()
+        selfhandle = internals.blpapi_EventQueue_create()
+        super(EventQueue, self).__init__(
+            selfhandle,
+            internals.blpapi_EventQueue_destroy)
+        self.__handle = selfhandle
         self.__sessions = set()
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self):
-        """Destructor."""
-        if self.__handle:
-            internals.blpapi_EventQueue_destroy(self.__handle)
-            self.__handle = None
 
     def nextEvent(self, timeout=0):
         """
@@ -244,10 +212,6 @@ class EventQueue(object):
         """
         internals.blpapi_EventQueue_purge(self.__handle)
         self.__sessions.clear()
-
-    def _handle(self):
-        """Return the internal implementation. For internal use."""
-        return self.__handle
 
     def _registerSession(self, session):
         """Add a new session to this 'EventQueue'. For internal use."""

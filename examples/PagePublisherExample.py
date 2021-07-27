@@ -4,7 +4,6 @@ from __future__ import absolute_import
 
 import time
 from optparse import OptionParser, OptionValueError
-import datetime
 import threading
 
 import os
@@ -27,13 +26,11 @@ TOPIC_SUBSCRIBED = blpapi.Name("TopicSubscribed")
 TOPIC_UNSUBSCRIBED = blpapi.Name("TopicUnsubscribed")
 
 
-g_running = True
-g_mutex = threading.Lock()
 
 
 class MyStream(object):
-    def __init__(self, id=""):
-        self.id = id
+    def __init__(self, sid=""):
+        self.id = sid
         self.isInitialPaintSent = False
         self.topic = blpapi.Topic()
         self.isSubscribed = False
@@ -41,25 +38,23 @@ class MyStream(object):
     def isAvailable(self):
         return self.topic.isValid() and self.isSubscribed
 
-g_streams = dict()
-g_availableTopicCount = 0
-g_mutex = threading.Lock()
-# Indicates if g_availableTopicCount is non-zero
-g_condition = threading.Condition(g_mutex)
-
 
 class MyEventHandler(object):
-    def __init__(self, serviceName):
+    def __init__(self, serviceName, mutex, stop, condition):
         self.serviceName = serviceName
+        self.mutex = mutex
+        self.stop = stop
+        self.condition = condition
+        self.streams = dict()
+        self.availableTopicCount = 0
 
     def processEvent(self, event, session):
-        global g_availableTopicCount, g_running
 
         if event.eventType() == blpapi.Event.SESSION_STATUS:
             for msg in event:
                 print(msg)
                 if msg.messageType() == SESSION_TERMINATED:
-                    g_running = False
+                    self.stop.set()
 
         elif event.eventType() == blpapi.Event.TOPIC_STATUS:
             topicList = blpapi.TopicList()
@@ -68,38 +63,38 @@ class MyEventHandler(object):
                 print(msg)
                 if msg.messageType() == TOPIC_SUBSCRIBED:
                     topicStr = msg.getElementAsString("topic")
-                    with g_mutex:
-                        if topicStr not in g_streams:
+                    with self.mutex:
+                        if topicStr not in self.streams:
                             # TopicList knows how to add an entry based on a
                             # TOPIC_SUBSCRIBED message.
                             topicList.add(msg)
-                            g_streams[topicStr] = MyStream(topicStr)
-                        stream = g_streams[topicStr]
+                            self.streams[topicStr] = MyStream(topicStr)
+                        stream = self.streams[topicStr]
                         stream.isSubscribed = True
                         if stream.isAvailable():
-                            g_availableTopicCount += 1
-                            g_condition.notifyAll()
+                            self.availableTopicCount += 1
+                            self.condition.notifyAll()
 
                 elif msg.messageType() == TOPIC_UNSUBSCRIBED:
                     topicStr = msg.getElementAsString("topic")
-                    with g_mutex:
-                        if topicStr not in g_streams:
+                    with self.mutex:
+                        if topicStr not in self.streams:
                             # We should never be coming here.
                             # TOPIC_UNSUBSCRIBED can not come before
                             # a TOPIC_SUBSCRIBED or TOPIC_CREATED
                             continue
-                        stream = g_streams[topicStr]
+                        stream = self.streams[topicStr]
                         if stream.isAvailable():
-                            g_availableTopicCount -= 1
-                            g_condition.notifyAll()
+                            self.availableTopicCount -= 1
+                            self.condition.notifyAll()
                         stream.isSubscribed = False
 
                 elif msg.messageType() == TOPIC_CREATED:
                     topicStr = msg.getElementAsString("topic")
-                    with g_mutex:
-                        if topicStr not in g_streams:
-                            g_streams[topicStr] = MyStream(topicStr)
-                        stream = g_streams[topicStr]
+                    with self.mutex:
+                        if topicStr not in self.streams:
+                            self.streams[topicStr] = MyStream(topicStr)
+                        stream = self.streams[topicStr]
                         try:
                             stream.topic = session.getTopic(msg)
                         except blpapi.Exception as e:
@@ -108,8 +103,8 @@ class MyEventHandler(object):
                             continue
 
                         if stream.isAvailable():
-                            g_availableTopicCount += 1
-                            g_condition.notifyAll()
+                            self.availableTopicCount += 1
+                            self.condition.notifyAll()
 
                 elif msg.messageType() == TOPIC_RECAP:
                     # Here we send a recap in response to a Recap request.
@@ -117,10 +112,10 @@ class MyEventHandler(object):
                         topicStr = msg.getElementAsString("topic")
                         recapEvent = None
 
-                        with g_mutex:
-                            if topicStr not in g_streams:
+                        with self.mutex:
+                            if topicStr not in self.streams:
                                 continue
-                            stream = g_streams[topicStr]
+                            stream = self.streams[topicStr]
                             if not stream.isAvailable():
                                 continue
 
@@ -200,7 +195,7 @@ class MyEventHandler(object):
         return True
 
 
-def authOptionCallback(option, opt, value, parser):
+def authOptionCallback(_option, _opt, value, parser):
     """Parse authorization options from user input"""
 
     vals = value.split('=', 1)
@@ -310,7 +305,10 @@ def main():
     print("Connecting to port %d on %s" % (
         options.port, " ".join(options.hosts)))
 
-    myEventHandler = MyEventHandler(options.service)
+    mutex = threading.Lock()
+    stop = threading.Event()
+    condition = threading.Condition(mutex)
+    myEventHandler = MyEventHandler(options.service, mutex, stop, condition)
 
     # Create a Session
     session = blpapi.ProviderSession(sessionOptions,
@@ -337,18 +335,18 @@ def main():
 
         # Now we will start publishing
         value = 1
-        while g_running:
+        while not stop.is_set():
             event = service.createPublishEvent()
 
-            with g_condition:
-                while g_availableTopicCount == 0:
+            with condition:
+                while myEventHandler.availableTopicCount == 0:
                     # Set timeout to 1 - give a chance for CTRL-C
-                    g_condition.wait(1)
-                    if not g_running:
+                    condition.wait(1)
+                    if stop.is_set():
                         return
 
                 eventFormatter = blpapi.EventFormatter(event)
-                for topicName, stream in g_streams.items():
+                for _, stream in myEventHandler.streams.items():
                     if not stream.isAvailable():
                         continue
 

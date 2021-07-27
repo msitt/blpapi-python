@@ -27,12 +27,9 @@ TOPIC_UNSUBSCRIBED = blpapi.Name("TopicUnsubscribed")
 TOPIC_RECAP = blpapi.Name("TopicRecap")
 
 
-g_running = True
-
-
 class MyStream(object):
-    def __init__(self, id="", fields=None):
-        self.id = id
+    def __init__(self, sid="", fields=None):
+        self.id = sid
         self.fields = fields if fields else []
         self.lastValue = 0
         self.topic = blpapi.Topic()
@@ -70,7 +67,7 @@ class MyStream(object):
             eventFormatter.setElement(f, value)
 
     def fillDataNull(self, eventFormatter, elementDef):
-        for i, f in enumerate(self.fields):
+        for f in self.fields:
             if not elementDef.typeDefinition().hasElementDefinition(f):
                 print("Invalid field '%s'" % f)
                 continue
@@ -87,34 +84,33 @@ class MyStream(object):
         return self.topic.isValid() and self.isSubscribed
 
 
-g_streams = dict()
-g_availableTopicCount = 0
-g_mutex = threading.Lock()
-# Indicates if g_availableTopicCount is non-zero
-g_condition = threading.Condition(g_mutex)
-
-
 class MyEventHandler(object):
     def __init__(self,
                  serviceName,
                  messageType,
                  fields,
                  eids,
-                 resolveSubServiceCode):
+                 resolveSubServiceCode,
+                 mutex,
+                 stop,
+                 condition):
         self.serviceName = serviceName
         self.messageType = messageType
         self.fields = fields
         self.eids = eids
         self.resolveSubServiceCode = resolveSubServiceCode
+        self.mutex = mutex
+        self.stop = stop
+        self.condition = condition
+        self.streams = dict()
+        self.availableTopicCount = 0
 
     def processEvent(self, event, session):
-        global g_availableTopicCount, g_running
-
         if event.eventType() == blpapi.Event.SESSION_STATUS:
             for msg in event:
                 print(msg)
                 if msg.messageType() == SESSION_TERMINATED:
-                    g_running = False
+                    self.stop.set()
 
         elif event.eventType() == blpapi.Event.TOPIC_STATUS:
             topicList = blpapi.TopicList()
@@ -123,40 +119,40 @@ class MyEventHandler(object):
                 print(msg)
                 if msg.messageType() == TOPIC_SUBSCRIBED:
                     topicStr = msg.getElementAsString("topic")
-                    with g_mutex:
-                        if topicStr not in g_streams:
+                    with self.mutex:
+                        if topicStr not in self.streams:
                             # TopicList knows how to add an entry based on a
                             # TOPIC_SUBSCRIBED message.
                             topicList.add(msg)
-                            g_streams[topicStr] = MyStream(topicStr,
+                            self.streams[topicStr] = MyStream(topicStr,
                                                            self.fields)
-                        stream = g_streams[topicStr]
+                        stream = self.streams[topicStr]
                         stream.isSubscribed = True
                         if stream.isAvailable():
-                            g_availableTopicCount += 1
-                            g_condition.notifyAll()
+                            self.availableTopicCount += 1
+                            self.condition.notifyAll()
 
                 elif msg.messageType() == TOPIC_UNSUBSCRIBED:
                     topicStr = msg.getElementAsString("topic")
-                    with g_mutex:
-                        if topicStr not in g_streams:
+                    with self.mutex:
+                        if topicStr not in self.streams:
                             # We should never be coming here.
                             # TOPIC_UNSUBSCRIBED can not come before
                             # a TOPIC_SUBSCRIBED or TOPIC_CREATED
                             continue
-                        stream = g_streams[topicStr]
+                        stream = self.streams[topicStr]
                         if stream.isAvailable():
-                            g_availableTopicCount -= 1
-                            g_condition.notifyAll()
+                            self.availableTopicCount -= 1
+                            self.condition.notifyAll()
                         stream.isSubscribed = False
 
                 elif msg.messageType() == TOPIC_CREATED:
                     topicStr = msg.getElementAsString("topic")
-                    with g_mutex:
-                        if topicStr not in g_streams:
-                            g_streams[topicStr] = MyStream(topicStr,
+                    with self.mutex:
+                        if topicStr not in self.streams:
+                            self.streams[topicStr] = MyStream(topicStr,
                                                            self.fields)
-                        stream = g_streams[topicStr]
+                        stream = self.streams[topicStr]
                         try:
                             stream.topic = session.getTopic(msg)
                         except blpapi.Exception as e:
@@ -165,8 +161,8 @@ class MyEventHandler(object):
                             continue
 
                         if stream.isAvailable():
-                            g_availableTopicCount = g_availableTopicCount + 1
-                            g_condition.notifyAll()
+                            self.availableTopicCount += 1
+                            self.condition.notifyAll()
 
                 elif msg.messageType() == TOPIC_RECAP:
                     # Here we send a recap in response to a Recap request.
@@ -174,10 +170,10 @@ class MyEventHandler(object):
                         topicStr = msg.getElementAsString("topic")
                         recapEvent = None
 
-                        with g_mutex:
-                            if topicStr not in g_streams:
+                        with self.mutex:
+                            if topicStr not in self.streams:
                                 continue
-                            stream = g_streams[topicStr]
+                            stream = self.streams[topicStr]
                             if not stream.isAvailable():
                                 continue
 
@@ -225,11 +221,10 @@ class MyEventHandler(object):
                     permission = 1  # ALLOWED: 0, DENIED: 1
                     ef = blpapi.EventFormatter(response)
                     if msg.hasElement("uuid"):
-                        uuid = msg.getElementAsInteger("uuid")
+                        msg.getElementAsInteger("uuid")
                         permission = 0
                     if msg.hasElement("applicationId"):
-                        applicationId = \
-                            msg.getElementAsInteger("applicationId")
+                        msg.getElementAsInteger("applicationId")
                         permission = 0
 
                     # In appendResponse the string is the name of the
@@ -289,7 +284,7 @@ class MyEventHandler(object):
         return True
 
 
-def authOptionCallback(option, opt, value, parser):
+def authOptionCallback(_option, _opt, value, parser):
     """Parse authorization options from user input"""
 
     vals = value.split('=', 1)
@@ -467,12 +462,18 @@ def main():
         options.port, " ".join(options.hosts)))
 
     PUBLISH_MESSAGE_TYPE = blpapi.Name(options.messageType)
+    mutex = threading.Lock()
+    stop = threading.Event()
+    condition = threading.Condition(mutex)
 
     myEventHandler = MyEventHandler(options.service,
                                     PUBLISH_MESSAGE_TYPE,
                                     options.fields,
                                     options.eids,
-                                    options.rssc)
+                                    options.rssc,
+                                    mutex,
+                                    stop,
+                                    condition)
 
     # Create a Session
     session = blpapi.ProviderSession(sessionOptions,
@@ -511,14 +512,14 @@ def main():
         elementDef = service.getEventDefinition(PUBLISH_MESSAGE_TYPE)
         eventCount = 0
         numPublished = 0
-        while g_running:
+        while not stop.is_set():
             event = service.createPublishEvent()
 
-            with g_condition:
-                while g_availableTopicCount == 0:
+            with condition:
+                while myEventHandler.availableTopicCount == 0:
                     # Set timeout to 1 - give a chance for CTRL-C
-                    g_condition.wait(1)
-                    if not g_running:
+                    condition.wait(1)
+                    if stop.is_set():
                         return
 
                 publishNull = False
@@ -527,7 +528,7 @@ def main():
                     eventCount = 0
                     publishNull = True
                 eventFormatter = blpapi.EventFormatter(event)
-                for topicName, stream in g_streams.items():
+                for _,stream in myEventHandler.streams.items():
                     if not stream.isAvailable():
                         continue
                     eventFormatter.appendMessage(PUBLISH_MESSAGE_TYPE,
