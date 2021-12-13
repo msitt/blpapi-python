@@ -21,7 +21,8 @@ def createEvent(eventType):
             for a list of enumerated values (e.g., `Event.SUBSCRIPTION_DATA`).
 
     Returns:
-        Event: An event used for testing. It cannot be used for publishing.
+        blpapi.Event: An event used for testing. It cannot be used for
+        publishing.
 
     The behavior is undefined if :class:`blpapi.EventFormatter` is
     used with the returned :class:`blpapi.Event`.
@@ -36,17 +37,17 @@ def appendMessage(event, elementDef, properties=None):
     Return a :class:`MessageFormatter` to format the last appended message.
 
     Args:
-        event (Event): The ``event`` to which the new message will
+        event (blpapi.Event): The ``event`` to which the new message will
             be appended. The ``event`` must be a test :class:`blpapi.Event`
             created by :meth:`createEvent()`.
-        elementDef (SchemaElementDefinition): Used to verify and encode
+        elementDef (blpapi.SchemaElementDefinition): Used to verify and encode
             the contents of the message.
-        properties (MessageProperties): Used to set the metadata properties for
-            the message.
+        properties (blpapi.test.MessageProperties): Used to set the metadata
+            properties for the message.
 
     Returns:
-        MessageFormatter: The :class:`MessageFormatter` used to format the last
-        appended message.
+        blpapi.test.MessageFormatter: The :class:`MessageFormatter` used to
+        format the last appended message.
 
     Raises:
         Exception: If the method fails to append the message.
@@ -70,7 +71,8 @@ def deserializeService(serviceXMLStr):
             :class:`blpapi.Service` in ``XML`` format. The ``str`` should only
             contain ASCII characters without any embedded ``null`` characters.
     Returns:
-        Service: A :class:`blpapi.Service` created from ``serviceXMLStr``.
+        blpapi.Service: A :class:`blpapi.Service` created from
+        ``serviceXMLStr``.
 
     Raises:
         Exception: If deserialization fails.
@@ -86,7 +88,7 @@ def serializeService(service):
     """ Serialize the provided ``service`` in ``XML`` format.
 
     Args:
-        service (Service): The :class:`blpapi.Service` to be serialized.
+        service (blpapi.Service): The :class:`blpapi.Service` to be serialized.
 
     Returns:
         str: The ``service`` represented as an ``XML`` formatted ``str``.
@@ -105,13 +107,14 @@ def createTopic(service, isActive=True):
     :meth:`blpapi.ProviderSession.getTopic()` methods.
 
     Args:
-        service (Service): The :class:`blpapi.Service` to which the returned
-            :class:`blpapi.Topic` will belong.
+        service (blpapi.Service): The :class:`blpapi.Service` to which the
+            returned :class:`blpapi.Topic` will belong.
         isActive (bool): Optional. Specifies whether the returned
             :class:`blpapi.Topic` is active.
 
     Returns:
-        Topic: A valid :class:`blpapi.Topic` with the specified ``service``.
+        blpapi.Topic: A valid :class:`blpapi.Topic` with the specified
+        ``service``.
     """
     rc, topic_handle = internals.blpapi_TestUtil_createTopic(
         get_handle(service),
@@ -125,10 +128,10 @@ def getAdminMessageDefinition(messageName):
     ``messageName``.
 
     Args:
-        messageName (Name or str): The name of the desired admin message.
+        messageName (blpapi.Name or str): The name of the desired admin message.
 
     Returns:
-        SchemaElementDefinition: The element definition for the message
+        blpapi.SchemaElementDefinition: The element definition for the message
         specified by ``messageName``.
 
     Raises:

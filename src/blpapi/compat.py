@@ -80,3 +80,12 @@ if sys.version.startswith('2'):
     str_typelist = (str, unicode)
 else:
     str_typelist = (bytes, str)
+
+# Helper import
+# pylint: disable=deprecated-class,no-name-in-module
+if sys.version.startswith('2'):
+    from collections import Mapping as _Mapping, Sequence as _Sequence
+else:
+    from collections.abc import Mapping as _Mapping, Sequence as _Sequence
+Mapping = _Mapping
+Sequence = _Sequence

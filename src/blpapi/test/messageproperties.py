@@ -44,7 +44,8 @@ class MessageProperties():
         Set the `correlationIds` properties of the message.
 
         Args:
-            cids ([CorrelationId]): list of correlation ids of the message.
+            cids ([blpapi.CorrelationId]): list of correlation ids of the
+                message.
         """
         errorCode = internals.blpapi_MessageProperties_setCorrelationIds(
             self.__handle, list(cids))
@@ -98,7 +99,7 @@ class MessageProperties():
         Set the `service` property of the message.
 
         Args:
-            service (Service): Service of the message.
+            service (blpapi.Service): Service of the message.
         """
         errorCode = internals.blpapi_MessageProperties_setService(
             self.__handle, get_handle(service))

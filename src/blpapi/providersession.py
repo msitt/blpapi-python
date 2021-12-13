@@ -173,7 +173,7 @@ class ServiceRegistrationOptions(CHandle):
         By default, a service will be registered with priority
         :attr:`PRIORITY_HIGH`.
 
-        Note this has no effect for request-response or resolution services.
+        Note this has no effect for resolution services.
         """
         return internals.blpapi_ServiceRegistrationOptions_setServicePriority(
             self.__handle,
@@ -285,8 +285,8 @@ class ProviderSession(AbstractSession):
     DONT_REGISTER_SERVICES = \
         internals.RESOLVEMODE_DONT_REGISTER_SERVICES
 
-    __handle = None
-    __handlerProxy = None
+    __handle = None  # pylint: disable=unused-private-member
+    __handlerProxy = None  # pylint: disable=unused-private-member
 
     @staticmethod
     def __dispatchEvent(sessionRef, eventHandle): # pragma: no cover
@@ -354,7 +354,7 @@ class ProviderSession(AbstractSession):
         if options is None:
             options = SessionOptions()
         if eventHandler is not None:
-            self.__handler = eventHandler
+            self.__handler = eventHandler # pylint: disable=unused-private-member
             self.__handlerProxy = functools.partial(
                 ProviderSession.__dispatchEvent, weakref.ref(self))
         self.__handle = internals.ProviderSession_createHelper(

@@ -21,7 +21,7 @@ class EventDispatcher(CHandle):
     callbacks from one or more internal threads for one or more sessions.
     """
 
-    __handle = None
+    __handle = None # pylint: disable=unused-private-member
 
     def __init__(self, numDispatcherThreads=1):
         """Construct an :class:`EventDispatcher`.

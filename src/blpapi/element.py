@@ -13,11 +13,38 @@ from .datetime import _DatetimeUtil
 from .datatype import DataType
 from .name import Name, getNamePair
 from .schema import SchemaElementDefinition
-from .compat import conv2str, isstr, int_typelist
-from . import utils
+from .compat import conv2str, isstr, int_typelist, Mapping
+from .utils import Iterator, isNonScalarSequence
 from . import internals
 
 # pylint: disable=useless-object-inheritance,protected-access,too-many-return-statements,too-many-public-methods
+class ElementIterator:
+    """An iterator over the objects within an :class:`Element`.
+
+    If the :class:`Element` is a sequence or choice, this iterates over its
+    sub-:class:`Element`\ s. Otherwise, iterate over the :class:`Element`\ 's
+    value(s).
+    """
+
+    def __init__(self, element):
+        self._element = element
+        self._index = 0
+
+    def __next__(self):
+        i = self._index
+        self._index += 1
+
+        if self._element.isComplexType():
+            if self._element.numElements() > i:
+                return self._element.getElement(i)
+        # for array and scalar elements
+        elif self._element.numValues() > i:
+            return self._element.getValue(i)
+
+        raise StopIteration()
+
+    next = __next__ # Python 2 compatibility
+
 
 class Element(object):
     """Represents an item in a message.
@@ -191,6 +218,128 @@ class Element(object):
 
         return self.toString()
 
+    def __getitem__(self, nameOrIndex):
+        """
+        Args:
+            nameOrIndex (Name or str or int): The :class:`Name` identifying the
+                :class:`Element` to retrieve from this :class:`Element`\ , or
+                the index to retrieve the value from this :class:`Element`\ .
+
+        Returns:
+            If a :class:`Name` or :py:class:`str` is used, and the
+            :class:`Element` whose name is ``nameOrIndex`` is a sequence,
+            choice, array, or is null, that :class:`Element` is returned.
+            Otherwise, if a :class:`Name` or :py:class:`str` is used, return
+            the value of the :class:`Element`. If ``nameOrIndex`` is an
+            :py:class:`int`, return the value at index ``nameOrIndex`` in this
+            :class:`Element`.
+
+        Raises:
+            KeyError:
+                If ``nameOrIndex`` is a :class:`Name` or :py:class:`str` and
+                this :class:`Element` does not contain a sub-:class:`Element`
+                with name ``nameOrIndex``.
+            InvalidConversionException:
+                If ``nameOrIndex`` is an :py:class:`int` and the data type of
+                this :class:`Element` is either a sequence or a choice.
+            IndexOutOfRangeException:
+                If ``nameOrIndex`` is an :py:class:`int` and
+                ``nameOrIndex`` >= :meth:`numValues`.
+        """
+        # is index
+        if isinstance(nameOrIndex, int_typelist):
+            return self.getValue(nameOrIndex)
+
+        # is name
+        if not self.hasElement(nameOrIndex):
+            raise KeyError("Element {} does not contain element {}"
+                           .format(self.name(), nameOrIndex))
+
+        element = self.getElement(nameOrIndex)
+
+        if element.isComplexType() or element.isArray():
+            return element
+        elif element.isNull():
+            # Scalar element with a null value
+            return None
+
+        return element.getValue()
+
+    def __setitem__(self, name, value):
+        """
+        Args:
+            name (Name or str): The :class:`Name` identifying one of this
+                :class:`Element`\ 's sub-:class:`Element`\ s.
+            value: Used to format the :class:`Element`. See :meth:`fromPy` for
+                more details.
+
+        Raises:
+            Exception:
+                If ``name`` does not identify one of this :class:`Element`\ 's
+                sub-:class:`Element`\ s.
+            Exception:
+                If the :class:`Element` identified by ``name`` is has been
+                previously formatted.
+            Exception:
+                If the :class:`Element` identified by ``name`` cannot be
+                formatted by ``value`` (See :meth:`fromPy` for more details).
+
+        Format this :class:`Element`\ 's sub-:class:`Element` identified by
+        ``name`` with ``value``. See :meth:`fromPy` for more details.
+
+        Note:
+            :class:`Element`\ s that have been previously formatted in any way
+            cannot be formatted further with this method. To further format an
+            :class:`Element`\ , use the get/set/append Element/Value methods.
+        Note:
+            :class:`Element`\ s cannot be modified by index.
+        """
+        if isinstance(name, int_typelist):
+            raise Exception("Elements cannot be formatted by index")
+
+        self.getElement(name).fromPy(value)
+
+    def __iter__(self):
+        """
+        Returns:
+            An iterator over the contents of this :class:`Element`. If this
+            :class:`Element` is a complex type (see :meth:`isComplexType`),
+            return an iterator over the :class:`Element`\ s in this
+            :class:`Element`. Otherwise, return an iterator over this
+            :class:`Element`\ 's value(s).
+        """
+        return ElementIterator(self)
+
+    def __len__(self):
+        """
+        Returns:
+            int: if this :class:`Element` is a complex type
+            (see :meth:`isComplexType`), return the number of
+            :class:`Element`\ s in this :class:`Element`. Otherwise, return the
+            number of values in this :class:`Element`.
+        """
+        if self.isComplexType():
+            return self.numElements()
+
+        return self.numValues()
+
+    def __contains__(self, item):
+        """
+        Args:
+            item (str or blpapi.Name or bool or int or float or datetime.date \
+                  or datetime.time or datetime.datetime or None):
+                item to check for existence in this :class:`Element`.
+
+        Returns:
+            bool: If this :class:`Element` is a complex type, return whether
+            this :class:`Element` contains an :class:`Element` with the
+            specified :class:`Name` ``item``. Otherwise, return whether
+            ``item`` is a value in this :class:`Element`.
+        """
+        if self.isComplexType():
+            return self.hasElement(item)
+        return item in self.values()
+
     def name(self):
         """
         Returns:
@@ -326,6 +475,75 @@ class Element(object):
         _ExceptionUtil.raiseOnError(res)
         return None # unreachable
 
+    def toPy(self):
+        """
+        Returns:
+            A :py:class:`dict`, :py:class:`list`, or value representation of
+            this :class:`Element`. This is a deep copy containing only native
+            python datatypes, like :py:class:`list`, :py:class:`dict`,
+            :py:class:`str`, and :py:class:`int`.
+
+        If an :class:`Element` is
+
+        * a complex type, it is converted to a :py:class:`dict` whose keys are
+          the :py:class:`str` names of its sub-:class:`Element`\ s.
+        * an array, it is converted to a :py:class:`list` of the
+          :class:`Element`'s values.
+        * null, it is converted an empty :py:class:`dict`.
+
+        Otherwise, the :class:`Element` is converted to its associated value.
+        If that value was a :class:`Name`, it will be converted to a
+        :py:class:`str`.
+
+        For example, the following ``exampleElement`` has the following BLPAPI
+        representation:
+
+        >>> exampleElement
+
+        .. code-block:: none
+
+            exampleElement = {
+                complexElement = {
+                    nullElement = {
+                    }
+                }
+                arrayElement[] = {
+                    arrayElement = {
+                        id = 2
+                        endpoint = {
+                            address = "127.0.0.1:8000"
+                        }
+                    }
+                }
+                valueElement = "Sample value"
+                nullValueElement =
+            }
+
+        ``exampleElement`` produces the following Python representation:
+
+        >>> exampleElement.toPy()
+
+        .. code-block:: python
+
+            {
+                "complexElement": {
+                    "nullElement": {}
+                },
+                "arrayElement": [
+                    {
+                        "id": 2
+                        "endpoint": {
+                            "address": "127.0.0.1:8000"
+                        }
+                    }
+                ],
+                "valueElement": "Sample value",
+                "nullValueElement": None
+            }
+
+        """
+        return internals.blpapi_Element_toPy(self.__handle)
+
     def toString(self, level=0, spacesPerLevel=4):
         """Format this :class:`Element` to the string at the specified
         indentation level.
@@ -389,7 +607,7 @@ class Element(object):
         if self.datatype() != DataType.SEQUENCE:
             raise UnsupportedOperationException(
                 description="Only sequences are supported", errorCode=None)
-        return utils.Iterator(self, Element.numElements, Element.getElement)
+        return Iterator(self, Element.numElements, Element.getElement)
 
     def hasElement(self, name, excludeNullElements=False):
         """
@@ -599,7 +817,7 @@ class Element(object):
         datatype = self.datatype()
         valueGetter = _ELEMENT_VALUE_GETTER.get(datatype,
                                                 Element.getValueAsString)
-        return utils.Iterator(self, Element.numValues, valueGetter)
+        return Iterator(self, Element.numValues, valueGetter)
 
     def getElementAsBool(self, name):
         """
@@ -864,9 +1082,257 @@ class Element(object):
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
+    def fromPy(self, value):
+        """Format this :class:`Element` with the provided native Python value.
+
+        Args:
+            value: Used to format this :class:`Element`
+
+        Raises:
+            Exception:
+                If the provided value does not properly represent the structure
+                of this :class:`Element`.
+            Exception:
+                If this method is used to format an :class:`Element` that has
+                already been formatted.
+
+        If the :class:`Element` is
+
+        * a complex type, it is formatted using a
+          :py:class:`collections.abc.Mapping` (e.g. :py:class:`dict`) whose
+          keys are the :py:class:`str` names of its sub-:class:`Element`\ s.
+        * an array, it is formatted using a
+          :py:class:`collections.abc.Sequence` (e.g. :py:class:`list`) of the
+          :class:`Element`\ 's values (see note below for more detais).
+        * null, it is formatted using an empty
+          :py:class:`collections.abc.Mapping`.
+
+        Otherwise, the :class:`Element` is formatted using its associated
+        value (e.g :py:class:`str` or :py:class:`int`).
+
+        Note:
+            Although :py:class:`str`, :py:class:`bytes`, :py:class:`bytearray`,
+            and :py:class:`memoryview` are sub-types of
+            :py:class:`collections.abc.Sequence`, :meth:`fromPy` treats them as
+            scalars of type string and will use them to format scalar
+            :class:`Element`\ s. If you wish to format an array
+            :class:`Element` with instances of the aforementioned types, put
+            them in a different :py:class:`collections.abc.Sequence`, like
+            :py:class:`list`.
+
+        Note:
+            Using :meth:`fromPy` to format an :class:`Element` or one of its
+            sub-:class:`Element`\ s that has already been formatted is not
+            supported. To further format an :class:`Element`, use the
+            get/set/append Element/Value methods.
+
+        For example, the following ``exampleElement`` has the following BLPAPI
+        representation:
+
+        .. code-block:: none
+
+            exampleElement = {
+                complexElement = {
+                    nullElement = {
+                    }
+                }
+                arrayElement[] = {
+                    arrayElement = {
+                        id = 2
+                        endpoint = {
+                            address = "127.0.0.1:8000"
+                        }
+                    }
+                }
+                valueElement = "Sample value"
+                nullValueElement =
+            }
+
+        ``exampleElement`` can be created with the following code:
+
+        .. code-block:: python
+
+            exampleRequest = service.createRequest("ExampleRequest")
+            exampleElement = exampleRequest.asElement()
+
+            complexElement = exampleElement.getElement("complexElement")
+            complexElement.getElement("nullElement")
+
+            arrayElement = exampleElement.getElement("arrayElement")
+            array = arrayElement.appendElement()
+            arrayValue.setElement("id", 2)
+            endpointElement = arrayValue.getElement("endpoint")
+            endpointElement.setElement("address", "127.0.0.1:8000")
+
+            exampleElement.setElement("valueElement", "Sample value")
+
+        :meth:`fromPy` can be used to format ``exampleElement`` the same way:
+
+        .. code-block:: python
+
+            exampleRequest = service.createRequest("ExampleRequest")
+            exampleElement = exampleRequest.asElement()
+            exampleElementAsDict = {
+                "complexElement": {
+                    "nullElement": {}
+                },
+                "arrayElement": [
+                    {
+                        "id": 2,
+                        "endpoint": {
+                            "address": "127.0.0.1:8000"
+                        }
+                    }
+                ],
+                "valueElement": "Sample value",
+                "nullValueElement": None
+            }
+            exampleElement.fromPy(exampleElementAsDict)
+
+        :meth:`fromPy` can also be called with
+        :class:`collections.abc.Sequence`\ s and scalar values to format array
+        :class:`Element`\ s and scalar :class:`Element`\ s, respectively.
+
+        .. code-block:: python
+
+            arrayElementAsList = [{
+                    "id": 2,
+                    "endpoint": { "address": "127.0.0.1:8000" }
+            }]
+            arrayElement = exampleElement.getElement("arrayElement")
+            arrayElement.fromPy(arrayElementAsList)
+
+            exampleElement.getElement("valueElement").fromPy("Sample value")
+
+        Calling :meth:`toPy` on an :class:`Element` formatted by :meth:`fromPy`
+        with a given value will return an equal value. Continuing from the
+        preceding example:
+
+        .. code-block:: python
+
+            exampleElement.fromPy(exampleElementAsDict)
+            print(exampleElementAsDict == exampleElement.toPy()) # True
+
+        """
+        self._fromPyHelper(value)
+
+    def _fromPyHelper(self, value, name=None, path=None):
+        """Helper method for `fromPy`.
+
+        Args:
+            value: Used to format this `Element` or the `Element` specified
+                by ``name``.
+            name (Name or str): If ``name`` is ``None``, format this `Element`
+                with ``value``. Otherwise, ``name`` refers to this `Element`'s
+                sub-`Element` that will be formatted with ``value``.
+            path (str): The path uniquely identifying this `Element`, starting
+                from the root `Element`.
+        """
+        # Note, the double exception throwing has no good solution in Python 2,
+        # but Python 3 has exception chaining that we should use when we can
+
+        activeElement = self
+
+        def getActivePathMessage(isArrayEntry=False):
+            elementType = "scalar"
+            if activeElement.isArray():
+                elementType = "array"
+            elif activeElement.isComplexType():
+                elementType = "complex"
+
+            arrayEntryText = "an entry in " if isArrayEntry else ""
+            return "While operating on {}{} Element `{}`, ".format(
+                    arrayEntryText, elementType, path)
+
+        if path is None:
+            path = str(activeElement.name())
+        if name is not None:
+            try:
+                activeElement = self.getElement(name)
+                path += "/" + str(activeElement.name())
+            except Exception as exc:
+                errorMsg = "encountered error: {}".format(exc)
+                raise Exception(getActivePathMessage() + errorMsg)
+
+        if activeElement.numElements() or activeElement.numValues():
+            errorMsg = "this Element has already been formatted"
+            raise Exception(getActivePathMessage() + errorMsg)
+
+        if isinstance(value, Mapping):
+            if not activeElement.isComplexType():
+                errorMsg = "encountered a `Mapping` instance while" \
+                           " formatting a non-complex Element"
+                raise Exception(getActivePathMessage() + errorMsg)
+
+            complexElement = activeElement
+            for subName in value:
+                subValue = value[subName]
+                complexElement._fromPyHelper(subValue, subName, path)
+
+        elif isNonScalarSequence(value):
+            if not activeElement.isArray():
+                errorMsg = "encountered a `Sequence` while formatting a" \
+                           " non-array Element"
+                raise Exception(getActivePathMessage() + errorMsg)
+
+            arrayElement = activeElement
+            typeDef = arrayElement.elementDefinition().typeDefinition()
+            arrayValuesAreScalar = not typeDef.isComplexType()
+            for index, val in enumerate(value):
+                if isinstance(val, Mapping):
+                    if arrayValuesAreScalar:
+                        path += "[{}]".format(index)
+                        errorMsg = "encountered a `Mapping` where a scalar" \
+                                   " value was expected."
+                        raise Exception(getActivePathMessage(isArrayEntry=True)
+                                        + errorMsg)
+
+                    appendedElement = arrayElement.appendElement()
+                    arrayEntryPath = path + "[{}]".format(index)
+                    appendedElement._fromPyHelper(val, path=arrayEntryPath)
+                elif isNonScalarSequence(val):
+                    path += "[{}]".format(index)
+                    expectedObject = "scalar value" if arrayValuesAreScalar \
+                        else "`Mapping`"
+                    errorMsg = "encountered a nested `Sequence` where a {}" \
+                               " was expected.".format(expectedObject)
+                    raise Exception(getActivePathMessage(isArrayEntry=True)
+                                    + errorMsg)
+
+                else:
+                    if not arrayValuesAreScalar:
+                        path += "[{}]".format(index)
+                        errorMsg = "encountered a scalar value where a" \
+                                   " `Mapping` was expected."
+                        raise Exception(getActivePathMessage(isArrayEntry=True)
+                                        + errorMsg)
+
+                    try:
+                        arrayElement.appendValue(val)
+                    except Exception as exc:
+                        path += "[{}]".format(index)
+                        errorMsg = "encountered error: {}".format(exc)
+                        raise Exception(getActivePathMessage(isArrayEntry=True)
+                                        + errorMsg)
+        else:
+            if value is None:
+                return
+
+            if activeElement.isComplexType() or activeElement.isArray():
+                errorMsg = "encountered an incompatible type, {}, for a" \
+                           " non-scalar Element".format(type(value))
+                raise Exception(getActivePathMessage() + errorMsg)
+
+            try:
+                activeElement.setValue(value)
+            except Exception as exc:
+                errorMsg = "encountered error: {}".format(exc)
+                raise Exception(getActivePathMessage() + errorMsg)
+
     def _handle(self):
         """Return the internal implementation."""
         return self.__handle
+
 
 _ELEMENT_VALUE_GETTER = {
     DataType.BOOL: Element.getValueAsBool,

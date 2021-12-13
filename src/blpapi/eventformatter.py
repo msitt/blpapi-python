@@ -5,13 +5,17 @@
 This component adds messages to an Event which can be later published.
 """
 
-from .exception import _ExceptionUtil, InvalidConversionException
+from .exception import _ExceptionUtil, InvalidConversionException, \
+    IndexOutOfRangeException, InvalidArgumentException, NotFoundException
 from .datetime import _DatetimeUtil
 from .message import Message
 from .name import Name, getNamePair
 from . import internals
-from .utils import get_handle, invoke_if_valid
+from .utils import get_handle, invoke_if_valid, isNonScalarSequence
 from .chandle import CHandle
+from .compat import Mapping
+
+from collections import deque
 
 class EventFormatter(CHandle):
     """:class:`EventFormatter` is used to populate :class:`Event`\ s for
@@ -116,6 +120,7 @@ class EventFormatter(CHandle):
             selfhandle,
             internals.blpapi_EventFormatter_destroy)
         self.__handle = selfhandle
+        self.latestMessageName = None
 
     def appendMessage(self, messageType, topic, sequenceNumber=None):
         """Append an (empty) message to the :class:`Event` referenced by this
@@ -154,6 +159,8 @@ class EventFormatter(CHandle):
                     sequenceNumber,
                     0))
 
+        self.latestMessageName = messageType
+
     def appendResponse(self, operationName):
         """Append an (empty) response message for the specified
         ``operationName``.
@@ -182,6 +189,8 @@ class EventFormatter(CHandle):
                 self.__handle,
                 name[0],
                 name[1]))
+
+        self.latestMessageName = "<Response>"
 
     def appendRecapMessage(self, topic, correlationId=None,
                            sequenceNumber=None,
@@ -251,6 +260,8 @@ class EventFormatter(CHandle):
                         get_handle(topic),
                         fragmentType,
                         sequenceNumber))
+
+        self.latestMessageName = "<Recap>"
 
     def setElement(self, name, value):
         """Set an element in the :class:`Event` referenced by this
@@ -333,14 +344,12 @@ class EventFormatter(CHandle):
                 name[1]))
 
     def popElement(self):
-        """Undo the most recent call to :meth:`pushElement()` on this
-        :class:`EventFormatter`.
-
-        Undo the most recent call to :meth:`pushElement()` on this
-        :class:`EventFormatter` and return the context of the
-        :class:`EventFormatter` to where it was before the call to
-        :meth:`pushElement()`. Once :meth:`popElement()` has been called it is
-        invalid to attempt to re-visit the same context.
+        """Undo the most recent call to :meth:`pushElement` or
+        :meth:`appendElement` on this :class:`EventFormatter` and return the
+        context of the :class:`EventFormatter` to where it was before the call
+        to :meth:`pushElement` or :meth:`appendElement`. Once
+        :meth:`popElement` has been called it is invalid to attempt to
+        re-visit the same context.
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_EventFormatter_popElement(self.__handle))
@@ -358,6 +367,240 @@ class EventFormatter(CHandle):
     def appendElement(self):
         _ExceptionUtil.raiseOnError(
             internals.blpapi_EventFormatter_appendElement(self.__handle))
+
+    def fromPy(self, value):
+        """
+        Format this :class:`EventFormatter`\ 's underlying :class:`Event` using
+        ``value``.
+
+        Args:
+            value (collections.abc.Mapping): the object used for formatting
+
+        Raises:
+            Exception: if ``value`` cannot properly format the :class:`Event`
+
+        The ``value`` used to format the :class:`Event` is always a
+        :py:class:`collections.abc.Mapping` instance. The keys are
+        :class:`Name` or :py:class:`str` instances, and the values vary
+        depending on the :class:`Element` being formatted.
+
+        If the :class:`Element` identified by the key is
+
+        * a complex type, it is formatted using a
+          :py:class:`collections.abc.Mapping` whose keys are the names of its
+          sub-:class:`Element`\ s.
+        * an array, it is formatted using a
+          :py:class:`collections.abc.Sequence` of the :class:`Element`'s
+          values (see note below for more details).
+
+        Otherwise, the :class:`Element` is formatted using its associated
+        scalar value (e.g. :py:class:`str` or :py:class:`int`).
+
+        Note:
+            Although :py:class:`str`, :py:class:`bytes`, :py:class:`bytearray`,
+            and :py:class:`memoryview` are sub-types of
+            :py:class:`collections.abc.Sequence`, :meth:`fromPy` treats them as
+            scalars of type string and will use them to format scalar
+            :class:`Element`\ s. If you wish to format an array
+            :class:`Element` with instances of the aforementioned types, put
+            them in a different :py:class:`collections.abc.Sequence`, like
+            :py:class:`list`.
+
+        For null :class:`Element`\ s:
+
+        * A null complex :class:`Element` is formatted using an empty
+          :py:class:`collections.abc.Mapping`.
+        * A null scalar :class:`Element` is formatted using ``None``.
+        * An empty array :class:`Element` is formatted using an empty
+          :py:class:`collections.abc.Sequence`.
+
+        Note:
+            The behavior is undefined if :meth:`fromPy` is used to format an
+            :class:`Event` that has already been formatted. Further formatting
+            after :meth:`fromPy` is also undefined.
+
+        For example, the following ``SampleOperation`` has the following BLPAPI
+        representation:
+
+        .. code-block:: none
+
+            SampleOperation = {
+                complexElement = {
+                    nullElement = {
+                    }
+                }
+                scalarArray[] = {
+                    "value1", "value2"
+                }
+                complexArray[] = {
+                    complexArray = {
+                        value = 1
+                        message = "msg"
+                    }
+                }
+                valueElement = "value"
+                nullValueElement =
+            }
+
+        ``SampleOperation`` can be created with the following code:
+
+        .. code-block:: python
+
+            response = service.createResponseEvent(CorrelationId(0))
+            ef = EventFormatter(response)
+            ef.appendResponse("SampleOperation")
+
+            ef.pushElement("complexElement")
+            ef.setElementNull("nullElement")
+            ef.popElement()
+            ef.pushElement("scalarArray")
+            ef.appendValue("value1")
+            ef.appendValue("value2")
+            ef.popElement()
+            ef.pushElement("complexArray")
+            ef.appendElement()
+            ef.setElement("value", 1)
+            ef.setElement("message", "msg")
+            ef.popElement()
+            ef.popElement()
+            ef.setElement("valueElement", "value")
+            ef.setElementNull("nullValueElement")
+
+        :meth:`fromPy` can be used to format ``SampleOperation`` the same way:
+
+        .. code-block:: python
+
+            response = service.createResponseEvent(CorrelationId(0))
+            ef = EventFormatter(response)
+            ef.appendResponse("SampleOperation")
+            sampleResponseAsDict = {
+                "complexElement": {
+                    "nullElement": {
+                    }
+                },
+                "scalarArray": [
+                    "value1", "value2"
+                ],
+                "complexArray": [
+                    {
+                        "value": 1
+                        "message": "msg"
+                    }
+                ],
+                "valueElement": "value",
+                "nullValueElement": None
+            }
+            ef.fromPy(sampleResponseAsDict)
+        """
+
+        if not isinstance(value, Mapping):
+            raise Exception("`value` must be a `Mapping` instance")
+        self._fromPyHelper(value)
+
+    def _fromPyHelper(self, value, name=None, path=None):
+        """
+        Args:
+            value (Mapping or Sequence or scalar-type): used to format the
+               :class:`Element` at the current level
+            name (str or blpapi.Name or None): the :class:`blpapi.Name`
+                identifying the :class:`Element` to be formatted. If ``name``
+                is ``None``, format the :class:`Event` at the current level.
+            path (deque): represents the level at which this
+                :class:`Eventformatter` is operating
+        """
+        if path is None:
+            path = deque()
+
+        def getPathErrorMessage():
+            path.appendleft(str(self.latestMessageName))
+            pathStr = "/".join(path)
+            return "While operating on Element `{}`, ".format(pathStr)
+
+        if isinstance(value, Mapping):
+            for key, val in value.items():
+                if isinstance(val, Mapping):
+                    if val:
+                        try:
+                            self.pushElement(key)
+                        except Exception as exc:
+                            raise Exception(getPathErrorMessage()
+                                            + _fromPyErrorTemplate.format(exc))
+
+                        path.append(key)
+                        self._fromPyHelper(val, name=key, path=path)
+                        self.popElement()
+                        path.pop()
+                    else:
+                        try:
+                            self.setElementNull(key)
+                        except (NotFoundException, Exception) as exc:
+                            raise Exception(getPathErrorMessage()
+                                            + _fromPyErrorTemplate.format(exc))
+                else:
+                    self._fromPyHelper(val, name=key, path=path)
+
+        elif isNonScalarSequence(value):
+            try:
+                self.pushElement(name)
+            except Exception as exc:
+                raise Exception(getPathErrorMessage()
+                                + _fromPyErrorTemplate.format(exc))
+
+            for index, val in enumerate(value):
+                path.append("{}[{}]".format(name, index))
+
+                if isinstance(val, Mapping):
+                    try:
+                        self.appendElement()
+                    except Exception as exc:
+                        errorMsg = "encountered a `Mapping` where a scalar" \
+                                   " value was expected. Error: {}".format(exc)
+                        raise Exception(getPathErrorMessage()
+                                        + errorMsg)
+
+                    self._fromPyHelper(val, path=path)
+                    self.popElement()
+                elif isNonScalarSequence(val):
+                    errorMsg = "encountered nested `Sequences`s. An array of" \
+                               " array Elements should be represented as" \
+                               " `Sequence`s of `Mappings`s with `Sequence`" \
+                               " values."
+                    raise Exception(getPathErrorMessage() + errorMsg)
+                else:
+                    try:
+                        self.appendValue(val)
+                    except Exception as exc:
+                        raise Exception(getPathErrorMessage()
+                                        + _fromPyErrorTemplate.format(exc))
+
+                path.pop()
+
+            self.popElement()
+
+        else:
+            try:
+                if value is None:
+                    self.setElementNull(name)
+                else:
+                    self.setElement(name, value)
+            except IndexOutOfRangeException:
+                path.append(name)
+                errorMsg = "attempted to format an array Element using a" \
+                           " scalar value. Array Elements are formatted with" \
+                           " `Sequence`s."
+                raise Exception(getPathErrorMessage() + errorMsg)
+            except (InvalidConversionException, InvalidArgumentException) \
+                    as exc:
+                path.append(name)
+                raise Exception(getPathErrorMessage()
+                                + _fromPyErrorTemplate.format(exc))
+            except Exception as exc:
+                raise Exception(getPathErrorMessage()
+                                + _fromPyErrorTemplate.format(exc))
+
+
+_fromPyErrorTemplate = "encountered Error: {}"
+
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

@@ -50,8 +50,9 @@ class Identity(CHandle):
         """
         super(Identity, self).__init__(
             handle, internals.blpapi_Identity_release)
-        self.__handle = handle
-        self.__sessions = sessions
+        self.__handle = handle  # pylint: disable=unused-private-member
+        self.__sessions = sessions # pylint: disable=unused-private-member
+
         internals.blpapi_Identity_addRef(self.__handle)
 
     def hasEntitlements(self, service, entitlements):

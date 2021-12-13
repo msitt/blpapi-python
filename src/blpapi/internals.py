@@ -462,6 +462,9 @@ class blpapi_CorrelationId_t__value(object):
 _internals.blpapi_CorrelationId_t__value_swigregister(blpapi_CorrelationId_t__value)
 
 
+def blpapi_Element_toPy(element):
+    return _internals.blpapi_Element_toPy(element)
+
 def blpapi_Element_setElementFloat(element, nameString, name, value):
     return _internals.blpapi_Element_setElementFloat(element, nameString, name, value)
 

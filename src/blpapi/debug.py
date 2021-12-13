@@ -4,6 +4,7 @@
 
 import platform
 import os
+from locale import getpreferredencoding
 
 from .debug_environment import get_env_diagnostics
 
@@ -43,7 +44,7 @@ def debug_load_error(error):
     if diagnostics_path_env_var in os.environ:
         diagnostics_path = os.environ[diagnostics_path_env_var]
         try:
-            with open(diagnostics_path, "w") as f:
+            with open(diagnostics_path, "w", encoding=getpreferredencoding()) as f:
                 f.write(full_error_msg)
         except IOError:
             print("Failed to write to path defined by %s: \"%s\"" \

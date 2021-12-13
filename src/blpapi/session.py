@@ -95,8 +95,8 @@ class Session(AbstractSession):
         internals.SUBSCRIPTIONSTATUS_PENDING_CANCELLATION
     """No longer active, terminated by Application."""
 
-    __handle = None
-    __handlerProxy = None
+    __handle = None # pylint: disable=unused-private-member
+    __handlerProxy = None # pylint: disable=unused-private-member
 
     @staticmethod
     def __dispatchEvent(sessionRef, eventHandle): # pragma: no cover
@@ -157,7 +157,7 @@ class Session(AbstractSession):
         if options is None:
             options = SessionOptions()
         if eventHandler is not None:
-            self.__handler = eventHandler
+            self.__handler = eventHandler # pylint: disable=unused-private-member
             self.__handlerProxy = functools.partial(Session.__dispatchEvent,
                                                     weakref.ref(self))
         self.__handle = internals.Session_createHelper(

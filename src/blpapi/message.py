@@ -101,6 +101,30 @@ class Message(CHandle):
 
         return self.toString()
 
+    def __getitem__(self, name):
+        """Equivalent to
+        :meth:`asElement().__getitem__()<Element.__getitem__()>`.
+        """
+        return self.asElement()[name]
+
+    def __iter__(self):
+        """Equivalent to
+        :meth:`asElement().__iter__()<Element.__iter__()>`.
+        """
+        return self.asElement().__iter__()
+
+    def __contains__(self, item):
+        """Equivalent to
+        :meth:`asElement().__contains__()<Element.__contains__()>`.
+        """
+        return self.asElement().__contains__(item)
+
+    def __len__(self):
+        """Equivalent to
+        :meth:`asElement().__len__()<Element.__len__()>`.
+        """
+        return self.asElement().__len__()
+
     def messageType(self):
         """
         Returns:
@@ -161,24 +185,47 @@ class Message(CHandle):
         return None if serviceHandle is None \
             else service.Service(serviceHandle, self.__sessions)
 
+
+    def correlationId(self):
+        """
+        Returns:
+            CorrelationId: The single correlation id or the first correlation
+            id associated with the message, or None if the message is not
+            associated with any correlation ids.
+
+        Note:
+            See :meth:`correlationIds` for more details.
+
+            If ``allowMultipleCorrelatorsPerMsg`` is enabled,
+            :meth:`correlationIds` should be used.
+        """
+        numCorrelations = internals.blpapi_Message_numCorrelationIds(
+            self.__handle)
+        if numCorrelations == 0:
+            return None
+
+        return internals.blpapi_Message_correlationId(self.__handle, 0)
+
+
     def correlationIds(self):
         """
         Returns:
             [CorrelationId]: Correlation ids associated with this message.
 
         Note:
-            A :class:`Message` will have exactly one :class:`CorrelationId`
-            unless ``allowMultipleCorrelatorsPerMsg`` option was enabled for
-            the :class:`Session` this :class:`Message` belongs to. When
-            ``allowMultipleCorrelatorsPerMsg`` is disabled (the default), and
-            more than one active subscription would result in the same
-            :class:`Message`, the :class:`Message` is delivered multiple times
-            (without making physical copies). Each :class:`Message` is
-            accompanied by a single :class:`CorrelationId`. When
-            ``allowMultipleCorrelatorsPerMsg`` is enabled and more than one
-            active subscription would result in the same :class:`Message` the
-            :class:`Message` is delivered once with a list of corresponding
-            :class:`CorrelationId` values.
+            A subscription data :class:`Message` has exactly one
+            :class:`CorrelationId` unless the
+            ``allowMultipleCorrelatorsPerMsg`` option is enabled for the
+            :class:`Session`.
+
+            When ``allowMultipleCorrelatorsPerMsg`` is disabled (the default),
+            multiple active subscriptions of the same topic result in the same
+            :class:`Message` being delivered multiple times (without making
+            physical copies), with a single :class:`CorrelationId` from each
+            active subscription.
+
+            Otherwise, only one :class:`Message` is delivered with all the
+            :class:`CorrelationId`\s from the active subscriptions.
         """
 
         res = []
@@ -280,6 +327,10 @@ class Message(CHandle):
             self.__handle,
             level,
             spacesPerLevel)
+
+    def toPy(self):
+        """Equivalent to :meth:`asElement().toPy()<Element.toPy()>`."""
+        return self.asElement().toPy()
 
     def timeReceived(self, tzinfo=UTC):
         """Get the time when the message was received by the SDK.

@@ -47,6 +47,16 @@ class Request(CHandle):
 
         return self.toString()
 
+    def __getitem__(self, name):
+        """Equivalent to :meth:`asElement().__getitem__(name)
+        <Element.__getitem__>`."""
+        return self.asElement()[name]
+
+    def __setitem__(self, name, value):
+        """Equivalent to :meth:`asElement().__setitem__(name, value)
+        <Element.__setitem__>`."""
+        self.asElement()[name] = value
+
     def set(self, name, value):
         """Equivalent to :meth:`asElement().setElement(name, value)
         <Element.setElement>`."""
@@ -56,6 +66,22 @@ class Request(CHandle):
         """Equivalent to :meth:`getElement(name).appendValue(value)
         <Element.appendValue>`."""
         return self.getElement(name).appendValue(value)
+
+    def fromPy(self, requestDict):
+        """Equivalent to :meth:`asElement().fromPy(requestDict)
+        <Element.fromPy>`.
+
+        Args:
+            requestDict (collections.abc.Mapping): used to format this
+                :class:`Request`. See :meth:`Element.fromPy` for more details.
+
+        Note:
+            Using :meth:`fromPy` to format a :class:`Request` that has already
+            been formatted is not supported. To further format a
+            :class:`Request`, use :meth:`set` / :meth:`append` or the
+            ``*Element()`` methods.
+        """
+        self.asElement().fromPy(requestDict)
 
     def asElement(self):
         """

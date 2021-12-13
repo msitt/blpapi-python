@@ -137,7 +137,7 @@ class AuthUser(CHandle):
         """For internal use only."""
         super(AuthUser, self).__init__(
             handle, internals.blpapi_AuthUser_destroy)
-        self.__handle = handle
+        self.__handle = handle # pylint: disable=unused-private-member
 
     @classmethod
     def createWithLogonName(cls):

@@ -139,10 +139,10 @@ class MessageFormatter():
         :class:`MessageFormatter`.
 
         Args:
-            name (Name or str): Identifies the element which will be set to
-                ``value``.
+            name (blpapi.Name or str): Identifies the element which will be set
+                to ``value``.
             value (bool or str or int or float or datetime.date or \
-                   datetime.time or datetime.datetime or Name or None):
+                   datetime.time or datetime.datetime or blpapi.Name or None):
                 The value to assign to the specified element.
 
         Raises:
@@ -269,8 +269,8 @@ class MessageFormatter():
         :meth:`appendElement()` must be used.
 
         Args:
-            name (Name or str): Specifies the :class:`blpapi.Element` on which
-                to operate. The element must identify either a choice, a
+            name (blpapi.Name or str): Specifies the :class:`blpapi.Element` on
+                which to operate. The element must identify either a choice, a
                 sequence or an array at the current level of the schema or the
                 behavior is undefined.
 
@@ -286,11 +286,12 @@ class MessageFormatter():
                 get_handle(name)))
 
     def popElement(self):
-        """ Undo the most recent call to :meth:`pushElement` on this
-        :class:`MessageFormatter` and return the context of the
-        :class:`MessageFormatter` to where it was before the call to
-        :meth:`pushElement`. Once :meth:`popElement` has been called,
-        it is invalid to attempt to re-visit the same context.
+        """ Undo the most recent call to :meth:`pushElement` or
+        :meth:`appendElement` on this :class:`MessageFormatter` and return the
+        context of the :class:`MessageFormatter` to where it was before the
+        call to :meth:`pushElement` or :meth:`appendElement`. Once
+        :meth:`popElement` has been called, it is invalid to attempt to
+        re-visit the same context.
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_popElement(self.__handle))
@@ -302,7 +303,7 @@ class MessageFormatter():
 
         Args:
             value (bool or str or int or float or datetime.date or \
-                   datetime.time or datetime.datetime or Name):
+                   datetime.time or datetime.datetime or blpapi.Name):
                 The value to append.
 
         Raises:

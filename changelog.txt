@@ -1,3 +1,46 @@
+Version 3.17.1:
+===============
+- Stability and performance improvements
+
+Version 3.17.0:
+===============
+- Native-type formatting and message consumption
+	Add ability to format 'Event's and 'Request's from native Python types
+	using methods 'EventFormatter.fromPy' and 'Request.fromPy'. Add ability
+	to convert a 'Message' to 'dict' with 'Message.toPy'. 'Message's and
+	'Request's have 'dict'-like behavior with '__getitem__' and
+	'__setitem__'.
+	
+- A new method 'correlationId()' is added to 'blpapi.Message'
+	A new method 'Message.correlationId()' is added to return the
+	single CorrelationId associated with the message or None if the
+	message has no CorrelationIds. If the message has multiple
+	CorrelationIds, the first one is returned.
+	
+- Constants for common used `Names`
+	A new utility class `blpapi.Names` has been added with common
+	message names.
+
+- Revamped examples
+	The 'examples' directory now contains 'demoapps' and 'unittests'
+	subdirectories. The 'demoapps' directory contains a consolidated set of
+	example applications. Within 'demoapps', the 'snippets' directory contains
+	sample code for creating and sending requests, and for processing
+	responses. Also within 'demoapps', the 'util' directory contains common
+	code shared between examples. The 'unittests' directory has been renamed
+	from 'mock-test-examples' and contains sample code for using the mock
+	testing interface.
+
+- End of Python 2 support
+	Installation and use of BLPAPI Python now requires a Python 3.6+
+	runtime.
+
+- Stability and performance improvements
+
+Version 3.16.6:
+===============
+- Stability and performance improvements
+
 Version 3.16.5:
 ===============
 - Stability and performance improvements

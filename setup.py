@@ -9,7 +9,7 @@ import platform as plat
 import re
 import codecs
 
-from sys import argv, version
+from sys import argv
 from setuptools import setup, Extension
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
@@ -38,10 +38,6 @@ def lib_in_release():
         return 'Darwin'
     raise Exception("Platform '" + platform + "' isn't supported")
 
-if version < '2.6':
-    raise Exception(
-        "Python versions before 2.6 are not supported (current version is "
-        + version + ")")
 
 blpapiRoot = os.environ.get('BLPAPI_ROOT')
 blpapiIncludesVar = os.environ.get('BLPAPI_INCDIR')
@@ -107,6 +103,7 @@ setup(
     packages=["blpapi", "blpapi.test"],
     package_dir={'': 'src'},
     package_data=package_data,
+    python_requires='>=3',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

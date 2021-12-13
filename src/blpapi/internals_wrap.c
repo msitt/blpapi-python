@@ -3865,6 +3865,266 @@ SWIGINTERN long long blpapi_CorrelationId_t____toInteger(struct blpapi_Correlati
 
 #include "blpapi_element.h"
 
+PyObject* blpapi_Element_toPy(blpapi_Element_t *element);
+
+PyObject* getScalarValue(const blpapi_Element_t* element, const int index) {
+    const int datatype = blpapi_Element_datatype(element);
+
+    switch (datatype) {
+        case BLPAPI_DATATYPE_BOOL: {
+            blpapi_Bool_t boolBuffer;
+            if (0 != blpapi_Element_getValueAsBool(element,
+                                                   &boolBuffer,
+                                                   index)) {
+                PyErr_SetString(
+                        PyExc_Exception,
+                        "Internal error getting bool");
+                return NULL;
+            }
+            return PyBool_FromLong(boolBuffer);
+        }
+        case BLPAPI_DATATYPE_BYTE:
+        case BLPAPI_DATATYPE_INT32:
+        case BLPAPI_DATATYPE_INT64: {
+            blpapi_Int64_t int64Buffer;
+            if (0 != blpapi_Element_getValueAsInt64(element,
+                                                    &int64Buffer,
+                                                    index)) {
+                PyErr_SetString(
+                        PyExc_Exception,
+                        "Internal error getting int");
+                return NULL;
+            }
+            return PyLong_FromLongLong(int64Buffer);
+        }
+        case BLPAPI_DATATYPE_FLOAT32:
+        case BLPAPI_DATATYPE_FLOAT64: {
+            blpapi_Float64_t floatBuffer;
+            if (0 != blpapi_Element_getValueAsFloat64(element,
+                                                      &floatBuffer,
+                                                      index)) {
+                PyErr_SetString(
+                        PyExc_Exception,
+                        "Internal error getting float");
+                return NULL;
+            }
+            return PyFloat_FromDouble(floatBuffer);
+        }
+        case BLPAPI_DATATYPE_CHAR:
+        case BLPAPI_DATATYPE_STRING:
+        case BLPAPI_DATATYPE_ENUMERATION: {
+            const char* strValue;
+            if (0 != blpapi_Element_getValueAsString(element,
+                                                     &strValue,
+                                                     index)) {
+                PyErr_SetString(
+                        PyExc_Exception,
+                        "Internal error getting string");
+                return NULL;
+            }
+            return PyString_FromString(strValue);
+        }
+        case BLPAPI_DATATYPE_DATE:
+        case BLPAPI_DATATYPE_TIME:
+        case BLPAPI_DATATYPE_DATETIME: {
+            static PyObject* blpapiDatetimeModule = NULL;
+            static PyObject* datetimeUtil = NULL;
+            static PyObject* convertToNative = NULL;
+            blpapi_HighPrecisionDatetime_t highPrecisionDatetimeBuffer;
+            PyObject* highPrecisionDatetimePyObj;
+            PyObject* pyDatetimeResult;
+
+            // initialize static variables once
+            if (convertToNative == NULL) {
+                blpapiDatetimeModule =
+                    PyImport_ImportModule("blpapi.datetime");
+                if (blpapiDatetimeModule == NULL) {
+                    PyErr_SetString(
+                            PyExc_Exception,
+                            "Internal error getting blpapi.datetime");
+                    return NULL;
+                }
+                datetimeUtil =
+                    PyObject_GetAttr(blpapiDatetimeModule,
+                                     PyString_FromString("_DatetimeUtil"));
+                if (datetimeUtil == NULL) {
+                    Py_DECREF(blpapiDatetimeModule);
+                    PyErr_SetString(
+                            PyExc_Exception,
+                            "Internal error getting _DatetimeUtil");
+                    return NULL;
+                }
+                convertToNative = PyObject_GetAttr(
+                    datetimeUtil, PyString_FromString("convertToNative"));
+                if (convertToNative == NULL) {
+                    Py_DECREF(blpapiDatetimeModule);
+                    Py_DECREF(datetimeUtil);
+                    PyErr_SetString(
+                            PyExc_Exception,
+                            "Internal error getting convertToNative");
+                    return NULL;
+                }
+            }
+
+            if (blpapi_Element_getValueAsHighPrecisionDatetime(
+                        element,
+                        &highPrecisionDatetimeBuffer,
+                        index) != 0) {
+                PyErr_SetString(
+                        PyExc_Exception,
+                        "Internal error getting datetime");
+                return NULL;
+            }
+
+            // Return `None` when the `datetime` has no parts because our
+            // `convertToNative` function will raise an exception if there are
+            // no parts
+            if (!highPrecisionDatetimeBuffer.datetime.parts) {
+                Py_RETURN_NONE; // inc ref and return
+            }
+
+            highPrecisionDatetimePyObj = SWIG_NewPointerObj(
+                    (void *) &highPrecisionDatetimeBuffer,
+                    SWIGTYPE_p_blpapi_HighPrecisionDatetime_tag,
+                    0);
+            if (highPrecisionDatetimePyObj == NULL) {
+                PyErr_SetString(
+                        PyExc_Exception,
+                        "Internal error getting HighPrecisionDatetime");
+                return NULL;
+            }
+            pyDatetimeResult = PyObject_Call(
+                    convertToNative,
+                    Py_BuildValue("(O)",
+                                  highPrecisionDatetimePyObj),
+                    NULL);
+            Py_DECREF(highPrecisionDatetimePyObj);
+            return pyDatetimeResult;
+        }
+        case BLPAPI_DATATYPE_SEQUENCE:
+        case BLPAPI_DATATYPE_CHOICE:
+        default: {
+            PyErr_SetString(PyExc_Exception, "Internal datatype error");
+            return NULL;
+        }
+    }
+}
+
+PyObject* complexElementToPy(blpapi_Element_t *element) {
+        PyObject* pyDict = PyDict_New();
+        PyObject* subElementPy = NULL;
+        unsigned int i;
+        if (pyDict == NULL) {
+            goto ERROR;
+        }
+
+        for (i = 0; i < blpapi_Element_numElements(element); ++i) {
+            blpapi_Element_t* subElement;
+            const char* name;
+            if (0 != blpapi_Element_getElementAt(element, &subElement, i)) {
+                PyErr_SetString(PyExc_Exception,
+                                "Internal error in `Element.toPy`");
+                goto ERROR;
+            }
+            name = blpapi_Element_nameString(subElement);
+            subElementPy = blpapi_Element_toPy(subElement);
+            if (subElementPy == NULL) {
+                goto ERROR;
+            }
+            // does not steal ref to value
+            if (PyDict_SetItemString(pyDict, name, subElementPy)) {
+                goto ERROR;
+            }
+            Py_DECREF(subElementPy);
+        }
+        return pyDict;
+ERROR:
+    Py_XDECREF(pyDict);
+    Py_XDECREF(subElementPy);
+    // Ensure that we set an error before returning NULL
+    if (PyErr_Occurred() == NULL) {
+        PyErr_SetString(
+                PyExc_Exception,
+                "Internal error converting a complex Element");
+    }
+    return NULL;
+}
+
+PyObject* arrayElementToPy(blpapi_Element_t *element) {
+    const unsigned int numValues = blpapi_Element_numValues(element);
+    PyObject* pyList = PyList_New(numValues);
+    PyObject* pyValue = NULL;
+
+    const blpapi_SchemaElementDefinition_t* definition
+            = blpapi_Element_definition(element);
+    const blpapi_SchemaTypeDefinition_t* typeDefinition
+            = blpapi_SchemaElementDefinition_type(definition);
+
+    unsigned int i;
+    if (pyList == NULL) {
+        goto ERROR;
+    }
+
+    // complex values
+    if (blpapi_SchemaTypeDefinition_isComplexType(typeDefinition)) {
+        for (i = 0; i < numValues; ++i) {
+            blpapi_Element_t* result;
+            if (0 != blpapi_Element_getValueAsElement(element, &result, i)) {
+                PyErr_SetString(
+                    PyExc_Exception,
+                    "Internal error in blpapi_Element_getValueAsElement");
+                goto ERROR;
+            }
+            pyValue = blpapi_Element_toPy(result);
+            if (pyValue == NULL) {
+                goto ERROR;
+            }
+            // steals ref to value
+            // returns void, no error checking
+            PyList_SET_ITEM(pyList, i, pyValue);
+        }
+    }
+    else {
+        // non complex values
+        for (i = 0; i < numValues; ++i) {
+            pyValue = getScalarValue(element, i);
+            if (pyValue == NULL) {
+                goto ERROR;
+            }
+            // steals ref to value
+            // returns void, no error checking
+            PyList_SET_ITEM(pyList, i, pyValue);
+        }
+    }
+    return pyList;
+
+ERROR:
+    Py_XDECREF(pyList);
+    Py_XDECREF(pyValue);
+    // Ensure that we set an error before returning NULL
+    if (PyErr_Occurred() == NULL) {
+        PyErr_SetString(
+                PyExc_Exception,
+                "Internal error converting an array Element");
+    }
+    return NULL;
+}
+
+PyObject* blpapi_Element_toPy(blpapi_Element_t *element) {
+    if (blpapi_Element_isComplexType(element)) {
+        return complexElementToPy(element);
+    }
+    else if (blpapi_Element_isArray(element)) {
+        return arrayElementToPy(element);
+    }
+    else if (blpapi_Element_isNull(element)) {
+        Py_RETURN_NONE; // inc ref and return
+    }
+    else {
+        return getScalarValue(element, 0);
+    }
+}
+
 int blpapi_Element_setElementFloat(
         blpapi_Element_t *element,
         const char* nameString,
@@ -5822,6 +6082,31 @@ SWIGINTERN PyObject *blpapi_CorrelationId_t__value_swigregister(PyObject *SWIGUN
 SWIGINTERN PyObject *blpapi_CorrelationId_t__value_swiginit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   return SWIG_Python_InitShadowInstance(args);
 }
+
+SWIGINTERN PyObject *_wrap_blpapi_Element_toPy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_Element_t *arg1 = (blpapi_Element_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  PyObject *result = 0 ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_blpapi_Element, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_Element_toPy" "', argument " "1"" of type '" "blpapi_Element_t *""'"); 
+  }
+  arg1 = (blpapi_Element_t *)(argp1);
+  result = (PyObject *)blpapi_Element_toPy(arg1);
+  {
+    resultobj = result;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
 
 SWIGINTERN PyObject *_wrap_blpapi_Element_setElementFloat(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
@@ -21657,6 +21942,7 @@ static PyMethodDef SwigMethods[] = {
 	 { "delete_blpapi_CorrelationId_t__value", _wrap_delete_blpapi_CorrelationId_t__value, METH_O, NULL},
 	 { "blpapi_CorrelationId_t__value_swigregister", blpapi_CorrelationId_t__value_swigregister, METH_O, NULL},
 	 { "blpapi_CorrelationId_t__value_swiginit", blpapi_CorrelationId_t__value_swiginit, METH_VARARGS, NULL},
+	 { "blpapi_Element_toPy", _wrap_blpapi_Element_toPy, METH_O, NULL},
 	 { "blpapi_Element_setElementFloat", _wrap_blpapi_Element_setElementFloat, METH_VARARGS, NULL},
 	 { "blpapi_Element_setValueFloat", _wrap_blpapi_Element_setValueFloat, METH_VARARGS, NULL},
 	 { "blpapi_Element_printHelper", _wrap_blpapi_Element_printHelper, METH_VARARGS, NULL},

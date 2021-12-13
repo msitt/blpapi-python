@@ -9,6 +9,7 @@ import sys
 import os
 import pkgutil
 import functools
+from locale import getpreferredencoding
 
 from ctypes import util
 
@@ -90,7 +91,7 @@ if __name__ == "__main__":
     env_diagnostics = get_env_diagnostics()
 
     if len(sys.argv) > 1:
-        with open(sys.argv[1], "w") as f:
+        with open(sys.argv[1], "w", encoding=getpreferredencoding()) as f:
             print(env_diagnostics, file=f)
     else:
         print(env_diagnostics)

@@ -2,6 +2,7 @@
 
 """Internal utils."""
 
+from .compat import Sequence, str_typelist
 import functools
 import warnings
 
@@ -10,7 +11,8 @@ MAX_32BIT_INT = 2**31 - 1
 MIN_64BIT_INT = -(2**63)
 MAX_64BIT_INT = 2**63 - 1
 
-#pylint: disable=too-few-public-methods, useless-object-inheritance
+
+# pylint: disable=too-few-public-methods, useless-object-inheritance
 class Iterator(object):
     """Universal iterator for many of BLPAPI objects.
 
@@ -138,6 +140,16 @@ def deprecated(func_or_reason):
         return decorate(func_or_reason)
 
     return decorate
+
+
+# NOTE: `isNonScalarSequence` is used to determine whether `obj` is a
+# `Sequence` but does not behave like a scalar. Useful for `Element` and
+# `Event` formatting.
+# pylint: disable=deprecated-class,no-name-in-module
+def isNonScalarSequence(obj):
+    scalarTypes = str_typelist + (bytearray, memoryview)
+    return isinstance(obj, Sequence) and not isinstance(obj, scalarTypes)
+
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

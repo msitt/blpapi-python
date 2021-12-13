@@ -40,8 +40,10 @@ from .eventdispatcher import EventDispatcher
 from .eventformatter import EventFormatter
 from .exception import *
 from .identity import Identity
+from .logging import Logger
 from .message import Message
 from .name import Name
+from .names import Names
 from .providersession import ProviderSession, ServiceRegistrationOptions
 from .request import Request
 from .requesttemplate import RequestTemplate
