@@ -6,12 +6,13 @@ This file defines a 'CHandle' class.
 It handles the life of an object with a handle from C layer.
 """
 
-# pylint: disable=useless-object-inheritance
+from typing import Callable, Any
 
-class CHandle(object):
+
+class CHandle:
     """A base class for objects that rely on C handles"""
 
-    def __init__(self, handle, dtor):
+    def __init__(self, handle: Any, dtor: Callable):
         """ Set the handle and the dtor """
         self.__handle = handle
         self._dtor = dtor
@@ -27,11 +28,13 @@ class CHandle(object):
         """ Destroy the handle using stored dtor """
         if self.__handle:
             self._dtor(self.__handle)
+            self._dtor = None
             self.__handle = None
 
-    def _handle(self):
+    def _handle(self) -> Any:
         """Return the internal implementation."""
         return self.__handle
+
 
 __copyright__ = """
 Copyright 2020. Bloomberg Finance L.P.

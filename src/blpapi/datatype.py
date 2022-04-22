@@ -8,49 +8,47 @@ This file defines these classes:
 
 from . import internals
 from . import utils
-from .compat import with_metaclass
 
-# pylint: disable=too-few-public-methods,useless-object-inheritance
 
-@with_metaclass(utils.MetaClassForClassesWithEnums)
-class DataType(object):
+# pylint: disable=too-few-public-methods
+class DataType(metaclass=utils.MetaClassForClassesWithEnums):
     """Contains the possible data types which can be represented in an
     :class:`Element`.
     """
 
-    BOOL = internals.DATATYPE_BOOL
+    BOOL = internals.DATATYPE_BOOL # type: ignore
     """Boolean"""
-    CHAR = internals.DATATYPE_CHAR
+    CHAR = internals.DATATYPE_CHAR # type: ignore
     """Char"""
-    BYTE = internals.DATATYPE_BYTE
+    BYTE = internals.DATATYPE_BYTE # type: ignore
     """Unsigned 8 bit value"""
-    INT32 = internals.DATATYPE_INT32
+    INT32 = internals.DATATYPE_INT32 # type: ignore
     """32 bit Integer"""
-    INT64 = internals.DATATYPE_INT64
+    INT64 = internals.DATATYPE_INT64 # type: ignore
     """64 bit Integer"""
-    FLOAT32 = internals.DATATYPE_FLOAT32
+    FLOAT32 = internals.DATATYPE_FLOAT32 # type: ignore
     """32 bit Floating point"""
-    FLOAT64 = internals.DATATYPE_FLOAT64
+    FLOAT64 = internals.DATATYPE_FLOAT64 # type: ignore
     """64 bit Floating point"""
-    STRING = internals.DATATYPE_STRING
+    STRING = internals.DATATYPE_STRING # type: ignore
     """ASCIIZ string"""
-    BYTEARRAY = internals.DATATYPE_BYTEARRAY
+    BYTEARRAY = internals.DATATYPE_BYTEARRAY # type: ignore
     """Opaque binary data"""
-    DATE = internals.DATATYPE_DATE
+    DATE = internals.DATATYPE_DATE # type: ignore
     """Date"""
-    TIME = internals.DATATYPE_TIME
+    TIME = internals.DATATYPE_TIME # type: ignore
     """Timestamp"""
-    DECIMAL = internals.DATATYPE_DECIMAL
+    DECIMAL = internals.DATATYPE_DECIMAL # type: ignore
     """Currently Unsupported"""
-    DATETIME = internals.DATATYPE_DATETIME
+    DATETIME = internals.DATATYPE_DATETIME # type: ignore
     """Date and time"""
-    ENUMERATION = internals.DATATYPE_ENUMERATION
+    ENUMERATION = internals.DATATYPE_ENUMERATION # type: ignore
     """An opaque enumeration"""
-    SEQUENCE = internals.DATATYPE_SEQUENCE
+    SEQUENCE = internals.DATATYPE_SEQUENCE # type: ignore
     """Sequence type"""
-    CHOICE = internals.DATATYPE_CHOICE
+    CHOICE = internals.DATATYPE_CHOICE # type: ignore
     """Choice type"""
-    CORRELATION_ID = internals.DATATYPE_CORRELATION_ID
+    CORRELATION_ID = internals.DATATYPE_CORRELATION_ID # type: ignore
     """Used for some internal messages"""
 
 __copyright__ = """

@@ -82,13 +82,14 @@ The rules for qualifying the subscription string are:
 """
 
 from __future__ import absolute_import
+from typing import Mapping, Optional, Sequence, Union
 
 from .exception import _ExceptionUtil
 from . import internals
 from .internals import CorrelationId
-from .compat import conv2str, isstr
-from .utils import get_handle
+from .utils import conv2str, get_handle, isstr
 from .chandle import CHandle
+from . import typehints # pylint: disable=unused-import
 
 
 class SubscriptionList(CHandle):
@@ -133,7 +134,7 @@ class SubscriptionList(CHandle):
     |             |                          | | needs to be canceled.    |
     +-------------+--------------------------+----------------------------+
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """Create an empty :class:`SubscriptionList`."""
         selfhandle = internals.blpapi_SubscriptionList_create()
         super(SubscriptionList, self).__init__(
@@ -141,15 +142,17 @@ class SubscriptionList(CHandle):
             internals.blpapi_SubscriptionList_destroy)
         self.__handle = selfhandle
 
-    def add(self, topic, fields=None, options=None, correlationId=None):
+    def add(self, topic: str,
+                  fields: Union[str, Sequence[str], None] = None,
+                  options: Union[str, Sequence[str], Mapping, None] = None,
+                  correlationId: Optional[CorrelationId] = None) -> int:
         """Add the specified ``topic`` to this :class:`SubscriptionList`.
 
         Args:
-            topic (str): The topic to subscribe to
-            fields (str or [str]): List of fields to subscribe to
-            options (str or [str] or dict): List of options
-            correlationId (CorrelationId): Correlation id to associate with the
-                subscription
+            topic: The topic to subscribe to
+            fields: List of fields to subscribe to
+            options: List of options
+            correlationId: Correlation id to associate with the subscription
 
         Add the specified ``topic``, with the optionally specified ``fields``
         and the ``options`` to this :class:`SubscriptionList`, associating the
@@ -169,56 +172,56 @@ class SubscriptionList(CHandle):
 
         if fields is not None:
             if isstr(fields):
-                fields = conv2str(fields)
+                fields = conv2str(fields) # type: ignore # the isstr() check means fields must be string by this point
             else:
                 fields = ",".join(fields)
 
         if options is not None:
             if isstr(options):
-                options = conv2str(options)
+                options = conv2str(options) # type: ignore # the isstr() check means options must be string by this point
             elif isinstance(options, (list, tuple)):
                 options = "&".join(options)
             elif isinstance(options, dict):
                 options = "&".join([key if val is None
-                                    else "{0}={1}".format(key, val)
+                                    else f"{key}={val}"
                                     for key, val in options.items()])
 
         return internals.blpapi_SubscriptionList_addHelper(
             self.__handle,
             topic,
-            get_handle(correlationId),
+            correlationId,
             fields,
             options)
 
-    def append(self, other):
+    def append(self, other: "typehints.SubscriptionList") -> int:
         """Append a copy of the specified :class:`SubscriptionList` to this
         list.
 
         Args:
-            other (SubscriptionList): List to append to this one
+            other: List to append to this one
         """
         return internals.blpapi_SubscriptionList_append(
             self.__handle,
             get_handle(other))
 
-    def clear(self):
+    def clear(self) -> int:
         """Remove all entries from this object."""
         return internals.blpapi_SubscriptionList_clear(self.__handle)
 
-    def size(self):
+    def size(self) -> int:
         """
         Returns:
-            int: The number of subscriptions in this object.
+            The number of subscriptions in this object.
         """
         return internals.blpapi_SubscriptionList_size(self.__handle)
 
-    def correlationIdAt(self, index):
+    def correlationIdAt(self, index: int) -> CorrelationId:
         """
         Args:
-            index (int): Index of the entry in the list
+            index: Index of the entry in the list
 
         Returns:
-            CorrelationId: Correlation id of the ``index``\ th entry.
+            Correlation id of the ``index``\ th entry.
 
         Raises:
             Exception: If ``index >= size()``.
@@ -229,13 +232,13 @@ class SubscriptionList(CHandle):
         _ExceptionUtil.raiseOnError(errorCode)
         return cid
 
-    def topicStringAt(self, index):
+    def topicStringAt(self, index: int) -> str:
         """
         Args:
-            index (int): Index of the entry in the list
+            index: Index of the entry in the list
 
         Returns:
-            str: The full topic string at the specified ``index``.
+            The full topic string at the specified ``index``.
 
         Raises:
             Exception: If ``index >= size()``.
@@ -246,11 +249,12 @@ class SubscriptionList(CHandle):
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
-    def addResolved(self, subscriptionString, correlationId=None):
+    def addResolved(self, subscriptionString: str,
+                          correlationId: Optional[CorrelationId] = None) -> int:
         """
         Args:
-            subscriptionString (str): Fully-resolved subscription string
-            correlationId (CorrelationId): Correlation id to associate with the
+            subscriptionString: Fully-resolved subscription string
+            correlationId: Correlation id to associate with the
                 subscription
 
         Add the specified ``subscriptionString`` to this
@@ -270,15 +274,15 @@ class SubscriptionList(CHandle):
         if correlationId is None:
             correlationId = internals.CorrelationId()
         return internals.blpapi_SubscriptionList_addResolved(
-            self.__handle, subscriptionString, get_handle(correlationId))
+            self.__handle, subscriptionString, correlationId)
 
-    def isResolvedTopicAt(self, index):
+    def isResolvedTopicAt(self, index: int) -> bool:
         """
         Args:
-            index (int): Index of the entry in the list
+            index: Index of the entry in the list
 
         Returns:
-            bool: ``True`` if the ``index``\ th entry in this
+            ``True`` if the ``index``\ th entry in this
             ``SubscriptionList`` object was created using :meth:`addResolved()`
             and ``False`` if it was created using :meth:`add()`.  An exception
             is thrown if ``index >= size()``.

@@ -13,12 +13,28 @@ from .datetime import _DatetimeUtil
 from .datatype import DataType
 from .name import Name, getNamePair
 from .schema import SchemaElementDefinition
-from .compat import conv2str, isstr, int_typelist, Mapping
-from .utils import Iterator, isNonScalarSequence
+from .utils import conv2str, Iterator, isNonScalarSequence, isstr
+from .chandle import CHandle
 from . import internals
+from .typehints import BlpapiNameOrStr,\
+    BlpapiNameOrStrOrIndex,\
+    AnyPythonDatetime,\
+    SupportedElementTypes
+from . import typehints # pylint: disable=unused-import
+from collections.abc import Iterator as IteratorABC, Mapping
+from typing import Any,\
+    Callable,\
+    Dict,\
+    Iterator as IteratorType,\
+    List,\
+    Optional,\
+    Sequence,\
+    Set,\
+    Tuple,\
+    Union
 
-# pylint: disable=useless-object-inheritance,protected-access,too-many-return-statements,too-many-public-methods
-class ElementIterator:
+# pylint: disable=protected-access,too-many-return-statements,too-many-public-methods
+class ElementIterator(IteratorABC):
     """An iterator over the objects within an :class:`Element`.
 
     If the :class:`Element` is a sequence or choice, this iterates over its
@@ -26,11 +42,11 @@ class ElementIterator:
     value(s).
     """
 
-    def __init__(self, element):
+    def __init__(self, element: "Element") -> None:
         self._element = element
         self._index = 0
 
-    def __next__(self):
+    def __next__(self) -> Union[SupportedElementTypes, "Element"]:
         i = self._index
         self._index += 1
 
@@ -43,10 +59,8 @@ class ElementIterator:
 
         raise StopIteration()
 
-    next = __next__ # Python 2 compatibility
 
-
-class Element(object):
+class Element(CHandle):
     """Represents an item in a message.
 
     An :class:`Element` can represent:
@@ -168,13 +182,14 @@ class Element(object):
         str)
 
     @staticmethod
-    def __getTraits(value):
+    def __getTraits(value: SupportedElementTypes
+                    ) -> Tuple[Callable, Callable, Optional[Any]]:
         """ traits dispatcher """
         if isstr(value):
             return Element.__stringTraits
         if isinstance(value, bool):
             return Element.__boolTraits
-        if isinstance(value, int_typelist):
+        if isinstance(value, int):
             if -(2 ** 31) <= value <= (2 ** 31 - 1):
                 return Element.__int32Traits
             if -(2 ** 63) <= value <= (2 ** 63 - 1):
@@ -188,27 +203,35 @@ class Element(object):
             return Element.__nameTraits
         return Element.__defaultTraits
 
-    def __assertIsValid(self):
+    def __assertIsValid(self) -> None:
         if not self.isValid():
             raise RuntimeError("Element is not valid")
 
-    def __init__(self, handle, dataHolder):
+    def __init__(self,
+                 handle: "typehints.BlpapiElementHandle",
+                 dataHolder: Optional[Union["Element",
+                                            "typehints.Message",
+                                            "typehints.Request"]]) -> None:
+        noop = lambda *args: None
+        super(Element, self).__init__(handle, noop)
         self.__handle = handle
         self.__dataHolder = dataHolder
 
-    def _getDataHolder(self):
+    def _getDataHolder(self) -> Optional[Union["Element",
+                                               "typehints.Message",
+                                               "typehints.Request"]]:
         """Return the owner of underlying data. For internal use."""
         return self if self.__dataHolder is None else self.__dataHolder
 
-    def _sessions(self):
+    def _sessions(self) -> Set["typehints.AbstractSession"]:
         """Return session(s) that this 'Element' is related to.
 
         For internal use."""
         if self.__dataHolder is None:
-            return list()
+            return set()
         return self.__dataHolder._sessions()
 
-    def __str__(self):
+    def __str__(self) -> str:
         """x.__str__() <==> str(x)
 
         Return a string representation of this Element. Call of 'str(element)'
@@ -218,10 +241,12 @@ class Element(object):
 
         return self.toString()
 
-    def __getitem__(self, nameOrIndex):
+    def __getitem__(self,
+                    nameOrIndex: BlpapiNameOrStrOrIndex
+                    ) -> Union[SupportedElementTypes, "Element"]:
         """
         Args:
-            nameOrIndex (Name or str or int): The :class:`Name` identifying the
+            nameOrIndex: The :class:`Name` identifying the
                 :class:`Element` to retrieve from this :class:`Element`\ , or
                 the index to retrieve the value from this :class:`Element`\ .
 
@@ -247,13 +272,14 @@ class Element(object):
                 ``nameOrIndex`` >= :meth:`numValues`.
         """
         # is index
-        if isinstance(nameOrIndex, int_typelist):
+        if isinstance(nameOrIndex, int):
             return self.getValue(nameOrIndex)
 
         # is name
         if not self.hasElement(nameOrIndex):
-            raise KeyError("Element {} does not contain element {}"
-                           .format(self.name(), nameOrIndex))
+            raise KeyError(f"Element {self.name()} " # type: ignore
+                           f"does not contain element"
+                           f" {nameOrIndex}")
 
         element = self.getElement(nameOrIndex)
 
@@ -265,10 +291,13 @@ class Element(object):
 
         return element.getValue()
 
-    def __setitem__(self, name, value):
+    def __setitem__(self,
+                    name: BlpapiNameOrStr,
+                    value: Union[Mapping, Sequence, SupportedElementTypes]
+                    ) -> None:
         """
         Args:
-            name (Name or str): The :class:`Name` identifying one of this
+            name: The :class:`Name` identifying one of this
                 :class:`Element`\ 's sub-:class:`Element`\ s.
             value: Used to format the :class:`Element`. See :meth:`fromPy` for
                 more details.
@@ -294,12 +323,12 @@ class Element(object):
         Note:
             :class:`Element`\ s cannot be modified by index.
         """
-        if isinstance(name, int_typelist):
+        if isinstance(name, int):
             raise Exception("Elements cannot be formatted by index")
 
         self.getElement(name).fromPy(value)
 
-    def __iter__(self):
+    def __iter__(self) -> IteratorType:
         """
         Returns:
             An iterator over the contents of this :class:`Element`. If this
@@ -310,10 +339,10 @@ class Element(object):
         """
         return ElementIterator(self)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Returns:
-            int: if this :class:`Element` is a complex type
+            If this :class:`Element` is a complex type
             (see :meth:`isComplexType`), return the number of
             :class:`Element`\ s in this :class:`Element`. Otherwise, return the
             number of values in this :class:`Element`.
@@ -323,27 +352,25 @@ class Element(object):
 
         return self.numValues()
 
-    def __contains__(self, item):
+    def __contains__(self, item: SupportedElementTypes) -> bool:
         """
         Args:
-            item (str or blpapi.Name or bool or int or float or datetime.date \
-                  or datetime.time or datetime.datetime or None):
-                item to check for existence in this :class:`Element`.
+            item: item to check for existence in this :class:`Element`.
 
         Returns:
-            bool: If this :class:`Element` is a complex type, return whether
+            If this :class:`Element` is a complex type, return whether
             this :class:`Element` contains an :class:`Element` with the
             specified :class:`Name` ``item``. Otherwise, return whether
             ``item`` is a value in this :class:`Element`.
         """
         if self.isComplexType():
-            return self.hasElement(item)
+            return self.hasElement(item) # type: ignore
         return item in self.values()
 
-    def name(self):
+    def name(self) -> Name:
         """
         Returns:
-            Name: If this :class:`Element` is part of a sequence or choice
+            If this :class:`Element` is part of a sequence or choice
             :class:`Element`, then return the :class:`Name` of this
             :class:`Element` within the sequence or choice :class:`Element`
             that owns it. If this :class:`Element` is not part of a sequence
@@ -356,10 +383,10 @@ class Element(object):
         return Name._createInternally(
             internals.blpapi_Element_name(self.__handle))
 
-    def datatype(self):
+    def datatype(self) -> int:
         """
         Returns:
-            int: Basic data type used to represent a value in this
+            Basic data type used to represent a value in this
             :class:`Element`.
 
         The possible types are enumerated in :class:`DataType`.
@@ -368,20 +395,20 @@ class Element(object):
         self.__assertIsValid()
         return internals.blpapi_Element_datatype(self.__handle)
 
-    def isComplexType(self):
+    def isComplexType(self) -> bool:
         """
         Returns:
-            bool: ``True`` if ``datatype()==DataType.SEQUENCE`` or
+            ``True`` if ``datatype()==DataType.SEQUENCE`` or
             ``datatype()==DataType.CHOICE`` and ``False`` otherwise.
         """
 
         self.__assertIsValid()
         return bool(internals.blpapi_Element_isComplexType(self.__handle))
 
-    def isArray(self):
+    def isArray(self) -> bool:
         """
         Returns:
-            bool: ``True`` if this element is an array.
+            ``True`` if this element is an array.
 
         This element is an array if ``elementDefinition().maxValues()>1`` or if
         ``elementDefinition().maxValues()==UNBOUNDED``.
@@ -390,33 +417,33 @@ class Element(object):
         self.__assertIsValid()
         return bool(internals.blpapi_Element_isArray(self.__handle))
 
-    def isValid(self):
+    def isValid(self) -> bool:
         """
         Returns:
-            bool: ``True`` if this :class:`Element` is valid.
+            ``True`` if this :class:`Element` is valid.
         """
         return self.__handle is not None
 
-    def isNull(self):
+    def isNull(self) -> bool:
         """
         Returns:
-            bool: ``True`` if this :class:`Element` has a null value.
+            ``True`` if this :class:`Element` has a null value.
         """
         self.__assertIsValid()
         return bool(internals.blpapi_Element_isNull(self.__handle))
 
-    def isReadOnly(self):
+    def isReadOnly(self) -> bool:
         """
         Returns:
-            bool: ``True`` if this :class:`Element` cannot be modified.
+            ``True`` if this :class:`Element` cannot be modified.
         """
         self.__assertIsValid()
         return bool(internals.blpapi_Element_isReadOnly(self.__handle))
 
-    def elementDefinition(self):
+    def elementDefinition(self) -> "typehints.SchemaElementDefinition":
         """
         Return:
-            SchemaElementDefinition: Reference to the read-only element
+            Reference to the read-only element
             definition object that defines the properties of this elements
             value.
         """
@@ -425,10 +452,10 @@ class Element(object):
             internals.blpapi_Element_definition(self.__handle),
             self._sessions())
 
-    def numValues(self):
+    def numValues(self) -> int:
         """
         Returns:
-            int: Number of values contained by this element.
+            Number of values contained by this element.
 
         The number of values is ``0`` if :meth:`isNull()` returns ``True``, and
         no greater than ``1`` if :meth:`isComplexType()` returns ``True``. The
@@ -440,10 +467,10 @@ class Element(object):
         self.__assertIsValid()
         return internals.blpapi_Element_numValues(self.__handle)
 
-    def numElements(self):
+    def numElements(self) -> int:
         """
         Returns:
-            int: Number of elements in this element.
+            Number of elements in this element.
 
         The number of elements is ``0`` if :meth:`isComplexType()` returns
         ``False``, and no greater than ``1`` if the :class:`DataType` is
@@ -455,13 +482,13 @@ class Element(object):
         self.__assertIsValid()
         return internals.blpapi_Element_numElements(self.__handle)
 
-    def isNullValue(self, position=0):
+    def isNullValue(self, position: int=0) -> bool:
         """
         Args:
-            position (int): Position of the sub-element
+            position: Position of the sub-element
 
         Returns:
-            bool: ``True`` if the value of the sub-element at the ``position``
+            ``True`` if the value of the sub-element at the ``position``
             is a null value.
 
         Raises:
@@ -473,9 +500,9 @@ class Element(object):
         if res in (0, 1):
             return bool(res)
         _ExceptionUtil.raiseOnError(res)
-        return None # unreachable
+        return False # unreachable
 
-    def toPy(self):
+    def toPy(self) -> Union[Dict, List, SupportedElementTypes]:
         """
         Returns:
             A :py:class:`dict`, :py:class:`list`, or value representation of
@@ -544,17 +571,17 @@ class Element(object):
         """
         return internals.blpapi_Element_toPy(self.__handle)
 
-    def toString(self, level=0, spacesPerLevel=4):
+    def toString(self, level: int=0, spacesPerLevel: int=4) -> str:
         """Format this :class:`Element` to the string at the specified
         indentation level.
 
         Args:
-            level (int): Indentation level
-            spacesPerLevel (int): Number of spaces per indentation level for
+            level: Indentation level
+            spacesPerLevel: Number of spaces per indentation level for
                 this and all nested objects
 
         Returns:
-            str: This element formatted as a string
+            This element formatted as a string
 
         If ``level`` is negative, suppress indentation of the first line. If
         ``spacesPerLevel`` is negative, format the entire output on one line,
@@ -566,13 +593,13 @@ class Element(object):
                                                     level,
                                                     spacesPerLevel)
 
-    def getElement(self, nameOrIndex):
+    def getElement(self, nameOrIndex: BlpapiNameOrStrOrIndex) -> "Element":
         """
         Args:
-            nameOrIndex (Name or str or int): Sub-element identifier
+            nameOrIndex: Sub-element identifier
 
         Returns:
-            Element: Sub-element identified by ``nameOrIndex``
+            Sub-element identified by ``nameOrIndex``
 
         Raises:
             Exception: If ``nameOrIndex`` is a string or a :class:`Name` and
@@ -594,8 +621,13 @@ class Element(object):
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
-    def elements(self):
+    def elements(self) -> IteratorType:
         """
+        Note: prefer to iterate over this :class:`Element` directly instead
+        of calling this method. E.g.
+
+        ```for e in element``` rather than ```for e in element.elements()```
+
         Returns:
             Iterator over elements contained in this :class:`Element`.
 
@@ -609,14 +641,16 @@ class Element(object):
                 description="Only sequences are supported", errorCode=None)
         return Iterator(self, Element.numElements, Element.getElement)
 
-    def hasElement(self, name, excludeNullElements=False):
+    def hasElement(self,
+                   name: BlpapiNameOrStr,
+                   excludeNullElements: bool=False) -> bool:
         """
         Args:
-            name (Name or str): Name of the element
-            excludeNullElements (bool): Whether to exclude null elements
+            name: Name of the element
+            excludeNullElements: Whether to exclude null elements
 
         Returns:
-            bool: ``True`` if this :class:`Element` is a choice or sequence
+            ``True`` if this :class:`Element` is a choice or sequence
             (``isComplexType() == True``) and it contains an :class:`Element`
             with the specified ``name``.
 
@@ -625,19 +659,19 @@ class Element(object):
         """
 
         self.__assertIsValid()
-        name = getNamePair(name)
+        namepair = getNamePair(name)
         res = internals.blpapi_Element_hasElementEx(
             self.__handle,
-            name[0],
-            name[1],
+            namepair[0],
+            namepair[1],
             1 if excludeNullElements else 0,
             0)
         return bool(res)
 
-    def getChoice(self):
+    def getChoice(self) -> "Element":
         """
         Returns:
-            Element: The selection name of this element as :class:`Element`.
+            The selection name of this element as :class:`Element`.
 
         Raises:
             Exception: If ``datatype() != DataType.CHOICE``
@@ -648,13 +682,13 @@ class Element(object):
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
-    def getValueAsBool(self, index=0):
+    def getValueAsBool(self, index: int=0) -> bool:
         """
         Args:
-            index (int): Index of the value in the element
+            index: Index of the value in the element
 
         Returns:
-            bool: ``index``\ th entry in the :class:`Element` as a boolean.
+            ``index``\ th entry in the :class:`Element` as a boolean.
 
         Raises:
             InvalidConversionException: If the data type of this
@@ -667,13 +701,13 @@ class Element(object):
         _ExceptionUtil.raiseOnError(res[0])
         return bool(res[1])
 
-    def getValueAsString(self, index=0):
+    def getValueAsString(self, index: int=0) -> str:
         """
         Args:
-            index (int): Index of the value in the element
+            index: Index of the value in the element
 
         Returns:
-            str: ``index``\ th entry in the :class:`Element` as a string.
+            ``index``\ th entry in the :class:`Element` as a string.
 
         Raises:
             InvalidConversionException: If the data type of this
@@ -686,10 +720,10 @@ class Element(object):
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
 
-    def getValueAsDatetime(self, index=0):
+    def getValueAsDatetime(self, index: int=0) -> AnyPythonDatetime:
         """
         Args:
-            index (int): Index of the value in the element
+            index: Index of the value in the element
 
         Returns:
             datetime.time or datetime.date or datetime.datetime: ``index``\ th
@@ -707,13 +741,13 @@ class Element(object):
         _ExceptionUtil.raiseOnError(res[0])
         return _DatetimeUtil.convertToNative(res[1])
 
-    def getValueAsInteger(self, index=0):
+    def getValueAsInteger(self, index: int=0) -> int:
         """
         Args:
-            index (int): Index of the value in the element
+            index: Index of the value in the element
 
         Returns:
-            int: ``index``\ th entry in the :class:`Element` as a integer
+            ``index``\ th entry in the :class:`Element` as a integer
 
         Raises:
             InvalidConversionException: If the data type of this
@@ -726,13 +760,13 @@ class Element(object):
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
 
-    def getValueAsFloat(self, index=0):
+    def getValueAsFloat(self, index: int=0) -> float:
         """
         Args:
-            index (int): Index of the value in the element
+            index: Index of the value in the element
 
         Returns:
-            float: ``index``\ th entry in the :class:`Element` as a float.
+            ``index``\ th entry in the :class:`Element` as a float.
 
         Raises:
             InvalidConversionException: If the data type of this
@@ -745,13 +779,13 @@ class Element(object):
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
 
-    def getValueAsName(self, index=0):
+    def getValueAsName(self, index: int=0) -> Name:
         """
         Args:
-            index (int): Index of the value in the element
+            index: Index of the value in the element
 
         Returns:
-            Name: ``index``\ th entry in the :class:`Element` as a Name.
+            ``index``\ th entry in the :class:`Element` as a Name.
 
         Raises:
             InvalidConversionException: If the data type of this
@@ -764,13 +798,13 @@ class Element(object):
         _ExceptionUtil.raiseOnError(res[0])
         return Name._createInternally(res[1])
 
-    def getValueAsElement(self, index=0):
+    def getValueAsElement(self, index: int=0) -> "Element":
         """
         Args:
-            index (int): Index of the value in the element
+            index: Index of the value in the element
 
         Returns:
-            Element: ``index``\ th entry in the :class:`Element` as a Element.
+            ``index``\ th entry in the :class:`Element` as a Element.
 
         Raises:
             InvalidConversionException: If the data type of this
@@ -783,10 +817,11 @@ class Element(object):
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
-    def getValue(self, index=0):
+    def getValue(self, index: int=0
+                 ) -> Union[SupportedElementTypes, "Element"]:
         """
         Args:
-            index (int): Index of the value in the element
+            index: Index of the value in the element
 
         Returns:
             ``index``\ th entry in the :class:`Element` defined by this
@@ -801,10 +836,15 @@ class Element(object):
         datatype = self.datatype()
         valueGetter = _ELEMENT_VALUE_GETTER.get(datatype,
                                                 Element.getValueAsString)
-        return valueGetter(self, index)
+        return valueGetter(self, index) # type: ignore
 
-    def values(self):
+    def values(self) -> IteratorType:
         """
+        Note: prefer to iterate over this :class:`Element` directly instead
+        of calling this method. E.g.
+
+        ```for e in element``` rather than ```for e in element.values()```
+
         Returns:
             Iterator over values contained in this :class:`Element`.
 
@@ -819,13 +859,13 @@ class Element(object):
                                                 Element.getValueAsString)
         return Iterator(self, Element.numValues, valueGetter)
 
-    def getElementAsBool(self, name):
+    def getElementAsBool(self, name: BlpapiNameOrStr) -> bool:
         """
         Args:
-            name (Name or str): Sub-element identifier
+            name: Sub-element identifier
 
         Returns:
-            bool: This element's sub-element with ``name`` as a boolean
+            This element's sub-element with ``name`` as a boolean
 
         Raises:
             Exception: If ``name`` is neither a :class:`Name` nor a string, or
@@ -836,13 +876,13 @@ class Element(object):
 
         return self.getElement(name).getValueAsBool()
 
-    def getElementAsString(self, name):
+    def getElementAsString(self, name: BlpapiNameOrStr) -> str:
         """
         Args:
-            name (Name or str): Sub-element identifier
+            name: Sub-element identifier
 
         Returns:
-            str: This element's sub-element with ``name`` as a string
+            This element's sub-element with ``name`` as a string
 
         Raises:
             Exception: If ``name`` is neither a :class:`Name` nor a string, or
@@ -853,10 +893,10 @@ class Element(object):
 
         return self.getElement(name).getValueAsString()
 
-    def getElementAsDatetime(self, name):
+    def getElementAsDatetime(self, name: BlpapiNameOrStr) -> AnyPythonDatetime:
         """
         Args:
-            name (Name or str): Sub-element identifier
+            name: Sub-element identifier
 
         Returns:
             datetime.time or datetime.date or datetime.datetime: This element's
@@ -871,13 +911,13 @@ class Element(object):
 
         return self.getElement(name).getValueAsDatetime()
 
-    def getElementAsInteger(self, name):
+    def getElementAsInteger(self, name: BlpapiNameOrStr) -> int:
         """
         Args:
-            name (Name or str): Sub-element identifier
+            name: Sub-element identifier
 
         Returns:
-            int: This element's sub-element with ``name`` as an integer
+            This element's sub-element with ``name`` as an integer
 
         Raises:
             Exception: If ``name`` is neither a :class:`Name` nor a string, or
@@ -888,13 +928,13 @@ class Element(object):
 
         return self.getElement(name).getValueAsInteger()
 
-    def getElementAsFloat(self, name):
+    def getElementAsFloat(self, name: BlpapiNameOrStr) -> float:
         """
         Args:
-            name (Name or str): Sub-element identifier
+            name: Sub-element identifier
 
         Returns:
-            float: This element's sub-element with ``name`` as a float
+            This element's sub-element with ``name`` as a float
 
         Raises:
             Exception: If ``name`` is neither a :class:`Name` nor a string, or
@@ -905,13 +945,13 @@ class Element(object):
 
         return self.getElement(name).getValueAsFloat()
 
-    def getElementAsName(self, name):
+    def getElementAsName(self, name: BlpapiNameOrStr) -> Name:
         """
         Args:
-            name (Name or str): Sub-element identifier
+            name: Sub-element identifier
 
         Returns:
-            Name: This element's sub-element with ``name`` as a :class:`Name`
+            This element's sub-element with ``name`` as a :class:`Name`
 
         Raises:
             Exception: If ``name`` is neither a :class:`Name` nor a string, or
@@ -923,10 +963,11 @@ class Element(object):
 
         return self.getElement(name).getValueAsName()
 
-    def getElementValue(self, name):
+    def getElementValue(self, name: BlpapiNameOrStr
+                        ) -> Union[SupportedElementTypes, "Element"]:
         """
         Args:
-            name (Name or str): Sub-element identifier
+            name: Sub-element identifier
 
         Returns:
             This element's sub-element with ``name`` defined by its datatype
@@ -939,11 +980,13 @@ class Element(object):
 
         return self.getElement(name).getValue()
 
-    def setElement(self, name, value):
+    def setElement(self,
+                   name: BlpapiNameOrStr,
+                   value: SupportedElementTypes) -> None:
         """Set this Element's sub-element with 'name' to the specified 'value'.
 
         Args:
-            name (Name or str): Sub-element identifier
+            name: Sub-element identifier
             value: Value to set the sub-element to
 
         Raises:
@@ -970,13 +1013,13 @@ class Element(object):
         self.__assertIsValid()
 
         traits = Element.__getTraits(value)
-        name = getNamePair(name)
+        namepair = getNamePair(name)
         if traits[2] is not None:
             value = traits[2](value)
         _ExceptionUtil.raiseOnError(
-            traits[0](self.__handle, name[0], name[1], value))
+            traits[0](self.__handle, namepair[0], namepair[1], value))
 
-    def setValue(self, value, index=0):
+    def setValue(self, value: SupportedElementTypes, index: int=0) -> None:
         """Set the specified ``index``\ th entry in this :class:`Element` to
         the ``value``.
 
@@ -1010,7 +1053,7 @@ class Element(object):
             value = traits[2](value)
         _ExceptionUtil.raiseOnError(traits[1](self.__handle, value, index))
 
-    def appendValue(self, value):
+    def appendValue(self, value: SupportedElementTypes) -> None:
         """Append the specified ``value`` to this :class:`Element`\ s entries
         at the end.
 
@@ -1041,11 +1084,11 @@ class Element(object):
 
         self.setValue(value, internals.ELEMENT_INDEX_END)
 
-    def appendElement(self):
+    def appendElement(self) -> "Element":
         """Append a new element to this array :class:`Element`.
 
         Returns:
-            Element: The newly appended element
+            The newly appended element
 
         Raises:
             Exception: If this :class:`Element` is not an array of sequence or
@@ -1058,15 +1101,14 @@ class Element(object):
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
-    def setChoice(self, selectionName):
+    def setChoice(self, selectionName: BlpapiNameOrStr) -> "Element":
         """Set this :class:`Element`\ 's active element to ``selectionName``.
 
         Args:
-            selectionName (Name or str): Name of the element to set the active
-                choice
+            selectionName: Name of the element to set the active choice
 
         Returns:
-            Element: The newly active element
+            The newly active element
 
         Raises:
             Exception: If ``selectionName`` is neither a :class:`Name` nor a
@@ -1082,7 +1124,7 @@ class Element(object):
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
-    def fromPy(self, value):
+    def fromPy(self, value: Union[Mapping, Sequence, SupportedElementTypes]):
         """Format this :class:`Element` with the provided native Python value.
 
         Args:
@@ -1216,16 +1258,19 @@ class Element(object):
         """
         self._fromPyHelper(value)
 
-    def _fromPyHelper(self, value, name=None, path=None):
+    def _fromPyHelper(self,
+                      value: Union[Mapping, Sequence, SupportedElementTypes],
+                      name: Optional[BlpapiNameOrStr]=None,
+                      path: Optional[str]=None):
         """Helper method for `fromPy`.
 
         Args:
             value: Used to format this `Element` or the `Element` specified
                 by ``name``.
-            name (Name or str): If ``name`` is ``None``, format this `Element`
+            name: If ``name`` is ``None``, format this `Element`
                 with ``value``. Otherwise, ``name`` refers to this `Element`'s
                 sub-`Element` that will be formatted with ``value``.
-            path (str): The path uniquely identifying this `Element`, starting
+            path: The path uniquely identifying this `Element`, starting
                 from the root `Element`.
         """
         # Note, the double exception throwing has no good solution in Python 2,
@@ -1233,7 +1278,7 @@ class Element(object):
 
         activeElement = self
 
-        def getActivePathMessage(isArrayEntry=False):
+        def getActivePathMessage(isArrayEntry: bool=False):
             elementType = "scalar"
             if activeElement.isArray():
                 elementType = "array"
@@ -1241,8 +1286,8 @@ class Element(object):
                 elementType = "complex"
 
             arrayEntryText = "an entry in " if isArrayEntry else ""
-            return "While operating on {}{} Element `{}`, ".format(
-                    arrayEntryText, elementType, path)
+            return f"While operating on {arrayEntryText}{elementType} " \
+                   f" Element `{path}`, "
 
         if path is None:
             path = str(activeElement.name())
@@ -1251,7 +1296,7 @@ class Element(object):
                 activeElement = self.getElement(name)
                 path += "/" + str(activeElement.name())
             except Exception as exc:
-                errorMsg = "encountered error: {}".format(exc)
+                errorMsg = f"encountered error: {exc}"
                 raise Exception(getActivePathMessage() + errorMsg)
 
         if activeElement.numElements() or activeElement.numValues():
@@ -1278,30 +1323,30 @@ class Element(object):
             arrayElement = activeElement
             typeDef = arrayElement.elementDefinition().typeDefinition()
             arrayValuesAreScalar = not typeDef.isComplexType()
-            for index, val in enumerate(value):
+            for index, val in enumerate(value): # type: ignore
                 if isinstance(val, Mapping):
                     if arrayValuesAreScalar:
-                        path += "[{}]".format(index)
+                        path += f"[{index}]"
                         errorMsg = "encountered a `Mapping` where a scalar" \
                                    " value was expected."
                         raise Exception(getActivePathMessage(isArrayEntry=True)
                                         + errorMsg)
 
                     appendedElement = arrayElement.appendElement()
-                    arrayEntryPath = path + "[{}]".format(index)
+                    arrayEntryPath = path + f"[{index}]"
                     appendedElement._fromPyHelper(val, path=arrayEntryPath)
                 elif isNonScalarSequence(val):
-                    path += "[{}]".format(index)
+                    path += f"[{index}]"
                     expectedObject = "scalar value" if arrayValuesAreScalar \
                         else "`Mapping`"
-                    errorMsg = "encountered a nested `Sequence` where a {}" \
-                               " was expected.".format(expectedObject)
+                    errorMsg = f"encountered a nested `Sequence` where a " \
+                               f"{expectedObject} was expected."
                     raise Exception(getActivePathMessage(isArrayEntry=True)
                                     + errorMsg)
 
                 else:
                     if not arrayValuesAreScalar:
-                        path += "[{}]".format(index)
+                        path += f"[{index}]"
                         errorMsg = "encountered a scalar value where a" \
                                    " `Mapping` was expected."
                         raise Exception(getActivePathMessage(isArrayEntry=True)
@@ -1310,8 +1355,8 @@ class Element(object):
                     try:
                         arrayElement.appendValue(val)
                     except Exception as exc:
-                        path += "[{}]".format(index)
-                        errorMsg = "encountered error: {}".format(exc)
+                        path += f"[{index}]"
+                        errorMsg = f"encountered error: {exc}"
                         raise Exception(getActivePathMessage(isArrayEntry=True)
                                         + errorMsg)
         else:
@@ -1319,19 +1364,15 @@ class Element(object):
                 return
 
             if activeElement.isComplexType() or activeElement.isArray():
-                errorMsg = "encountered an incompatible type, {}, for a" \
-                           " non-scalar Element".format(type(value))
+                errorMsg = f"encountered an incompatible type, {type(value)}," \
+                           " for a non-scalar Element"
                 raise Exception(getActivePathMessage() + errorMsg)
 
             try:
-                activeElement.setValue(value)
+                activeElement.setValue(value) # type: ignore
             except Exception as exc:
-                errorMsg = "encountered error: {}".format(exc)
+                errorMsg = f"encountered error: {exc}"
                 raise Exception(getActivePathMessage() + errorMsg)
-
-    def _handle(self):
-        """Return the internal implementation."""
-        return self.__handle
 
 
 _ELEMENT_VALUE_GETTER = {

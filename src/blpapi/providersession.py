@@ -57,9 +57,8 @@ redundant with 'TopicCreated', 'TopicSubscribed', 'TopicDeleted', and
 publishers that do not maintain per-topic state.
 """
 
-from __future__ import print_function
-from __future__ import absolute_import
-import weakref
+from weakref import ref, ReferenceType # pylint: disable=unused-import
+from typing import Optional, Callable, Sequence
 import sys
 import traceback
 import os
@@ -75,14 +74,14 @@ from .sessionoptions import SessionOptions
 from .topic import Topic
 from . import utils
 from .utils import get_handle
-from .compat import with_metaclass
 from .chandle import CHandle
+from . import typehints # pylint: disable=unused-import
+from .typehints import BlpapiEventHandle
 
 # pylint: disable=line-too-long,too-many-lines
 # pylint: disable=protected-access,too-many-public-methods,bare-except,too-many-function-args
-
-@with_metaclass(utils.MetaClassForClassesWithEnums)
-class ServiceRegistrationOptions(CHandle):
+class ServiceRegistrationOptions(CHandle,
+                                 metaclass=utils.MetaClassForClassesWithEnums):
     """Contains the options which can be specified when registering a service.
 
     To use non-default options to :meth:`~ProviderSession.registerService()`,
@@ -105,36 +104,36 @@ class ServiceRegistrationOptions(CHandle):
     - :attr:`PART_DEFAULT`
     """
 
-    PRIORITY_LOW = internals.SERVICEREGISTRATIONOPTIONS_PRIORITY_LOW
+    PRIORITY_LOW = internals.SERVICEREGISTRATIONOPTIONS_PRIORITY_LOW # type: ignore
     PRIORITY_MEDIUM = \
-        internals.SERVICEREGISTRATIONOPTIONS_PRIORITY_MEDIUM
-    PRIORITY_HIGH = internals.SERVICEREGISTRATIONOPTIONS_PRIORITY_HIGH
+        internals.SERVICEREGISTRATIONOPTIONS_PRIORITY_MEDIUM # type: ignore
+    PRIORITY_HIGH = internals.SERVICEREGISTRATIONOPTIONS_PRIORITY_HIGH # type: ignore
 
     # Constants for specifying which part(s) of a service should be registered:
 
-    PART_PUBLISHING = internals.REGISTRATIONPARTS_PUBLISHING
+    PART_PUBLISHING = internals.REGISTRATIONPARTS_PUBLISHING # type: ignore
     """Register to receive subscribe and unsubscribe messages"""
 
-    PART_OPERATIONS = internals.REGISTRATIONPARTS_OPERATIONS
+    PART_OPERATIONS = internals.REGISTRATIONPARTS_OPERATIONS # type: ignore
     """Register to receive the request types corresponding to each "operation"
     defined in the service metadata"""
 
     PART_SUBSCRIBER_RESOLUTION \
-        = internals.REGISTRATIONPARTS_SUBSCRIBER_RESOLUTION
+        = internals.REGISTRATIONPARTS_SUBSCRIBER_RESOLUTION # type: ignore
     """Register to receive resolution requests (with message type
     ``PermissionRequest``) from subscribers"""
 
     PART_PUBLISHER_RESOLUTION \
-        = internals.REGISTRATIONPARTS_PUBLISHER_RESOLUTION
+        = internals.REGISTRATIONPARTS_PUBLISHER_RESOLUTION # type: ignore
     """Register to receive resolution requests (with message type
     ``PermissionRequest``) from publishers (via
     :meth:`ProviderSession.createTopics()`)"""
 
-    PART_DEFAULT = internals.REGISTRATIONPARTS_DEFAULT
+    PART_DEFAULT = internals.REGISTRATIONPARTS_DEFAULT # type: ignore
     """Register the parts of the service implied by options specified in the
     service metadata"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Create :class:`ServiceRegistrationOptions` with default options."""
         selfhandle = internals.blpapi_ServiceRegistrationOptions_create()
         super(ServiceRegistrationOptions, self).__init__(
@@ -142,11 +141,11 @@ class ServiceRegistrationOptions(CHandle):
             internals.blpapi_ServiceRegistrationOptions_destroy)
         self.__handle = selfhandle
 
-    def setGroupId(self, groupId):
+    def setGroupId(self, groupId: str) -> None:
         """Set the Group ID for the service to be registered.
 
         Args:
-            groupId (str): The group ID for the service to be registered
+            groupId: The group ID for the service to be registered
 
         Set the Group ID for the service to be registered to the specified
         ``groupId`` string. If ``groupId`` length is greater than
@@ -156,12 +155,12 @@ class ServiceRegistrationOptions(CHandle):
         internals.blpapi_ServiceRegistrationOptions_setGroupId(
             self.__handle, groupId)
 
-    def setServicePriority(self, priority):
+    def setServicePriority(self, priority: int) -> int:
         """Set the priority with which a subscription service will be
         registered.
 
         Args:
-            priority (int): The service priority
+            priority: The service priority
 
         Set the priority with which a subscription service will be registered
         to the specified ``priority``, where numerically greater values of
@@ -179,33 +178,36 @@ class ServiceRegistrationOptions(CHandle):
             self.__handle,
             priority)
 
-    def getGroupId(self):
+    def getGroupId(self) -> str:
         """
         Returns:
-            str: The value of the service Group Id in this instance.
+            The value of the service Group Id in this instance.
         """
         _, groupId = \
             internals.blpapi_ServiceRegistrationOptions_getGroupId(
                 self.__handle)
         return groupId
 
-    def getServicePriority(self):
+    def getServicePriority(self) -> int:
         """
         Returns:
-            int: The value of the priority for subscription services in this
-                 instance.
+            The value of the priority for subscription services
+            in this instance.
         """
         priority = \
             internals.blpapi_ServiceRegistrationOptions_getServicePriority(
                 self.__handle)
         return priority
 
-    def addActiveSubServiceCodeRange(self, begin, end, priority):
+    def addActiveSubServiceCodeRange(self,
+                                     begin: int,
+                                     end: int,
+                                     priority: int) -> None:
         """
         Args:
-            begin (int): Start of sub-service code range
-            end (int): End of sub-service code range
-            priority (int): Priority with which to receive subscriptions
+            begin: Start of sub-service code range
+            end: End of sub-service code range
+            priority: Priority with which to receive subscriptions
 
         Advertise the service to be registered to receive, with the
         specified ``priority``, subscriptions that the resolver has mapped to a
@@ -221,16 +223,16 @@ class ServiceRegistrationOptions(CHandle):
                 self.__handle, begin, end, priority)
         _ExceptionUtil.raiseOnError(err)
 
-    def removeAllActiveSubServiceCodeRanges(self):
+    def removeAllActiveSubServiceCodeRanges(self) -> None:
         """Remove all previously added sub-service code ranges."""
         internals.blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges(
                 self.__handle)
 
-    def setPartsToRegister(self, parts):
+    def setPartsToRegister(self, parts: int) -> None:
         """Set the parts of the service to be registered.
 
         Args:
-            int: Parts of the service to be registered.
+            parts: Parts of the service to be registered.
 
         Set the parts of the service to be registered to the specified
         ``parts``, which must be a bitwise-or of the options provided in
@@ -240,10 +242,10 @@ class ServiceRegistrationOptions(CHandle):
         internals.blpapi_ServiceRegistrationOptions_setPartsToRegister(
                 self.__handle, parts)
 
-    def getPartsToRegister(self):
+    def getPartsToRegister(self) -> int:
         """
         Returns:
-            int: The parts of the service to be registered.
+            The parts of the service to be registered.
 
         Registration parts are enumerated in the class docstring.
         """
@@ -251,8 +253,8 @@ class ServiceRegistrationOptions(CHandle):
                 self.__handle)
 
 
-@with_metaclass(utils.MetaClassForClassesWithEnums)
-class ProviderSession(AbstractSession):
+class ProviderSession(AbstractSession,
+                      metaclass=utils.MetaClassForClassesWithEnums):
     """This class provides a session that can be used for providing services.
 
     It inherits from :class:`AbstractSession`. In addition to the
@@ -280,37 +282,39 @@ class ProviderSession(AbstractSession):
     """
 
     AUTO_REGISTER_SERVICES = \
-        internals.RESOLVEMODE_AUTO_REGISTER_SERVICES
+        internals.RESOLVEMODE_AUTO_REGISTER_SERVICES # type: ignore
 
     DONT_REGISTER_SERVICES = \
-        internals.RESOLVEMODE_DONT_REGISTER_SERVICES
+        internals.RESOLVEMODE_DONT_REGISTER_SERVICES # type: ignore
 
     __handle = None  # pylint: disable=unused-private-member
     __handlerProxy = None  # pylint: disable=unused-private-member
 
     @staticmethod
-    def __dispatchEvent(sessionRef, eventHandle): # pragma: no cover
+    def __dispatchEvent(
+            sessionRef: "ReferenceType[ProviderSession]",
+            eventHandle: BlpapiEventHandle) -> None: # pragma: no cover
         """Use sessions ref to dispatch an event"""
         try:
             session = sessionRef()
             if session is not None:
-                event = Event(eventHandle, session)
+                event = Event(eventHandle, {session})
                 session.__handler(event, session)
         except:
             print("Exception in event handler:", file=sys.stderr)
             traceback.print_exc(file=sys.stderr)
             os._exit(1)
 
-    def __init__(self, options=None, eventHandler=None, eventDispatcher=None):
+    def __init__(self,
+                 options: Optional[SessionOptions]=None,
+                 eventHandler: Optional[Callable]=None,
+                 eventDispatcher: Optional["typehints.EventDispatcher"]=None) -> None:
         """Constructor.
 
         Args:
-            options (SessionOptions): Options used to construct the sessions
-            eventHandler (~collections.abc.Callable): Handler for the events
-                generated by this session
-            eventDispatcher (EventDispatcher): Dispatcher for the events
-                generated by this session
-
+            options: Options used to construct the sessions
+            eventHandler: Handler for the events generated by this session
+            eventDispatcher: Dispatcher for the events generated by this session
         Raises:
             InvalidArgumentException: If ``eventHandler`` is ``None`` and the
                 ``eventDispatcher`` is not ``None``
@@ -318,14 +322,13 @@ class ProviderSession(AbstractSession):
         Construct a Session using the optionally specified 'options', the
         optionally specified 'eventHandler' and the optionally specified
         'eventDispatcher'.
-
         See :class:`SessionOptions` for details on what can be specified in
         the ``options``.
+
 
         If ``eventHandler`` is not ``None`` then this Session will operate in
         asynchronous mode, otherwise the Session will operate in synchronous
         mode.
-
         If supplied, ``eventHandler`` is a callable object that takes two
         arguments: received event and related session.
 
@@ -356,7 +359,7 @@ class ProviderSession(AbstractSession):
         if eventHandler is not None:
             self.__handler = eventHandler # pylint: disable=unused-private-member
             self.__handlerProxy = functools.partial(
-                ProviderSession.__dispatchEvent, weakref.ref(self))
+                ProviderSession.__dispatchEvent, ref(self))
         self.__handle = internals.ProviderSession_createHelper(
             get_handle(options),
             self.__handlerProxy,
@@ -372,11 +375,11 @@ class ProviderSession(AbstractSession):
             internals.blpapi_ProviderSession_getAbstractSession(self.__handle),
             _dtor)
 
-    def start(self):
+    def start(self) -> bool:
         """Start this :class:`Session` in synchronous mode.
 
         Returns:
-            bool: ``True`` if the :class:`Session` started successfully,
+            ``True`` if the :class:`Session` started successfully,
             ``False`` otherwise.
 
         Attempt to start this :class:`Session` and block until the
@@ -386,11 +389,11 @@ class ProviderSession(AbstractSession):
         """
         return internals.blpapi_ProviderSession_start(self.__handle) == 0
 
-    def startAsync(self):
+    def startAsync(self) -> bool:
         """Start this :class:`Session` in asynchronous mode.
 
         Returns:
-            bool: ``True`` if the process to start a :class:`Session` began
+            ``True`` if the process to start a :class:`Session` began
             successfully, ``False`` otherwise.
 
         Attempt to begin the process to start this :class:`Session`. The
@@ -403,15 +406,15 @@ class ProviderSession(AbstractSession):
         """
         return internals.blpapi_ProviderSession_startAsync(self.__handle) == 0
 
-    def flushPublishedEvents(self, timeoutMsecs):
+    def flushPublishedEvents(self, timeoutMsecs: int) -> bool:
         """Wait at most ``timeoutMsecs`` milliseconds for all the published
         events to be sent through the underlying channel.
 
         Args:
-            timeoutMsecs (int): Timeout threshold in milliseconds
+            timeoutMsecs: Timeout threshold in milliseconds
 
         Returns:
-            bool: ``True`` if all the published events have been sent,
+            ``True`` if all the published events have been sent,
             ``False`` otherwise
 
         The method returns either as soon as all the published events have been
@@ -427,11 +430,11 @@ class ProviderSession(AbstractSession):
 
         return allFlushed != 0
 
-    def stop(self):
+    def stop(self) -> bool:
         """Stop operation of this :class:`Session` and wait until it stops.
 
         Returns:
-            bool: ``True`` if the :class:`Session` stopped successfully,
+            ``True`` if the :class:`Session` stopped successfully,
             ``False`` otherwise.
 
         Stop operation of this :class:`Session` and block until all callbacks
@@ -444,15 +447,14 @@ class ProviderSession(AbstractSession):
         deadlock. Once a :class:`Session` has been stopped it can only be
         destroyed.
         """
-        if sys.version_info >= (3, 6):
-            atexit.unregister(self.stop)
+        atexit.unregister(self.stop)
         return internals.blpapi_ProviderSession_stop(self.__handle) == 0
 
-    def stopAsync(self):
+    def stopAsync(self) -> bool:
         """Begin the process to stop this Session and return immediately.
 
         Returns:
-            bool: ``True`` if the process to stop a :class:`Session` began
+            ``True`` if the process to stop a :class:`Session` began
             successfully, ``False`` otherwise.
 
         The application must monitor events for a :attr:`~Event.SESSION_STATUS`
@@ -463,13 +465,13 @@ class ProviderSession(AbstractSession):
         """
         return internals.blpapi_ProviderSession_stopAsync(self.__handle) == 0
 
-    def nextEvent(self, timeout=0):
+    def nextEvent(self, timeout: int=0) -> Event:
         """
         Args:
-            timeout (int): Timeout threshold in milliseconds
+            timeout: Timeout threshold in milliseconds
 
         Returns:
-            Event: Next available event for this session
+            Next available event for this session
 
         Raises:
             InvalidStateException: If invoked on a session created in
@@ -490,12 +492,12 @@ class ProviderSession(AbstractSession):
 
         _ExceptionUtil.raiseOnError(retCode)
 
-        return Event(event, self)
+        return Event(event, {self})
 
-    def tryNextEvent(self):
+    def tryNextEvent(self) -> Optional[Event]:
         """
         Returns:
-            Event: Next available event for this session
+            Next available event for this session
 
         If there are :class:`Event`\ s available for the session, return the
         next :class:`Event` If there is no event available for the
@@ -505,21 +507,23 @@ class ProviderSession(AbstractSession):
             self.__handle)
         if retCode:
             return None
-        return Event(event, self)
+        return Event(event, {self})
 
-    def registerService(self, uri, identity=None, options=None):
+    def registerService(
+            self,
+            uri: str,
+            identity: Optional["typehints.Identity"]=None,
+            options: Optional[ServiceRegistrationOptions]=None) -> bool:
         """Attempt to register the service and block until it is done.
 
         Args:
-            uri (str): Name of the service
-            identity (Identity): Identity used to verify permissions to provide
+            uri: Name of the service
+            identity: Identity used to verify permissions to provide
                 the service being registered
-            options (ServiceRegistrationOptions): Options used to register the
-                service
+            options: Options used to register the service
 
         Returns:
-            bool: ``True`` if the service registered successfully, ``False``
-            otherwise
+            ``True`` if the service registered successfully, else ``False``
 
         Attempt to register the service identified by the specified ``uri`` and
         block until the service is either registered successfully or has failed
@@ -550,22 +554,23 @@ class ProviderSession(AbstractSession):
             return True
         return False
 
-    def registerServiceAsync(self, uri, identity=None, correlationId=None,
-                             options=None):
+    def registerServiceAsync(
+            self,
+            uri: str,
+            identity: Optional["typehints.Identity"]=None,
+            correlationId: Optional[CorrelationId]=None,
+            options: Optional[ServiceRegistrationOptions]=None) -> CorrelationId:
         """Begin the process of registering the service immediately.
 
         Args:
-            uri (str): Name of the service
-            identity (Identity): Identity used to verify permissions to provide
+            uri: Name of the service
+            identity: Identity used to verify permissions to provide
                 the service being registered
-            correlationId (CorrelationId): Correlation id to associate with
-                this operation
-            options (ServiceRegistrationOptions): Options used to register the
-                service
+            correlationId: Correlation id to associate with this operation
+            options: Options used to register the service
 
         Returns:
-            CorrelationId: Correlation id associated with events generated by
-            this operation
+            Correlation id associated with events generated by this operation
 
         Begin the process of registering the service identified by the
         specified ``uri`` and return immediately. The optionally specified
@@ -598,20 +603,22 @@ class ProviderSession(AbstractSession):
                 self.__handle,
                 uri,
                 get_handle(identity),
-                get_handle(correlationId),
+                correlationId,
                 get_handle(options)
             ))
 
         return correlationId
 
-    def resolve(self, resolutionList, resolveMode=DONT_REGISTER_SERVICES,
-                identity=None):
+    def resolve(self,
+                resolutionList: "typehints.ResolutionList",
+                resolveMode: int=DONT_REGISTER_SERVICES,
+                identity: Optional["typehints.Identity"]=None) -> None:
         """Resolve the topics in the specified ``resolutionList``.
 
         Args:
-            resolutionList (ResolutionList): List of topics to resolve
-            resolveMode (int): Mode to resolve in
-            identity (Identity): Identity used for authorization
+            resolutionList: List of topics to resolve
+            resolveMode: Mode to resolve in
+            identity: Identity used for authorization
 
         Resolve the topics in the specified ``resolutionList``, which must be
         an object of type :class:`ResolutionList`, and update the
@@ -646,14 +653,16 @@ class ProviderSession(AbstractSession):
                 resolveMode,
                 get_handle(identity)))
 
-    def resolveAsync(self, resolutionList, resolveMode=DONT_REGISTER_SERVICES,
-                     identity=None):
+    def resolveAsync(self,
+                     resolutionList: "typehints.ResolutionList",
+                     resolveMode: int=DONT_REGISTER_SERVICES,
+                     identity: Optional["typehints.Identity"]=None) -> None:
         """Begin the resolution of the topics in the specified list.
 
         Args:
-            resolutionList (ResolutionList): List of topics to resolve
-            resolveMode (int): Mode to resolve in
-            identity (Identity): Identity used for authorization
+            resolutionList: List of topics to resolve
+            resolveMode: Mode to resolve in
+            identity: Identity used for authorization
 
         Begin the resolution of the topics in the specified ``resolutionList``,
         which must be an object of type :class:`ResolutionList`. If the
@@ -684,14 +693,14 @@ class ProviderSession(AbstractSession):
                 resolveMode,
                 get_handle(identity)))
 
-    def getTopic(self, message):
+    def getTopic(self, message: "typehints.Message") -> Topic:
         """Find a previously created :class:`Topic` based on the ``message``.
 
         Args:
-            message (Message): Message to get the topic from
+            message: Message to get the topic from
 
         Returns:
-            Topic: The topic the message was published on
+            The topic the message was published on
 
         The ``message`` must be one of the following types: ``TopicCreated``,
         ``TopicActivated``, ``TopicDeactivated``, ``TopicSubscribed``,
@@ -699,49 +708,52 @@ class ProviderSession(AbstractSession):
         then invoking :meth:`~Topic.isValid()` on the returned :class:`Topic`
         will return ``False``.
         """
-        errorCode, topic = internals.blpapi_ProviderSession_getTopic(
+        errorCode, topicHandle = internals.blpapi_ProviderSession_getTopic(
             self.__handle,
             get_handle(message))
         _ExceptionUtil.raiseOnError(errorCode)
-        return Topic(topic, sessions=(self,))
+        return Topic(topicHandle, {self})
 
-    def createServiceStatusTopic(self, service):
+    def createServiceStatusTopic(self,
+                                 service: "typehints.Service") -> Topic:
         """Create a :class:`Service` Status :class:`Topic` which is to be used
         to provide service status.
 
         Args:
-            service (Service): Service for which to create the topic
+            service: Service for which to create the topic
 
         Returns:
-            Topic: A service status topic
+            A service status topic
 
         On success invoking :meth:`~Topic.isValid()` on the returned
         :class:`Topic` will return ``False``.
         """
-        errorCode, topic = \
+        errorCode, topicHandle = \
             internals.blpapi_ProviderSession_createServiceStatusTopic(
                 self.__handle,
                 get_handle(service))
         _ExceptionUtil.raiseOnError(errorCode)
-        return Topic(topic)
+        return Topic(topicHandle, {self})
 
-    def publish(self, event):
+    def publish(self, event: Event) -> None:
         """Publish the specified ``event``.
 
         Args:
-            event (Event): Event to publish
+            event: Event to publish
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_publish(
                 self.__handle,
                 get_handle(event)))
 
-    def sendResponse(self, event, isPartialResponse=False):
+    def sendResponse(self,
+                     event: Event,
+                     isPartialResponse: bool=False) -> None:
         """Send the response event for previously received request.
 
         Args:
-            event (Event): Response event to send
-            isPartialResponse (bool): Whether the response is partial or not
+            event: Response event to send
+            isPartialResponse: Whether the response is partial or not
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_sendResponse(
@@ -749,15 +761,16 @@ class ProviderSession(AbstractSession):
                 get_handle(event),
                 isPartialResponse))
 
-    def createTopics(self, topicList,
-                     resolveMode=DONT_REGISTER_SERVICES,
-                     identity=None):
+    def createTopics(self,
+                     topicList: "typehints.TopicList",
+                     resolveMode: int=DONT_REGISTER_SERVICES,
+                     identity: Optional["typehints.Identity"]=None) -> None:
         """Create the topics in the specified ``topicList``.
 
         Args:
-            topicList (TopicList): List of topics to create
-            resolveMode (int): Mode to use for topic resolution
-            identity (Identity): Identity to use for authorization
+            topicList: List of topics to create
+            resolveMode: Mode to use for topic resolution
+            identity: Identity to use for authorization
 
         Create the topics in the specified ``topicList``, which must be an object
         of type :class:`TopicList`, and update ``topicList`` with the results of the
@@ -784,15 +797,16 @@ class ProviderSession(AbstractSession):
                 resolveMode,
                 get_handle(identity)))
 
-    def createTopicsAsync(self, topicList,
-                          resolveMode=DONT_REGISTER_SERVICES,
-                          identity=None):
+    def createTopicsAsync(self,
+                         topicList: "typehints.TopicList",
+                         resolveMode: int=DONT_REGISTER_SERVICES,
+                         identity: Optional["typehints.Identity"]=None) -> None:
         """Create the topics in the specified ``topicList``.
 
         Args:
-            topicList (TopicList): List of topics to create
-            resolveMode (int): Mode to use for topic resolution
-            identity (Identity): Identity to use for authorization
+            topicList: List of topics to create
+            resolveMode: Mode to use for topic resolution
+            identity: Identity to use for authorization
 
         Create the topics in the specified ``topicList``, which must be an object
         of type :class:`TopicList`, and update ``topicList`` with the results of the
@@ -819,13 +833,17 @@ class ProviderSession(AbstractSession):
                 resolveMode,
                 get_handle(identity)))
 
-    def activateSubServiceCodeRange(self, serviceName, begin, end, priority):
+    def activateSubServiceCodeRange(self,
+                                    serviceName: str,
+                                    begin: int,
+                                    end: int,
+                                    priority: int) -> None:
         """
         Args:
-            serviceName (str): Name of the service
-            begin (int): Start of sub-service code range
-            end (int): End of sub-service code range
-            priority (int): Priority with which to receive subscriptions
+            serviceName: Name of the service
+            begin: Start of sub-service code range
+            end: End of sub-service code range
+            priority: Priority with which to receive subscriptions
 
         Register to receive, with the specified ``priority``, subscriptions for
         the specified ``service`` that the resolver has mapped to a service
@@ -842,12 +860,15 @@ class ProviderSession(AbstractSession):
                 self.__handle, serviceName, begin, end, priority)
         _ExceptionUtil.raiseOnError(err)
 
-    def deactivateSubServiceCodeRange(self, serviceName, begin, end):
+    def deactivateSubServiceCodeRange(self,
+                                      serviceName: str,
+                                      begin: int,
+                                      end: int) -> None:
         """
         Args:
-            serviceName (str): Name of the service
-            begin (int): Start of sub-service code range
-            end (int): End of sub-service code range
+            serviceName: Name of the service
+            begin: Start of sub-service code range
+            end: End of sub-service code range
 
         De-register to receive subscriptions for the specified ``service``
         that the resolver has mapped to a service code between the specified
@@ -862,14 +883,14 @@ class ProviderSession(AbstractSession):
                 self.__handle, serviceName, begin, end)
         _ExceptionUtil.raiseOnError(err)
 
-    def deregisterService(self, serviceName):
+    def deregisterService(self, serviceName: str) -> bool:
         """De-register the service, including all registered parts.
 
         Args:
-            serviceName (str): Service to de-register
+            serviceName: Service to de-register
 
         Returns:
-            bool: ``False`` if the service is not registered nor in pending
+            ``False`` if the service is not registered nor in pending
             registration, ``True`` otherwise.
 
         The identity in the service registration is reused to verify
@@ -889,13 +910,16 @@ class ProviderSession(AbstractSession):
                 self.__handle, serviceName)
         return res == 0
 
-    def terminateSubscriptionsOnTopic(self, topic, message=None):
+    def terminateSubscriptionsOnTopic(
+            self,
+            topic: Topic,
+            message: Optional["typehints.Message"]=None) -> None:
         """Delete the specified ``topic`` (See :meth:`deleteTopic()` for
         additional details).
 
         Args:
-            topic (Topic): Topic to delete
-            message (Message): Message to convey additional information to
+            topic: Topic to delete
+            message: Message to convey additional information to
                 subscribers regarding the termination
 
         Furthermore, proactively terminate all current subscriptions on
@@ -910,12 +934,15 @@ class ProviderSession(AbstractSession):
                 internals.ProviderSession_terminateSubscriptionsOnTopic(
                                     self.__handle, get_handle(topic), message))
 
-    def terminateSubscriptionsOnTopics(self, topics, message=None):
+    def terminateSubscriptionsOnTopics(
+            self,
+            topics: Sequence[Topic],
+            message: Optional["typehints.Message"]=None) -> None:
         """Terminate subscriptions on the specified ``topics``.
 
         Args:
-            topics ([Topic]): Topics to delete
-            message (Message): Message to convey additional information to
+            topics: Topics to delete
+            message: Message to convey additional information to
                 subscribers regarding the termination
 
         See :meth:`terminateSubscriptionsOnTopic()` for additional details.
@@ -938,11 +965,11 @@ class ProviderSession(AbstractSession):
         finally:
             internals.delete_topicPtrArray(topicsCArray)
 
-    def deleteTopic(self, topic):
+    def deleteTopic(self, topic: Topic) -> None:
         """Remove one reference from the specified 'topic'.
 
         Args:
-            topic (Topic): Topic to remove the reference from
+            topic: Topic to remove the reference from
 
         If this function has been called the same number of times that
         ``topic`` was created by ``createTopics``, then ``topic`` is deleted: a
@@ -958,11 +985,11 @@ class ProviderSession(AbstractSession):
         """
         self.deleteTopics((topic,))
 
-    def deleteTopics(self, topics):
+    def deleteTopics(self, topics: Sequence[Topic]) -> None:
         """Delete each topic in the specified ``topics`` container.
 
         Args:
-            deleteTopics([Topic]): Topics to delete
+            deleteTopics: Topics to delete
 
         See :meth:`deleteTopic()` above for additional details."""
         if not topics:

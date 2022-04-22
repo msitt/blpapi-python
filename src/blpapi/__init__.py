@@ -50,7 +50,7 @@ from .requesttemplate import RequestTemplate
 from .resolutionlist import ResolutionList
 from .schema import SchemaElementDefinition, SchemaStatus, SchemaTypeDefinition
 from .service import Service, Operation
-from .session import Session
+from .session import Session, SubscriptionPreprocessError, SubscriptionPreprocessMode
 from .sessionoptions import SessionOptions, TlsOptions
 from .subscriptionlist import SubscriptionList
 from .topic import Topic

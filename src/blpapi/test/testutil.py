@@ -6,9 +6,8 @@ create events/messages for unit-testing their applications.
 
 from blpapi import internals
 from blpapi import Event, Name, SchemaElementDefinition, Service, Topic
-from blpapi.compat import conv2str, isstr
 from blpapi.exception import _ExceptionUtil
-from blpapi.utils import get_handle
+from blpapi.utils import conv2str, get_handle, isstr
 from blpapi.test import MessageProperties, MessageFormatter
 
 

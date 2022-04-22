@@ -4,6 +4,7 @@
 
 This component implements a list of topics which require topic creation.
 """
+from typing import Optional, Set, Union
 
 from .exception import _ExceptionUtil
 from .message import Message
@@ -12,13 +13,12 @@ from . import internals
 from . import utils
 from .utils import get_handle
 from .internals import CorrelationId
-from .compat import with_metaclass
 from .chandle import CHandle
+from . import typehints # pylint: disable=unused-import
+
 
 # pylint: disable=protected-access
-
-@with_metaclass(utils.MetaClassForClassesWithEnums)
-class TopicList(CHandle):
+class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     """A list of topics which require creation.
 
     Contains a list of topics which require creation.
@@ -31,16 +31,16 @@ class TopicList(CHandle):
     :meth:`~ProviderSession.createTopics()` call.
     """
 
-    NOT_CREATED = internals.TOPICLIST_NOT_CREATED
-    CREATED = internals.TOPICLIST_CREATED
-    FAILURE = internals.TOPICLIST_FAILURE
+    NOT_CREATED = internals.TOPICLIST_NOT_CREATED # type: ignore
+    CREATED = internals.TOPICLIST_CREATED # type: ignore
+    FAILURE = internals.TOPICLIST_FAILURE # type: ignore
 
-    def __init__(self, original=None):
+    def __init__(self, original: Optional[ResolutionList] = None) -> None:
         """Create an empty :class:`TopicList`, or a :class:`TopicList` based on
         ``original`` :class:`ResolutionList`.
 
         Args:
-            ``original`` (:class:`ResolutionList`): Original resolution list to use.
+            ``original``: Original resolution list to use.
 
         Raises:
             TypeError: If ``original`` is not an instance of
@@ -67,18 +67,20 @@ class TopicList(CHandle):
             selfhandle, internals.blpapi_TopicList_destroy)
         self.__handle = selfhandle
 
-    def add(self, topicOrMessage, correlationId=None):
+    def add(self,
+            topicOrMessage: Union[str, Message],
+            correlationId: Optional[CorrelationId] = None) -> int:
         """Add the specified topic or topic from message to this
         :class:`TopicList`.
 
         Args:
-            topicOrMessage (str or Message): Topic string or message to create
+            topicOrMessage: Topic string or message to create
                 a topic from
-            correlationId (CorrelationId): CorrelationId to associate with the
+            correlationId: CorrelationId to associate with the
                 topic
 
         Returns:
-            int: ``0`` on success or negative number on failure.
+            ``0`` on success or negative number on failure.
 
         Raises:
             TypeError: If ``correlationId`` is not an instance of
@@ -103,19 +105,19 @@ class TopicList(CHandle):
             return internals.blpapi_TopicList_addFromMessage(
                 self.__handle,
                 get_handle(topicOrMessage),
-                get_handle(correlationId))
+                correlationId)
         return internals.blpapi_TopicList_add(
             self.__handle,
             topicOrMessage,
-            get_handle(correlationId))
+            correlationId)
 
-    def correlationIdAt(self, index):
+    def correlationIdAt(self, index: int) -> CorrelationId:
         """
         Args:
-            index (int): Index of the entry in the list
+            index: Index of the entry in the list
 
         Returns:
-            CorrelationId: Correlation id of the ``index``\ th entry.
+            Correlation id of the ``index``\ th entry.
 
         Raises:
             Exception: If ``index >= size()``.
@@ -126,14 +128,14 @@ class TopicList(CHandle):
         _ExceptionUtil.raiseOnError(errorCode)
         return cid
 
-    def topicString(self, correlationId):
+    def topicString(self, correlationId: CorrelationId) -> str:
         """
         Args:
-            correlationId (CorrelationId): Correlation id associated with the
+            correlationId: Correlation id associated with the
                 topic.
 
         Returns:
-            str: Topic of the entry identified by 'correlationId'.
+            Topic of the entry identified by 'correlationId'.
 
         Raises:
             Exception: If the ``correlationId`` does not identify an entry in
@@ -141,18 +143,17 @@ class TopicList(CHandle):
         """
         errorCode, topic = internals.blpapi_TopicList_topicString(
             self.__handle,
-            get_handle(correlationId))
+            correlationId)
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
-    def topicStringAt(self, index):
+    def topicStringAt(self, index: int) -> str:
         """
         Args:
-            index (int): Index of the entry
+            index: Index of the entry
 
         Returns:
-            str: The full topic string of the ``index``\ th entry in this
-            list.
+            The full topic string of the ``index``\ th entry in this list.
 
         Raises:
             Exception: If ``index >= size()``.
@@ -163,14 +164,14 @@ class TopicList(CHandle):
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
-    def status(self, correlationId):
+    def status(self, correlationId: CorrelationId) -> int:
         """
         Args:
-            correlationId (CorrelationId): Correlation id associated with the
+            correlationId: Correlation id associated with the
                 entry
 
         Returns:
-            int: Status of the entry in this list identified by the
+            Status of the entry in this list identified by the
             specified ``correlationId``. This may be :attr:`NOT_CREATED`,
             :attr:`CREATED` and :attr:`FAILURE`.
 
@@ -180,17 +181,17 @@ class TopicList(CHandle):
         """
         errorCode, status = internals.blpapi_TopicList_status(
             self.__handle,
-            get_handle(correlationId))
+            correlationId)
         _ExceptionUtil.raiseOnError(errorCode)
         return status
 
-    def statusAt(self, index):
+    def statusAt(self, index: int) -> int:
         """
         Args:
-            index (int): Index of the entry
+            index: Index of the entry
 
         Returns:
-            int: Status of the ``index``\ th entry in this list. This may be
+            Status of the ``index``\ th entry in this list. This may be
             :attr:`NOT_CREATED`, :attr:`CREATED` and :attr:`FAILURE`.
 
         Raises:
@@ -202,14 +203,14 @@ class TopicList(CHandle):
         _ExceptionUtil.raiseOnError(errorCode)
         return status
 
-    def message(self, correlationId):
+    def message(self, correlationId: CorrelationId) -> Message:
         """
         Args:
-            correlationId (CorrelationId): Correlation id associated with the
+            correlationId: Correlation id associated with the
                 message
 
         Returns:
-            Message: Message received during creation of the topic identified
+            Message received during creation of the topic identified
             by the specified ``correlationId``.
 
         Raises:
@@ -222,17 +223,17 @@ class TopicList(CHandle):
         """
         errorCode, message = internals.blpapi_TopicList_message(
             self.__handle,
-            get_handle(correlationId))
+            correlationId)
         _ExceptionUtil.raiseOnError(errorCode)
-        return Message(message, sessions=self.__sessions)
+        return Message(message, sessions=self._sessions())
 
-    def messageAt(self, index):
+    def messageAt(self, index: int) -> Message:
         """
         Args:
-            index (int): Index of the entry
+            index: Index of the entry
 
         Returns:
-            Message: Message received during creation of the entry at
+            Message received during creation of the entry at
                 ``index``.
 
         Raises:
@@ -246,19 +247,19 @@ class TopicList(CHandle):
             self.__handle,
             index)
         _ExceptionUtil.raiseOnError(errorCode)
-        return Message(message, sessions=self.__sessions)
+        return Message(message, sessions=self._sessions())
 
-    def size(self):
+    def size(self) -> int:
         """Return the number of entries in this :class:`TopicList`."""
         return internals.blpapi_TopicList_size(self.__handle)
 
-    def _sessions(self):
+    def _sessions(self) -> Set["typehints.AbstractSession"]:
         """Return session(s) that this 'TopicList' is related to.
 
         For internal use."""
         return self.__sessions
 
-    def _addSession(self, session):
+    def _addSession(self, session: "typehints.AbstractSession") -> None:
         """Add a new session to this 'TopicList'.
 
         For internal use."""

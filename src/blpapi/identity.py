@@ -5,17 +5,18 @@
 This component provides an identification of a user and implements the access
 to the entitlements.
 """
-
+from typing import List, Sequence, Tuple, Union
+from .typehints import BlpapiIdentityHandle
 from .element import Element
 from .exception import _ExceptionUtil
 from . import internals
 from . import utils
+from . import typehints # pylint: disable=unused-import
 from .utils import get_handle
-from .compat import with_metaclass
 from .chandle import CHandle
 
-@with_metaclass(utils.MetaClassForClassesWithEnums)
-class Identity(CHandle):
+
+class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     """Provides access to the entitlements for a specific user.
 
     An unauthorized Identity is created using
@@ -34,14 +35,16 @@ class Identity(CHandle):
     The class attributes represent the various seat types.
     """
 
-    INVALID_SEAT = internals.SEATTYPE_INVALID_SEAT
+    INVALID_SEAT = internals.SEATTYPE_INVALID_SEAT # type: ignore
     """Unknown seat type"""
-    BPS = internals.SEATTYPE_BPS
+    BPS = internals.SEATTYPE_BPS # type: ignore
     """Bloomberg Professional Service"""
-    NONBPS = internals.SEATTYPE_NONBPS
+    NONBPS = internals.SEATTYPE_NONBPS # type: ignore
     """Non-BPS"""
 
-    def __init__(self, handle, sessions):
+    def __init__(self,
+                 handle: BlpapiIdentityHandle,
+                 sessions: Sequence["typehints.AbstractSession"]):
         """Create an :class:`Identity` associated with the ``sessions``
 
         Args:
@@ -51,18 +54,21 @@ class Identity(CHandle):
         super(Identity, self).__init__(
             handle, internals.blpapi_Identity_release)
         self.__handle = handle  # pylint: disable=unused-private-member
-        self.__sessions = sessions # pylint: disable=unused-private-member
+        self.__sessions = sessions  # pylint: disable=unused-private-member
 
         internals.blpapi_Identity_addRef(self.__handle)
 
-    def hasEntitlements(self, service, entitlements):
+    def hasEntitlements(self,
+                        service: "typehints.Service",
+                        entitlements: Union[Sequence[int], "typehints.Element"]
+                        ) -> bool:
         """
         Args:
-            service (Service): Service to check authorization for
-            entitlements ([int] or Element): EIDs to check authorization for
+            service: Service to check authorization for
+            entitlements: EIDs to check authorization for
 
         Returns:
-            bool: ``True`` if this :class:`Identity` is authorized for the
+            ``True`` if this :class:`Identity` is authorized for the
             specified ``service`` and for each of the entitlement IDs contained
             in the specified ``entitlements``.
 
@@ -94,14 +100,18 @@ class Identity(CHandle):
                 None)
         return True if res else False
 
-    def getFailedEntitlements(self, service, entitlements):
+    def getFailedEntitlements(self,
+                              service: "typehints.Service",
+                              entitlements: Union[Sequence[int],
+                                                  "typehints.Element"]
+                              ) -> Tuple[bool, List[int]]:
         """
         Args:
-            service (Service): Service to check authorization for
-            entitlements ([int] or Element): EIDs to check authorization for
+            service: Service to check authorization for
+            entitlements: EIDs to check authorization for
 
         Returns:
-            (bool, [int]): Tuple where the boolean is True if this
+            Tuple where the boolean is True if this
             :class:`Identity` is authorized for the specified ``service`` and
             all of the specified ``entitlements``, and the list is a subset of
             ``entitlements`` for which this :class:`Identity` is not
@@ -147,13 +157,13 @@ class Identity(CHandle):
             result.append(failedEIDs[i])
         return (True if res else False, result)
 
-    def isAuthorized(self, service):
+    def isAuthorized(self, service: "typehints.Service") -> bool:
         """
         Args:
-            service (Service): Service to check authorization for
+            service: Service to check authorization for
 
         Returns:
-            bool: ``True`` if this :class:`Identity` is authorized for the
+            ``True`` if this :class:`Identity` is authorized for the
             specified ``service``, ``False`` otherwise.
         """
         res = internals.blpapi_Identity_isAuthorized(
@@ -161,10 +171,10 @@ class Identity(CHandle):
             get_handle(service))
         return True if res else False
 
-    def getSeatType(self):
+    def getSeatType(self) -> int:
         """
         Returns:
-            int: Seat type of this identity.
+            Seat type of this identity.
 
         The class attributes of :class:`Identity` represent the seat types.
         """
@@ -172,8 +182,6 @@ class Identity(CHandle):
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
 
-    # Protect enumeration constant(s) defined in this class and in classes
-    # derived from this class from changes:
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

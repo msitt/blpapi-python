@@ -13,9 +13,14 @@ from .name import Name, getNamePair
 from . import internals
 from .utils import get_handle, invoke_if_valid, isNonScalarSequence
 from .chandle import CHandle
-from .compat import Mapping
+from . import typehints  # pylint: disable=unused-import
+from .typehints import BlpapiNameOrStr
 
 from collections import deque
+from collections.abc import Mapping
+from typing import Any, Callable, Optional, Deque, Tuple
+from typing import Mapping as MappingType
+
 
 class EventFormatter(CHandle):
     """:class:`EventFormatter` is used to populate :class:`Event`\ s for
@@ -82,7 +87,7 @@ class EventFormatter(CHandle):
 
     #pylint: disable=too-many-return-statements
     @staticmethod
-    def __getTraits(value):
+    def __getTraits(value: Any) -> Tuple[Callable, Callable, Optional[Callable]]:
         """Returns traits for value based on its type"""
         if isinstance(value, str):
             return EventFormatter.__stringTraits
@@ -94,7 +99,7 @@ class EventFormatter(CHandle):
             if -(2 ** 63) <= value <= (2 ** 63 - 1):
                 return EventFormatter.__int64Traits
             raise InvalidConversionException(
-                "Value is out of supported range (INT64): {}".format(value), 0)
+                f"Value is out of supported range (INT64): {value}", 0)
         if isinstance(value, float):
             return EventFormatter.__floatTraits
         if _DatetimeUtil.isDatetime(value):
@@ -103,12 +108,12 @@ class EventFormatter(CHandle):
             return EventFormatter.__nameTraits
         return EventFormatter.__defaultTraits
 
-    def __init__(self, event):
+    def __init__(self, event: "typehints.Event") -> None:
         """Create an :class:`EventFormatter` to create :class:`Message`\ s in
         the specified ``event``.
 
         Args:
-            event (Event): Event to be formatted
+            event: Event to be formatted
 
         An :class:`Event` may only be referenced by one :class:`EventFormatter`
         at any time.  Attempting to create a second :class:`EventFormatter`
@@ -120,16 +125,19 @@ class EventFormatter(CHandle):
             selfhandle,
             internals.blpapi_EventFormatter_destroy)
         self.__handle = selfhandle
-        self.latestMessageName = None
+        self.latestMessageName: Optional[BlpapiNameOrStr] = None
 
-    def appendMessage(self, messageType, topic, sequenceNumber=None):
+    def appendMessage(self,
+                      messageType: BlpapiNameOrStr,
+                      topic: "typehints.Topic",
+                      sequenceNumber: Optional[int]=None) -> None:
         """Append an (empty) message to the :class:`Event` referenced by this
         :class:`EventFormatter`
 
         Args:
-            messageType (Name or str): Type of the message
-            topic (Topic): Topic to publish the message under
-            sequenceNumber (int): Sequence number of the message
+            messageType: Type of the message
+            topic: Topic to publish the message under
+            sequenceNumber: Sequence number of the message
 
         After a message has been appended its elements can be set using the
         various :meth:`setElement()` methods.
@@ -161,13 +169,12 @@ class EventFormatter(CHandle):
 
         self.latestMessageName = messageType
 
-    def appendResponse(self, operationName):
+    def appendResponse(self, operationName: BlpapiNameOrStr) -> None:
         """Append an (empty) response message for the specified
         ``operationName``.
 
         Args:
-            operationName (Name or str): Name of the operation whose response
-                type to use
+            operationName: Name of the operation whose response type to use
 
         Append an (empty) response message for the specified ``operationName``
         (e.g. ``ReferenceDataRequest``) that will be sent in response to the
@@ -192,18 +199,21 @@ class EventFormatter(CHandle):
 
         self.latestMessageName = "<Response>"
 
-    def appendRecapMessage(self, topic, correlationId=None,
-                           sequenceNumber=None,
-                           fragmentType=Message.FRAGMENT_NONE):
+    def appendRecapMessage(
+            self,
+            topic: "typehints.Topic",
+            correlationId: Optional["typehints.CorrelationId"]=None,
+            sequenceNumber: Optional[int]=None,
+            fragmentType: int=Message.FRAGMENT_NONE) -> None:
         """Append a (empty) recap message to the :class:`Event` referenced by
         this :class:`EventFormatter`.
 
         Args:
-            topic (Topic): Topic to publish under
-            correlationId (CorrelationId): Specify if recap message
+            topic: Topic to publish under
+            correlationId: Specify if recap message
                 added in response to a ``TOPIC_RECAP`` message
-            sequenceNumber (int): Sequence number of the message
-            fragmentType (int): Type of the message fragment
+            sequenceNumber: Sequence number of the message
+            fragmentType: Type of the message fragment
 
         Specify the optional ``correlationId`` if this recap message is added
         in response to a ``TOPIC_RECAP`` message.
@@ -223,8 +233,8 @@ class EventFormatter(CHandle):
             previous message on this ``topic``, otherwise the behavior is
             undefined.
         """
-        # pylint: disable=line-too-long
-        cIdHandle = None if correlationId is None else get_handle(correlationId)
+
+        cIdHandle = correlationId
 
         if sequenceNumber is None:
             if fragmentType == Message.FRAGMENT_NONE:
@@ -263,12 +273,12 @@ class EventFormatter(CHandle):
 
         self.latestMessageName = "<Recap>"
 
-    def setElement(self, name, value):
+    def setElement(self, name: BlpapiNameOrStr, value: Any) -> None:
         """Set an element in the :class:`Event` referenced by this
         :class:`EventFormatter`.
 
         Args:
-            name (Name or str): Name of the element to set
+            name: Name of the element to set
             value (bool or str or int or float or ~datetime.datetime or Name):
                 Value to set the element to
 
@@ -283,34 +293,36 @@ class EventFormatter(CHandle):
             :meth:`setElementNull` instead.
         """
         traits = EventFormatter.__getTraits(value)
-        name = getNamePair(name)
+        namepair = getNamePair(name)
         value = invoke_if_valid(traits[2], value)
         _ExceptionUtil.raiseOnError(
-            traits[0](self.__handle, name[0], name[1], value))
+            traits[0](self.__handle,
+                      namepair[0], namepair[1],
+                      value))
 
-    def setElementNull(self, name):
+    def setElementNull(self, name: BlpapiNameOrStr) -> None:
         """Create a null element with the specified ``name``.
 
         Args:
-            name (Name or str): Name of the element
+            name: Name of the element
 
         Note:
             Whether or not fields containing null values are published to
             subscribers depends on the details of the service and schema
             configuration.
         """
-        name = getNamePair(name)
+        namepair = getNamePair(name)
         _ExceptionUtil.raiseOnError(
             internals.blpapi_EventFormatter_setValueNull(
                 self.__handle,
-                name[0],
-                name[1]))
+                namepair[0],
+                namepair[1]))
 
-    def pushElement(self, name):
+    def pushElement(self, name: BlpapiNameOrStr) -> None:
         """Change the level at which this :class:`EventFormatter` is operating.
 
         Args:
-            name (Name or str): Name of the element that is used to determine
+            name: Name of the element that is used to determine
                                 the level
 
         After this returns the context of the :class:`EventFormatter` is set to
@@ -336,14 +348,14 @@ class EventFormatter(CHandle):
             an array at the current level of the schema or the behavior is
             undefined.
         """
-        name = getNamePair(name)
+        namepair = getNamePair(name)
         _ExceptionUtil.raiseOnError(
             internals.blpapi_EventFormatter_pushElement(
                 self.__handle,
-                name[0],
-                name[1]))
+                namepair[0],
+                namepair[1]))
 
-    def popElement(self):
+    def popElement(self) -> None:
         """Undo the most recent call to :meth:`pushElement` or
         :meth:`appendElement` on this :class:`EventFormatter` and return the
         context of the :class:`EventFormatter` to where it was before the call
@@ -354,7 +366,7 @@ class EventFormatter(CHandle):
         _ExceptionUtil.raiseOnError(
             internals.blpapi_EventFormatter_popElement(self.__handle))
 
-    def appendValue(self, value):
+    def appendValue(self, value: Any) -> None:
         """
         Args:
             value (bool or str or int or float or ~datetime.datetime or Name):
@@ -364,11 +376,11 @@ class EventFormatter(CHandle):
         value = invoke_if_valid(traits[2], value)
         _ExceptionUtil.raiseOnError(traits[1](self.__handle, value))
 
-    def appendElement(self):
+    def appendElement(self) -> None:
         _ExceptionUtil.raiseOnError(
             internals.blpapi_EventFormatter_appendElement(self.__handle))
 
-    def fromPy(self, value):
+    def fromPy(self, value: MappingType[BlpapiNameOrStr, Any]) -> None:
         """
         Format this :class:`EventFormatter`\ 's underlying :class:`Event` using
         ``value``.
@@ -497,24 +509,27 @@ class EventFormatter(CHandle):
             raise Exception("`value` must be a `Mapping` instance")
         self._fromPyHelper(value)
 
-    def _fromPyHelper(self, value, name=None, path=None):
+    def _fromPyHelper(self,
+                      value: Any,
+                      name: Optional[BlpapiNameOrStr]=None,
+                      dpath: Optional[Deque[BlpapiNameOrStr]]=None) -> None:
         """
         Args:
             value (Mapping or Sequence or scalar-type): used to format the
                :class:`Element` at the current level
-            name (str or blpapi.Name or None): the :class:`blpapi.Name`
+            name: the :class:`blpapi.Name`
                 identifying the :class:`Element` to be formatted. If ``name``
                 is ``None``, format the :class:`Event` at the current level.
-            path (deque): represents the level at which this
+            dpath: represents the level at which this
                 :class:`Eventformatter` is operating
         """
-        if path is None:
-            path = deque()
+        path = deque() if dpath is None else dpath
+        namestr = "" if name is None else str(name)
 
-        def getPathErrorMessage():
+        def getPathErrorMessage() -> str:
             path.appendleft(str(self.latestMessageName))
-            pathStr = "/".join(path)
-            return "While operating on Element `{}`, ".format(pathStr)
+            pathStr = "/".join([str(p) for p in path])
+            return f"While operating on Element `{pathStr}`, "
 
         if isinstance(value, Mapping):
             for key, val in value.items():
@@ -527,7 +542,7 @@ class EventFormatter(CHandle):
                                             + _fromPyErrorTemplate.format(exc))
 
                         path.append(key)
-                        self._fromPyHelper(val, name=key, path=path)
+                        self._fromPyHelper(val, name=key, dpath=path)
                         self.popElement()
                         path.pop()
                     else:
@@ -537,28 +552,28 @@ class EventFormatter(CHandle):
                             raise Exception(getPathErrorMessage()
                                             + _fromPyErrorTemplate.format(exc))
                 else:
-                    self._fromPyHelper(val, name=key, path=path)
+                    self._fromPyHelper(val, name=key, dpath=path)
 
         elif isNonScalarSequence(value):
             try:
-                self.pushElement(name)
+                self.pushElement(namestr)
             except Exception as exc:
                 raise Exception(getPathErrorMessage()
                                 + _fromPyErrorTemplate.format(exc))
 
             for index, val in enumerate(value):
-                path.append("{}[{}]".format(name, index))
+                path.append(f"{namestr}[{index}]")
 
                 if isinstance(val, Mapping):
                     try:
                         self.appendElement()
                     except Exception as exc:
-                        errorMsg = "encountered a `Mapping` where a scalar" \
-                                   " value was expected. Error: {}".format(exc)
+                        errorMsg = "encountered a `Mapping` where a scalar " \
+                                   f"value was expected. Error: {exc}"
                         raise Exception(getPathErrorMessage()
                                         + errorMsg)
 
-                    self._fromPyHelper(val, path=path)
+                    self._fromPyHelper(val, dpath=path)
                     self.popElement()
                 elif isNonScalarSequence(val):
                     errorMsg = "encountered nested `Sequences`s. An array of" \
@@ -580,18 +595,18 @@ class EventFormatter(CHandle):
         else:
             try:
                 if value is None:
-                    self.setElementNull(name)
+                    self.setElementNull(namestr)
                 else:
-                    self.setElement(name, value)
+                    self.setElement(namestr, value)
             except IndexOutOfRangeException:
-                path.append(name)
+                path.append(namestr)
                 errorMsg = "attempted to format an array Element using a" \
                            " scalar value. Array Elements are formatted with" \
                            " `Sequence`s."
                 raise Exception(getPathErrorMessage() + errorMsg)
             except (InvalidConversionException, InvalidArgumentException) \
                     as exc:
-                path.append(name)
+                path.append(namestr)
                 raise Exception(getPathErrorMessage()
                                 + _fromPyErrorTemplate.format(exc))
             except Exception as exc:

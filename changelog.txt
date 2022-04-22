@@ -1,3 +1,20 @@
+Version 3.18.0:
+===============
+- Improved 'Session.subcribe' and 'Session.resubscribe' interface
+	The current 'Session.subscribe' and 'Session.resubscribe' raise an
+	exception when one of the subscriptions is invalid, e.g., subscribe
+	with a duplicate 'CorrelationId'. A new set of overloads are added
+	with parameter 'SubscriptionPreprocessMode', which could be
+	- 'FAIL_ON_FIRST_ERROR': an exception is raised on the first
+	  invalid subscription in the list, and the entire batch will be
+	  considered failed.
+	- 'RETURN_INDIVIDUAL_ERRORS': instead of raising exceptions, a
+	  list of 'SubscriptionPreprocessError' is returned, each
+	  representing an error due to an invalid subscription in the list.
+	  The valid subscriptions will move forward.
+
+- Stability and performance improvements
+
 Version 3.17.1:
 ===============
 - Stability and performance improvements

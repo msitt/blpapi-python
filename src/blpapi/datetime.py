@@ -2,20 +2,17 @@
 
 """Utilities that deal with blpapi.Datetime data type"""
 
-from __future__ import absolute_import
-from __future__ import division
-
 import datetime as _dt
+from typing import Any, Optional
 
+from .typehints import AnyPythonDatetime, BlpapiDatetime
 from . import internals
 from . import utils
-from .compat import with_metaclass, tolong
+from . import typehints # pylint: disable=unused-import
 
 
-# pylint: disable=no-member,useless-object-inheritance
-
-@with_metaclass(utils.MetaClassForClassesWithEnums)
-class FixedOffset(_dt.tzinfo):
+# pylint: disable=no-member
+class FixedOffset(_dt.tzinfo, metaclass=utils.MetaClassForClassesWithEnums):
     """Time zone information.
 
     Represents time zone information to be used with Python standard library
@@ -43,10 +40,10 @@ class FixedOffset(_dt.tzinfo):
     https://docs.python.org/library/datetime.html
     """
 
-    def __init__(self, offsetInMinutes=0):
+    def __init__(self, offsetInMinutes: int = 0) -> None:
         """
         Args:
-            offsetInMinutes (int): Offset from UTC in minutes
+            offsetInMinutes: Offset from UTC in minutes
 
         Creates an object that implements :class:`datetime.tzinfo` interface
         and represents a timezone with the specified ``offsetInMinutes`` from
@@ -54,45 +51,38 @@ class FixedOffset(_dt.tzinfo):
         """
         self.__offset = _dt.timedelta(minutes=offsetInMinutes)
 
-    def utcoffset(self, dt):
+    def utcoffset(self, dt: Optional[_dt.datetime]) -> _dt.timedelta:
         del dt
         return self.__offset
 
-    def dst(self, dt): # pylint: disable=no-self-use
+    def dst(self, dt: Optional[_dt.datetime]) -> _dt.timedelta: # pylint: disable=no-self-use
         del dt
         return _dt.timedelta(0)
 
-    def tzname(self, dt):
+    def tzname(self, dt: Optional[_dt.datetime]) -> _dt.timedelta: # type: ignore # superclass returns str, but .__offset is a timedelta
         del dt
         return self.__offset
 
-    def getOffsetInMinutes(self):
+    def getOffsetInMinutes(self) -> int:
         """
         Returns:
-            int: Offset from UTC in minutes
+            Offset from UTC in minutes
         """
         return self.__offset.days * 24 * 60 + self.__offset.seconds // 60
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """x.__hash__() <==> hash(x)"""
         return self.getOffsetInMinutes()
 
-    def __cmp__(self, other):
-        """Let the comparison operations work based on the time delta.
-        NOTE: (compatibility) this method have no special meaning in python3,
-        we should use __eq__, __lt__ and __le__ instead. Built-in cmp function
-        is also gone. This method can be called only from python2."""
-        return cmp(self.getOffsetInMinutes(), other.getOffsetInMinutes()) # pylint: disable=undefined-variable
-
-    def __eq__(self, other):
+    def __eq__(self, other: "FixedOffset") -> bool: # type: ignore # mypy wants us to accept arbitrary object and check isinstance()
         """Let the equality operator work based on the time delta."""
         return self.getOffsetInMinutes() == other.getOffsetInMinutes()
 
-    def __lt__(self, other):
+    def __lt__(self, other: "FixedOffset") -> bool:
         """Let the comparison operator work based on the time delta."""
         return self.getOffsetInMinutes() < other.getOffsetInMinutes()
 
-    def __le__(self, other):
+    def __le__(self, other: "FixedOffset") -> bool:
         """Let the comparison operator work based on the time delta."""
         return self.getOffsetInMinutes() <= other.getOffsetInMinutes()
 
@@ -104,7 +94,7 @@ UTC = FixedOffset(0)
 class _DatetimeUtil(object):
     """Utility methods that deal with BLPAPI dates and times."""
     @staticmethod
-    def convertToNative(blpapiDatetimeObj):
+    def convertToNative(blpapiDatetimeObj: BlpapiDatetime) -> AnyPythonDatetime:
         """Convert BLPAPI Datetime object to a suitable Python object."""
 
         isHighPrecision = isinstance(
@@ -131,7 +121,7 @@ class _DatetimeUtil(object):
                                                         microsecs)
 
     @staticmethod
-    def convertToNativeNotHighPrecision(blpapiDatetime):
+    def convertToNativeNotHighPrecision(blpapiDatetime: BlpapiDatetime) -> AnyPythonDatetime:
         """Convert BLPAPI Datetime object to a suitable Python object.
         This version should only be used for logging callback which does not
         provide a high precision datetime alternative."""
@@ -149,10 +139,11 @@ class _DatetimeUtil(object):
                                                         microsecs)
 
     @staticmethod
-    def _convertToNativeTypeHelper(hasDate,
-                                   hasTime,
-                                   blpapiDatetime,
-                                   microsecs):
+    def _convertToNativeTypeHelper(hasDate: bool,
+                                   hasTime: bool,
+                                   blpapiDatetime: BlpapiDatetime,
+                                   microsecs: int
+                                  ) -> AnyPythonDatetime:
         parts = blpapiDatetime.parts
         tzinfo = FixedOffset(blpapiDatetime.offset) if parts & \
             internals.DATETIME_OFFSET_PART else None
@@ -184,12 +175,12 @@ class _DatetimeUtil(object):
 
 
     @staticmethod
-    def isDatetime(dtime):
+    def isDatetime(dtime: Any) -> bool:
         """Return True if the parameter is one of Python date/time objects."""
         return isinstance(dtime, (_dt.datetime, _dt.date, _dt.time))
 
     @staticmethod
-    def convertToBlpapi(dtime):
+    def convertToBlpapi(dtime: AnyPythonDatetime) -> BlpapiDatetime:
         "Convert a Python date/time object to a BLPAPI Datetime object."""
         highPrecDatetime = internals.blpapi_HighPrecisionDatetime_tag()
         res = highPrecDatetime.datetime
@@ -225,7 +216,7 @@ class _DatetimeUtil(object):
             raise TypeError("Datetime can be created only from \
 datetime.datetime, datetime.date or datetime.time")
         if offset is not None:
-            offsetInMinutes = tolong(offset.total_seconds() // 60)
+            offsetInMinutes = int(offset.total_seconds() // 60)
             res.offset = offsetInMinutes
             res.parts |= internals.DATETIME_OFFSET_PART
         return highPrecDatetime

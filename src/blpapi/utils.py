@@ -2,9 +2,16 @@
 
 """Internal utils."""
 
-from .compat import Sequence, str_typelist
+from collections.abc import Iterator as IteratorABC, Sequence
+from typing import Any, Callable, Union, Optional
+from typing import Iterator as IteratorType
 import functools
 import warnings
+
+from .chandle import CHandle
+
+
+STR_TYPES = (bytes, str)
 
 MIN_32BIT_INT = -(2**31)
 MAX_32BIT_INT = 2**31 - 1
@@ -12,8 +19,8 @@ MIN_64BIT_INT = -(2**63)
 MAX_64BIT_INT = 2**63 - 1
 
 
-# pylint: disable=too-few-public-methods, useless-object-inheritance
-class Iterator(object):
+# pylint: disable=too-few-public-methods
+class Iterator(IteratorABC):
     """Universal iterator for many of BLPAPI objects.
 
     It can be used to iterate any sub-items in an item which has
@@ -37,16 +44,20 @@ class Iterator(object):
 
     """
 
-    def __init__(self, objToIterate, numFunc, getFunc):
+    def __init__(self,
+                 objToIterate: Any,
+                 numFunc: Callable[[Any], int],
+                 getFunc: Callable[[Any, int], Any]
+                ) -> None:
         self.__obj = objToIterate
         self.__index = 0
         self.__num = numFunc(objToIterate)
         self.__getter = getFunc
 
-    def __iter__(self):
+    def __iter__(self) -> IteratorType:
         return self
 
-    def __next__(self):
+    def __next__(self) -> Any:
         if self.__index == self.__num:
             raise StopIteration()
         res = self.__getter(self.__obj, self.__index)
@@ -68,35 +79,35 @@ class MetaClassForClassesWithEnums(type):
         """Raise this on attempt to change value of an enumeration constant.
         """
 
-    def __setattr__(cls, name, value):
+    def __setattr__(cls, name: str, value: Any) -> None:
         """Change the value of an attribute if it is not an enum.
 
         Raise EnumError exception otherwise.
         """
         if name.isupper() and name in cls.__dict__:
-            raise cls.EnumError("Can't change value of enum %s" % name)
+            raise cls.EnumError(f"Can't change value of enum {name}")
         type.__setattr__(cls, name, value)
 
-    def __delattr__(cls, name):
+    def __delattr__(cls, name: str) -> None:
         """Unbind the attribute if it is not an enum.
 
         Raise EnumError exception otherwise.
         """
         if name.isupper() and name in cls.__dict__:
-            raise cls.EnumError("Can't unbind enum %s" % name)
+            raise cls.EnumError(f"Can't unbind enum {name}")
         type.__delattr__(cls, name)
 
-def get_handle(thing):
+def get_handle(thing: Optional[CHandle]) -> Any:
     """Returns the result of thing._handle() or None if thing is None"""
     return None if thing is None else thing._handle() #pylint: disable=protected-access
 
-def invoke_if_valid(cb, value):
+def invoke_if_valid(cb: Any, value: Any) -> Any:
     """Returns the result of cb(value) if cb is callable, else -- just value"""
     if cb is None or not callable(cb):
         return value
     return cb(value)
 
-def deprecated(func_or_reason):
+def deprecated(func_or_reason: Union[Callable, str]) -> Callable:
     '''
     This is a decorator which can be used to mark classes or functions
     as deprecated. It results in a warning being emitted when the class or the
@@ -129,7 +140,7 @@ def deprecated(func_or_reason):
         @functools.wraps(func)
         def wrap_func(*args, **kwargs):
             warnings.warn(
-                "%s is deprecated, %s." % (func.__name__, message),
+                f"{func.__name__} is deprecated, {message}.",
                 category=DeprecationWarning,
                 stacklevel=2)
             return func(*args, **kwargs)
@@ -146,9 +157,29 @@ def deprecated(func_or_reason):
 # `Sequence` but does not behave like a scalar. Useful for `Element` and
 # `Event` formatting.
 # pylint: disable=deprecated-class,no-name-in-module
-def isNonScalarSequence(obj):
-    scalarTypes = str_typelist + (bytearray, memoryview)
+def isNonScalarSequence(obj: Any) -> bool:
+    scalarTypes = STR_TYPES + (bytearray, memoryview)
     return isinstance(obj, Sequence) and not isinstance(obj, scalarTypes)
+
+
+# NOTE: Our Python3 wrapper uses unicode strings (str type) for passing
+# strings to C-functions so we need to decode byte-strings first to get unicode
+# strings. Rule of thumb: to pass string to any wrapper function convert
+# it using `conv2str` function first, to check that type of the string
+# is correct - use `isstr` function.
+def conv2str(s: Union[bytes, str]) -> str:
+    """Convert byte string to unicode string."""
+    if isinstance(s, bytes):
+        return s.decode()
+    if isinstance(s, str):
+        return s
+    return None
+
+
+def isstr(s: Any) -> bool:
+    if isinstance(s, STR_TYPES):
+        return True
+    return False
 
 
 __copyright__ = """

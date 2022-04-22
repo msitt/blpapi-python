@@ -4,74 +4,23 @@
 
 # pylint: disable=function-redefined,ungrouped-imports,no-name-in-module
 
-import sys
-from functools import update_wrapper
+from functools import singledispatch, update_wrapper
 from datetime import date, time, datetime
 from json import dumps
 
 from blpapi import internals, Name
 from blpapi.datetime import _DatetimeUtil
-from blpapi.compat import conv2str, int_typelist, isstr, str_typelist
 from blpapi.exception import _ExceptionUtil
 from blpapi.utils import \
+        conv2str, \
         get_handle, \
+        isstr, \
         MAX_32BIT_INT, \
         MIN_32BIT_INT, \
         MIN_64BIT_INT, \
-        MAX_64BIT_INT
+        MAX_64BIT_INT, \
+        STR_TYPES
 
-if sys.version_info >= (3, 4):
-    from functools import singledispatch
-else:
-    def singledispatch(func):
-        """ Transform a function into a single-dispatch generic function.
-
-        This function is intended to provide a basic implementation of
-        `functools.singledispatch` found in Python >= 3.4. No caching
-        optimizations are performed. Types are matched naively: there is no
-        support for inherited types.
-        """
-
-        registry = {}
-        funcname = getattr(func, "__name__", "singledispatch function")
-
-        def dispatch(cls):
-            """ Return the function registered to `cls`. If there is no
-            function associated with `cls`, return `func`.
-            """
-
-            # Return `func` instead of `None` because the native
-            # python implementation ultimately ends up doing this for
-            # types whose closest match in the registry is type
-            # `object`
-            return registry.get(cls, func)
-
-        def register(cls, func=None):
-            """ Register a new function `func` for the given `cls`. """
-
-            # Return a lambda so that `register` can be used as a decorator
-            if func is None:
-                return lambda f: register(cls, f)
-
-            registry[cls] = func
-
-            return func
-
-        def wrapper(*args, **kw):
-            """ Wrap the provided `func` from `singledispatch` to provide
-            additional functionality without modifying `func` directly.
-            """
-            if not args:
-                raise TypeError("{} requires at least 1 positional argument"
-                                .format(funcname))
-
-            return dispatch(args[0].__class__)(*args, **kw)
-
-        wrapper.register = register
-        wrapper.dispatch = dispatch
-        wrapper.registry = registry
-        update_wrapper(wrapper, func)
-        return wrapper
 
 def _singledispatchmethod(arg_index):
     """ Decorator to implement singledispatch on a class method.
@@ -174,10 +123,9 @@ class MessageFormatter():
                 - The ``value`` cannot be assigned to the element identified by
                     ``name``
         """
-        raise TypeError("The type of value {} is not supported. Type is {}."
-                        .format(value, type(value))
-                        + " Please refer to the documentation for the"
-                        + " supported types.")
+        raise TypeError(f"The type of value {value} is not supported. Type"
+                        f" is {type(value)}. Please refer to the"
+                        " documentation for the supported types.")
 
     @_setElement.register(bool)
     def _(self, name, value):
@@ -188,7 +136,7 @@ class MessageFormatter():
                 get_handle(name),
                 value))
 
-    @_setElement.register(datetime)
+    @_setElement.register(datetime) # type: ignore
     @_setElement.register(date)
     @_setElement.register(time)
     def _(self, name, value):
@@ -199,6 +147,7 @@ class MessageFormatter():
                 get_handle(name),
                 _DatetimeUtil.convertToBlpapi(value)))
 
+    @_setElement.register(int)
     def _setElementInt(self, name, value):
         """ Dispatch method for setting integer types. """
         if MIN_32BIT_INT <= value <= MAX_32BIT_INT:
@@ -215,10 +164,8 @@ class MessageFormatter():
                     value))
         else:
             raise ValueError("Value is out of element's supported range")
-    for _int_type in int_typelist:
-        _setElement.register(_int_type, _setElementInt)
 
-    @_setElement.register(float)
+    @_setElement.register(float) # type: ignore
     def _(self, name, value):
         """ Dispatch method for setting `float` types. """
         _ExceptionUtil.raiseOnError(
@@ -227,7 +174,7 @@ class MessageFormatter():
                 get_handle(name),
                 value))
 
-    @_setElement.register(Name)
+    @_setElement.register(Name) # type: ignore
     def _(self, name, value):
         """ Dispatch method for setting `Name` types. """
         _ExceptionUtil.raiseOnError(
@@ -236,7 +183,7 @@ class MessageFormatter():
                 get_handle(name),
                 get_handle(value)))
 
-    @_setElement.register(type(None))
+    @_setElement.register(type(None)) # type: ignore
     def _(self, name, _):
         """ Dispatch method for setting `None` types. """
         _ExceptionUtil.raiseOnError(
@@ -251,7 +198,7 @@ class MessageFormatter():
                 self.__handle,
                 get_handle(name),
                 conv2str(value)))
-    for _str_type in str_typelist:
+    for _str_type in STR_TYPES:
         _setElement.register(_str_type, _setElementStr)
 
     def pushElement(self, name):
@@ -315,7 +262,7 @@ class MessageFormatter():
                 self.__handle,
                 value))
 
-    @appendValue.register(bool)
+    @appendValue.register(bool) # type: ignore
     def _(self, value):
         """ Dispatch method for appending `bool` types. """
         _ExceptionUtil.raiseOnError(
@@ -323,7 +270,7 @@ class MessageFormatter():
                 self.__handle,
                 value))
 
-    @appendValue.register(datetime)
+    @appendValue.register(datetime) # type: ignore
     @appendValue.register(date)
     @appendValue.register(time)
     def _(self, value):
@@ -333,6 +280,7 @@ class MessageFormatter():
                 self.__handle,
                 _DatetimeUtil.convertToBlpapi(value)))
 
+    @appendValue.register(int)
     def _appendValueInt(self, value):
         """ Dispatch method for appending integer types. """
         if MIN_32BIT_INT <= value <= MAX_32BIT_INT:
@@ -347,10 +295,8 @@ class MessageFormatter():
                     value))
         else:
             raise ValueError("Value is out of element's supported range")
-    for _int_type in int_typelist:
-        appendValue.register(_int_type, _appendValueInt)
 
-    @appendValue.register(float)
+    @appendValue.register(float) # type: ignore
     def _(self, value):
         """ Dispatch method for appending `float` types. """
         _ExceptionUtil.raiseOnError(
@@ -358,7 +304,7 @@ class MessageFormatter():
                 self.__handle,
                 value))
 
-    @appendValue.register(Name)
+    @appendValue.register(Name) # type: ignore
     def _(self, value):
         """ Dispatch method for appending `Name` types. """
         _ExceptionUtil.raiseOnError(
@@ -372,7 +318,7 @@ class MessageFormatter():
             internals.blpapi_MessageFormatter_appendValueString(
                 self.__handle,
                 conv2str(value)))
-    for _str_type in str_typelist:
+    for _str_type in STR_TYPES:
         appendValue.register(_str_type, _appendValueStr)
 
     def appendElement(self):

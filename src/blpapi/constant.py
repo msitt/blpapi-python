@@ -11,12 +11,19 @@ a representation for lists of such constants
 """
 
 
-
-from .exception import _ExceptionUtil, NotFoundException, \
+from typing import Any, Iterator as IteratorType, Optional, Set
+from .exception import \
+    _ExceptionUtil, \
+    NotFoundException, \
     IndexOutOfRangeException
 from .name import Name, getNamePair
 from .datatype import DataType
 from .datetime import _DatetimeUtil
+from . import typehints # pylint: disable=unused-import
+from .typehints import \
+    AnyPythonDatetime, \
+    BlpapiConstantHandle, \
+    BlpapiConstantListHandle
 from . import utils
 from . import internals
 
@@ -41,7 +48,9 @@ class Constant:
     by other ``blpapi`` components.
     """
 
-    def __init__(self, handle, sessions):
+    def __init__(self,
+                 handle: BlpapiConstantHandle,
+                 sessions: Optional[Set["typehints.AbstractSession"]]) -> None:
         """
         Args:
             handle: Handle to the internal implementation
@@ -50,44 +59,43 @@ class Constant:
         self.__handle = handle
         self.__sessions = sessions
 
-    def name(self):
+    def name(self) -> Name:
         """
         Returns:
-            Name: The symbolic name of this :class:`Constant`.
+            The symbolic name of this :class:`Constant`.
         """
         return Name._createInternally(
             internals.blpapi_Constant_name(self.__handle))
 
-    def description(self):
+    def description(self) -> str:
         """
         Returns:
-            str: Human readable description of this :class:`Constant`.
+            Human readable description of this :class:`Constant`.
         """
         return internals.blpapi_Constant_description(self.__handle)
 
-    def status(self):
+    def status(self) -> int:
         """
         Returns:
-            int: Status of this :class:`Constant`.
+            Status of this :class:`Constant`.
 
         The possible return values are enumerated in :class:`SchemaStatus`.
         """
         return internals.blpapi_Constant_status(self.__handle)
 
-    def datatype(self):
+    def datatype(self) -> int:
         """
         Returns:
-            int: Data type used to represent the value of this
-            :class:`Constant`.
+            Data type used to represent the value of this :class:`Constant`.
 
         The possible return values are enumerated in :class:`DataType`.
         """
         return internals.blpapi_Constant_datatype(self.__handle)
 
-    def getValueAsInteger(self):
+    def getValueAsInteger(self) -> int:
         """
         Returns:
-            int: Value of this object as an integer.
+            Value of this object as an integer.
 
         Raises:
             InvalidConversionException: If the value cannot be converted to an
@@ -102,10 +110,10 @@ class Constant:
         _ExceptionUtil.raiseOnError(errCode)
         return value
 
-    def getValueAsFloat(self):
+    def getValueAsFloat(self) -> float:
         """
         Returns:
-            float: Value of this object as a float.
+            Value of this object as a float.
 
         Raises:
             InvalidConversionException: If the value cannot be converted to a
@@ -120,11 +128,10 @@ class Constant:
         _ExceptionUtil.raiseOnError(errCode)
         return value
 
-    def getValueAsDatetime(self):
+    def getValueAsDatetime(self) -> AnyPythonDatetime:
         """
         Returns:
-            datetime.time or datetime.date or datetime.datetime: Value of this
-            object as one of the datetime types.
+            Value of this object as one of the datetime types.
 
         Raises:
             InvalidConversionException: If the value cannot be converted to
@@ -135,10 +142,10 @@ class Constant:
         _ExceptionUtil.raiseOnError(errCode)
         return _DatetimeUtil.convertToNativeNotHighPrecision(value)
 
-    def getValueAsString(self):
+    def getValueAsString(self) -> str:
         """
         Returns:
-            str: Value of this object as a string.
+            Value of this object as a string.
 
         Raises:
             InvalidConversionException: If the value cannot be converted to a
@@ -153,7 +160,7 @@ class Constant:
         _ExceptionUtil.raiseOnError(errCode)
         return value
 
-    def getValue(self):
+    def getValue(self) -> Any:
         """
         Returns:
             Value of this object as it is stored in the object.
@@ -164,7 +171,7 @@ class Constant:
             Constant.getValueAsString)
         return valueGetter(self)
 
-    def _sessions(self):
+    def _sessions(self) -> Optional[Set["typehints.AbstractSession"]]:
         """Return session(s) this object is related to. For internal use."""
         return self.__sessions
 
@@ -184,7 +191,9 @@ class ConstantList:
     returned by other ``blpapi`` components.
     """
 
-    def __init__(self, handle, sessions):
+    def __init__(self,
+                 handle: BlpapiConstantListHandle,
+                 sessions: Optional[Set["typehints.AbstractSession"]]) -> None:
         """
         Args:
             handle: Handle to the internal implementation
@@ -193,7 +202,7 @@ class ConstantList:
         self.__handle = handle
         self.__sessions = sessions
 
-    def __iter__(self):
+    def __iter__(self) -> IteratorType:
         """
         Returns:
             Iterator over constants contained in this :class:`ConstantList`
@@ -277,8 +286,7 @@ class ConstantList:
                                                         names[1])
         if res is None:
             errMessage = \
-                "Constant '{0!s}' is not found in '{1!s}'.".\
-                format(name, self.name())
+                f"Constant '{name!s}' is not found in '{self.name()!s}'."
             raise NotFoundException(errMessage, 0)
         return Constant(res, self.__sessions)
 
@@ -297,7 +305,7 @@ class ConstantList:
         res = internals.blpapi_ConstantList_getConstantAt(self.__handle,
                                                           position)
         if res is None:
-            errMessage = "Index '{0}' out of bounds.".format(position)
+            errMessage = f"Index '{position}' out of bounds."
             raise IndexOutOfRangeException(errMessage, 0)
         return Constant(res, self.__sessions)
 

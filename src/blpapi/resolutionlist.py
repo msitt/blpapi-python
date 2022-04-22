@@ -4,6 +4,7 @@
 
 This component implements a list of topics that require resolution.
 """
+from typing import Optional, Set, Union
 
 from .exception import _ExceptionUtil
 from .message import Message
@@ -11,12 +12,11 @@ from . import internals
 from . import utils
 from .utils import deprecated, get_handle
 from .internals import CorrelationId
-from .compat import with_metaclass
 from .chandle import CHandle
+from . import typehints # pylint: disable=unused-import
 
 
-@with_metaclass(utils.MetaClassForClassesWithEnums)
-class ResolutionList(CHandle):
+class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     """Contains a list of topics that require resolution.
 
     Created from topic strings or from ``SUBSCRIPTION_STARTED`` messages. This
@@ -28,17 +28,17 @@ class ResolutionList(CHandle):
     :class:`ResolutionList` can be.
     """
 
-    UNRESOLVED = internals.RESOLUTIONLIST_UNRESOLVED
-    RESOLVED = internals.RESOLUTIONLIST_RESOLVED
+    UNRESOLVED = internals.RESOLUTIONLIST_UNRESOLVED # type: ignore
+    RESOLVED = internals.RESOLUTIONLIST_RESOLVED # type: ignore
     RESOLUTION_FAILURE_BAD_SERVICE = \
-        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_SERVICE
+        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_SERVICE # type: ignore
     RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED = \
         internals. \
-        RESOLUTIONLIST_RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED
+        RESOLUTIONLIST_RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED # type: ignore
     RESOLUTION_FAILURE_BAD_TOPIC = \
-        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_TOPIC
+        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_TOPIC # type: ignore
     RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED = \
-        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED
+        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED # type: ignore
 
     @staticmethod
     @deprecated("attributes are no longer supported.")
@@ -53,25 +53,25 @@ class ResolutionList(CHandle):
         """
         _ExceptionUtil.raiseOnError(internals.ERROR_UNSUPPORTED_OPERATION)
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Create an empty :class:`ResolutionList`."""
         selfhandle = internals.blpapi_ResolutionList_create(None)
         super(ResolutionList, self).__init__(
             selfhandle,
             internals.blpapi_ResolutionList_destroy)
         self.__handle = selfhandle
-        self.__sessions = set()
+        self.__sessions: Set["typehints.AbstractSession"] = set()
 
-    def add(self, topicOrMessage, correlationId=None):
+    def add(self, topicOrMessage: Union[str, Message], correlationId: Optional[CorrelationId] = None) -> int:
         """Add the specified topic or topic from message to this list.
 
         Args:
-            topicOrMessage (str or Message): Topic or message to add
-            correlationId (CorrelationId): CorrelationId to associate with this
+            topicOrMessage: Topic or message to add
+            correlationId: CorrelationId to associate with this
                 operation
 
         Returns:
-            int: ``0`` on success, negative number on failure
+            ``0`` on success, negative number on failure
 
         Raises:
             TypeError: If ``correlationId`` is not an instance of
@@ -96,11 +96,11 @@ class ResolutionList(CHandle):
             return internals.blpapi_ResolutionList_addFromMessage(
                 self.__handle,
                 get_handle(topicOrMessage),
-                get_handle(correlationId))
+                correlationId)
         return internals.blpapi_ResolutionList_add(
             self.__handle,
             topicOrMessage,
-            get_handle(correlationId))
+            correlationId)
 
     @deprecated("attributes are no longer supported.")
     # pylint: disable=unused-argument,no-self-use
@@ -114,10 +114,10 @@ class ResolutionList(CHandle):
         """
         _ExceptionUtil.raiseOnError(internals.ERROR_UNSUPPORTED_OPERATION)
 
-    def correlationIdAt(self, index):
+    def correlationIdAt(self, index: int) -> CorrelationId:
         """
         Args:
-            index (int): Index of the correlation id
+            index: Index of the correlation id
 
         Returns:
             CorrelationId: CorrelationId at the specified ``index``.
@@ -131,15 +131,15 @@ class ResolutionList(CHandle):
         _ExceptionUtil.raiseOnError(errorCode)
         return cid
 
-    def topicString(self, correlationId):
+    def topicString(self, correlationId: CorrelationId) -> str:
         """Return the topic of the entry identified by ``correlationId``.
 
         Args:
-            correlationId (CorrelationId): Correlation id that identifies the
+            correlationId: Correlation id that identifies the
                 topic
 
         Returns:
-            str: Topic string of the entry identified by ``correlationId``.
+            Topic string of the entry identified by ``correlationId``.
 
         Raises:
             Exception: If ``correlationId`` does not identify an entry in this
@@ -147,17 +147,17 @@ class ResolutionList(CHandle):
         """
         errorCode, topic = internals.blpapi_ResolutionList_topicString(
             self.__handle,
-            get_handle(correlationId))
+            correlationId)
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
-    def topicStringAt(self, index):
+    def topicStringAt(self, index: int) -> str:
         """
         Args:
-            index (int): Index of the topic string
+            index: Index of the topic string
 
         Returns:
-            str: Topic string at the specified ``index``.
+            Topic string at the specified ``index``.
 
         Raises:
             IndexOutOfRangeException: If ``index >= size()``.
@@ -168,14 +168,14 @@ class ResolutionList(CHandle):
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
-    def status(self, correlationId):
+    def status(self, correlationId: CorrelationId) -> int:
         """
         Args:
-            correlationId (CorrelationId): Correlation id that identifies the
+            correlationId: Correlation id that identifies the
                 entry
 
         Returns:
-            int: status of the entry in this :class:`ResolutionList`.
+            status of the entry in this :class:`ResolutionList`.
 
         Raises:
             Exception: If the ``correlationId`` does not identify an entry in
@@ -186,15 +186,14 @@ class ResolutionList(CHandle):
         """
         errorCode, status = internals.blpapi_ResolutionList_status(
             self.__handle,
-            get_handle(correlationId))
+            correlationId)
         _ExceptionUtil.raiseOnError(errorCode)
         return status
 
-    def statusAt(self, index):
+    def statusAt(self, index: int) -> int:
         """
         Args:
-            correlationId (CorrelationId): Correlation id that identifies the
-                entry
+            index: Index of the Correlation id
 
         Returns:
             int: status of the entry in this :class:`ResolutionList`.
@@ -237,14 +236,14 @@ class ResolutionList(CHandle):
         """
         _ExceptionUtil.raiseOnError(internals.ERROR_UNSUPPORTED_OPERATION)
 
-    def message(self, correlationId):
+    def message(self, correlationId: CorrelationId) -> Message:
         """
         Args:
-            correlationId (CorrelationId): Correlation id that identifies an
+            correlationId: Correlation id that identifies an
                 entry in this list
 
         Returns:
-            Message: Message received during resolution of the topic
+            Message received during resolution of the topic
             identified by the specified ``correlationId``.
 
         Raises:
@@ -259,17 +258,17 @@ class ResolutionList(CHandle):
         """
         errorCode, message = internals.blpapi_ResolutionList_message(
             self.__handle,
-            get_handle(correlationId))
+            correlationId)
         _ExceptionUtil.raiseOnError(errorCode)
-        return Message(message, sessions=self.__sessions)
+        return Message(message, sessions=self._sessions())
 
-    def messageAt(self, index):
+    def messageAt(self, index: int) -> Message:
         """
         Args:
-            index (int): Index of an entry in this list
+            index: Index of an entry in this list
 
         Returns:
-            Message: Message received during resolution of the topic
+            Message received during resolution of the topic
             specified ``index``\ th entry in this :class:`ResolutionList`.
 
         Raises:
@@ -284,22 +283,22 @@ class ResolutionList(CHandle):
             self.__handle,
             index)
         _ExceptionUtil.raiseOnError(errorCode)
-        return Message(message, sessions=self.__sessions)
+        return Message(message, sessions=self._sessions())
 
-    def size(self):
+    def size(self) -> int:
         """
         Returns:
-            int: Number of entries in this :class:`ResolutionList`.
+            Number of entries in this :class:`ResolutionList`.
         """
         return internals.blpapi_ResolutionList_size(self.__handle)
 
-    def _sessions(self):
+    def _sessions(self) -> Set["typehints.AbstractSession"]:
         """Return session(s) that this 'ResolutionList' is related to.
 
         For internal use."""
         return self.__sessions
 
-    def _addSession(self, session):
+    def _addSession(self, session: "typehints.AbstractSession") -> None:
         """Add a new session to this 'ResolutionList'.
 
         For internal use."""

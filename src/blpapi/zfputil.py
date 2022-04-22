@@ -21,17 +21,15 @@ sessionOptions.setAuthenticationOptions( ... )
 session = blpapi.Session(sessionOptions)
 session.start()
 """
-
 from . import utils
 from . import internals
-from .compat import with_metaclass
+from . import typehints # pylint: disable=unused-import
 from .exception import _ExceptionUtil
 from .sessionoptions import SessionOptions
 
-# pylint: disable=too-few-public-methods,useless-object-inheritance
 
-@with_metaclass(utils.MetaClassForClassesWithEnums)
-class ZfpUtil(object):
+# pylint: disable=too-few-public-methods
+class ZfpUtil(metaclass=utils.MetaClassForClassesWithEnums):
     """Utility used to prepare :class:`SessionOptions` for private leased
     lines.
 
@@ -49,11 +47,13 @@ class ZfpUtil(object):
         session.start()
     """
 
-    REMOTE_8194 = internals.ZFPUTIL_REMOTE_8194
-    REMOTE_8196 = internals.ZFPUTIL_REMOTE_8196
+    REMOTE_8194 = internals.ZFPUTIL_REMOTE_8194 # type: ignore
+    REMOTE_8196 = internals.ZFPUTIL_REMOTE_8196 # type: ignore
 
     @staticmethod
-    def getZfpOptionsForLeasedLines(remote, tlsOptions):
+    def getZfpOptionsForLeasedLines(remote: int,
+                                    tlsOptions: "typehints.TlsOptions"
+                                    ) -> "typehints.SessionOptions":
         """Creates a :class:`SessionOptions` object for applications that
         leverage private leased lines to the Bloomberg network.
 

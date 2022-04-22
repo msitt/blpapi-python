@@ -5,33 +5,30 @@
 This file defines various exceptions that blpapi can raise.
 """
 
-
-try:
-    from builtins import Exception as _StandardException
-except ImportError:
-    from __builtin__ import Exception as _StandardException
+from builtins import Exception as _StandardException
+from typing import Optional, Type
 from . import internals
 
 
-# pylint: disable=useless-object-inheritance, redefined-builtin
+# pylint: disable=redefined-builtin
 
 class Exception(_StandardException):
     """This class defines a base exception for blpapi operations.
 
     Objects of this class contain the error description for the exception.
     """
-    def __init__(self, description, errorCode):
+    def __init__(self, description: str, errorCode: Optional[int]) -> None:
         """Create a blpapi exception
 
         Args:
-            description (str): Description of the error
-            errorCode (int): Code corresponding to the error
+            description: Description of the error
+            errorCode: Code corresponding to the error
         """
         _StandardException.__init__(self, description, errorCode)
 
-    def __str__(self):
+    def __str__(self) -> str:
         args_arr = list(self.args)
-        return "{0} ({1:#010x})".format(args_arr[0], args_arr[1])
+        return f"{args_arr[0]} ({args_arr[1]:#010x})"
 
 
 class DuplicateCorrelationIdException(Exception):
@@ -106,20 +103,20 @@ class UnknownErrorException(Exception):
     """
 
 
-class _ExceptionUtil(object):
+class _ExceptionUtil:
     """Internal exception generating class."""
     __errorClasses = {
-        internals.INVALIDSTATE_CLASS: InvalidStateException,
-        internals.INVALIDARG_CLASS: InvalidArgumentException,
-        internals.CNVERROR_CLASS: InvalidConversionException,
-        internals.BOUNDSERROR_CLASS: IndexOutOfRangeException,
-        internals.NOTFOUND_CLASS: NotFoundException,
-        internals.FLDNOTFOUND_CLASS: FieldNotFoundException,
-        internals.UNSUPPORTED_CLASS: UnsupportedOperationException
+        internals.INVALIDSTATE_CLASS: InvalidStateException, # type: ignore
+        internals.INVALIDARG_CLASS: InvalidArgumentException, # type: ignore
+        internals.CNVERROR_CLASS: InvalidConversionException, # type: ignore
+        internals.BOUNDSERROR_CLASS: IndexOutOfRangeException, # type: ignore
+        internals.NOTFOUND_CLASS: NotFoundException, # type: ignore
+        internals.FLDNOTFOUND_CLASS: FieldNotFoundException, # type: ignore
+        internals.UNSUPPORTED_CLASS: UnsupportedOperationException # type: ignore
     }
 
     @staticmethod
-    def __getErrorClass(errorCode):
+    def __getErrorClass(errorCode: int) -> Type:
         """ returns proper error class for the code """
         if errorCode == internals.ERROR_DUPLICATE_CORRELATIONID:
             return DuplicateCorrelationIdException
@@ -128,7 +125,7 @@ class _ExceptionUtil(object):
                                                  UnknownErrorException)
 
     @staticmethod
-    def raiseException(errorCode, description=None):
+    def raiseException(errorCode: int, description: str=None) -> None:
         """Throw the appropriate exception for the specified 'errorCode'."""
         if description is None:
             description = internals.blpapi_getLastErrorDescription(errorCode)
@@ -138,7 +135,7 @@ class _ExceptionUtil(object):
         raise errorClass(description, errorCode)
 
     @staticmethod
-    def raiseOnError(errorCode, description=None):
+    def raiseOnError(errorCode: int, description: str=None) -> None:
         """Throw the appropriate exception for the specified 'errorCode' if the
         'errorCode != 0'.
         """

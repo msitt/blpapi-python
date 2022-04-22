@@ -10,6 +10,7 @@ import warnings
 from . import internals
 from .chandle import CHandle
 
+
 class EventDispatcher(CHandle):
     """Dispatches events from one or more Sessions through callbacks
 
@@ -23,11 +24,11 @@ class EventDispatcher(CHandle):
 
     __handle = None # pylint: disable=unused-private-member
 
-    def __init__(self, numDispatcherThreads=1):
+    def __init__(self, numDispatcherThreads: int = 1):
         """Construct an :class:`EventDispatcher`.
 
         Args:
-            numDispatcherThreads (int): Number of dispatcher threads
+            numDispatcherThreads: Number of dispatcher threads
 
         If ``numDispatcherThreads`` is ``1`` (the default) then a single
         internal thread is created to dispatch events. If
@@ -41,18 +42,18 @@ class EventDispatcher(CHandle):
             internals.blpapi_EventDispatcher_destroy)
         self.__handle = selfhandle
 
-    def start(self):
+    def start(self) -> int:
         """Start generating callbacks for events from sessions associated with
         this :class:`EventDispatcher`.
         """
 
         return internals.blpapi_EventDispatcher_start(self.__handle)
 
-    def stop(self, async_=False, **kwargs):
+    def stop(self, async_: bool = False, **kwargs) -> int:
         """Stop generating callbacks.
 
         Args:
-            async\_ (bool): Whether to execute this method asynchronously
+            async\_ : Whether to execute this method asynchronously
 
         Stop generating callbacks for events from sessions associated with this
         :class:`EventDispatcher`. If the specified ``async_`` is ``False`` (the

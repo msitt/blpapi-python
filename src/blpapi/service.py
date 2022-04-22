@@ -8,18 +8,22 @@ provider service (can generate API data) or a consumer service.
 
 """
 import warnings
+from typing import Optional, Set
+from typing import Iterator as IteratorType
+from . import typehints # pylint: disable=unused-import
+from .typehints import BlpapiNameOrStr, BlpapiNameOrStrOrIndex
+from .typehints import BlpapiServiceHandle, BlpapiOperationHandle
 from .event import Event
 from .name import getNamePair
 from .request import Request
 from .schema import SchemaElementDefinition
 from .exception import _ExceptionUtil
 from . import utils
-from .utils import get_handle
 from . import internals
 from .chandle import CHandle
 
 
-class Operation(object):
+class Operation:
     """Defines an operation which can be performed by a :class:`Service`.
 
     Operation objects are obtained from a :class:`Service` object. They provide
@@ -27,29 +31,30 @@ class Operation(object):
     the possible response.
     """
 
-    def __init__(self, handle, sessions):
+    def __init__(self,
+                 handle: BlpapiOperationHandle,
+                 sessions: Set["typehints.AbstractSession"]):
         self.__handle = handle
         self.__sessions = sessions
 
-    def name(self):
+    def name(self) -> str:
         """
         Returns:
-            str: The name of this :class:`Operation`.
+            The name of this :class:`Operation`.
         """
         return internals.blpapi_Operation_name(self.__handle)
 
-    def description(self):
+    def description(self) -> str:
         """
         Returns:
-            str: a human readable description of this Operation.
+            A human readable description of this Operation.
         """
         return internals.blpapi_Operation_description(self.__handle)
 
-    def requestDefinition(self):
+    def requestDefinition(self) -> Optional[SchemaElementDefinition]:
         """
         Returns:
-            SchemaElementDefinition: Object which defines the schema for this
-            :class:`Operation`.
+            Object which defines the schema for this :class:`Operation`.
         """
 
         errCode, definition = internals.blpapi_Operation_requestDefinition(
@@ -57,23 +62,24 @@ class Operation(object):
         return None if errCode != 0 else\
             SchemaElementDefinition(definition, self.__sessions)
 
-    def numResponseDefinitions(self):
+    def numResponseDefinitions(self) -> int:
         """
         Returns:
-            int: The number of the response types that can be returned by this
+            The number of the response types that can be returned by this
             :class:`Operation`.
 
         """
 
         return internals.blpapi_Operation_numResponseDefinitions(self.__handle)
 
-    def getResponseDefinitionAt(self, position):
+    def getResponseDefinitionAt(self,
+                                position: int) -> SchemaElementDefinition:
         """
         Args:
-            position (int): Index of the response type
+            position: Index of the response type
 
         Returns:
-            SchemaElementDefinition: Object which defines the schema for the
+            Object which defines the schema for the
             response that this :class:`Operation` delivers.
 
         Raises:
@@ -86,7 +92,7 @@ class Operation(object):
         _ExceptionUtil.raiseOnError(errCode)
         return SchemaElementDefinition(definition, self.__sessions)
 
-    def responseDefinitions(self):
+    def responseDefinitions(self) -> IteratorType[SchemaElementDefinition]:
         """
         Returns:
             Iterator over response types that can be returned by this
@@ -99,7 +105,7 @@ class Operation(object):
                               Operation.numResponseDefinitions,
                               Operation.getResponseDefinitionAt)
 
-    def _sessions(self):
+    def _sessions(self) -> Set["typehints.AbstractSession"]:
         """Return session(s) this object is related to. For internal use."""
         return self.__sessions
 
@@ -122,26 +128,28 @@ class Service(CHandle):
     :class:`Session` is terminated.
     """
 
-    def __init__(self, handle, sessions):
+    def __init__(self,
+                 handle: BlpapiServiceHandle,
+                 sessions: Set["typehints.AbstractSession"]) -> None:
         super(Service, self).__init__(handle, internals.blpapi_Service_release)
         self.__handle = handle
         self.__sessions = sessions
         internals.blpapi_Service_addRef(self.__handle)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Convert the service schema to a string."""
         return self.toString()
 
-    def toString(self, level=0, spacesPerLevel=4):
+    def toString(self, level: int=0, spacesPerLevel:int =4) -> str:
         """Convert this :class:`Service` schema to a string.
 
         Args:
-            level (int): Indentation level
-            spacesPerLevel (int): Number of spaces per indentation level for
+            level: Indentation level
+            spacesPerLevel: Number of spaces per indentation level for
                 this and all nested objects
 
         Returns:
-            str: This object formatted as a string
+            This object formatted as a string
 
         If ``level`` is negative, suppress indentation of the first line. If
         ``spacesPerLevel`` is negative, format the entire output on one line,
@@ -152,10 +160,10 @@ class Service(CHandle):
                                                     level,
                                                     spacesPerLevel)
 
-    def createPublishEvent(self):
+    def createPublishEvent(self) -> Event:
         """
         Returns:
-            Event: :class:`Event` suitable for publishing to this
+            :class:`Event` suitable for publishing to this
             :class:`Service`
 
         Use an :class:`EventFormatter` to add :class:`Message`\ s to the
@@ -167,10 +175,10 @@ class Service(CHandle):
         _ExceptionUtil.raiseOnError(errCode)
         return Event(event, self.__sessions)
 
-    def createAdminEvent(self):
+    def createAdminEvent(self) -> Event:
         """
         Returns:
-            Event: An :attr:`~Event.ADMIN` :class:`Event` suitable for
+            An :attr:`~Event.ADMIN` :class:`Event` suitable for
             publishing to this :class:`Service`
 
         Use an :class:`EventFormatter` to add :class:`Message`\ s to the
@@ -189,16 +197,17 @@ class Service(CHandle):
         _ExceptionUtil.raiseOnError(errCode)
         return Event(event, self.__sessions)
 
-    def createResponseEvent(self, correlationId):
+    def createResponseEvent(self,
+                            correlationId: "typehints.CorrelationId") -> Event:
         """Create a :attr:`~Event.RESPONSE` :class:`Event` to answer the
         request.
 
         Args:
-            correlationId (CorrelationId): Correlation id to associate with the
+            correlationId: Correlation id to associate with the
                 created event
 
         Returns:
-            Event: The created response event.
+            The created response event.
 
         Use an :class:`EventFormatter` to add :class:`Message`\ s to the
         :class:`Event` and set fields.
@@ -206,28 +215,28 @@ class Service(CHandle):
 
         errCode, event = internals.blpapi_Service_createResponseEvent(
             self.__handle,
-            get_handle(correlationId))
+            correlationId)
         _ExceptionUtil.raiseOnError(errCode)
         return Event(event, self.__sessions)
 
-    def name(self):
+    def name(self) -> str:
         """
         Returns:
-            str: Name of this service.
+            Name of this service.
         """
         return internals.blpapi_Service_name(self.__handle)
 
-    def description(self):
+    def description(self) -> str:
         """
         Returns:
-            str: Human-readable description of this service.
+           str: Human-readable description of this service.
         """
         return internals.blpapi_Service_description(self.__handle)
 
-    def hasOperation(self, name):
+    def hasOperation(self, name: BlpapiNameOrStr) -> bool:
         """
         Returns:
-            bool: ``True`` if the specified ``name`` is a valid
+            ``True`` if the specified ``name`` is a valid
             :class:`Operation` in this :class:`Service`.
         """
 
@@ -236,13 +245,13 @@ class Service(CHandle):
                                                           names[0],
                                                           names[1]))
 
-    def getOperation(self, nameOrIndex):
+    def getOperation(self, nameOrIndex: BlpapiNameOrStrOrIndex) -> Operation:
         """
         Args:
-            nameOrIndex (Name or str or int): Name or index of the operation
+            nameOrIndex: Name or index of the operation
 
         Returns:
-            Operation: The specified operation.
+            The specified operation.
 
         Raises:
             Exception: If ``nameOrIndex`` is a string or a :class:`Name` and
@@ -262,15 +271,15 @@ class Service(CHandle):
         _ExceptionUtil.raiseOnError(errCode)
         return Operation(operation, self.__sessions)
 
-    def numOperations(self):
+    def numOperations(self) -> int:
         """
         Returns:
-            int: The number of :class:`Operation`\ s defined by this
+            The number of :class:`Operation`\ s defined by this
             :class:`Service`.
         """
         return internals.blpapi_Service_numOperations(self.__handle)
 
-    def operations(self):
+    def operations(self) -> IteratorType[Operation]:
         """
         Returns:
             Iterator over :class:`Operation`\ s defined by this :class:`Service`
@@ -279,13 +288,13 @@ class Service(CHandle):
                               Service.numOperations,
                               Service.getOperation)
 
-    def hasEventDefinition(self, name):
+    def hasEventDefinition(self, name: BlpapiNameOrStr) -> bool:
         """
         Args:
-            name (Name or str): Event identifier
+            name: Event identifier
 
         Returns:
-            bool: ``True`` if the specified ``name`` identifies a valid event
+            ``True`` if the specified ``name`` identifies a valid event
             in this :class:`Service`, ``False`` otherwise.
 
         Raises:
@@ -297,15 +306,17 @@ class Service(CHandle):
                                                                 names[0],
                                                                 names[1]))
 
-    def getEventDefinition(self, nameOrIndex):
+    def getEventDefinition(
+            self,
+            nameOrIndex: BlpapiNameOrStrOrIndex) -> SchemaElementDefinition:
         """Get the definition of a specified event.
 
         Args:
-            nameOrIndex (Name or str or int): Name or index of the event
+            nameOrIndex: Name or index of the event
 
         Returns:
-            SchemaElementDefinition: Object describing the element
-            identified by the specified ``nameOrIndex``.
+            Object describing the element identified
+            by the specified ``nameOrIndex``.
 
         Raises:
             NotFoundException: If ``nameOrIndex`` is a string and
@@ -328,15 +339,14 @@ class Service(CHandle):
         _ExceptionUtil.raiseOnError(errCode)
         return SchemaElementDefinition(definition, self.__sessions)
 
-    def numEventDefinitions(self):
+    def numEventDefinitions(self) -> int:
         """
         Returns:
-            int: The number of unsolicited events defined by this
-            :class:`Service`.
+            The number of unsolicited events defined by this :class:`Service`.
         """
         return internals.blpapi_Service_numEventDefinitions(self.__handle)
 
-    def eventDefinitions(self):
+    def eventDefinitions(self) -> IteratorType[SchemaElementDefinition]:
         """
         Returns:
             An iterator over unsolicited events defined by this
@@ -347,11 +357,11 @@ class Service(CHandle):
                               Service.numEventDefinitions,
                               Service.getEventDefinition)
 
-    def authorizationServiceName(self):
+    def authorizationServiceName(self) -> str:
         """Get the authorization service name.
 
         Returns:
-            str: The name of the :class:`Service` which must be used in order
+            The name of the :class:`Service` which must be used in order
             to authorize access to restricted operations on this
             :class:`Service`. If no authorization is required to access
             operations on this service an empty string is returned.
@@ -360,14 +370,14 @@ class Service(CHandle):
         """
         return internals.blpapi_Service_authorizationServiceName(self.__handle)
 
-    def createRequest(self, operation):
+    def createRequest(self, operation: str) -> Request:
         """Create an empty Request object for the specified ``operation``.
 
         Args:
             operation: A valid operation on this service
 
         Returns:
-            Request: An empty request for the specified ``operation``.
+            An empty request for the specified ``operation``.
 
         Raises:
             Exception: If ``operation`` does not identify a valid operation in
@@ -383,7 +393,9 @@ class Service(CHandle):
         _ExceptionUtil.raiseOnError(errCode)
         return Request(request, self.__sessions)
 
-    def createAuthorizationRequest(self, authorizationOperation=None):
+    def createAuthorizationRequest(
+            self,
+            authorizationOperation: Optional[str]=None) -> Request:
         """Create an empty :class:`Request` object for
         ``authorizationOperation``.
 
@@ -391,8 +403,7 @@ class Service(CHandle):
             authorizationOperation: A valid operation on this service
 
         Returns:
-            Request: An empty request for the specified
-            ``authorizationOperation``.
+            An empty request for the specified ``authorizationOperation``.
 
         Raises:
             Exception: If ``authorizationOperation`` does not identify a valid
@@ -408,7 +419,7 @@ class Service(CHandle):
         _ExceptionUtil.raiseOnError(errCode)
         return Request(request, self.__sessions)
 
-    def _sessions(self):
+    def _sessions(self) -> Set["typehints.AbstractSession"]:
         """Return session(s) this object is related to. For internal use."""
         return self.__sessions
 

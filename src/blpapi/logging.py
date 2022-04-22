@@ -5,30 +5,32 @@
 @DESCRIPTION: This component provides a function that is used to
  register a callback for logging"""
 
-from __future__ import absolute_import
+from typing import Callable, List
 from blpapi import internals
+from datetime import datetime
 from . import utils
-from .compat import with_metaclass
 from .datetime import _DatetimeUtil
+from .typehints import AnyPythonDatetime
 
-@with_metaclass(utils.MetaClassForClassesWithEnums)
-class Logger:
+class Logger(metaclass=utils.MetaClassForClassesWithEnums):
     """This utility class provides a namespace for functions to test the
     logging configuration."""
 
     # Different logging levels
-    SEVERITY_OFF = internals.blpapi_Logging_SEVERITY_OFF
-    SEVERITY_FATAL = internals.blpapi_Logging_SEVERITY_FATAL
-    SEVERITY_ERROR = internals.blpapi_Logging_SEVERITY_ERROR
-    SEVERITY_WARN = internals.blpapi_Logging_SEVERITY_WARN
-    SEVERITY_INFO = internals.blpapi_Logging_SEVERITY_INFO
-    SEVERITY_DEBUG = internals.blpapi_Logging_SEVERITY_DEBUG
-    SEVERITY_TRACE = internals.blpapi_Logging_SEVERITY_TRACE
+    SEVERITY_OFF = internals.blpapi_Logging_SEVERITY_OFF # type: ignore
+    SEVERITY_FATAL = internals.blpapi_Logging_SEVERITY_FATAL # type: ignore
+    SEVERITY_ERROR = internals.blpapi_Logging_SEVERITY_ERROR # type: ignore
+    SEVERITY_WARN = internals.blpapi_Logging_SEVERITY_WARN # type: ignore
+    SEVERITY_INFO = internals.blpapi_Logging_SEVERITY_INFO # type: ignore
+    SEVERITY_DEBUG = internals.blpapi_Logging_SEVERITY_DEBUG # type: ignore
+    SEVERITY_TRACE = internals.blpapi_Logging_SEVERITY_TRACE # type: ignore
 
-    loggerCallbacksLocal = [] # needed for temporary ref. holding
+    loggerCallbacksLocal: List[Callable] = [] # needed for temp. ref. holding
 
     @staticmethod
-    def registerCallback(callback, thresholdSeverity=SEVERITY_INFO):
+    def registerCallback(callback:
+                         Callable[[int, int, AnyPythonDatetime, str, str], None],
+                         thresholdSeverity: int = SEVERITY_INFO) -> None:
         """Register the specified 'callback' that will be called for all log
         messages with severity greater than or equal to the specified
         'thresholdSeverity'.  The callback needs to be registered before the
@@ -36,7 +38,11 @@ class Logger:
         the last registered callback will take effect. An exception of type
         'RuntimeError' will be thrown if 'callback' cannot be registered.
         If callback is None, any existing callback shall be removed."""
-        def callbackWrapper(threadId, severity, ts, category, message):
+        def callbackWrapper(threadId: int,
+                            severity: int,
+                            ts: datetime,
+                            category: str,
+                            message: str):
             dt = _DatetimeUtil.convertToNativeNotHighPrecision(ts)
             callback(threadId, severity, dt, category, message)
 
@@ -57,7 +63,7 @@ class Logger:
             raise RuntimeError("unable to register callback")
 
     @staticmethod
-    def logTestMessage(severity):
+    def logTestMessage(severity: int) -> None:
         """Log a test message at the specified 'severity'.
         Note that this function is intended for testing
         of the logging configuration only."""

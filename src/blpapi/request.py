@@ -8,10 +8,15 @@ Session.
 """
 
 import weakref
+from typing import Any, Mapping, Set
+from .typehints import BlpapiRequestHandle
 from .element import Element
 from .exception import _ExceptionUtil
+from .typehints import BlpapiNameOrStr
 from . import internals
 from .chandle import CHandle
+from . import typehints # pylint: disable=unused-import
+
 
 class Request(CHandle):
     """A single request to a single service.
@@ -31,13 +36,14 @@ class Request(CHandle):
     :class:`Element` interface.
     """
 
-    def __init__(self, handle, sessions):
+    def __init__(self, handle: BlpapiRequestHandle,
+                 sessions: Set["typehints.AbstractSession"]) -> None:
         super(Request, self).__init__(handle, internals.blpapi_Request_destroy)
         self.__handle = handle
         self.__sessions = sessions
         self.__element = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         """x.__str__() <==> str(x)
 
         Return a string representation of this Request. Call of str(request) is
@@ -47,27 +53,27 @@ class Request(CHandle):
 
         return self.toString()
 
-    def __getitem__(self, name):
+    def __getitem__(self, name: BlpapiNameOrStr) -> Any:
         """Equivalent to :meth:`asElement().__getitem__(name)
         <Element.__getitem__>`."""
         return self.asElement()[name]
 
-    def __setitem__(self, name, value):
+    def __setitem__(self, name: BlpapiNameOrStr, value: Any) -> None:
         """Equivalent to :meth:`asElement().__setitem__(name, value)
         <Element.__setitem__>`."""
         self.asElement()[name] = value
 
-    def set(self, name, value):
+    def set(self, name: BlpapiNameOrStr, value: Any) -> None:
         """Equivalent to :meth:`asElement().setElement(name, value)
         <Element.setElement>`."""
         self.asElement().setElement(name, value)
 
-    def append(self, name, value):
+    def append(self, name: BlpapiNameOrStr, value: Any) -> None:
         """Equivalent to :meth:`getElement(name).appendValue(value)
         <Element.appendValue>`."""
-        return self.getElement(name).appendValue(value)
+        self.getElement(name).appendValue(value)
 
-    def fromPy(self, requestDict):
+    def fromPy(self, requestDict: Mapping) -> None:
         """Equivalent to :meth:`asElement().fromPy(requestDict)
         <Element.fromPy>`.
 
@@ -83,7 +89,7 @@ class Request(CHandle):
         """
         self.asElement().fromPy(requestDict)
 
-    def asElement(self):
+    def asElement(self) -> Element:
         """
         Returns:
             Element: The content of this :class:`Request` as an
@@ -95,15 +101,15 @@ class Request(CHandle):
         if el is None:
             el = Element(internals.blpapi_Request_elements(self.__handle),
                          self)
-            self.__element = weakref.ref(el)
+            self.__element = weakref.ref(el) # type: ignore
         return el
 
-    def getElement(self, name):
+    def getElement(self, name: BlpapiNameOrStr) -> Element:
         """Equivalent to :meth:`asElement().getElement(name)
         <Element.getElement>`."""
         return self.asElement().getElement(name)
 
-    def getRequestId(self):
+    def getRequestId(self) -> str:
         """
         Return the request's id if one exists, otherwise return ``None``.
 
@@ -114,18 +120,18 @@ class Request(CHandle):
         id and should not be used for correlation purposes.
 
         Returns:
-            str: The request id of the request.
+            The request id of the request.
         """
         rc, requestId = internals.blpapi_Request_getRequestId(self.__handle)
         _ExceptionUtil.raiseOnError(rc)
         return requestId
 
-    def toString(self, level=0, spacesPerLevel=4):
+    def toString(self, level: int = 0, spacesPerLevel: int = 4) -> str:
         """Equivalent to :meth:`asElement().toString(level, spacesPerLevel)
         <Element.toString>`."""
         return self.asElement().toString(level, spacesPerLevel)
 
-    def _sessions(self):
+    def _sessions(self) -> Set["typehints.AbstractSession"]:
         """Return session(s) this Request related to. For internal use."""
         return self.__sessions
 

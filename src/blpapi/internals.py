@@ -168,6 +168,8 @@ ZFPUTIL_REMOTE_8196 = _internals.ZFPUTIL_REMOTE_8196
 IDENTITYUTIL_USERTYPE_UNKNOWN = _internals.IDENTITYUTIL_USERTYPE_UNKNOWN
 IDENTITYUTIL_USERTYPE_APP_PORTAL = _internals.IDENTITYUTIL_USERTYPE_APP_PORTAL
 IDENTITYUTIL_USERTYPE_SANDBOX_EXCEL = _internals.IDENTITYUTIL_USERTYPE_SANDBOX_EXCEL
+SUBSCRIPTIONPREPROCESS_INVALID_SUBSCRIPTION_STRING = _internals.SUBSCRIPTIONPREPROCESS_INVALID_SUBSCRIPTION_STRING
+SUBSCRIPTIONPREPROCESS_CORRELATIONID_ERROR = _internals.SUBSCRIPTIONPREPROCESS_CORRELATIONID_ERROR
 DATATYPE_BOOL = _internals.DATATYPE_BOOL
 DATATYPE_CHAR = _internals.DATATYPE_CHAR
 DATATYPE_BYTE = _internals.DATATYPE_BYTE
@@ -362,8 +364,7 @@ class CorrelationId(object):
         if valueType == CorrelationId.UNSET_TYPE:
             return valueTypeName
         else:
-            return "({0}: {1!r}, ClassId: {2})".format(
-                valueTypeName, self.value(), self.classId())
+            return f"({valueTypeName}: {self.value()!r}, ClassId: {self.classId()})"
 
     def __hash__(self):
         return hash((self.type(), self.classId(), self.__toInteger()))
@@ -794,6 +795,15 @@ def blpapi_MessageFormatter_assign(rhs):
 
 def blpapi_MessageFormatter_destroy(formatter):
     return _internals.blpapi_MessageFormatter_destroy(formatter)
+
+def blpapi_Session_subscribeEx_helper(session, subscriptionList, identity, requestLabel, errorAppenderCb):
+    return _internals.blpapi_Session_subscribeEx_helper(session, subscriptionList, identity, requestLabel, errorAppenderCb)
+
+def blpapi_Session_resubscribeEx_helper(session, resubscriptionList, requestLabel, errorAppenderCb):
+    return _internals.blpapi_Session_resubscribeEx_helper(session, resubscriptionList, requestLabel, errorAppenderCb)
+
+def blpapi_Session_resubscribeWithIdEx_helper(session, resubscriptionList, resubscriptionId, requestLabel, errorAppenderCb):
+    return _internals.blpapi_Session_resubscribeWithIdEx_helper(session, resubscriptionList, resubscriptionId, requestLabel, errorAppenderCb)
 
 def blpapi_AuthOptions_create_default():
     return _internals.blpapi_AuthOptions_create_default()
@@ -1500,11 +1510,20 @@ def blpapi_Session_tryNextEvent(session):
 def blpapi_Session_subscribe(session, subscriptionList, handle, requestLabel):
     return _internals.blpapi_Session_subscribe(session, subscriptionList, handle, requestLabel)
 
+def blpapi_Session_subscribeEx(session, subscriptionList, handle, requestLabel, errorHandler, userData):
+    return _internals.blpapi_Session_subscribeEx(session, subscriptionList, handle, requestLabel, errorHandler, userData)
+
 def blpapi_Session_resubscribe(session, resubscriptionList, requestLabel):
     return _internals.blpapi_Session_resubscribe(session, resubscriptionList, requestLabel)
 
+def blpapi_Session_resubscribeEx(session, resubscriptionList, requestLabel, errorHandler, userData):
+    return _internals.blpapi_Session_resubscribeEx(session, resubscriptionList, requestLabel, errorHandler, userData)
+
 def blpapi_Session_resubscribeWithId(session, resubscriptionList, resubscriptionId, requestLabel):
     return _internals.blpapi_Session_resubscribeWithId(session, resubscriptionList, resubscriptionId, requestLabel)
+
+def blpapi_Session_resubscribeWithIdEx(session, resubscriptionList, resubscriptionId, requestLabel, errorHandler, userData):
+    return _internals.blpapi_Session_resubscribeWithIdEx(session, resubscriptionList, resubscriptionId, requestLabel, errorHandler, userData)
 
 def blpapi_Session_unsubscribe(session, unsubscriptionList, requestLabel):
     return _internals.blpapi_Session_unsubscribe(session, unsubscriptionList, requestLabel)

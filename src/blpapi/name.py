@@ -6,14 +6,16 @@ This file defines a class 'Name' which represents a string in a
 form for efficient string comparison.
 
 """
-
+from typing import Optional, Tuple, Union
 from . import internals
-from .compat import conv2str, tolong, isstr
-from .utils import get_handle
+from .utils import conv2str, get_handle, isstr
 from .chandle import CHandle
+from . import typehints # pylint: disable=unused-import
+from .typehints import BlpapiNameOrStr, BlpapiNameHandle
+
+
 
 # pylint: disable=broad-except
-
 class Name(CHandle):
     """:class:`Name` represents a string in a form which is efficient for
     comparison.
@@ -49,49 +51,50 @@ class Name(CHandle):
     """
 
     @staticmethod
-    def findName(nameString):
+    def findName(nameString: str) -> Optional["Name"]:
         """
         Args:
-            nameString (str): String represented by an existing :class:`Name`
+            nameString: String represented by an existing :class:`Name`
 
         Returns:
-            Name: An existing :class:`Name` object representing ``nameString``.
-            If no such object exists, ``None`` is retured.
+            An existing :class:`Name` object representing ``nameString``.
+            If no such object exists, ``None`` is returned.
         """
         nameHandle = internals.blpapi_Name_findName(nameString)
         return None if nameHandle is None \
             else Name._createInternally(nameHandle)
 
     @staticmethod
-    def hasName(nameString):
+    def hasName(nameString: str) -> bool:
         """
         Args:
-            nameString (str): String represented by an existing :class:`Name`
+            nameString: String represented by an existing :class:`Name`
 
         Returns:
-            bool: ``True`` if a :class:`Name` object representing
+            ``True`` if a :class:`Name` object representing
             ``nameString`` exists
         """
         return bool(internals.blpapi_Name_hasName(nameString))
 
     @staticmethod
-    def _createInternally(handle):
+    def _createInternally(handle: BlpapiNameHandle) -> "Name":
         return Name(None, handle)
 
-    def __init__(self, nameString, internalHandle=None):
+    def __init__(self, nameString: Optional[str],
+                 internalHandle: Optional[BlpapiNameHandle] = None) -> None:
         selfhandle = internalHandle
         if selfhandle is None:
             selfhandle = internals.blpapi_Name_create(nameString)
         super(Name, self).__init__(selfhandle, internals.blpapi_Name_destroy)
         self.__handle = selfhandle
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return the length of the string that this Name represents.
         """
 
         return internals.blpapi_Name_length(self.__handle)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """x.__str__() <==> str(x)
 
         Return a string that this Name represents.
@@ -100,32 +103,32 @@ class Name(CHandle):
 
         return internals.blpapi_Name_string(self.__handle)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """x.__eq__(y) <==> x==y"""
-        try:
-            s = conv2str(other)
-            if s is not None:
-                p = internals.blpapi_Name_equalsStr(self.__handle, s)
-                return p != 0
-            return self.__handle == get_handle(other)
-        except Exception:
-            return NotImplemented
+        s = conv2str(other)
+        if s is not None:
+            p = internals.blpapi_Name_equalsStr(self.__handle, s)
+            return p != 0
+        return self.__handle == get_handle(other)
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         """x.__ne__(y) <==> x!=y"""
-        equal = self.__eq__(other)
-        return NotImplemented if equal is NotImplemented else not equal
+        return not self.__eq__(other)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         """x.__hash__() <==> hash(x)"""
-        return tolong(self.__handle)
+        return int(self.__handle)
 
 
-def getNamePair(name):
+
+
+def getNamePair(
+        name: BlpapiNameOrStr) -> Union[Tuple[None, BlpapiNameHandle],
+                                        Tuple[str, None]]:
     """Create a tuple that contains a name string and blpapi_Name_t*.
 
     Args:
-        name (Name or str): A :class:`Name` or a string instance
+        name: A :class:`Name` or a string instance
 
     Returns:
         ``(None, name._handle())`` if ``name`` is a :class:`Name` instance, or

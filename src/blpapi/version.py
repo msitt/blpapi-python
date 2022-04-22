@@ -2,25 +2,26 @@
 
 """Provide BLPAPI SDK versions"""
 
-from __future__ import print_function
 from . import versionhelper
 
-__version__ = "3.17.1"
+__version__ = "3.18.0"
 
 
-def print_version():
+def print_version() -> None:
     """Print version information of BLPAPI python module and blpapi C++ SDK"""
     print("Python BLPAPI SDK version: ", version())
     print("C++ BLPAPI SDK version:    ", cpp_sdk_version())
 
-def version():
+
+def version() -> str:
     """
     Returns:
         str: BLPAPI Python module version
     """
     return __version__
 
-def cpp_sdk_version():
+
+def cpp_sdk_version() -> str:
     """
     Returns:
         str: BLPAPI C++ SDK dependency version

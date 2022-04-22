@@ -20,20 +20,20 @@ The following snippet shows how to use the SessionOptions when creating a
 
 """
 
-from __future__ import absolute_import
+from typing import Iterator, Optional, Sequence, Tuple, Union
+from .typehints import BlpapiTlsOptionsHandle
 from .exception import _ExceptionUtil
 from . import AuthOptions
 from . import CorrelationId
 from . import internals
 from . import utils
 from .utils import get_handle
-from .compat import with_metaclass
 from .chandle import CHandle
+from . import typehints # pylint: disable=unused-import
+
 
 # pylint: disable=too-many-public-methods
-
-@with_metaclass(utils.MetaClassForClassesWithEnums)
-class SessionOptions(CHandle):
+class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     """Options which the user can specify when creating a session.
 
     To use non-default options on a :class:`Session`, create a
@@ -44,14 +44,14 @@ class SessionOptions(CHandle):
     the API.
     """
 
-    AUTO = internals.CLIENTMODE_AUTO
+    AUTO = internals.CLIENTMODE_AUTO # type: ignore
     """Automatic (desktop if available otherwise server)"""
-    DAPI = internals.CLIENTMODE_DAPI
+    DAPI = internals.CLIENTMODE_DAPI # type: ignore
     """Always connect to the desktop API"""
-    SAPI = internals.CLIENTMODE_SAPI
+    SAPI = internals.CLIENTMODE_SAPI # type: ignore
     """Always connect to the server API"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Create a :class:`SessionOptions` with all options set to the
         defaults"""
         selfhandle = internals.blpapi_SessionOptions_create()
@@ -60,7 +60,7 @@ class SessionOptions(CHandle):
             internals.blpapi_SessionOptions_destroy)
         self.__handle = selfhandle
 
-    def __str__(self):
+    def __str__(self) -> str:
         """x.__str__() <==> str(x)
 
         Return a string representation of this SessionOptions. Call of
@@ -70,11 +70,11 @@ class SessionOptions(CHandle):
         """
         return self.toString()
 
-    def setServerHost(self, serverHost):
+    def setServerHost(self, serverHost: str) -> None:
         """Set the API server host to connect to when using the server API.
 
         Args:
-            serverHost (str): Server host
+            serverHost: Server host
 
         Set the API server host to connect to when using the server API to the
         specified ``serverHost``. The server host is either a hostname or an
@@ -85,11 +85,11 @@ class SessionOptions(CHandle):
             internals.blpapi_SessionOptions_setServerHost(self.__handle,
                                                           serverHost))
 
-    def setServerPort(self, serverPort):
+    def setServerPort(self, serverPort: int) -> None:
         """Set the port to connect to when using the server API.
 
         Args:
-            serverPort (int): Server port
+            serverPort: Server port
 
         Set the port to connect to when using the server API to the specified
         ``serverPort``. The default is ``8194``.
@@ -99,13 +99,13 @@ class SessionOptions(CHandle):
             internals.blpapi_SessionOptions_setServerPort(self.__handle,
                                                           serverPort))
 
-    def setServerAddress(self, serverHost, serverPort, index):
+    def setServerAddress(self, serverHost: str, serverPort: int, index: int) -> None:
         """Set the server address at the specified ``index``.
 
         Args:
-            serverHost (str): Server host
-            serverPort (int): Server port
-            index (int): Index to set the address at
+            serverHost: Server host
+            serverPort: Server port
+            index: Index to set the address at
 
         Set the server address at the specified ``index`` using the specified
         ``serverHost`` and ``serverPort``.
@@ -117,22 +117,22 @@ class SessionOptions(CHandle):
                                                              serverPort,
                                                              index))
 
-    def removeServerAddress(self, index):
+    def removeServerAddress(self, index: int) -> None:
         """Remove the server address at the specified ``index``.
 
         Args:
-            index (int): Index to remove the address at
+            index: Index to remove the address at
         """
 
         _ExceptionUtil.raiseOnError(
             internals.blpapi_SessionOptions_removeServerAddress(self.__handle,
                                                                 index))
 
-    def setConnectTimeout(self, timeoutMilliSeconds):
+    def setConnectTimeout(self, timeoutMilliSeconds: int) -> None:
         """Set the connection timeout in milliseconds.
 
         Args:
-            timeoutMilliSeconds (int): Timeout threshold in milliseconds
+            timeoutMilliSeconds: Timeout threshold in milliseconds
 
         Set the connection timeout in milliseconds when connecting to the API.
         The default is ``5000`` milliseconds. Behavior is not defined unless
@@ -145,11 +145,11 @@ class SessionOptions(CHandle):
                 self.__handle,
                 timeoutMilliSeconds))
 
-    def setDefaultServices(self, defaultServices):
+    def setDefaultServices(self, defaultServices: Sequence[str]) -> None:
         """Set the default service for the session.
 
         Args:
-            defaultServices ([str]): The default services
+            defaultServices: The default services
 
         **DEPRECATED**
 
@@ -162,11 +162,11 @@ class SessionOptions(CHandle):
                 self.__handle,
                 defaultServices))
 
-    def setDefaultSubscriptionService(self, defaultSubscriptionService):
+    def setDefaultSubscriptionService(self, defaultSubscriptionService: str) -> None:
         """Set the default service for subscriptions.
 
         Args:
-            defaultSubscriptionService (str): Identifier for the service to be
+            defaultSubscriptionService: Identifier for the service to be
                 used as default
 
         Set the default service for subscriptions which do not specify a
@@ -181,11 +181,11 @@ class SessionOptions(CHandle):
                 self.__handle,
                 defaultSubscriptionService))
 
-    def setDefaultTopicPrefix(self, prefix):
+    def setDefaultTopicPrefix(self, prefix: str) -> None:
         """Set the default topic prefix.
 
         Args:
-            prefix (str): The topic prefix to set
+            prefix: The topic prefix to set
 
         Set the default topic prefix to be used when a subscription does not
         specify a prefix to the specified ``prefix``. The default is
@@ -197,12 +197,12 @@ class SessionOptions(CHandle):
             prefix)
 
     def setAllowMultipleCorrelatorsPerMsg(self,
-                                          allowMultipleCorrelatorsPerMsg):
+                                          allowMultipleCorrelatorsPerMsg: bool) -> None:
         """Associate more than one :class:`CorrelationId` with a
         :class:`Message`.
 
         Args:
-            allowMultipleCorrelatorsPerMsg (bool): Value to set the option to
+            allowMultipleCorrelatorsPerMsg: Value to set the option to
 
         Set whether the :class:`Session` is allowed to associate more than one
         :class:`CorrelationId` with a :class:`Message` to the specified
@@ -219,11 +219,11 @@ class SessionOptions(CHandle):
             self.__handle,
             allowMultipleCorrelatorsPerMsg)
 
-    def setClientMode(self, clientMode):
+    def setClientMode(self, clientMode: int) -> None:
         """Set how to connect to the API. The default is :attr:`AUTO`.
 
         Args:
-            clientMode (int): The client mode
+            clientMode: The client mode
 
         Set how to connect to the API. The default is :attr:`AUTO` which will
         try to connect to the desktop API but fall back to the server API if
@@ -235,11 +235,11 @@ class SessionOptions(CHandle):
         internals.blpapi_SessionOptions_setClientMode(self.__handle,
                                                       clientMode)
 
-    def setMaxPendingRequests(self, maxPendingRequests):
+    def setMaxPendingRequests(self, maxPendingRequests: int) -> None:
         """Set the maximum number of requests which can be pending.
 
         Args:
-            maxPendingRequests (int): Maximum number of pending requests
+            maxPendingRequests: Maximum number of pending requests
 
         Set the maximum number of requests which can be pending to the
         specified ``maxPendingRequests``. The default is ``1024``.
@@ -250,16 +250,17 @@ class SessionOptions(CHandle):
             maxPendingRequests)
 
     def setSessionIdentityOptions(self,
-                                  authOptions,
-                                  correlationId=None):
+                                  authOptions: AuthOptions,
+                                  correlationId: Optional[CorrelationId] = None
+                                 ) -> CorrelationId:
         """Sets the specified ``authOptions`` as the :class:`AuthOptions` for
         the session identity, enabling automatic authorization of the session
         identity during startup.
 
         Args:
-            authOptions (AuthOptions): the authorization options to use for the
+            authOptions: the authorization options to use for the
                 session identity.
-            correlationId (CorrelationId): Optional. Used to identify the
+            correlationId: Optional. Used to identify the
                 messages associated with the session identity.
 
         Returns:
@@ -293,21 +294,21 @@ class SessionOptions(CHandle):
         retcode = internals.blpapi_SessionOptions_setSessionIdentityOptions(
             self._handle(),
             get_handle(authOptions),
-            get_handle(correlationId))
+            correlationId)
         _ExceptionUtil.raiseOnError(retcode)
         return correlationId
 
-    def setAuthenticationOptions(self, authOptions):
+    def setAuthenticationOptions(self, authOptions: str) -> None:
         """Set the specified ``authOptions`` as the authentication options.
 
         Args:
-            authOptions (str): The options used during authentication.
+            authOptions: The options used during authentication.
         """
         internals.blpapi_SessionOptions_setAuthenticationOptions(
             self.__handle,
             authOptions)
 
-    def setNumStartAttempts(self, numStartAttempts):
+    def setNumStartAttempts(self, numStartAttempts: int) -> None:
         """Set the maximum number of attempts to start a session.
 
         Set the maximum number of attempts to start a session by connecting a
@@ -316,7 +317,7 @@ class SessionOptions(CHandle):
         internals.blpapi_SessionOptions_setNumStartAttempts(self.__handle,
                                                             numStartAttempts)
 
-    def setAutoRestartOnDisconnection(self, autoRestart):
+    def setAutoRestartOnDisconnection(self, autoRestart: bool) -> None:
         """Set whether automatically restarting connection if disconnected.
 
         Args:
@@ -327,11 +328,11 @@ class SessionOptions(CHandle):
             self.__handle,
             autoRestart)
 
-    def setSlowConsumerWarningHiWaterMark(self, hiWaterMark):
+    def setSlowConsumerWarningHiWaterMark(self, hiWaterMark: float) -> None:
         """Set the point at which "slow consumer" events will be generated.
 
         Args:
-            hiWaterMark (float): Fraction of :meth:`maxEventQueueSize()`
+            hiWaterMark: Fraction of :meth:`maxEventQueueSize()`
 
         Set the point at which "slow consumer" events will be generated, using
         the specified ``hiWaterMark`` as a fraction of
@@ -348,12 +349,12 @@ class SessionOptions(CHandle):
             self.__handle, hiWaterMark)
         _ExceptionUtil.raiseOnError(err)
 
-    def setSlowConsumerWarningLoWaterMark(self, loWaterMark):
+    def setSlowConsumerWarningLoWaterMark(self, loWaterMark: float) -> None:
         """Set the point at which "slow consumer cleared" events will be
         generated
 
         Args:
-            loWaterMark (float): Fraction of :meth:`maxEventQueueSize()`
+            loWaterMark: Fraction of :meth:`maxEventQueueSize()`
 
         Set the point at which "slow consumer cleared" events will be
         generated, using the specified ``loWaterMark`` as a fraction of
@@ -370,12 +371,12 @@ class SessionOptions(CHandle):
             self.__handle, loWaterMark)
         _ExceptionUtil.raiseOnError(err)
 
-    def setMaxEventQueueSize(self, eventQueueSize):
+    def setMaxEventQueueSize(self, eventQueueSize: int) -> None:
         """Set the maximum number of outstanding undelivered events per
         session.
 
         Args:
-            eventQueueSize (int): Maximum number of outstanding undelivered
+            eventQueueSize: Maximum number of outstanding undelivered
                 events
 
         Set the maximum number of outstanding undelivered events per session to
@@ -388,11 +389,11 @@ class SessionOptions(CHandle):
             self.__handle,
             eventQueueSize)
 
-    def setKeepAliveEnabled(self, isEnabled):
+    def setKeepAliveEnabled(self, isEnabled: bool) -> None:
         """Set whether to enable keep-alive pings.
 
         Args:
-            isEnabled (bool): Whether to enable keep-alive pings
+            isEnabled: Whether to enable keep-alive pings
 
         If the specified ``isEnabled`` is ``False``, then disable all
         keep-alive mechanisms, both from the client to the server and from the
@@ -408,7 +409,7 @@ class SessionOptions(CHandle):
             self.__handle, keepAliveValue)
         _ExceptionUtil.raiseOnError(err)
 
-    def setDefaultKeepAliveInactivityTime(self, inactivityMsecs):
+    def setDefaultKeepAliveInactivityTime(self, inactivityMsecs: int) -> None:
         """Set the amount of time that no traffic can be received before the
         keep-alive mechanism is triggered.
 
@@ -432,11 +433,11 @@ class SessionOptions(CHandle):
             self.__handle, inactivityMsecs)
         _ExceptionUtil.raiseOnError(err)
 
-    def setDefaultKeepAliveResponseTimeout(self, timeoutMsecs):
+    def setDefaultKeepAliveResponseTimeout(self, timeoutMsecs: int) -> None:
         """Set the timeout for terminating the connection due to inactivity.
 
         Args:
-            timeoutMsecs (int): Timeout threshold in milliseconds
+            timeoutMsecs: Timeout threshold in milliseconds
 
         When a keep-alive ping is sent, wait for the specified ``timeoutMsecs``
         to receive traffic (of any kind) before terminating the connection due
@@ -453,10 +454,10 @@ class SessionOptions(CHandle):
             self.__handle, timeoutMsecs)
         _ExceptionUtil.raiseOnError(err)
 
-    def setFlushPublishedEventsTimeout(self, timeoutMsecs):
+    def setFlushPublishedEventsTimeout(self, timeoutMsecs: int) -> None:
         """
         Args:
-            timeoutMsecs (int): Timeout threshold in milliseconds
+            timeoutMsecs: Timeout threshold in milliseconds
 
         Set the timeout, in milliseconds, for :class:`ProviderSession` to flush
         published events before stopping. The behavior is not defined unless
@@ -466,10 +467,10 @@ class SessionOptions(CHandle):
         internals.blpapi_SessionOptions_setFlushPublishedEventsTimeout(
             self.__handle, timeoutMsecs)
 
-    def setRecordSubscriptionDataReceiveTimes(self, shouldRecord):
+    def setRecordSubscriptionDataReceiveTimes(self, shouldRecord: bool) -> None:
         """
         Args:
-            shouldRecord (bool): Whether to record the receipt time
+            shouldRecord: Whether to record the receipt time
 
         Set whether the receipt time (accessed via
         :meth:`.Message.timeReceived()`) should be recorded for subscription
@@ -479,10 +480,10 @@ class SessionOptions(CHandle):
         internals.blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes(
             self.__handle, shouldRecord)
 
-    def setServiceCheckTimeout(self, timeoutMsecs):
+    def setServiceCheckTimeout(self, timeoutMsecs: int) -> None:
         """
         Args:
-            timeoutMsecs (int): Timeout threshold in milliseconds
+            timeoutMsecs: Timeout threshold in milliseconds
 
         Set the timeout, in milliseconds, when opening a service for checking
         what version of the schema should be downloaded.  The behavior is not
@@ -493,10 +494,10 @@ class SessionOptions(CHandle):
             self.__handle, timeoutMsecs)
         _ExceptionUtil.raiseOnError(err)
 
-    def setServiceDownloadTimeout(self, timeoutMsecs):
+    def setServiceDownloadTimeout(self, timeoutMsecs: int) -> None:
         """
         Args:
-            timeoutMsecs (int): Timeout threshold in milliseconds
+            timeoutMsecs: Timeout threshold in milliseconds
 
         Set the timeout, in milliseconds, when opening a service for
         downloading the service schema. The behavior is not defined unless the
@@ -507,57 +508,56 @@ class SessionOptions(CHandle):
             self.__handle, timeoutMsecs)
         _ExceptionUtil.raiseOnError(err)
 
-    def setTlsOptions(self, tlsOptions):
+    def setTlsOptions(self, tlsOptions: "TlsOptions") -> None:
         """Set the TLS options
 
         Args:
-            tlsOptions (TlsOptions): The TLS options
+            tlsOptions: The TLS options
         """
         internals.blpapi_SessionOptions_setTlsOptions(
             self.__handle,
             get_handle(tlsOptions))
 
-    def setBandwidthSaveModeDisabled(self, isDisabled):
+    def setBandwidthSaveModeDisabled(self, isDisabled: bool) -> None:
         """Specify whether to disable bandwidth saving measures.
 
         Args:
-            isDisabled (bool): Whether to disable bandwidth saving measures.
+            isDisabled: Whether to disable bandwidth saving measures.
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_SessionOptions_setBandwidthSaveModeDisabled(
                 self.__handle,
                 isDisabled))
 
-    def serverHost(self):
+    def serverHost(self) -> str:
         """
         Returns:
-            str: The server host option in this :class:`SessionOptions`
-                instance.
+            The server host option in this :class:`SessionOptions` instance.
         """
 
         return internals.blpapi_SessionOptions_serverHost(self.__handle)
 
-    def serverPort(self):
+    def serverPort(self) -> int:
         """
         Returns:
-            int: The server port that this session connects to.
+            The server port that this session connects to.
         """
 
         return internals.blpapi_SessionOptions_serverPort(self.__handle)
 
-    def numServerAddresses(self):
+    def numServerAddresses(self) -> int:
         """
         Returns:
-            int: The number of server addresses.
+            The number of server addresses.
         """
 
         return internals.blpapi_SessionOptions_numServerAddresses(
             self.__handle)
 
-    def getServerAddress(self, index):
+    def getServerAddress(self, index: int) -> Tuple[str, int]:
         """
         Returns:
-            (str, int): Server name and port indexed by ``index``.
+           Server name and port indexed by ``index``.
         """
 
         errorCode, host, port = \
@@ -569,7 +569,7 @@ class SessionOptions(CHandle):
 
         return host, port
 
-    def serverAddresses(self):
+    def serverAddresses(self) -> Iterator:
         """
         Returns:
             Iterator over server addresses for this :class:`SessionOptions`.
@@ -579,197 +579,198 @@ class SessionOptions(CHandle):
                               SessionOptions.numServerAddresses,
                               SessionOptions.getServerAddress)
 
-    def connectTimeout(self):
+    def connectTimeout(self) -> int:
         """
         Returns:
-            int: The value of the connection timeout option.
+            The value of the connection timeout option.
         """
 
         return internals.blpapi_SessionOptions_connectTimeout(self.__handle)
 
-    def defaultServices(self):
+    def defaultServices(self) -> str:
         """
         Returns:
-            str: All default services in one string.
+            All default services in one string, separated by `;`.
         """
         return internals.blpapi_SessionOptions_defaultServices(self.__handle)
 
-    def defaultSubscriptionService(self):
+    def defaultSubscriptionService(self) -> str:
         """
         Returns:
-            str: The default subscription service.
+            The default subscription service.
         """
 
         return internals.blpapi_SessionOptions_defaultSubscriptionService(
             self.__handle)
 
-    def defaultTopicPrefix(self):
+    def defaultTopicPrefix(self) -> str:
         """
         Returns:
-            str: The default topic prefix.
+            The default topic prefix.
         """
 
         return internals.blpapi_SessionOptions_defaultTopicPrefix(
             self.__handle)
 
-    def allowMultipleCorrelatorsPerMsg(self):
+    def allowMultipleCorrelatorsPerMsg(self) -> bool:
         """
         Returns:
-            bool: The value of the allow multiple correlators per message
+            The value of the allow multiple correlators per message
             option.
         """
 
         return internals.blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg(
             self.__handle) != 0
 
-    def clientMode(self):
+    def clientMode(self) -> int:
         """
         Returns:
-            int: The value of the client mode option.
+            The value of the client mode option.
         """
 
         return internals.blpapi_SessionOptions_clientMode(self.__handle)
 
-    def maxPendingRequests(self):
+    def maxPendingRequests(self) -> int:
         """
         Returns:
-            int: The value of the maximum pending request option.
+            The value of the maximum pending request option.
         """
 
         return internals.blpapi_SessionOptions_maxPendingRequests(
             self.__handle)
 
-    def autoRestartOnDisconnection(self):
+    def autoRestartOnDisconnection(self) -> bool:
         """
         Returns:
-            bool: Whether automatically restart connection if disconnected.
+            Whether automatically restart connection if disconnected.
         """
         return internals.blpapi_SessionOptions_autoRestartOnDisconnection(
             self.__handle) != 0
 
-    def authenticationOptions(self):
+    def authenticationOptions(self) -> str:
         """
         Returns:
-            str: Authentication options in a string.
+            Authentication options in a string.
         """
         return internals.blpapi_SessionOptions_authenticationOptions(
             self.__handle)
 
-    def numStartAttempts(self):
+    def numStartAttempts(self) -> int:
         """
         Returns:
-            int: The maximum number of attempts to start a session.
+            The maximum number of attempts to start a session.
         """
         return internals.blpapi_SessionOptions_numStartAttempts(self.__handle)
 
-    def recordSubscriptionDataReceiveTimes(self):
+    def recordSubscriptionDataReceiveTimes(self) -> bool:
         """
         Returns:
-            bool: Whether the receipt time (accessed via
+            Whether the receipt time (accessed via
             :meth:`Message.timeReceived()`) should be recorded for subscription
             data messages.
         """
-        return internals.blpapi_SessionOptions_recordSubscriptionDataReceiveTimes(
-            self.__handle)
+        return bool(internals.blpapi_SessionOptions_recordSubscriptionDataReceiveTimes(
+            self.__handle))
 
-    def slowConsumerWarningHiWaterMark(self):
+    def slowConsumerWarningHiWaterMark(self) -> float:
         """
         Returns:
-            float: The fraction of :meth:`maxEventQueueSize()` at which "slow
+            The fraction of :meth:`maxEventQueueSize()` at which "slow
             consumer" event will be generated.
         """
         return internals.blpapi_SessionOptions_slowConsumerWarningHiWaterMark(
             self.__handle)
 
-    def slowConsumerWarningLoWaterMark(self):
+    def slowConsumerWarningLoWaterMark(self) -> float:
         """
         Returns:
-            float: The fraction of :meth:`maxEventQueueSize()` at which "slow
+            The fraction of :meth:`maxEventQueueSize()` at which "slow
             consumer cleared" event will be generated.
         """
         return internals.blpapi_SessionOptions_slowConsumerWarningLoWaterMark(
             self.__handle)
 
-    def maxEventQueueSize(self):
+    def maxEventQueueSize(self) -> int:
         """
         Returns:
-            int: The value of maximum outstanding undelivered events that the
+            The value of maximum outstanding undelivered events that the
             session is configured with.
         """
         return internals.blpapi_SessionOptions_maxEventQueueSize(self.__handle)
 
-    def defaultKeepAliveInactivityTime(self):
+    def defaultKeepAliveInactivityTime(self) -> int:
         """
         Returns:
-            int: The interval (in milliseconds) a connection has to remain
+            The interval (in milliseconds) a connection has to remain
             inactive (receive no data) before a keep alive probe will be sent.
         """
         return internals.blpapi_SessionOptions_defaultKeepAliveInactivityTime(
             self.__handle)
 
-    def defaultKeepAliveResponseTimeout(self):
+    def defaultKeepAliveResponseTimeout(self) -> int:
         """
         Returns:
-            int: The time (in milliseconds) the library will wait for response
+            The time (in milliseconds) the library will wait for response
             to a keep alive probe before declaring it lost.
         """
         return internals.blpapi_SessionOptions_defaultKeepAliveResponseTimeout(
             self.__handle)
 
-    def flushPublishedEventsTimeout(self):
+    def flushPublishedEventsTimeout(self) -> int:
         """
         Returns:
-            int: The timeout, in milliseconds, for :class:`ProviderSession` to
+            The timeout, in milliseconds, for :class:`ProviderSession` to
             flush published events before stopping. The default value is
             ``2000``.
         """
         return internals.blpapi_SessionOptions_flushPublishedEventsTimeout(
             self.__handle)
 
-    def keepAliveEnabled(self):
+    def keepAliveEnabled(self) -> bool:
         """
         Returns:
-            bool: ``True`` if the keep-alive mechanism is enabled; otherwise
+            ``True`` if the keep-alive mechanism is enabled; otherwise
             return ``False``.
         """
-        return internals.blpapi_SessionOptions_keepAliveEnabled(self.__handle)
+        return bool(
+            internals.blpapi_SessionOptions_keepAliveEnabled(self.__handle))
 
-    def serviceCheckTimeout(self):
+    def serviceCheckTimeout(self) -> int:
         """
         Returns:
-            int: The value of the service check timeout option in this
+            The value of the service check timeout option in this
             :class:`SessionOptions` instance in milliseconds.
         """
         return internals.blpapi_SessionOptions_serviceCheckTimeout(
             self.__handle)
 
-    def serviceDownloadTimeout(self):
+    def serviceDownloadTimeout(self) -> int:
         """
         Returns:
-            int: The value of the service download timeout option in this
+            The value of the service download timeout option in this
             :class:`SessionOptions` instance in milliseconds.
         """
         return internals.blpapi_SessionOptions_serviceDownloadTimeout(
             self.__handle)
 
-    def bandwidthSaveModeDisabled(self):
+    def bandwidthSaveModeDisabled(self) -> bool:
         """
         Returns:
-            bool: Whether bandwidth saving measures are disabled.
+            Whether bandwidth saving measures are disabled.
         """
         return bool(internals.blpapi_SessionOptions_bandwidthSaveModeDisabled(
             self.__handle))
 
-    def toString(self, level=0, spacesPerLevel=4):
+    def toString(self, level: int = 0, spacesPerLevel: int = 4) -> str:
         """Format this :class:`SessionOptions` to the string.
 
         Args:
-            level (int): Indentation level
-            spacesPerLevel (int): Number of spaces per indentation level for
+            level: Indentation level
+            spacesPerLevel: Number of spaces per indentation level for
                 this and all nested objects
 
         Returns:
-            str: This object formatted as a string
+            This object formatted as a string
 
         If ``level`` is negative, suppress indentation of the first line. If
         ``spacesPerLevel`` is negative, format the entire output on one line,
@@ -795,15 +796,15 @@ class TlsOptions(CHandle):
     PKCS#12 format and the DER encoded trusted material in PKCS#7 format.
     """
 
-    def __init__(self, handle):
+    def __init__(self, handle: BlpapiTlsOptionsHandle) -> None:
         super(TlsOptions, self).__init__(
             handle, internals.blpapi_TlsOptions_destroy)
         self.__handle = handle
 
-    def setTlsHandshakeTimeoutMs(self, timeoutMs):
+    def setTlsHandshakeTimeoutMs(self, timeoutMs: int) -> None:
         """
         Args:
-            timeoutMs (int): Timeout threshold in milliseconds
+            timeoutMs: Timeout threshold in milliseconds
 
         Set the TLS handshake timeout to the specified ``timeoutMs``. The
         default is ``10,000`` milliseconds.  The TLS handshake timeout will be
@@ -811,10 +812,10 @@ class TlsOptions(CHandle):
         """
         internals.blpapi_TlsOptions_setTlsHandshakeTimeoutMs(self.__handle,
                                                              timeoutMs)
-    def setCrlFetchTimeoutMs(self, timeoutMs):
+    def setCrlFetchTimeoutMs(self, timeoutMs: int) -> None:
         """
         Args:
-            timeoutMs (int): Timeout threshold in milliseconds
+            timeoutMs: Timeout threshold in milliseconds
 
         Set the CRL fetch timeout to the specified ``timeoutMs``. The default
         is ``20,000`` milliseconds.  The TLS handshake timeout will be set to
@@ -824,15 +825,15 @@ class TlsOptions(CHandle):
             self.__handle, timeoutMs)
 
     @staticmethod
-    def createFromFiles(clientCredentialsFilename,
-                        clientCredentialsPassword,
-                        trustedCertificatesFilename):
+    def createFromFiles(clientCredentialsFilename: str,
+                        clientCredentialsPassword: str,
+                        trustedCertificatesFilename: str) -> "TlsOptions":
         """
         Args:
-            clientCredentialsFilename (str): Path to the file with the client
+            clientCredentialsFilename: Path to the file with the client
                 credentials
-            clientCredentialsPassword (str): Password for the credentials
-            trustedCertificatesFilename (str): Path to the file with the
+            clientCredentialsPassword: Password for the credentials
+            trustedCertificatesFilename: Path to the file with the
                 trusted certificates
 
         Creates a :class:`TlsOptions` using a DER encoded client credentials in
@@ -846,15 +847,15 @@ class TlsOptions(CHandle):
         return TlsOptions(handle)
 
     @staticmethod
-    def createFromBlobs(clientCredentials,
-                        clientCredentialsPassword,
-                        trustedCertificates):
+    def createFromBlobs(clientCredentials: Union[bytes, bytearray],
+                        clientCredentialsPassword: str,
+                        trustedCertificates: Union[bytes, bytearray]) -> "TlsOptions":
         """
         Args:
-            clientCredentials (bytes or bytearray): Blob with the client
+            clientCredentials: Blob with the client
                 credentials
-            clientCredentialsPassword (str): Password for the credentials
-            trustedCertificates (bytes or bytearray): Blob with the trusted
+            clientCredentialsPassword: Password for the credentials
+            trustedCertificates: Blob with the trusted
                 certificates
 
         Creates a :class:`TlsOptions` using a DER encoded client credentials in

@@ -32,15 +32,18 @@ Synchronously read the response 'event' and parse over messages using 'token'
         raise Exception("Failed to get token")
 
 """
-
+from typing import Iterator as IteratorType, Optional, Set
+from collections.abc import Iterator as IteratorABC
 from .message import Message
 from . import internals
 from . import utils
 from .utils import get_handle
-from .compat import with_metaclass
 from .chandle import CHandle
+from . import typehints # pylint: disable=unused-import
+from .typehints import BlpapiEventHandle
 
-class MessageIterator(CHandle):
+
+class MessageIterator(CHandle, IteratorABC):
     """An iterator over the :class:`Message` objects within an :class:`Event`.
 
     Few clients will ever make direct use of :class:`MessageIterator` objects;
@@ -48,7 +51,7 @@ class MessageIterator(CHandle):
     :class:`Event` and :class:`Message` objects.
     """
 
-    def __init__(self, event):
+    def __init__(self, event: "Event") -> None:
         selfhandle = internals.blpapi_MessageIterator_create(get_handle(event))
         super(MessageIterator, self).__init__(
             selfhandle,
@@ -56,21 +59,18 @@ class MessageIterator(CHandle):
         self.__handle = selfhandle
         self.__event = event
 
-    def __iter__(self):
+    def __iter__(self) -> IteratorType:
         return self
 
-    def __next__(self):
+    def __next__(self) -> Message:
         retCode, message = internals.blpapi_MessageIterator_next(self.__handle)
         if retCode:
             raise StopIteration()
         else:
             return Message(message, self.__event)
 
-    next = __next__
 
-
-@with_metaclass(utils.MetaClassForClassesWithEnums)
-class Event(CHandle):
+class Event(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     """A single event resulting from a subscription or a request.
 
     :class:`Event` objects are created by the API and passed to the application
@@ -92,57 +92,59 @@ class Event(CHandle):
     The class attributes represent the possible types of event.
     """
 
-    ADMIN = internals.EVENTTYPE_ADMIN
+    ADMIN = internals.EVENTTYPE_ADMIN # type: ignore
     """Admin event"""
-    SESSION_STATUS = internals.EVENTTYPE_SESSION_STATUS
+    SESSION_STATUS = internals.EVENTTYPE_SESSION_STATUS # type: ignore
     """Status updates for a session"""
-    SUBSCRIPTION_STATUS = internals.EVENTTYPE_SUBSCRIPTION_STATUS
+    SUBSCRIPTION_STATUS = internals.EVENTTYPE_SUBSCRIPTION_STATUS # type: ignore
     """Status updates for a subscription"""
-    REQUEST_STATUS = internals.EVENTTYPE_REQUEST_STATUS
+    REQUEST_STATUS = internals.EVENTTYPE_REQUEST_STATUS # type: ignore
     """Status updates for a request"""
-    RESPONSE = internals.EVENTTYPE_RESPONSE
+    RESPONSE = internals.EVENTTYPE_RESPONSE # type: ignore
     """The final (possibly only) response to a request"""
-    PARTIAL_RESPONSE = internals.EVENTTYPE_PARTIAL_RESPONSE
+    PARTIAL_RESPONSE = internals.EVENTTYPE_PARTIAL_RESPONSE # type: ignore
     """A partial response to a request"""
-    SUBSCRIPTION_DATA = internals.EVENTTYPE_SUBSCRIPTION_DATA
+    SUBSCRIPTION_DATA = internals.EVENTTYPE_SUBSCRIPTION_DATA # type: ignore
     """Data updates resulting from a subscription"""
-    SERVICE_STATUS = internals.EVENTTYPE_SERVICE_STATUS
+    SERVICE_STATUS = internals.EVENTTYPE_SERVICE_STATUS # type: ignore
     """Status updates for a service"""
-    TIMEOUT = internals.EVENTTYPE_TIMEOUT
+    TIMEOUT = internals.EVENTTYPE_TIMEOUT # type: ignore
     """An Event returned from nextEvent() if it timed out"""
-    AUTHORIZATION_STATUS = internals.EVENTTYPE_AUTHORIZATION_STATUS
+    AUTHORIZATION_STATUS = internals.EVENTTYPE_AUTHORIZATION_STATUS # type: ignore
     """Status updates for user authorization"""
-    RESOLUTION_STATUS = internals.EVENTTYPE_RESOLUTION_STATUS
+    RESOLUTION_STATUS = internals.EVENTTYPE_RESOLUTION_STATUS # type: ignore
     """Status updates for a resolution operation"""
-    TOPIC_STATUS = internals.EVENTTYPE_TOPIC_STATUS
+    TOPIC_STATUS = internals.EVENTTYPE_TOPIC_STATUS # type: ignore
     """Status updates about topics for service providers"""
-    TOKEN_STATUS = internals.EVENTTYPE_TOKEN_STATUS
+    TOKEN_STATUS = internals.EVENTTYPE_TOKEN_STATUS # type: ignore
     """Status updates for a generate token request"""
-    REQUEST = internals.EVENTTYPE_REQUEST
+    REQUEST = internals.EVENTTYPE_REQUEST # type: ignore
     """Request event"""
     UNKNOWN = -1
     """Unknown event"""
 
-    def __init__(self, handle, sessions):
+    def __init__(self,
+                 handle: BlpapiEventHandle,
+                 sessions: Optional[Set["typehints.AbstractSession"]] = None):
         super(Event, self).__init__(handle, internals.blpapi_Event_release)
         self.__handle = handle
-        self.__sessions = sessions
+        self.__sessions = sessions if sessions is not None else set()
 
-    def eventType(self):
+    def eventType(self) -> int:
         """
         Returns:
-            int: Type of messages contained by this :class:`Event`.
+            Type of messages contained by this :class:`Event`.
         """
         return internals.blpapi_Event_eventType(self.__handle)
 
-    def __iter__(self):
+    def __iter__(self) -> IteratorType:
         """
         Returns:
             Iterator over messages contained in this :class:`Event`.
         """
         return MessageIterator(self)
 
-    def _sessions(self):
+    def _sessions(self) -> Set["typehints.AbstractSession"]:
         """Return session(s) that this 'Event' is related to.
 
         For internal use."""
@@ -161,7 +163,7 @@ class EventQueue(CHandle):
     :class:`EventQueue` will only deliver responses to the request(s) it is
     associated with.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Construct an empty :class:`EventQueue` which can be passed to
         :meth:`~Session.sendRequest()` and
@@ -172,15 +174,15 @@ class EventQueue(CHandle):
             selfhandle,
             internals.blpapi_EventQueue_destroy)
         self.__handle = selfhandle
-        self.__sessions = set()
+        self.__sessions: Set["typehints.AbstractSession"] = set()
 
-    def nextEvent(self, timeout=0):
+    def nextEvent(self, timeout: int=0) -> Event:
         """
         Args:
-            timeout (int): Timeout threshold in milliseconds.
+            timeout: Timeout threshold in milliseconds.
 
         Returns:
-            Event: The next :class:`Event` available from the
+            The next :class:`Event` available from the
             :class:`EventQueue`.
 
         If the specified ``timeout`` is zero this method will wait forever for
@@ -191,10 +193,10 @@ class EventQueue(CHandle):
         res = internals.blpapi_EventQueue_nextEvent(self.__handle, timeout)
         return Event(res, self._getSessions())
 
-    def tryNextEvent(self):
+    def tryNextEvent(self) -> Optional[Event]:
         """
         Returns:
-            Event: If the :class:`EventQueue` is non-empty, the next
+            If the :class:`EventQueue` is non-empty, the next
             :class:`Event` available, otherwise ``None``.
         """
         res = internals.blpapi_EventQueue_tryNextEvent(self.__handle)
@@ -202,7 +204,7 @@ class EventQueue(CHandle):
             return None
         return Event(res[1], self._getSessions())
 
-    def purge(self):
+    def purge(self) -> None:
         """Purge any :class:`Event` objects in this :class:`EventQueue`.
 
         Purges any :class:`Event` objects in this :class:`EventQueue` which
@@ -213,17 +215,16 @@ class EventQueue(CHandle):
         internals.blpapi_EventQueue_purge(self.__handle)
         self.__sessions.clear()
 
-    def _registerSession(self, session):
+    def _registerSession(self, session: "typehints.AbstractSession") -> None:
         """Add a new session to this 'EventQueue'. For internal use."""
         self.__sessions.add(session)
 
-    def _getSessions(self):
-        """Get a list of sessions this EventQueue related to.
+    def _getSessions(self) -> Set["typehints.AbstractSession"]:
+        """Get a set of sessions this EventQueue related to.
 
         For internal use.
         """
-        sessions = list(self.__sessions)
-        return sessions
+        return self.__sessions
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

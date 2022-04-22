@@ -2,9 +2,11 @@
 
 """Provide a configuration to specify the settings used for authorization."""
 
-from blpapi import internals
-from blpapi.utils import get_handle
-from blpapi.exception import _ExceptionUtil
+from typing import Callable, Any
+from .typehints import BlpapiAuthOptionsHandle, BlpapiAuthUserHandle
+from . import internals
+from .utils import get_handle
+from .exception import _ExceptionUtil
 from .chandle import CHandle
 
 class AuthOptions(CHandle):
@@ -13,9 +15,12 @@ class AuthOptions(CHandle):
     identity or use to authorize other identities.
     """
 
-    def __init__(self, handle, **kwargs):
+    def __init__(self,
+                 handle: BlpapiAuthOptionsHandle,
+                 **kwargs) -> None:
         """For internal use only."""
-        super(AuthOptions, self).__init__(handle, None)
+        noop = lambda *args: None
+        super(AuthOptions, self).__init__(handle, noop)
         self.__handle = handle
         self.__app_handle = kwargs.get("app_handle")
         self.__token_handle = kwargs.get("token_handle")
@@ -24,14 +29,16 @@ class AuthOptions(CHandle):
         self._token_dtor = internals.blpapi_AuthToken_destroy
 
     @classmethod
-    def createWithUser(cls, user):
+    def createWithUser(cls: Callable,
+                       user: "AuthUser") -> "AuthOptions":
         """Creates an :class:`AuthOptions` instance for User Mode with the
         Operating System Login (Domain/User), Active Directory, or Email.
 
         Args:
-            user (AuthUser): user-specific authorization option.
+            user: user-specific authorization option.
+
         Returns:
-            AuthOptions: Specifies User Mode with the Operating System Login
+            Specifies User Mode with the Operating System Login
             (Domain/User), Active Directory, or Email.
 
         The behavior is undefined when ``user`` was created with
@@ -43,14 +50,14 @@ class AuthOptions(CHandle):
         return cls(authOptions_handle)
 
     @classmethod
-    def createWithApp(cls, appName):
+    def createWithApp(cls: Callable, appName: str) -> "AuthOptions":
         """Create an :class:`AuthOptions` instance for Application Mode.
 
         Args:
-            appName (str): app name used for Application Mode.
+            appName: app name used for Application Mode.
 
         Returns:
-            AuthOptions: Specifies Application Mode.
+            Specifies Application Mode.
 
         The behavior is undefined when ``appName`` is ``None`` or ``""``.
         """
@@ -61,14 +68,14 @@ class AuthOptions(CHandle):
         return cls(authOptions_handle, app_handle=app_handle)
 
     @classmethod
-    def createWithToken(cls, token):
+    def createWithToken(cls: Callable, token: str) -> "AuthOptions":
         """Create an :class:`AuthOptions` instance for Manual Token Mode.
 
         Args:
-            token (str): token to use for Manual Token Mode.
+            token: token to use for Manual Token Mode.
 
         Returns:
-            AuthOptions: Specifies Manual Token Mode.
+            Specifies Manual Token Mode.
 
         The behavior is undefined when ``token`` is ``None`` or ``""``.
         """
@@ -79,13 +86,15 @@ class AuthOptions(CHandle):
         return cls(authOptions_handle, token_handle=token_handle)
 
     @classmethod
-    def createWithUserAndApp(cls, user, appName):
+    def createWithUserAndApp(cls: Callable,
+                             user: "AuthUser",
+                             appName: str) -> "AuthOptions":
         """Create an :class:`AuthOptions` instance for User and Application
         Mode.
 
         Args:
-            user (AuthUser): user-specific authorization option.
-            appName (str): app name used for Application Mode.
+            user: user-specific authorization option.
+            appName: app name used for Application Mode.
 
         Returns:
             AuthOptions: an :class:`AuthOptions` that contains the
@@ -101,7 +110,7 @@ class AuthOptions(CHandle):
         _ExceptionUtil.raiseOnError(retcode)
         return cls(authOptions_handle, app_handle=app_handle)
 
-    def destroy(self):
+    def destroy(self) -> None:
         """Destroy this :class:`AuthOptions`."""
         if self.__handle:
             self._options_dtor(self.__handle)
@@ -114,7 +123,7 @@ class AuthOptions(CHandle):
             self.__token_handle = None
 
     @staticmethod
-    def _create_app_handle(appName):
+    def _create_app_handle(appName: str) -> Any:
         """For internal use only."""
         retcode, app_handle = internals \
             .blpapi_AuthApplication_create(appName)
@@ -122,7 +131,7 @@ class AuthOptions(CHandle):
         return app_handle
 
     @staticmethod
-    def _create_token_handle(token):
+    def _create_token_handle(token: str) -> Any:
         """For internal use only."""
         retcode, token_handle = internals \
             .blpapi_AuthToken_create(token)
@@ -133,19 +142,19 @@ class AuthOptions(CHandle):
 class AuthUser(CHandle):
     """Contains user-specific authorization options."""
 
-    def __init__(self, handle):
+    def __init__(self, handle: BlpapiAuthUserHandle) -> None:
         """For internal use only."""
         super(AuthUser, self).__init__(
             handle, internals.blpapi_AuthUser_destroy)
         self.__handle = handle # pylint: disable=unused-private-member
 
     @classmethod
-    def createWithLogonName(cls):
+    def createWithLogonName(cls: Callable) -> "AuthUser":
         """Creates an :class:`AuthUser` instance configured for Operating
         System Login (Domain/User) authorization mode (OS_LOGON).
 
         Returns:
-            AuthUser: Configured for Operating System Login (Domain/User) mode.
+            Configured for Operating System Login (Domain/User) mode.
         """
         retcode, handle = internals \
             .blpapi_AuthUser_createWithLogonName()
@@ -153,15 +162,17 @@ class AuthUser(CHandle):
         return cls(handle)
 
     @classmethod
-    def createWithActiveDirectoryProperty(cls, propertyName):
+    def createWithActiveDirectoryProperty(
+            cls: Callable,
+            propertyName: str) -> "AuthUser":
         """Creates an :class:`AuthUser` instance configured for Active
         Directory authorization mode (DIRECTORY_SERVICE).
 
         Args:
-            propertyName (str): Active Directory property.
+            propertyName: Active Directory property.
 
         Returns:
-            AuthUser: Configured for Active Directory (DIRECTORY_SERVICE)
+            Configured for Active Directory (DIRECTORY_SERVICE)
             authorization mode.
 
         The behavior is undefined when ``propertyName`` is ``""`` or
@@ -174,16 +185,17 @@ class AuthUser(CHandle):
         return cls(handle)
 
     @classmethod
-    def createWithManualOptions(cls, userId, ipAddress):
+    def createWithManualOptions(
+            cls: Callable, userId: str, ipAddress:str) -> "AuthUser":
         """Creates an :class:`AuthUser` instance configured for manual
         authorization.
 
         Args:
-            userId (str): user id.
-            ipAddress (str): IP address.
+            userId: user id.
+            ipAddress: IP address.
 
         Returns:
-            AuthUser: Configured for manual authorization.
+            Configured for manual authorization.
 
         The behavior is undefined when either ``userId`` or ``ipAddress`` is
         ``""`` or ``None``.

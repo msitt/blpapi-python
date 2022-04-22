@@ -8,7 +8,8 @@ from locale import getpreferredencoding
 
 from .debug_environment import get_env_diagnostics
 
-def debug_load_error(error):
+
+def debug_load_error(error: ImportError) -> ImportError:
     """Called when the module fails to import "internals".
     Returns ImportError with some debugging message.
     """
@@ -30,12 +31,12 @@ def debug_load_error(error):
     if platform.system().lower() == "windows":
         env_diagnostics = get_env_diagnostics()
 
-        full_error_msg = """
+        full_error_msg = f"""
 ---------------------------- ENVIRONMENT -----------------------------
-%s
+{env_diagnostics}
 ----------------------------------------------------------------------
-%s
-""" % (env_diagnostics, import_error)
+{import_error}
+"""
     else:
         full_error_msg = import_error
 
@@ -47,13 +48,13 @@ def debug_load_error(error):
             with open(diagnostics_path, "w", encoding=getpreferredencoding()) as f:
                 f.write(full_error_msg)
         except IOError:
-            print("Failed to write to path defined by %s: \"%s\"" \
-                % (diagnostics_path_env_var, diagnostics_path))
+            print("Failed to write to path defined by"
+                  f" {diagnostics_path_env_var}: \"{diagnostics_path}\"")
 
     return ImportError(full_error_msg)
 
 
-def _linker_env():
+def _linker_env() -> str:
     """Return the name of the right environment variable for linking in the
     current platform.
     """
@@ -66,18 +67,19 @@ def _linker_env():
         env = 'LD_LIBRARY_PATH'
     return env
 
-def _version_load_error(error):
+
+def _version_load_error(error: ImportError) -> str:
     """Called when the module fails to import "versionhelper".
-    Returns ImportError with some debugging message.
+    Returns some debugging message.
     """
-    msg = """%s
+    msg = f"""{error}
 
 Could not open the C++ SDK library.
 
 Download and install the latest C++ SDK from:
 
     http://www.bloomberg.com/professional/api-library
-""" % str(error)
+"""
 
     if 'add_dll_directory' in dir(os):
         msg += """
@@ -88,31 +90,33 @@ path to the library is added to 'add_dll_directory', i.e.:
         import blpapi
 """
     else:
-        msg += """
+        msg += f"""
 If the C++ SDK is already installed, please ensure that the path to the library
-was added to %s before entering the interpreter.
+was added to {_linker_env()} before entering the interpreter.
 
-""" % _linker_env()
+"""
     return msg
 
 
-def _version_mismatch_error(error, py_version, cpp_version):
+def _version_mismatch_error(error: ImportError,
+                            py_version: str,
+                            cpp_version: str) -> str:
     """Called when "import version" succeeds after "import internals" fails
-    Returns ImportError with some debugging message.
+    Returns some debugging message.
     """
-    msg = """%s
+    msg = f"""{error}
 
 Mismatch between C++ and Python SDK libraries.
 
-Python SDK version    %s
-Found C++ SDK version %s
+Python SDK version    {py_version}
+Found C++ SDK version {cpp_version}
 
 Download and install the latest C++ SDK from:
 
     http://www.bloomberg.com/professional/api-library
 
 If a recent version of the C++ SDK is already installed, please ensure that the
-path to the library is added to %s before entering the interpreter.
+path to the library is added to {_linker_env()} before entering the interpreter.
 
-""" % (str(error), py_version, cpp_version, _linker_env())
+"""
     return msg

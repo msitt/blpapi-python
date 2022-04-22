@@ -4,8 +4,10 @@
 
 This component provides a topic that is used for publishing data on.
 """
-
+from typing import Set
+from .typehints import BlpapiTopicHandle
 from . import internals
+from . import typehints # pylint: disable=unused-import
 from .service import Service
 from .utils import get_handle
 from .chandle import CHandle
@@ -20,7 +22,9 @@ class Topic(CHandle):
     :class:`EventFormatter`.
     """
 
-    def __init__(self, handle=None, sessions=None):
+    def __init__(self,
+                 handle: BlpapiTopicHandle,
+                 sessions: Set["typehints.AbstractSession"]):
         """Create a :class:`Topic` object.
 
         Args:
@@ -37,23 +41,23 @@ class Topic(CHandle):
         self.__handle = selfhandle
         self.__sessions = sessions
 
-    def isValid(self):
+    def isValid(self) -> bool:
         """
         Returns:
-            bool: ``True`` if this :class:`Topic` is valid and can be used to
+            ``True`` if this :class:`Topic` is valid and can be used to
             publish a message on.
         """
         return self.__handle is not None
 
-    def isActive(self):
+    def isActive(self) -> bool:
         """
         Returns:
-            bool: ``True`` if this topic was elected by the platform to become
+            ``True`` if this topic was elected by the platform to become
             the primary publisher.
         """
         return bool(internals.blpapi_Topic_isActive(self.__handle))
 
-    def service(self):
+    def service(self) -> "typehints.Service": # type: ignore
         """
         Returns:
             Service: The service for which this topic was created.
@@ -61,18 +65,12 @@ class Topic(CHandle):
         return Service(internals.blpapi_Topic_service(self.__handle),
                        self.__sessions)
 
-    def __cmp__(self, other):
-        """3-way comparison of Topic objects."""
-        return internals.blpapi_Topic_compare(
-            self.__handle,
-            get_handle(other))
-
-    def __lt__(self, other):
+    def __lt__(self, other: "typehints.Topic") -> bool:
         """2-way comparison of Topic objects."""
         return internals.blpapi_Topic_compare(
             self.__handle, get_handle(other)) < 0
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """2-way comparison of Topic objects."""
         return internals.blpapi_Topic_compare(
             self.__handle, get_handle(other)) == 0

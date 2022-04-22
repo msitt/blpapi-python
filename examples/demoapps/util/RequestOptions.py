@@ -34,15 +34,19 @@ def addRequestOptions(parser):
     """
 
     # Compute default start/end datetime
-    defaultStartDateTime, defaultEndDateTime = computeDefaultStartAndEndDateTime()
+    (defaultStartDateTime, defaultIntradayBarEndDateTime,
+     defaultIntradayTickEndDateTime) = computeDefaultStartAndEndDateTime()
     formattedDefaultStartDateTime = defaultStartDateTime.isoformat(
         timespec="seconds")
-    formattedDefaultEndDateTime = defaultEndDateTime.isoformat(
+    formattedDefaultIntradayBarEndDateTime = defaultIntradayBarEndDateTime.isoformat(
+        timespec="seconds")
+    formattedDefaultIntradayTickEndDateTime = defaultIntradayTickEndDateTime.isoformat(
         timespec="seconds")
 
     isoDatetimeFormat = "YYYY-MM-DDTHH:MM:SS"
 
     # Request options
+    defaultBarInterval = 5
     argGroupRequest = parser.add_argument_group("Request Options")
     argGroupRequest.add_argument("-s",
                                  "--service",
@@ -75,9 +79,9 @@ def addRequestOptions(parser):
                                  "--interval",
                                  dest="barInterval",
                                  type=int,
-                                 help="Bar interval (default: %(default)d)",
+                                 help="Bar interval in minutes (default: %(default)d)",
                                  metavar="barInterval",
-                                 default=60)
+                                 default=defaultBarInterval)
     argGroupRequest.add_argument("-I",
                                  "--include-condition-codes",
                                  dest="conditionCodes",
@@ -93,17 +97,15 @@ def addRequestOptions(parser):
     argGroupRequest.add_argument("--start-date",
                                  dest="startDateTime",
                                  help="Start datetime in the format of "
-                                 f"{isoDatetimeFormat} (default: {formattedDefaultStartDateTime})",
+                                 f"{isoDatetimeFormat}",
                                  metavar="startDateTime",
-                                 type=parseDatetime,
-                                 default=defaultStartDateTime)
+                                 type=parseDatetime)
     argGroupRequest.add_argument("--end-date",
                                  dest="endDateTime",
                                  help="End datetime in the format of "
-                                 f"{isoDatetimeFormat} (default: {formattedDefaultEndDateTime})",
+                                 f"{isoDatetimeFormat}",
                                  metavar="endDateTime",
-                                 type=parseDatetime,
-                                 default=defaultEndDateTime)
+                                 type=parseDatetime)
     argGroupRequest.add_argument("-O",
                                  "--override",
                                  dest="overrides",
@@ -138,9 +140,9 @@ To retrieve intraday bars:
     -r, --request {INTRADAY_BAR_REQUEST}
     [-S, --security <security = IBM US Equity>]
     [-e, --event <event = TRADE>]
-    [-i, --interval <barInterval = 60>]
+    [-i, --interval <barInterval = {defaultBarInterval}>]
     [--start-date <startDateTime = {formattedDefaultStartDateTime}>]
-    [--end-date <endDateTime = {formattedDefaultEndDateTime}>]
+    [--end-date <endDateTime = {formattedDefaultIntradayBarEndDateTime}>]
     [-G, --gap-fill-initial-bar]
         1) All times are in GMT.
         2) Only one security can be specified.
@@ -149,9 +151,8 @@ To retrieve intraday raw ticks:
     -r, --request {INTRADAY_TICK_REQUEST}
     [-S, --security <security = IBM US Equity>]
     [-e, --event <event = TRADE>]
-    [-i, --interval <barInterval = 60>]
     [--start-date <startDateTime = {formattedDefaultStartDateTime}>]
-    [--end-date <endDateTime = {formattedDefaultEndDateTime}>]
+    [--end-date <endDateTime = {formattedDefaultIntradayTickEndDateTime}>]
     [--include-condition-codes <includeConditionCodes = false>]
         1) All times are in GMT.
         2) Only one security can be specified.
@@ -181,16 +182,21 @@ def setDefaultValues(options):
             if options.requestType == REFERENCE_DATA_REQUEST_OVERRIDE:
                 options.fields += ["DS002", "EQY_WEIGHTED_AVG_PX"]
 
-    if not options.overrides and options.requestType is REFERENCE_DATA_REQUEST_OVERRIDE:
+    if not options.overrides and options.requestType == REFERENCE_DATA_REQUEST_OVERRIDE:
         options.overrides = [Override("VWAP_START_TIME", "9:30"),
                              Override("VWAP_END_TIME", "11:30")]
 
-    startDatetime, endDatetime = computeDefaultStartAndEndDateTime()
-    if not options.startDateTime:
-        options.startDateTime = startDatetime
+    # Compute default start/end datetime
+    if not options.startDateTime or not options.endDateTime:
+        (defaultStartDateTime, defaultIntradayBarEndDateTime,
+         defaultIntradayTickEndDateTime) = computeDefaultStartAndEndDateTime()
+        if not options.startDateTime:
+            options.startDateTime = defaultStartDateTime
 
-    if not options.endDateTime:
-        options.endDateTime = endDatetime
+        if not options.endDateTime:
+            options.endDateTime = (defaultIntradayBarEndDateTime
+                                   if options.requestType == INTRADAY_BAR_REQUEST
+                                   else defaultIntradayTickEndDateTime)
 
 
 def computeDefaultStartAndEndDateTime():
@@ -201,11 +207,15 @@ def computeDefaultStartAndEndDateTime():
     elif datetime.date.weekday(previousTradingDate.date()) == 6:  # if Sunday
         previousTradingDate = previousTradingDate - datetime.timedelta(days=2)
 
-    previousTradingDate = previousTradingDate.replace(
-        hour=13, minute=30, second=0)
-    nextFiveMinutes = previousTradingDate + datetime.timedelta(minutes=5)
+    # Start on the market open time (GMT) on previous trading day.
+    startDateTime = previousTradingDate.replace(
+        hour=14, minute=30, second=0)
 
-    return previousTradingDate, nextFiveMinutes
+    # The default bar interval is 5 minute, by default there are 12 bars
+    intradayBarEndDateTime = startDateTime + datetime.timedelta(minutes=60)
+    intradayTickEndDateTime = startDateTime + datetime.timedelta(minutes=5)
+
+    return startDateTime, intradayBarEndDateTime, intradayTickEndDateTime
 
 
 __copyright__ = """
