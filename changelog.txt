@@ -1,3 +1,7 @@
+Version 3.18.3:
+===============
+- Stability and performance improvements
+
 Version 3.18.2:
 ===============
 - Stability and performance improvements

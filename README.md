@@ -9,8 +9,8 @@
 
 [![ARTA tests and coverage](https://badges.dev.bloomberg.com/badge//ARTA%20tests%20and%20coverage/blue?icon=codecov "ARTA tests and coverage")](https://bbgithub.dev.bloomberg.com/apisdk/arta-jaas-dailies/blob/main/README.md)
 
-[![blpapi python documentation (main branch)](https://badges.dev.bloomberg.com/badge//blpapi%20python%20documentation%20(main%20branch)/blue?icon=fa-book "blpapi python documentation (main branch)")](https://rdp.jaas.dev.bloomberg.com/job/apisdk/job/blpapi-py/job/main/lastCompletedBuild/blpapi_20Python_20documentation/)
-[![blpapi documentation (release)](https://badges.dev.bloomberg.com/badge//blpapi%20documentation%20(release)/blue?icon=fa-book "blpapi documentation (release)")](https://bloomberg.github.io/blpapi-docs/)
+[![blpapi python docs](https://rdp.jaas.dev.bloomberg.com/job/apisdk/job/blpapi-py/job/main/lastCompletedBuild/artifact/blpapi_python_docs-badge.svg 'blpapi python docs apisdk/blpapi-py/main')](http://static-html-server.rdpsdk.ob1.bcc.bloomberg.com:8080/blpapi-docs/apisdk/blpapi-py/main/html)
+[![blpapi release docs](https://badges.dev.bloomberg.com/badge/blpapi%20docs/release/blue?icon=fa-book "blpapi release docs")](https://bloomberg.github.io/blpapi-docs/)
 
 This directory contains an interface for interacting with Bloomberg API
 services using the Python programming language. This package is the source
