@@ -14,7 +14,7 @@ from . import utils
 from .utils import get_handle
 from .internals import CorrelationId
 from .chandle import CHandle
-from . import typehints # pylint: disable=unused-import
+from . import typehints  # pylint: disable=unused-import
 
 
 # pylint: disable=protected-access
@@ -31,9 +31,9 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     :meth:`~ProviderSession.createTopics()` call.
     """
 
-    NOT_CREATED = internals.TOPICLIST_NOT_CREATED # type: ignore
-    CREATED = internals.TOPICLIST_CREATED # type: ignore
-    FAILURE = internals.TOPICLIST_FAILURE # type: ignore
+    NOT_CREATED = internals.TOPICLIST_NOT_CREATED
+    CREATED = internals.TOPICLIST_CREATED
+    FAILURE = internals.TOPICLIST_FAILURE
 
     def __init__(self, original: Optional[ResolutionList] = None) -> None:
         """Create an empty :class:`TopicList`, or a :class:`TopicList` based on
@@ -53,23 +53,27 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         :class:`TopicList` also changes because owns the same handle.
         """
         if isinstance(original, ResolutionList):
-            selfhandle = \
-                internals.blpapi_TopicList_createFromResolutionList(
-                    get_handle(original))
+            selfhandle = internals.blpapi_TopicList_createFromResolutionList(
+                get_handle(original)
+            )
             self.__sessions = original._sessions()
         elif original is not None:
             raise TypeError(
-                        "'original' should be an instance of 'ResolutionList'")
+                "'original' should be an instance of 'ResolutionList'"
+            )
         else:
             selfhandle = internals.blpapi_TopicList_create(None)
             self.__sessions = set()
         super(TopicList, self).__init__(
-            selfhandle, internals.blpapi_TopicList_destroy)
+            selfhandle, internals.blpapi_TopicList_destroy
+        )
         self.__handle = selfhandle
 
-    def add(self,
-            topicOrMessage: Union[str, Message],
-            correlationId: Optional[CorrelationId] = None) -> int:
+    def add(
+        self,
+        topicOrMessage: Union[str, Message],
+        correlationId: Optional[CorrelationId] = None,
+    ) -> int:
         """Add the specified topic or topic from message to this
         :class:`TopicList`.
 
@@ -100,16 +104,15 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             correlationId = CorrelationId()
         if not isinstance(correlationId, CorrelationId):
             raise TypeError(
-                "correlationId should be an instance of 'CorrelationId'")
+                "correlationId should be an instance of 'CorrelationId'"
+            )
         if isinstance(topicOrMessage, Message):
             return internals.blpapi_TopicList_addFromMessage(
-                self.__handle,
-                get_handle(topicOrMessage),
-                correlationId)
+                self.__handle, get_handle(topicOrMessage), correlationId
+            )
         return internals.blpapi_TopicList_add(
-            self.__handle,
-            topicOrMessage,
-            correlationId)
+            self.__handle, topicOrMessage, correlationId
+        )
 
     def correlationIdAt(self, index: int) -> CorrelationId:
         """
@@ -123,8 +126,8 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             Exception: If ``index >= size()``.
         """
         errorCode, cid = internals.blpapi_TopicList_correlationIdAt(
-            self.__handle,
-            index)
+            self.__handle, index
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return cid
 
@@ -142,8 +145,8 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
                 this list.
         """
         errorCode, topic = internals.blpapi_TopicList_topicString(
-            self.__handle,
-            correlationId)
+            self.__handle, correlationId
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
@@ -159,8 +162,8 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             Exception: If ``index >= size()``.
         """
         errorCode, topic = internals.blpapi_TopicList_topicStringAt(
-            self.__handle,
-            index)
+            self.__handle, index
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
@@ -180,8 +183,8 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
                 this list.
         """
         errorCode, status = internals.blpapi_TopicList_status(
-            self.__handle,
-            correlationId)
+            self.__handle, correlationId
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return status
 
@@ -198,8 +201,8 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             Exception: If ``index >= size()``.
         """
         errorCode, status = internals.blpapi_TopicList_statusAt(
-            self.__handle,
-            index)
+            self.__handle, index
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return status
 
@@ -215,15 +218,14 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
 
         Raises:
             Exception: If ``correlationId`` does not identify an entry in this
-                :class:`TopicList` or if the status of the entry identified by
-                ``correlationId`` is not :attr:`CREATED`.
+                :class:`TopicList`.
 
         The message returned can be used when creating an instance of
         :class:`Topic`.
         """
         errorCode, message = internals.blpapi_TopicList_message(
-            self.__handle,
-            correlationId)
+            self.__handle, correlationId
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return Message(message, sessions=self._sessions())
 
@@ -237,15 +239,14 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
                 ``index``.
 
         Raises:
-            Exception: If ``index >= size()`` or if the status of the entry
-                identify by ``correlationId`` is not :attr:`CREATED`.
+            Exception: If ``index >= size()``.
 
         The message returned can be used when creating an instance of
         :class:`Topic`.
         """
         errorCode, message = internals.blpapi_TopicList_messageAt(
-            self.__handle,
-            index)
+            self.__handle, index
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return Message(message, sessions=self._sessions())
 
@@ -264,6 +265,7 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
 
         For internal use."""
         self.__sessions.add(session)
+
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

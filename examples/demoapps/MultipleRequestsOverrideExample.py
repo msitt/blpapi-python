@@ -1,6 +1,9 @@
 from blpapi_import_helper import blpapi
 
-from util.ConnectionAndAuthOptions import addConnectionAndAuthOptions, createSessionOptions
+from util.ConnectionAndAuthOptions import (
+    addConnectionAndAuthOptions,
+    createSessionOptions,
+)
 from snippets.requestresponse import ReferenceDataRequests
 from util.RequestOptions import Override, REFDATA_SERVICE
 from collections import namedtuple
@@ -9,8 +12,10 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 
 def main():
 
-    parser = ArgumentParser(formatter_class=RawTextHelpFormatter,
-                            description="Multiple requests with override example")
+    parser = ArgumentParser(
+        formatter_class=RawTextHelpFormatter,
+        description="Multiple requests with override example",
+    )
     addConnectionAndAuthOptions(parser)
     options = parser.parse_args()
 
@@ -31,16 +36,20 @@ def main():
         fieldIdVwapStartTime = "VWAP_START_TIME"
         fieldIdVwapEndTime = "VWAP_END_TIME"
 
-        Options = namedtuple('Options', ['securities', 'fields', 'overrides'])
+        Options = namedtuple("Options", ["securities", "fields", "overrides"])
 
         # Request 1
         startTime1 = "9:30"
         endTime1 = "11:30"
 
-        options = Options(["IBM US Equity", "MSFT US Equity"],
-                          ["PX_LAST", "DS002"],
-                          [Override(fieldIdVwapStartTime, startTime1),
-                           Override(fieldIdVwapEndTime, endTime1)])
+        options = Options(
+            ["IBM US Equity", "MSFT US Equity"],
+            ["PX_LAST", "DS002"],
+            [
+                Override(fieldIdVwapStartTime, startTime1),
+                Override(fieldIdVwapEndTime, endTime1),
+            ],
+        )
 
         request1 = ReferenceDataRequests.createRequest(service, options)
 
@@ -77,7 +86,10 @@ def main():
                             print("Request 2 failed.")
 
                         finalResponseCount += 1
-                elif eventType in [blpapi.Event.RESPONSE, blpapi.Event.PARTIAL_RESPONSE]:
+                elif eventType in [
+                    blpapi.Event.RESPONSE,
+                    blpapi.Event.PARTIAL_RESPONSE,
+                ]:
                     if correlationId1 == msgCorrelationId:
                         print("Received response for request 1")
                     elif correlationId2 == msgCorrelationId:
@@ -94,7 +106,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
         print(e)
 
 __copyright__ = """

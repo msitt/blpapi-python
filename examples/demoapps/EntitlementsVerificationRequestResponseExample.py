@@ -2,10 +2,11 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 
 from blpapi_import_helper import blpapi
 from blpapi import CorrelationId, Event, Name, Names, Session
-from util.ConnectionAndAuthOptions import \
-    addConnectionAndAuthOptions, \
-    createClientServerSetupAuthOptions, \
-    createSessionOptions
+from util.ConnectionAndAuthOptions import (
+    addConnectionAndAuthOptions,
+    createClientServerSetupAuthOptions,
+    createSessionOptions,
+)
 from util.events.SessionRouter import SessionRouter
 from threading import Event as ThreadingEvent
 from time import sleep
@@ -20,7 +21,6 @@ ENTITLEMENT_CHANGED = Name("EntitlementChanged")
 
 
 class EntitlementsVerificationRequestResponseExample:
-
     def __init__(self, options):
         self._options = options
         self._router = SessionRouter()
@@ -32,19 +32,24 @@ class EntitlementsVerificationRequestResponseExample:
         self._router.addExceptionHandler(self._handleException)
 
         self._router.addMessageHandlerByMessageType(
-            Names.SESSION_STARTED, self._handleSessionStarted)
+            Names.SESSION_STARTED, self._handleSessionStarted
+        )
         self._router.addMessageHandlerByMessageType(
-            Names.SESSION_STARTUP_FAILURE,
-            self._handleSessionStartupFailure)
+            Names.SESSION_STARTUP_FAILURE, self._handleSessionStartupFailure
+        )
         self._router.addMessageHandlerByMessageType(
-            Names.SESSION_TERMINATED, self._handleSessionTerminated)
+            Names.SESSION_TERMINATED, self._handleSessionTerminated
+        )
 
         self._router.addMessageHandlerByMessageType(
-            Names.SERVICE_OPENED, self._handleServiceOpened)
+            Names.SERVICE_OPENED, self._handleServiceOpened
+        )
         self._router.addMessageHandlerByMessageType(
-            Names.SERVICE_OPEN_FAILURE, self._handleServiceOpenFailure)
+            Names.SERVICE_OPEN_FAILURE, self._handleServiceOpenFailure
+        )
         self._router.addMessageHandlerByMessageType(
-            ENTITLEMENT_CHANGED, self._handleEntitlementChanged)
+            ENTITLEMENT_CHANGED, self._handleEntitlementChanged
+        )
 
     @property
     def stopped(self):
@@ -73,14 +78,14 @@ class EntitlementsVerificationRequestResponseExample:
         # started to only react to the authorization messages of users,
         # i.e., avoid those of the session identity.
         self._router.addMessageHandlerByMessageType(
-            Names.AUTHORIZATION_SUCCESS,
-            self._handleAuthorizationSuccess)
+            Names.AUTHORIZATION_SUCCESS, self._handleAuthorizationSuccess
+        )
         self._router.addMessageHandlerByMessageType(
-            Names.AUTHORIZATION_FAILURE,
-            self._handleAuthorizationFailure)
+            Names.AUTHORIZATION_FAILURE, self._handleAuthorizationFailure
+        )
         self._router.addMessageHandlerByMessageType(
-            Names.AUTHORIZATION_REVOKED,
-            self._handleAuthorizationRevoked)
+            Names.AUTHORIZATION_REVOKED, self._handleAuthorizationRevoked
+        )
 
         self._authorizeUsers(session)
         self._openServices(session)
@@ -119,45 +124,53 @@ class EntitlementsVerificationRequestResponseExample:
         requestDict = {
             "securities": self._options.securities,
             "fields": ["PX_LAST", "DS002"],
-            "returnEids": True
+            "returnEids": True,
         }
 
         request.fromPy(requestDict)
 
         print(f"Sending RefDataRequest {request}")
-        correlationId = CorrelationId("example")
-        self._router.addMessageHandlerByCorrelationId(
-            correlationId, self._processResponseMessage)
-        session.sendRequest(request, correlationId=correlationId)
+        self._router.addEventHandlerByEventType(
+            Event.REQUEST_STATUS, self._processRequestStatus
+        )
+        self._router.addEventHandlerByEventType(
+            Event.PARTIAL_RESPONSE, self._processPartialResponse
+        )
+        self._router.addEventHandlerByEventType(
+            Event.RESPONSE, self._processResponse
+        )
+        session.sendRequest(request, correlationId=CorrelationId("example"))
 
-    def _processResponseMessage(self, session, event, message):
-        if message.messageType() == Names.REQUEST_FAILURE:
-            print("Request failed, stopping...")
-            self._stop(session)
-            return
+    def _processRequestStatus(self, session, event):
+        for message in event:
+            if message.messageType() == Names.REQUEST_FAILURE:
+                print("Request failed, stopping...")
+                self._stop(session)
 
-        if event.eventType() == Event.PARTIAL_RESPONSE:
-            print("Received partial response")
+    def _processPartialResponse(self, _, event):
+        # Save the response
+        self._responses.append(event)
+        print("Received partial response")
 
-            # Save the response
-            self._responses.append(event)
-        elif event.eventType() == Event.RESPONSE:
-            print("Received final response")
-            self._finalResponseReceived = True
+    def _processResponse(self, _, event):
+        print("Received final response")
+        self._finalResponseReceived = True
+        self._responses.append(event)
 
-            # Save the response
-            self._responses.append(event)
-
-            # Distributes all the cached responses to the identities that have
-            # been authorized so far.
-            for correlationId, identity in self._identitiesByCorrelationId.items():
-                userIdentifier = correlationId.value()
-                self._distributeResponses(userIdentifier, identity)
+        # Distributes all the cached responses to the identities that have
+        # been authorized so far.
+        for (
+            correlationId,
+            identity,
+        ) in self._identitiesByCorrelationId.items():
+            userIdentifier = correlationId.value()
+            self._distributeResponses(userIdentifier, identity)
 
     def _authorizeUsers(self, session):
         # Authorize each of the users
         authOptionsByIdentifier = createClientServerSetupAuthOptions(
-            self._options)
+            self._options
+        )
         for userIdentifier, authOptions in authOptionsByIdentifier.items():
             correlationId = blpapi.CorrelationId(userIdentifier)
             session.generateAuthorizedIdentity(authOptions, correlationId)
@@ -216,17 +229,22 @@ class EntitlementsVerificationRequestResponseExample:
                     # Entitlements are required to access this data
                     entitlements = securityData[EID_DATA]
 
-                    entitled, failedEntitlements = identity.getFailedEntitlements(
-                        service,
-                        entitlements)
+                    (
+                        entitled,
+                        failedEntitlements,
+                    ) = identity.getFailedEntitlements(service, entitlements)
                     if entitled:
-                        print(f"{userIdentifier} is entitled to get data "
-                              f"for: {ticker}")
+                        print(
+                            f"{userIdentifier} is entitled to get data "
+                            f"for: {ticker}"
+                        )
 
                         # Now Distribute message to the user.
                     else:
-                        print(f"{userIdentifier} is NOT entitled to get "
-                              f"data for: {ticker} - Failed EIDs: {failedEntitlements}")
+                        print(
+                            f"{userIdentifier} is NOT entitled to get "
+                            f"data for: {ticker} - Failed EIDs: {failedEntitlements}"
+                        )
                 else:
                     print(f"No entitlements are required for: {ticker}")
 
@@ -236,16 +254,20 @@ class EntitlementsVerificationRequestResponseExample:
 def parseCmdLine():
     parser = ArgumentParser(
         description="Entitlements Verification Request/Response Example",
-        formatter_class=RawTextHelpFormatter)
+        formatter_class=RawTextHelpFormatter,
+    )
     addConnectionAndAuthOptions(parser, forClientServerSetup=True)
 
-    parser.add_argument("-S", "--security",
-                        dest="securities",
-                        help="security used in ReferenceDataRequest (default:"
-                        " IBM US Equity). Can be specified multiple times",
-                        metavar="security",
-                        action="append",
-                        default=[])
+    parser.add_argument(
+        "-S",
+        "--security",
+        dest="securities",
+        help="security used in ReferenceDataRequest (default:"
+        " IBM US Equity). Can be specified multiple times",
+        metavar="security",
+        action="append",
+        default=[],
+    )
 
     options = parser.parse_args()
 

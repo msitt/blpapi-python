@@ -3,21 +3,25 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from blpapi_import_helper import blpapi
 from blpapi import Names
 
-from util.SubscriptionOptions import \
-    addSubscriptionOptions, \
-    setSubscriptionSessionOptions, \
-    createSubscriptionList
-from util.ConnectionAndAuthOptions import \
-    addConnectionAndAuthOptions, \
-    createSessionOptions
+from util.SubscriptionOptions import (
+    addSubscriptionOptions,
+    setSubscriptionSessionOptions,
+    createSubscriptionList,
+)
+from util.ConnectionAndAuthOptions import (
+    addConnectionAndAuthOptions,
+    createSessionOptions,
+)
 from util.MaxEventsOption import addMaxEventsOption
 
 
 def parseCmdLine():
     """Parse command line arguments"""
 
-    parser = ArgumentParser(formatter_class=RawTextHelpFormatter,
-                            description="Subscription example with event polling")
+    parser = ArgumentParser(
+        formatter_class=RawTextHelpFormatter,
+        description="Subscription example with event polling",
+    )
     addSubscriptionOptions(parser)
     addConnectionAndAuthOptions(parser)
     addMaxEventsOption(parser)
@@ -25,6 +29,7 @@ def parseCmdLine():
     options = parser.parse_args()
 
     return options
+
 
 def checkFailures(session):
     """Checks failure events published by the session."""
@@ -43,6 +48,7 @@ def checkFailures(session):
             if processGenericMessage(eventType, msg):
                 return
 
+
 def processSubscriptionEvents(session, maxEvents):
     eventCount = 0
     while True:
@@ -54,8 +60,10 @@ def processSubscriptionEvents(session, maxEvents):
             messageType = msg.messageType()
             messageCorrelationId = msg.correlationId()
             if eventType == blpapi.Event.SUBSCRIPTION_STATUS:
-                if messageType == Names.SUBSCRIPTION_FAILURE \
-                        or messageType == Names.SUBSCRIPTION_TERMINATED:
+                if (
+                    messageType == Names.SUBSCRIPTION_FAILURE
+                    or messageType == Names.SUBSCRIPTION_TERMINATED
+                ):
                     topic = messageCorrelationId.value()
                     print(f"Subscription failed for topic {topic}")
                     printContactSupportMessage(msg)
@@ -69,7 +77,9 @@ def processSubscriptionEvents(session, maxEvents):
                         # RequestId that is used to identify the
                         # source of the data and can be used when
                         # contacting support
-                        print(f"Received init paint with RequestId {msg.getRequestId()}")
+                        print(
+                            f"Received init paint with RequestId {msg.getRequestId()}"
+                        )
             else:
 
                 # SESSION_STATUS events can happen at any time and
@@ -84,6 +94,7 @@ def processSubscriptionEvents(session, maxEvents):
             if eventCount >= maxEvents:
                 break
 
+
 def processGenericMessage(eventType, message):
     """Prints error information if the 'message' is a failure message."""
 
@@ -95,8 +106,10 @@ def processGenericMessage(eventType, message):
     # session, in which case, applications only need to check session status
     # messages. Applications don't need to handle token or authorization messages
     if eventType == blpapi.Event.SESSION_STATUS:
-        if messageType == Names.SESSION_TERMINATED or \
-                messageType == Names.SESSION_STARTUP_FAILURE:
+        if (
+            messageType == Names.SESSION_TERMINATED
+            or messageType == Names.SESSION_STARTUP_FAILURE
+        ):
             print("Session failed to start or terminated")
             printContactSupportMessage(message)
             # Session failed to start/terminated
@@ -109,6 +122,7 @@ def processGenericMessage(eventType, message):
 
     # Session OK
     return False
+
 
 def printContactSupportMessage(msg):
     """Prints contact support message."""
@@ -146,10 +160,11 @@ def main():
     finally:
         session.stop()
 
+
 if __name__ == "__main__":
     try:
         main()
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
         print(e)
 
 __copyright__ = """

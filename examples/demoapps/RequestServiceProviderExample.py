@@ -1,7 +1,10 @@
 from argparse import ArgumentParser, RawTextHelpFormatter
 
 from blpapi_import_helper import blpapi
-from util.ConnectionAndAuthOptions import addConnectionAndAuthOptions, createSessionOptions
+from util.ConnectionAndAuthOptions import (
+    addConnectionAndAuthOptions,
+    createSessionOptions,
+)
 
 import time
 
@@ -22,9 +25,11 @@ DOUBLE_VALUE = blpapi.Name("doubleValue")
 def parseCmdLine():
     """Parse command line arguments"""
 
-    parser = ArgumentParser(formatter_class=RawTextHelpFormatter,
-                            description="Request service provider example, to be used in "
-                                        "conjunction with RequestServiceConsumerExample")
+    parser = ArgumentParser(
+        formatter_class=RawTextHelpFormatter,
+        description="Request service provider example, to be used in "
+        "conjunction with RequestServiceConsumerExample",
+    )
     addConnectionAndAuthOptions(parser)
     options = parser.parse_args()
     return options
@@ -116,7 +121,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
         print(e)
 
 

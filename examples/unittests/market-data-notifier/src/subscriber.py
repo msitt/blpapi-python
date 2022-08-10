@@ -3,7 +3,7 @@
 import blpapi
 
 # pylint: disable=too-few-public-methods,too-many-arguments
-class Subscriber():
+class Subscriber:
     """Custom Subscriber implementation for demonstration purposes."""
 
     def __init__(self, session):
@@ -14,9 +14,11 @@ class Subscriber():
 
         subscription_list = blpapi.SubscriptionList()
         for topic in topics:
-            subscription_list.add(topic, fields, options,
-                                  blpapi.CorrelationId(topic))
+            subscription_list.add(
+                topic, fields, options, blpapi.CorrelationId(topic)
+            )
         self._session.subscribe(subscription_list, identity)
+
 
 __copyright__ = """
 Copyright 2020. Bloomberg Finance L.P.

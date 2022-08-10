@@ -39,7 +39,7 @@ from . import internals
 from . import utils
 from .utils import get_handle
 from .chandle import CHandle
-from . import typehints # pylint: disable=unused-import
+from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiEventHandle
 
 
@@ -54,8 +54,8 @@ class MessageIterator(CHandle, IteratorABC):
     def __init__(self, event: "Event") -> None:
         selfhandle = internals.blpapi_MessageIterator_create(get_handle(event))
         super(MessageIterator, self).__init__(
-            selfhandle,
-            internals.blpapi_MessageIterator_destroy)
+            selfhandle, internals.blpapi_MessageIterator_destroy
+        )
         self.__handle = selfhandle
         self.__event = event
 
@@ -92,40 +92,42 @@ class Event(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     The class attributes represent the possible types of event.
     """
 
-    ADMIN = internals.EVENTTYPE_ADMIN # type: ignore
+    ADMIN = internals.EVENTTYPE_ADMIN  # type: ignore
     """Admin event"""
-    SESSION_STATUS = internals.EVENTTYPE_SESSION_STATUS # type: ignore
+    SESSION_STATUS = internals.EVENTTYPE_SESSION_STATUS  # type: ignore
     """Status updates for a session"""
-    SUBSCRIPTION_STATUS = internals.EVENTTYPE_SUBSCRIPTION_STATUS # type: ignore
+    SUBSCRIPTION_STATUS = internals.EVENTTYPE_SUBSCRIPTION_STATUS  # type: ignore
     """Status updates for a subscription"""
-    REQUEST_STATUS = internals.EVENTTYPE_REQUEST_STATUS # type: ignore
+    REQUEST_STATUS = internals.EVENTTYPE_REQUEST_STATUS  # type: ignore
     """Status updates for a request"""
-    RESPONSE = internals.EVENTTYPE_RESPONSE # type: ignore
+    RESPONSE = internals.EVENTTYPE_RESPONSE  # type: ignore
     """The final (possibly only) response to a request"""
-    PARTIAL_RESPONSE = internals.EVENTTYPE_PARTIAL_RESPONSE # type: ignore
+    PARTIAL_RESPONSE = internals.EVENTTYPE_PARTIAL_RESPONSE  # type: ignore
     """A partial response to a request"""
-    SUBSCRIPTION_DATA = internals.EVENTTYPE_SUBSCRIPTION_DATA # type: ignore
+    SUBSCRIPTION_DATA = internals.EVENTTYPE_SUBSCRIPTION_DATA  # type: ignore
     """Data updates resulting from a subscription"""
-    SERVICE_STATUS = internals.EVENTTYPE_SERVICE_STATUS # type: ignore
+    SERVICE_STATUS = internals.EVENTTYPE_SERVICE_STATUS  # type: ignore
     """Status updates for a service"""
-    TIMEOUT = internals.EVENTTYPE_TIMEOUT # type: ignore
+    TIMEOUT = internals.EVENTTYPE_TIMEOUT  # type: ignore
     """An Event returned from nextEvent() if it timed out"""
-    AUTHORIZATION_STATUS = internals.EVENTTYPE_AUTHORIZATION_STATUS # type: ignore
+    AUTHORIZATION_STATUS = internals.EVENTTYPE_AUTHORIZATION_STATUS  # type: ignore
     """Status updates for user authorization"""
-    RESOLUTION_STATUS = internals.EVENTTYPE_RESOLUTION_STATUS # type: ignore
+    RESOLUTION_STATUS = internals.EVENTTYPE_RESOLUTION_STATUS  # type: ignore
     """Status updates for a resolution operation"""
-    TOPIC_STATUS = internals.EVENTTYPE_TOPIC_STATUS # type: ignore
+    TOPIC_STATUS = internals.EVENTTYPE_TOPIC_STATUS  # type: ignore
     """Status updates about topics for service providers"""
-    TOKEN_STATUS = internals.EVENTTYPE_TOKEN_STATUS # type: ignore
+    TOKEN_STATUS = internals.EVENTTYPE_TOKEN_STATUS  # type: ignore
     """Status updates for a generate token request"""
-    REQUEST = internals.EVENTTYPE_REQUEST # type: ignore
+    REQUEST = internals.EVENTTYPE_REQUEST  # type: ignore
     """Request event"""
     UNKNOWN = -1
     """Unknown event"""
 
-    def __init__(self,
-                 handle: BlpapiEventHandle,
-                 sessions: Optional[Set["typehints.AbstractSession"]] = None):
+    def __init__(
+        self,
+        handle: BlpapiEventHandle,
+        sessions: Optional[Set["typehints.AbstractSession"]] = None,
+    ):
         super(Event, self).__init__(handle, internals.blpapi_Event_release)
         self.__handle = handle
         self.__sessions = sessions if sessions is not None else set()
@@ -163,6 +165,7 @@ class EventQueue(CHandle):
     :class:`EventQueue` will only deliver responses to the request(s) it is
     associated with.
     """
+
     def __init__(self) -> None:
         """
         Construct an empty :class:`EventQueue` which can be passed to
@@ -171,12 +174,12 @@ class EventQueue(CHandle):
         """
         selfhandle = internals.blpapi_EventQueue_create()
         super(EventQueue, self).__init__(
-            selfhandle,
-            internals.blpapi_EventQueue_destroy)
+            selfhandle, internals.blpapi_EventQueue_destroy
+        )
         self.__handle = selfhandle
         self.__sessions: Set["typehints.AbstractSession"] = set()
 
-    def nextEvent(self, timeout: int=0) -> Event:
+    def nextEvent(self, timeout: int = 0) -> Event:
         """
         Args:
             timeout: Timeout threshold in milliseconds.
@@ -225,6 +228,7 @@ class EventQueue(CHandle):
         For internal use.
         """
         return self.__sessions
+
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

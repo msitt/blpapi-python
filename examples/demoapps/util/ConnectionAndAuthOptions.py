@@ -9,7 +9,7 @@ class AuthOptionsAction(Action):
     """The action that parses authorization options from user input"""
 
     def __call__(self, parser, args, values, option_string=None):
-        vals = values.split('=', 1)
+        vals = values.split("=", 1)
 
         auth_type = vals[0]
         if auth_type == "user":
@@ -28,21 +28,24 @@ class AuthOptionsAction(Action):
                 appName = vals[1]
                 authUser = blpapi.AuthUser.createWithLogonName()
                 authOptions = blpapi.AuthOptions.createWithUserAndApp(
-                    authUser, appName)
+                    authUser, appName
+                )
             elif auth_type == "dir":
                 dirProperty = vals[1]
                 authUser = blpapi.AuthUser.createWithActiveDirectoryProperty(
-                    dirProperty)
+                    dirProperty
+                )
                 authOptions = blpapi.AuthOptions.createWithUser(authUser)
             elif auth_type == "manual":
-                parts = vals[1].split(',')
+                parts = vals[1].split(",")
                 if len(parts) != 3:
                     parser.error(f"Invalid auth option '{values}'")
 
                 appName, ip, userId = parts
                 authUser = blpapi.AuthUser.createWithManualOptions(userId, ip)
                 authOptions = blpapi.AuthOptions.createWithUserAndApp(
-                    authUser, appName)
+                    authUser, appName
+                )
             else:
                 parser.error(f"Invalid auth option '{values}'")
 
@@ -53,7 +56,7 @@ class AppAuthAction(Action):
     """The action that parses app authorization options from user input"""
 
     def __call__(self, parser, args, values, option_string=None):
-        vals = values.split('=', 1)
+        vals = values.split("=", 1)
         if len(vals) != 2:
             parser.error(f"Invalid auth option '{values}'")
 
@@ -70,7 +73,7 @@ class HostAction(Action):
     """The action that parses host options from user input"""
 
     def __call__(self, parser, args, values, option_string=None):
-        vals = values.split(':', 1)
+        vals = values.split(":", 1)
         if len(vals) != 2:
             parser.error(f"Invalid host option '{values}'")
 
@@ -99,12 +102,15 @@ def addConnectionAndAuthOptions(parser, forClientServerSetup=False):
     """
     # Server options
     server_group = parser.add_argument_group("Connections")
-    server_group.add_argument("-H", "--host",
-                              dest="hosts",
-                              help="server name or IP (default: 127.0.0.1:8194). Can be specified multiple times.",
-                              metavar="host:port",
-                              action=HostAction,
-                              default=[])
+    server_group.add_argument(
+        "-H",
+        "--host",
+        dest="hosts",
+        help="server name or IP (default: 127.0.0.1:8194). Can be specified multiple times.",
+        metavar="host:port",
+        action=HostAction,
+        default=[],
+    )
 
     # Auth options
     if forClientServerSetup:
@@ -114,43 +120,56 @@ def addConnectionAndAuthOptions(parser, forClientServerSetup=False):
 
     # TLS Options
     tls_group = parser.add_argument_group("TLS (specify all or none)")
-    tls_group.add_argument("--tls-client-credentials",
-                           dest="tls_client_credentials",
-                           help="name a PKCS#12 file to use as a source of "
-                           "client credentials",
-                           metavar="file")
-    tls_group.add_argument("--tls-client-credentials-password",
-                           dest="tls_client_credentials_password",
-                           help="specify password for accessing client credentials",
-                           metavar="password",
-                           default="")
-    tls_group.add_argument("--tls-trust-material",
-                           dest="tls_trust_material",
-                           help="name a PKCS#7 file to use as a source of "
-                           "trusted certificates",
-                           metavar="file")
-    tls_group.add_argument("--read-certificate-files",
-                           dest="read_certificate_files",
-                           help="Enable reading the TLS files and pass the blobs",
-                           action="store_true")
+    tls_group.add_argument(
+        "--tls-client-credentials",
+        dest="tls_client_credentials",
+        help="name a PKCS#12 file to use as a source of " "client credentials",
+        metavar="file",
+    )
+    tls_group.add_argument(
+        "--tls-client-credentials-password",
+        dest="tls_client_credentials_password",
+        help="specify password for accessing client credentials",
+        metavar="password",
+        default="",
+    )
+    tls_group.add_argument(
+        "--tls-trust-material",
+        dest="tls_trust_material",
+        help="name a PKCS#7 file to use as a source of "
+        "trusted certificates",
+        metavar="file",
+    )
+    tls_group.add_argument(
+        "--read-certificate-files",
+        dest="read_certificate_files",
+        help="Enable reading the TLS files and pass the blobs",
+        action="store_true",
+    )
 
     # ZFP Options
     zfp_group = parser.add_argument_group(
-        "ZFP connections over leased lines (requires TLS)")
-    zfp_group.add_argument("-z", "--zfp-over-leased-line",
-                           dest="remote",
-                           help="enable ZFP connections over leased lines on the "
-                           "specified port (8194 or 8196)"
-                           "\n(When this option is enabled, option -H/--host is ignored.)",
-                           metavar="port",
-                           type=int)
+        "ZFP connections over leased lines (requires TLS)"
+    )
+    zfp_group.add_argument(
+        "-z",
+        "--zfp-over-leased-line",
+        dest="remote",
+        help="enable ZFP connections over leased lines on the "
+        "specified port (8194 or 8196)"
+        "\n(When this option is enabled, option -H/--host is ignored.)",
+        metavar="port",
+        type=int,
+    )
 
 
 def _addArgGroupAuth(parser):
     auth_group = parser.add_argument_group("Authorization")
-    auth_group.add_argument("-a", "--auth",
-                            dest=_SESSION_IDENTITY_AUTH_OPTIONS,
-                            help='''authorization option (default: none)
+    auth_group.add_argument(
+        "-a",
+        "--auth",
+        dest=_SESSION_IDENTITY_AUTH_OPTIONS,
+        help="""authorization option (default: none)
 none                  applicable to Desktop API product that requires
                           Bloomberg Professional service to be installed locally
 user                  as a user using OS logon information
@@ -158,9 +177,10 @@ dir=<property>        as a user using directory services
 app=<app>             as the specified application
 userapp=<app>         as user and application using logon information for the user
 manual=<app,ip,user>  as user and application, with manually provided
-                          IP address and EMRS user''',
-                            metavar="option",
-                            action=AuthOptionsAction)
+                          IP address and EMRS user""",
+        metavar="option",
+        action=AuthOptionsAction,
+    )
 
 
 def _addArgGroupsAuthAndEntitlementsClientServerSetup(parser):
@@ -168,53 +188,68 @@ def _addArgGroupsAuthAndEntitlementsClientServerSetup(parser):
     the argument parser.
     """
     auth_group = parser.add_argument_group("Authorization")
-    auth_group.add_argument("-a", "--auth",
-                            dest="authAppName",
-                            required=True,
-                            help="authorize this application using the specified application",
-                            metavar="app=<app>",
-                            action=AppAuthAction)
+    auth_group.add_argument(
+        "-a",
+        "--auth",
+        dest="authAppName",
+        required=True,
+        help="authorize this application using the specified application",
+        metavar="app=<app>",
+        action=AppAuthAction,
+    )
 
-    entitlements_group = parser.add_argument_group("User Authorization/Entitlements")
-    entitlements_group.add_argument("-u", "--userid-ip",
-                            dest="userIdAndIps",
-                            help="authorize a user using userId and IP separated by ':'. Can be specified multiple times.",
-                            metavar="userId:IP",
-                            action=UserIdIpAction,
-                            default=[])
+    entitlements_group = parser.add_argument_group(
+        "User Authorization/Entitlements"
+    )
+    entitlements_group.add_argument(
+        "-u",
+        "--userid-ip",
+        dest="userIdAndIps",
+        help="authorize a user using userId and IP separated by ':'. Can be specified multiple times.",
+        metavar="userId:IP",
+        action=UserIdIpAction,
+        default=[],
+    )
 
-    entitlements_group.add_argument("-T", "--token",
-                            dest="tokens",
-                            help="authorize a user using the specified token. Can be specified multiple times.\n"
-                            "If the token starts with '-', use "
-                            "either -T<token> or --token=<token>.",
-                            metavar="token",
-                            action="append",
-                            default=[])
+    entitlements_group.add_argument(
+        "-T",
+        "--token",
+        dest="tokens",
+        help="authorize a user using the specified token. Can be specified multiple times.\n"
+        "If the token starts with '-', use "
+        "either -T<token> or --token=<token>.",
+        metavar="token",
+        action="append",
+        default=[],
+    )
 
 
 def _getTlsOptions(options):
     """Parse TlsOptions from user input"""
 
-    if (options.tls_client_credentials is None or
-            options.tls_trust_material is None):
+    if (
+        options.tls_client_credentials is None
+        or options.tls_trust_material is None
+    ):
         return None
 
     print("TlsOptions enabled")
     if options.read_certificate_files:
-        with open(options.tls_client_credentials, 'rb') as credentialfile:
+        with open(options.tls_client_credentials, "rb") as credentialfile:
             credential_blob = credentialfile.read()
-        with open(options.tls_trust_material, 'rb') as trustfile:
+        with open(options.tls_trust_material, "rb") as trustfile:
             trust_blob = trustfile.read()
         return blpapi.TlsOptions.createFromBlobs(
             credential_blob,
             options.tls_client_credentials_password,
-            trust_blob)
+            trust_blob,
+        )
 
     return blpapi.TlsOptions.createFromFiles(
         options.tls_client_credentials,
         options.tls_client_credentials_password,
-        options.tls_trust_material)
+        options.tls_trust_material,
+    )
 
 
 def createClientServerSetupAuthOptions(options):
@@ -226,7 +261,8 @@ def createClientServerSetupAuthOptions(options):
     for userId, ip in options.userIdAndIps:
         authUser = blpapi.AuthUser.createWithManualOptions(userId, ip)
         authOptions = blpapi.AuthOptions.createWithUserAndApp(
-            authUser, options.authAppName)
+            authUser, options.authAppName
+        )
         authOptionsByIdentifier[f"{userId}:{ip}"] = authOptions
 
     for i, token in enumerate(options.tokens):
@@ -251,8 +287,8 @@ def createSessionOptions(options):
 
         print("Creating a ZFP connection for leased lines.")
         sessionOptions = blpapi.ZfpUtil.getZfpOptionsForLeasedLines(
-            options.remote,
-            tlsOptions)
+            options.remote, tlsOptions
+        )
     else:
         sessionOptions = blpapi.SessionOptions()
         for idx, host in enumerate(options.hosts):
@@ -262,9 +298,12 @@ def createSessionOptions(options):
             sessionOptions.setTlsOptions(tlsOptions)
 
     sessionOptions.setSessionIdentityOptions(
-        options.sessionIdentityAuthOptions)
-    print(f"Connecting to "
-          f"{', '.join([h[0] + ':' + str(h[1]) for h in sessionOptions.serverAddresses()])}")
+        options.sessionIdentityAuthOptions
+    )
+    print(
+        f"Connecting to "
+        f"{', '.join([h[0] + ':' + str(h[1]) for h in sessionOptions.serverAddresses()])}"
+    )
 
     return sessionOptions
 

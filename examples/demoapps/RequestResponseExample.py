@@ -6,17 +6,29 @@ from snippets.requestresponse import IntradayTickRequests
 from snippets.requestresponse import IntradayBarRequests
 from snippets.requestresponse import ReferenceDataRequests
 from snippets.requestresponse import HistoricalDataRequest
-from util.ConnectionAndAuthOptions import addConnectionAndAuthOptions, createSessionOptions
-from util.RequestOptions import addRequestOptions, setDefaultValues, \
-    REFERENCE_DATA_REQUEST_TABLE_OVERRIDE, REFERENCE_DATA_REQUEST_OVERRIDE, INTRADAY_BAR_REQUEST, \
-    INTRADAY_TICK_REQUEST, REFERENCE_DATA_REQUEST, HISTORICAL_DATA_REQUEST
+from util.ConnectionAndAuthOptions import (
+    addConnectionAndAuthOptions,
+    createSessionOptions,
+)
+from util.RequestOptions import (
+    addRequestOptions,
+    setDefaultValues,
+    REFERENCE_DATA_REQUEST_TABLE_OVERRIDE,
+    REFERENCE_DATA_REQUEST_OVERRIDE,
+    INTRADAY_BAR_REQUEST,
+    INTRADAY_TICK_REQUEST,
+    REFERENCE_DATA_REQUEST,
+    HISTORICAL_DATA_REQUEST,
+)
 
 
 def parseCmdLine():
     """Parse command line arguments"""
 
-    parser = ArgumentParser(formatter_class=RawTextHelpFormatter,
-                            description="Request/Response Example")
+    parser = ArgumentParser(
+        formatter_class=RawTextHelpFormatter,
+        description="Request/Response Example",
+    )
     addConnectionAndAuthOptions(parser)
     addRequestOptions(parser)
 
@@ -42,8 +54,10 @@ def processGenericEvent(event):
         print(msg)
         messageType = msg.messageType()
         if eventType == blpapi.Event.SESSION_STATUS:
-            if messageType == blpapi.Names.SESSION_TERMINATED \
-                    or messageType == blpapi.Names.SESSION_STARTUP_FAILURE:
+            if (
+                messageType == blpapi.Names.SESSION_TERMINATED
+                or messageType == blpapi.Names.SESSION_STARTUP_FAILURE
+            ):
                 print("Session failed to start or terminated.")
                 printContactSupportMessage(msg)
                 return True
@@ -91,11 +105,15 @@ def sendRequest(options, session):
         request = IntradayBarRequests.createRequest(service, options)
     elif requestType == INTRADAY_TICK_REQUEST:
         request = IntradayTickRequests.createRequest(service, options)
-    elif requestType in [REFERENCE_DATA_REQUEST, REFERENCE_DATA_REQUEST_OVERRIDE]:
+    elif requestType in [
+        REFERENCE_DATA_REQUEST,
+        REFERENCE_DATA_REQUEST_OVERRIDE,
+    ]:
         request = ReferenceDataRequests.createRequest(service, options)
     elif requestType == REFERENCE_DATA_REQUEST_TABLE_OVERRIDE:
         request = ReferenceDataRequests.createTableOverrideRequest(
-            service, options)
+            service, options
+        )
     elif requestType == HISTORICAL_DATA_REQUEST:
         request = HistoricalDataRequest.createRequest(service, options)
 
@@ -104,8 +122,7 @@ def sendRequest(options, session):
     # in the response messages. The RequestId should be provided when
     # contacting support.
     print(f"Sending Request {request.getRequestId()}: {request}")
-    session.sendRequest(request,
-                        None)  # correlationId
+    session.sendRequest(request, None)  # correlationId
 
 
 def waitForResponse(session, requestType):
@@ -149,9 +166,11 @@ def processResponseEvent(event, requestType):
         IntradayBarRequests.processResponseEvent(event)
     elif requestType == INTRADAY_TICK_REQUEST:
         IntradayTickRequests.processResponseEvent(event)
-    elif requestType in [REFERENCE_DATA_REQUEST,
-                         REFERENCE_DATA_REQUEST_OVERRIDE,
-                         REFERENCE_DATA_REQUEST_TABLE_OVERRIDE]:
+    elif requestType in [
+        REFERENCE_DATA_REQUEST,
+        REFERENCE_DATA_REQUEST_OVERRIDE,
+        REFERENCE_DATA_REQUEST_TABLE_OVERRIDE,
+    ]:
         ReferenceDataRequests.processResponseEvent(event)
     elif requestType == HISTORICAL_DATA_REQUEST:
         HistoricalDataRequest.processResponseEvent(event)
@@ -185,7 +204,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
         print(e)
 
 __copyright__ = """

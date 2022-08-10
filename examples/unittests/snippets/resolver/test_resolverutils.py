@@ -11,9 +11,10 @@ except ImportError:
 
 import blpapi
 
-from resolverutils import \
-    resolutionServiceRegistration, \
-    handlePermissionRequest
+from resolverutils import (
+    resolutionServiceRegistration,
+    handlePermissionRequest,
+)
 
 
 RESULT = blpapi.Name("result")
@@ -27,8 +28,9 @@ PERMISSION_RESPONSE = blpapi.Name("PermissionResponse")
 ALLOWED_APP_ID = 1234
 INVALID_APP_ID = 4321
 
+
 def createPermissionEvent(cid, applicationId):
-    """ Create a mock PermissionRequest `event`. """
+    """Create a mock PermissionRequest `event`."""
     props = blpapi.test.MessageProperties()
     props.setCorrelationIds([cid])
 
@@ -37,12 +39,9 @@ def createPermissionEvent(cid, applicationId):
     schemaDef = blpapi.test.getAdminMessageDefinition(PERMISSION_REQUEST)
 
     content = {
-        "topics": [
-            "topic1",
-            "topic2"
-        ],
+        "topics": ["topic1", "topic2"],
         "serviceName": "//blp/mytestservice",
-        "applicationId": applicationId
+        "applicationId": applicationId,
     }
 
     formatter = blpapi.test.appendMessage(request, schemaDef, props)
@@ -53,14 +52,15 @@ def createPermissionEvent(cid, applicationId):
 
 
 def getFirstMessage(event):
-    """ Retrieve the first `Message` from the provided `event`. """
+    """Retrieve the first `Message` from the provided `event`."""
     for msg in event:
         return msg
     raise Exception("No messages in event")
 
-#pylint: disable=line-too-long
+
+# pylint: disable=line-too-long
 def getService():
-    """ Create a basic `Service` instance by deserializing a schema string. """
+    """Create a basic `Service` instance by deserializing a schema string."""
     schema = """
         <ServiceDefinition xsi:schemaLocation="http://bloomberg.com/schemas/apidd apidd.xsd"
                            name="test-svc"
@@ -82,11 +82,12 @@ def getService():
     """
     return blpapi.test.deserializeService(schema)
 
+
 class TestResolverUtils(unittest.TestCase):
-    """ Test suite for resolverutils. """
+    """Test suite for resolverutils."""
 
     def testResolutionServiceRegistration(self):
-        """ This test demonstrates how to mock interactions on objects of type
+        """This test demonstrates how to mock interactions on objects of type
         `ProviderSession`.
         In this test, we are setting the return value of the function, and
         verifying our input parameters.
@@ -98,25 +99,29 @@ class TestResolverUtils(unittest.TestCase):
 
         mockSession.registerService.return_value = True
 
-        registrationResult = resolutionServiceRegistration(mockSession,
-                                                           mockIdentity,
-                                                           serviceName)
-        serviceRegistrationOptions = \
-            mockSession.registerService.call_args[0][2]
+        registrationResult = resolutionServiceRegistration(
+            mockSession, mockIdentity, serviceName
+        )
+        serviceRegistrationOptions = mockSession.registerService.call_args[0][
+            2
+        ]
 
         self.assertTrue(registrationResult)
 
-        mockSession.registerService.assert_called_once_with(serviceName,
-                                                            mockIdentity,
-                                                            ANY)
+        mockSession.registerService.assert_called_once_with(
+            serviceName, mockIdentity, ANY
+        )
         expectedPriority = 123
-        self.assertEqual(expectedPriority,
-                         serviceRegistrationOptions.getServicePriority())
-        self.assertTrue(serviceRegistrationOptions.getPartsToRegister() &
-                        blpapi.ServiceRegistrationOptions.PART_PUBLISHER_RESOLUTION)
+        self.assertEqual(
+            expectedPriority, serviceRegistrationOptions.getServicePriority()
+        )
+        self.assertTrue(
+            serviceRegistrationOptions.getPartsToRegister()
+            & blpapi.ServiceRegistrationOptions.PART_PUBLISHER_RESOLUTION
+        )
 
     def testSuccessfulResolution(self):
-        """ Test the creation of a successful permission response. """
+        """Test the creation of a successful permission response."""
         mockSession = Mock()
         service = getService()
 
@@ -146,7 +151,7 @@ class TestResolverUtils(unittest.TestCase):
             self.assertEqual(0, topicPermission.getElementAsInteger(RESULT))
 
     def testFailedResolution(self):
-        """ Test the creation of a failed permission response. """
+        """Test the creation of a failed permission response."""
         mockSession = Mock()
         service = getService()
 
@@ -179,8 +184,9 @@ class TestResolverUtils(unittest.TestCase):
             reason = topicPermission.getElement(REASON)
 
             self.assertTrue(reason.hasElement(CATEGORY))
-            self.assertEqual(NOT_AUTHORIZED,
-                             reason.getElementAsString(CATEGORY))
+            self.assertEqual(
+                NOT_AUTHORIZED, reason.getElementAsString(CATEGORY)
+            )
 
 
 if __name__ == "__main__":

@@ -18,7 +18,7 @@ identifiers without upper-case characters.  Note that the <namespace> and
 
 # pylint: disable=protected-access
 from typing import Callable, Union, Sequence, Optional
-from . import typehints # pylint: disable=unused-import
+from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiAbstractSessionHandle
 from . import exception
 from .exception import _ExceptionUtil
@@ -86,9 +86,10 @@ class AbstractSession(CHandle):
     """
 
     def __init__(
-            self,
-            handle: Optional[BlpapiAbstractSessionHandle]=None,
-            dtor: Optional[Callable]=None) -> None:
+        self,
+        handle: Optional[BlpapiAbstractSessionHandle] = None,
+        dtor: Optional[Callable] = None,
+    ) -> None:
         """Instantiate an :class:`AbstractSession` with the specified handle.
 
         Args:
@@ -103,9 +104,11 @@ class AbstractSession(CHandle):
         """
 
         if self.__class__ is AbstractSession:
-            raise NotImplementedError("Don't instantiate this class directly.\
- Create sessions using one of the concrete subclasses of this class.")
-        super(AbstractSession, self).__init__(handle, dtor) # type: ignore
+            raise NotImplementedError(
+                "Don't instantiate this class directly.\
+ Create sessions using one of the concrete subclasses of this class."
+            )
+        super(AbstractSession, self).__init__(handle, dtor)  # type: ignore
         self.__handle = handle
 
     def openService(self, serviceName: str) -> bool:
@@ -131,15 +134,16 @@ class AbstractSession(CHandle):
         this :class:`Event` may be processed by the registered ``eventHandler``
         before :meth:`openService()` has returned.
         """
-        return internals.blpapi_AbstractSession_openService(
-            self.__handle,
-            serviceName) == 0
+        return (
+            internals.blpapi_AbstractSession_openService(
+                self.__handle, serviceName
+            )
+            == 0
+        )
 
     def openServiceAsync(
-            self,
-            serviceName: str,
-            correlationId: Optional[CorrelationId]=None
-            ) -> CorrelationId:
+        self, serviceName: str, correlationId: Optional[CorrelationId] = None
+    ) -> CorrelationId:
         """Begin the process to open the service and return immediately.
 
         Args:
@@ -167,18 +171,18 @@ class AbstractSession(CHandle):
             correlationId = CorrelationId()
         _ExceptionUtil.raiseOnError(
             internals.blpapi_AbstractSession_openServiceAsync(
-                self.__handle,
-                serviceName,
-                correlationId))
+                self.__handle, serviceName, correlationId
+            )
+        )
         return correlationId
 
     def sendAuthorizationRequest(
-            self,
-            request: "typehints.Request",
-            identity: Identity,
-            correlationId: Optional[CorrelationId]=None,
-            eventQueue: Optional["typehints.EventQueue"]=None
-            ) -> CorrelationId:
+        self,
+        request: "typehints.Request",
+        identity: Identity,
+        correlationId: Optional[CorrelationId] = None,
+        eventQueue: Optional["typehints.EventQueue"] = None,
+    ) -> CorrelationId:
         """Send the specified ``authorizationRequest``.
 
         Args:
@@ -227,15 +231,16 @@ class AbstractSession(CHandle):
                 get_handle(identity),
                 correlationId,
                 get_handle(eventQueue),
-                None # no request label
-                ))
+                None,  # no request label
+            )
+        )
         if eventQueue is not None:
             eventQueue._registerSession(self)
         return correlationId
 
-    def cancel(self,
-               correlationId: Union[CorrelationId,
-                                    Sequence[CorrelationId]]) -> None:
+    def cancel(
+        self, correlationId: Union[CorrelationId, Sequence[CorrelationId]]
+    ) -> None:
         """Cancel request(s) with a single ``correlationId`` or a list.
 
         Args:
@@ -261,16 +266,17 @@ class AbstractSession(CHandle):
             cids = correlationId
         else:
             cids = [correlationId]
-        _ExceptionUtil.raiseOnError(internals.blpapi_AbstractSession_cancel(
-            self.__handle,
-            cids, # type: ignore
-            None))  # no request label
+        _ExceptionUtil.raiseOnError(
+            internals.blpapi_AbstractSession_cancel(self.__handle, cids, None)
+        )  # no request label
 
-    def generateToken(self,
-                      correlationId: Optional[CorrelationId]=None,
-                      eventQueue: Optional["typehints.EventQueue"]=None,
-                      authId: Optional[str]=None,
-                      ipAddress: Optional[str]=None) -> CorrelationId:
+    def generateToken(
+        self,
+        correlationId: Optional[CorrelationId] = None,
+        eventQueue: Optional["typehints.EventQueue"] = None,
+        authId: Optional[str] = None,
+        ipAddress: Optional[str] = None,
+    ) -> CorrelationId:
         """Generate a token to be used for authorization.
 
         Args:
@@ -298,9 +304,9 @@ class AbstractSession(CHandle):
         if authId is None and ipAddress is None:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_AbstractSession_generateToken(
-                    self.__handle,
-                    correlationId,
-                    get_handle(eventQueue)))
+                    self.__handle, correlationId, get_handle(eventQueue)
+                )
+            )
         elif authId is not None and ipAddress is not None:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_AbstractSession_generateManualToken(
@@ -308,10 +314,13 @@ class AbstractSession(CHandle):
                     correlationId,
                     authId,
                     ipAddress,
-                    get_handle(eventQueue)))
+                    get_handle(eventQueue),
+                )
+            )
         else:
             raise exception.InvalidArgumentException(
-                "'authId' and 'ipAddress' must be provided together", 0)
+                "'authId' and 'ipAddress' must be provided together", 0
+            )
         if eventQueue is not None:
             eventQueue._registerSession(self)
         return correlationId
@@ -333,8 +342,8 @@ class AbstractSession(CHandle):
         is, it must be of the form ``//<namespace>/<service-name>``.
         """
         errorCode, service = internals.blpapi_AbstractSession_getService(
-            self.__handle,
-            serviceName)
+            self.__handle, serviceName
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return Service(service, {self})
 
@@ -347,12 +356,14 @@ class AbstractSession(CHandle):
         """
         return Identity(
             internals.blpapi_AbstractSession_createIdentity(self.__handle),
-            (self,))
+            (self,),
+        )
 
     def generateAuthorizedIdentity(
-            self,
-            authOptions: "typehints.AuthOptions",
-            correlationId: Optional[CorrelationId]=None) -> CorrelationId:
+        self,
+        authOptions: "typehints.AuthOptions",
+        correlationId: Optional[CorrelationId] = None,
+    ) -> CorrelationId:
         """Generates an authorized :class:`Identity` with the specified
         ``authOptions`` and ``correlationId``.
 
@@ -377,17 +388,17 @@ class AbstractSession(CHandle):
         """
         if correlationId is None:
             correlationId = CorrelationId()
-        retcode = internals \
-            .blpapi_AbstractSession_generateAuthorizedIdentityAsync(
-                self.__handle,
-                get_handle(authOptions),
-                correlationId)
+        retcode = (
+            internals.blpapi_AbstractSession_generateAuthorizedIdentityAsync(
+                self.__handle, get_handle(authOptions), correlationId
+            )
+        )
         _ExceptionUtil.raiseOnError(retcode)
         return correlationId
 
     def getAuthorizedIdentity(
-            self,
-            correlationId: Optional[CorrelationId]=None) -> Identity:
+        self, correlationId: Optional[CorrelationId] = None
+    ) -> Identity:
         """Returns the authorized :class:`Identity` associated with
         ``correlationId``. If ``correlationId`` is not given, returns the
         session identity.
@@ -406,12 +417,15 @@ class AbstractSession(CHandle):
         """
         if correlationId is None:
             correlationId = CorrelationId()
-        retcode, identity_handle = internals \
-            .blpapi_AbstractSession_getAuthorizedIdentity(
-                self.__handle,
-                correlationId)
+        (
+            retcode,
+            identity_handle,
+        ) = internals.blpapi_AbstractSession_getAuthorizedIdentity(
+            self.__handle, correlationId
+        )
         _ExceptionUtil.raiseOnError(retcode)
         return Identity(identity_handle, (self,))
+
 
 __copyright__ = """
 Copyright 2019. Bloomberg Finance L.P.

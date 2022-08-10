@@ -29,7 +29,7 @@ from . import internals
 from . import utils
 from .utils import get_handle
 from .chandle import CHandle
-from . import typehints # pylint: disable=unused-import
+from . import typehints  # pylint: disable=unused-import
 
 
 # pylint: disable=too-many-public-methods
@@ -44,11 +44,11 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     the API.
     """
 
-    AUTO = internals.CLIENTMODE_AUTO # type: ignore
+    AUTO = internals.CLIENTMODE_AUTO
     """Automatic (desktop if available otherwise server)"""
-    DAPI = internals.CLIENTMODE_DAPI # type: ignore
+    DAPI = internals.CLIENTMODE_DAPI
     """Always connect to the desktop API"""
-    SAPI = internals.CLIENTMODE_SAPI # type: ignore
+    SAPI = internals.CLIENTMODE_SAPI
     """Always connect to the server API"""
 
     def __init__(self) -> None:
@@ -56,8 +56,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         defaults"""
         selfhandle = internals.blpapi_SessionOptions_create()
         super(SessionOptions, self).__init__(
-            selfhandle,
-            internals.blpapi_SessionOptions_destroy)
+            selfhandle, internals.blpapi_SessionOptions_destroy
+        )
         self.__handle = selfhandle
 
     def __str__(self) -> str:
@@ -82,8 +82,10 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         _ExceptionUtil.raiseOnError(
-            internals.blpapi_SessionOptions_setServerHost(self.__handle,
-                                                          serverHost))
+            internals.blpapi_SessionOptions_setServerHost(
+                self.__handle, serverHost
+            )
+        )
 
     def setServerPort(self, serverPort: int) -> None:
         """Set the port to connect to when using the server API.
@@ -96,10 +98,14 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         _ExceptionUtil.raiseOnError(
-            internals.blpapi_SessionOptions_setServerPort(self.__handle,
-                                                          serverPort))
+            internals.blpapi_SessionOptions_setServerPort(
+                self.__handle, serverPort
+            )
+        )
 
-    def setServerAddress(self, serverHost: str, serverPort: int, index: int) -> None:
+    def setServerAddress(
+        self, serverHost: str, serverPort: int, index: int
+    ) -> None:
         """Set the server address at the specified ``index``.
 
         Args:
@@ -112,10 +118,10 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         _ExceptionUtil.raiseOnError(
-            internals.blpapi_SessionOptions_setServerAddress(self.__handle,
-                                                             serverHost,
-                                                             serverPort,
-                                                             index))
+            internals.blpapi_SessionOptions_setServerAddress(
+                self.__handle, serverHost, serverPort, index
+            )
+        )
 
     def removeServerAddress(self, index: int) -> None:
         """Remove the server address at the specified ``index``.
@@ -125,8 +131,10 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         _ExceptionUtil.raiseOnError(
-            internals.blpapi_SessionOptions_removeServerAddress(self.__handle,
-                                                                index))
+            internals.blpapi_SessionOptions_removeServerAddress(
+                self.__handle, index
+            )
+        )
 
     def setConnectTimeout(self, timeoutMilliSeconds: int) -> None:
         """Set the connection timeout in milliseconds.
@@ -142,8 +150,9 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
 
         _ExceptionUtil.raiseOnError(
             internals.blpapi_SessionOptions_setConnectTimeout(
-                self.__handle,
-                timeoutMilliSeconds))
+                self.__handle, timeoutMilliSeconds
+            )
+        )
 
     def setDefaultServices(self, defaultServices: Sequence[str]) -> None:
         """Set the default service for the session.
@@ -159,10 +168,13 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
 
         _ExceptionUtil.raiseOnError(
             internals.blpapi_SessionOptions_setDefaultServices(
-                self.__handle,
-                defaultServices))
+                self.__handle, defaultServices
+            )
+        )
 
-    def setDefaultSubscriptionService(self, defaultSubscriptionService: str) -> None:
+    def setDefaultSubscriptionService(
+        self, defaultSubscriptionService: str
+    ) -> None:
         """Set the default service for subscriptions.
 
         Args:
@@ -178,8 +190,9 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
 
         _ExceptionUtil.raiseOnError(
             internals.blpapi_SessionOptions_setDefaultSubscriptionService(
-                self.__handle,
-                defaultSubscriptionService))
+                self.__handle, defaultSubscriptionService
+            )
+        )
 
     def setDefaultTopicPrefix(self, prefix: str) -> None:
         """Set the default topic prefix.
@@ -193,11 +206,12 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         internals.blpapi_SessionOptions_setDefaultTopicPrefix(
-            self.__handle,
-            prefix)
+            self.__handle, prefix
+        )
 
-    def setAllowMultipleCorrelatorsPerMsg(self,
-                                          allowMultipleCorrelatorsPerMsg: bool) -> None:
+    def setAllowMultipleCorrelatorsPerMsg(
+        self, allowMultipleCorrelatorsPerMsg: bool
+    ) -> None:
         """Associate more than one :class:`CorrelationId` with a
         :class:`Message`.
 
@@ -216,8 +230,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         internals.blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg(
-            self.__handle,
-            allowMultipleCorrelatorsPerMsg)
+            self.__handle, allowMultipleCorrelatorsPerMsg
+        )
 
     def setClientMode(self, clientMode: int) -> None:
         """Set how to connect to the API. The default is :attr:`AUTO`.
@@ -232,8 +246,9 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         connects to the server API and will fail if it is not available.
         """
 
-        internals.blpapi_SessionOptions_setClientMode(self.__handle,
-                                                      clientMode)
+        internals.blpapi_SessionOptions_setClientMode(
+            self.__handle, clientMode
+        )
 
     def setMaxPendingRequests(self, maxPendingRequests: int) -> None:
         """Set the maximum number of requests which can be pending.
@@ -246,13 +261,14 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         internals.blpapi_SessionOptions_setMaxPendingRequests(
-            self.__handle,
-            maxPendingRequests)
+            self.__handle, maxPendingRequests
+        )
 
-    def setSessionIdentityOptions(self,
-                                  authOptions: AuthOptions,
-                                  correlationId: Optional[CorrelationId] = None
-                                 ) -> CorrelationId:
+    def setSessionIdentityOptions(
+        self,
+        authOptions: Optional[AuthOptions],
+        correlationId: Optional[CorrelationId] = None,
+    ) -> CorrelationId:
         """Sets the specified ``authOptions`` as the :class:`AuthOptions` for
         the session identity, enabling automatic authorization of the session
         identity during startup.
@@ -286,15 +302,16 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
 
         if authOptions is None:
             # Use an 'empty' authoptions instance to reset the value
-            retcode, authOptions_handle = internals \
-                .blpapi_AuthOptions_create_default()
+            (
+                retcode,
+                authOptions_handle,
+            ) = internals.blpapi_AuthOptions_create_default()
             _ExceptionUtil.raiseOnError(retcode)
             authOptions = AuthOptions(authOptions_handle)
 
         retcode = internals.blpapi_SessionOptions_setSessionIdentityOptions(
-            self._handle(),
-            get_handle(authOptions),
-            correlationId)
+            self._handle(), get_handle(authOptions), correlationId
+        )
         _ExceptionUtil.raiseOnError(retcode)
         return correlationId
 
@@ -305,8 +322,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             authOptions: The options used during authentication.
         """
         internals.blpapi_SessionOptions_setAuthenticationOptions(
-            self.__handle,
-            authOptions)
+            self.__handle, authOptions
+        )
 
     def setNumStartAttempts(self, numStartAttempts: int) -> None:
         """Set the maximum number of attempts to start a session.
@@ -314,8 +331,9 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         Set the maximum number of attempts to start a session by connecting a
         server.
         """
-        internals.blpapi_SessionOptions_setNumStartAttempts(self.__handle,
-                                                            numStartAttempts)
+        internals.blpapi_SessionOptions_setNumStartAttempts(
+            self.__handle, numStartAttempts
+        )
 
     def setAutoRestartOnDisconnection(self, autoRestart: bool) -> None:
         """Set whether automatically restarting connection if disconnected.
@@ -325,8 +343,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
                 disconnected
         """
         internals.blpapi_SessionOptions_setAutoRestartOnDisconnection(
-            self.__handle,
-            autoRestart)
+            self.__handle, autoRestart
+        )
 
     def setSlowConsumerWarningHiWaterMark(self, hiWaterMark: float) -> None:
         """Set the point at which "slow consumer" events will be generated.
@@ -345,8 +363,11 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         maxEventQueueSize()`` < ``slowConsumerWarningHiWaterMark() *
         maxEventQueueSize()``.
         """
-        err = internals.blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark(
-            self.__handle, hiWaterMark)
+        err = (
+            internals.blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark(
+                self.__handle, hiWaterMark
+            )
+        )
         _ExceptionUtil.raiseOnError(err)
 
     def setSlowConsumerWarningLoWaterMark(self, loWaterMark: float) -> None:
@@ -367,8 +388,11 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         maxEventQueueSize()`` < ``slowConsumerWarningHiWaterMark() *
         maxEventQueueSize()``.
         """
-        err = internals.blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark(
-            self.__handle, loWaterMark)
+        err = (
+            internals.blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark(
+                self.__handle, loWaterMark
+            )
+        )
         _ExceptionUtil.raiseOnError(err)
 
     def setMaxEventQueueSize(self, eventQueueSize: int) -> None:
@@ -386,8 +410,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         default value is ``10000``.
         """
         internals.blpapi_SessionOptions_setMaxEventQueueSize(
-            self.__handle,
-            eventQueueSize)
+            self.__handle, eventQueueSize
+        )
 
     def setKeepAliveEnabled(self, isEnabled: bool) -> None:
         """Set whether to enable keep-alive pings.
@@ -406,7 +430,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
         keepAliveValue = 1 if isEnabled else 0
         err = internals.blpapi_SessionOptions_setKeepAliveEnabled(
-            self.__handle, keepAliveValue)
+            self.__handle, keepAliveValue
+        )
         _ExceptionUtil.raiseOnError(err)
 
     def setDefaultKeepAliveInactivityTime(self, inactivityMsecs: int) -> None:
@@ -429,8 +454,11 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             Not all back-end connections provide ping-based keep-alives;
             this option is ignored by such connections.
         """
-        err = internals.blpapi_SessionOptions_setDefaultKeepAliveInactivityTime(
-            self.__handle, inactivityMsecs)
+        err = (
+            internals.blpapi_SessionOptions_setDefaultKeepAliveInactivityTime(
+                self.__handle, inactivityMsecs
+            )
+        )
         _ExceptionUtil.raiseOnError(err)
 
     def setDefaultKeepAliveResponseTimeout(self, timeoutMsecs: int) -> None:
@@ -450,8 +478,11 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             that not all back-end connections provide support for ping-based
             keep-alives; this option is ignored by such connections.
         """
-        err = internals.blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout(
-            self.__handle, timeoutMsecs)
+        err = (
+            internals.blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout(
+                self.__handle, timeoutMsecs
+            )
+        )
         _ExceptionUtil.raiseOnError(err)
 
     def setFlushPublishedEventsTimeout(self, timeoutMsecs: int) -> None:
@@ -465,9 +496,12 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         is ``2000``.
         """
         internals.blpapi_SessionOptions_setFlushPublishedEventsTimeout(
-            self.__handle, timeoutMsecs)
+            self.__handle, timeoutMsecs
+        )
 
-    def setRecordSubscriptionDataReceiveTimes(self, shouldRecord: bool) -> None:
+    def setRecordSubscriptionDataReceiveTimes(
+        self, shouldRecord: bool
+    ) -> None:
         """
         Args:
             shouldRecord: Whether to record the receipt time
@@ -478,7 +512,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         recorded.
         """
         internals.blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes(
-            self.__handle, shouldRecord)
+            self.__handle, shouldRecord
+        )
 
     def setServiceCheckTimeout(self, timeoutMsecs: int) -> None:
         """
@@ -491,7 +526,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         timeout is ``60,000`` milliseconds.
         """
         err = internals.blpapi_SessionOptions_setServiceCheckTimeout(
-            self.__handle, timeoutMsecs)
+            self.__handle, timeoutMsecs
+        )
         _ExceptionUtil.raiseOnError(err)
 
     def setServiceDownloadTimeout(self, timeoutMsecs: int) -> None:
@@ -505,7 +541,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         ``120,000`` milliseconds.
         """
         err = internals.blpapi_SessionOptions_setServiceDownloadTimeout(
-            self.__handle, timeoutMsecs)
+            self.__handle, timeoutMsecs
+        )
         _ExceptionUtil.raiseOnError(err)
 
     def setTlsOptions(self, tlsOptions: "TlsOptions") -> None:
@@ -515,8 +552,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             tlsOptions: The TLS options
         """
         internals.blpapi_SessionOptions_setTlsOptions(
-            self.__handle,
-            get_handle(tlsOptions))
+            self.__handle, get_handle(tlsOptions)
+        )
 
     def setBandwidthSaveModeDisabled(self, isDisabled: bool) -> None:
         """Specify whether to disable bandwidth saving measures.
@@ -526,8 +563,9 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_SessionOptions_setBandwidthSaveModeDisabled(
-                self.__handle,
-                isDisabled))
+                self.__handle, isDisabled
+            )
+        )
 
     def serverHost(self) -> str:
         """
@@ -552,7 +590,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         return internals.blpapi_SessionOptions_numServerAddresses(
-            self.__handle)
+            self.__handle
+        )
 
     def getServerAddress(self, index: int) -> Tuple[str, int]:
         """
@@ -560,10 +599,13 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
            Server name and port indexed by ``index``.
         """
 
-        errorCode, host, port = \
-            internals.blpapi_SessionOptions_getServerAddress(
-                self.__handle,
-                index)
+        (
+            errorCode,
+            host,
+            port,
+        ) = internals.blpapi_SessionOptions_getServerAddress(
+            self.__handle, index
+        )
 
         _ExceptionUtil.raiseOnError(errorCode)
 
@@ -575,9 +617,11 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             Iterator over server addresses for this :class:`SessionOptions`.
         """
 
-        return utils.Iterator(self,
-                              SessionOptions.numServerAddresses,
-                              SessionOptions.getServerAddress)
+        return utils.Iterator(
+            self,
+            SessionOptions.numServerAddresses,
+            SessionOptions.getServerAddress,
+        )
 
     def connectTimeout(self) -> int:
         """
@@ -601,7 +645,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         return internals.blpapi_SessionOptions_defaultSubscriptionService(
-            self.__handle)
+            self.__handle
+        )
 
     def defaultTopicPrefix(self) -> str:
         """
@@ -610,7 +655,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         return internals.blpapi_SessionOptions_defaultTopicPrefix(
-            self.__handle)
+            self.__handle
+        )
 
     def allowMultipleCorrelatorsPerMsg(self) -> bool:
         """
@@ -619,8 +665,12 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             option.
         """
 
-        return internals.blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg(
-            self.__handle) != 0
+        return (
+            internals.blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg(
+                self.__handle
+            )
+            != 0
+        )
 
     def clientMode(self) -> int:
         """
@@ -637,15 +687,20 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         return internals.blpapi_SessionOptions_maxPendingRequests(
-            self.__handle)
+            self.__handle
+        )
 
     def autoRestartOnDisconnection(self) -> bool:
         """
         Returns:
             Whether automatically restart connection if disconnected.
         """
-        return internals.blpapi_SessionOptions_autoRestartOnDisconnection(
-            self.__handle) != 0
+        return (
+            internals.blpapi_SessionOptions_autoRestartOnDisconnection(
+                self.__handle
+            )
+            != 0
+        )
 
     def authenticationOptions(self) -> str:
         """
@@ -653,7 +708,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             Authentication options in a string.
         """
         return internals.blpapi_SessionOptions_authenticationOptions(
-            self.__handle)
+            self.__handle
+        )
 
     def numStartAttempts(self) -> int:
         """
@@ -669,8 +725,11 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             :meth:`Message.timeReceived()`) should be recorded for subscription
             data messages.
         """
-        return bool(internals.blpapi_SessionOptions_recordSubscriptionDataReceiveTimes(
-            self.__handle))
+        return bool(
+            internals.blpapi_SessionOptions_recordSubscriptionDataReceiveTimes(
+                self.__handle
+            )
+        )
 
     def slowConsumerWarningHiWaterMark(self) -> float:
         """
@@ -679,7 +738,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             consumer" event will be generated.
         """
         return internals.blpapi_SessionOptions_slowConsumerWarningHiWaterMark(
-            self.__handle)
+            self.__handle
+        )
 
     def slowConsumerWarningLoWaterMark(self) -> float:
         """
@@ -688,7 +748,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             consumer cleared" event will be generated.
         """
         return internals.blpapi_SessionOptions_slowConsumerWarningLoWaterMark(
-            self.__handle)
+            self.__handle
+        )
 
     def maxEventQueueSize(self) -> int:
         """
@@ -705,7 +766,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             inactive (receive no data) before a keep alive probe will be sent.
         """
         return internals.blpapi_SessionOptions_defaultKeepAliveInactivityTime(
-            self.__handle)
+            self.__handle
+        )
 
     def defaultKeepAliveResponseTimeout(self) -> int:
         """
@@ -714,7 +776,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             to a keep alive probe before declaring it lost.
         """
         return internals.blpapi_SessionOptions_defaultKeepAliveResponseTimeout(
-            self.__handle)
+            self.__handle
+        )
 
     def flushPublishedEventsTimeout(self) -> int:
         """
@@ -724,7 +787,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             ``2000``.
         """
         return internals.blpapi_SessionOptions_flushPublishedEventsTimeout(
-            self.__handle)
+            self.__handle
+        )
 
     def keepAliveEnabled(self) -> bool:
         """
@@ -733,7 +797,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             return ``False``.
         """
         return bool(
-            internals.blpapi_SessionOptions_keepAliveEnabled(self.__handle))
+            internals.blpapi_SessionOptions_keepAliveEnabled(self.__handle)
+        )
 
     def serviceCheckTimeout(self) -> int:
         """
@@ -742,7 +807,8 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             :class:`SessionOptions` instance in milliseconds.
         """
         return internals.blpapi_SessionOptions_serviceCheckTimeout(
-            self.__handle)
+            self.__handle
+        )
 
     def serviceDownloadTimeout(self) -> int:
         """
@@ -751,15 +817,19 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             :class:`SessionOptions` instance in milliseconds.
         """
         return internals.blpapi_SessionOptions_serviceDownloadTimeout(
-            self.__handle)
+            self.__handle
+        )
 
     def bandwidthSaveModeDisabled(self) -> bool:
         """
         Returns:
             Whether bandwidth saving measures are disabled.
         """
-        return bool(internals.blpapi_SessionOptions_bandwidthSaveModeDisabled(
-            self.__handle))
+        return bool(
+            internals.blpapi_SessionOptions_bandwidthSaveModeDisabled(
+                self.__handle
+            )
+        )
 
     def toString(self, level: int = 0, spacesPerLevel: int = 4) -> str:
         """Format this :class:`SessionOptions` to the string.
@@ -777,9 +847,9 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         suppressing all but the initial indentation (as governed by ``level``).
         """
         return internals.blpapi_SessionOptions_printHelper(
-            self.__handle,
-            level,
-            spacesPerLevel)
+            self.__handle, level, spacesPerLevel
+        )
+
 
 class TlsOptions(CHandle):
     """SSL configuration options
@@ -798,7 +868,8 @@ class TlsOptions(CHandle):
 
     def __init__(self, handle: BlpapiTlsOptionsHandle) -> None:
         super(TlsOptions, self).__init__(
-            handle, internals.blpapi_TlsOptions_destroy)
+            handle, internals.blpapi_TlsOptions_destroy
+        )
         self.__handle = handle
 
     def setTlsHandshakeTimeoutMs(self, timeoutMs: int) -> None:
@@ -810,8 +881,10 @@ class TlsOptions(CHandle):
         default is ``10,000`` milliseconds.  The TLS handshake timeout will be
         set to the default if the specified ``timeoutMs`` is not positive.
         """
-        internals.blpapi_TlsOptions_setTlsHandshakeTimeoutMs(self.__handle,
-                                                             timeoutMs)
+        internals.blpapi_TlsOptions_setTlsHandshakeTimeoutMs(
+            self.__handle, timeoutMs
+        )
+
     def setCrlFetchTimeoutMs(self, timeoutMs: int) -> None:
         """
         Args:
@@ -822,12 +895,15 @@ class TlsOptions(CHandle):
         the default if the specified ``timeoutMs`` is not positive.
         """
         internals.blpapi_TlsOptions_setCrlFetchTimeoutMs(
-            self.__handle, timeoutMs)
+            self.__handle, timeoutMs
+        )
 
     @staticmethod
-    def createFromFiles(clientCredentialsFilename: str,
-                        clientCredentialsPassword: str,
-                        trustedCertificatesFilename: str) -> "TlsOptions":
+    def createFromFiles(
+        clientCredentialsFilename: str,
+        clientCredentialsPassword: str,
+        trustedCertificatesFilename: str,
+    ) -> "TlsOptions":
         """
         Args:
             clientCredentialsFilename: Path to the file with the client
@@ -843,13 +919,16 @@ class TlsOptions(CHandle):
         handle = internals.blpapi_TlsOptions_createFromFiles(
             clientCredentialsFilename,
             clientCredentialsPassword,
-            trustedCertificatesFilename)
+            trustedCertificatesFilename,
+        )
         return TlsOptions(handle)
 
     @staticmethod
-    def createFromBlobs(clientCredentials: Union[bytes, bytearray],
-                        clientCredentialsPassword: str,
-                        trustedCertificates: Union[bytes, bytearray]) -> "TlsOptions":
+    def createFromBlobs(
+        clientCredentials: Union[bytes, bytearray],
+        clientCredentialsPassword: str,
+        trustedCertificates: Union[bytes, bytearray],
+    ) -> "TlsOptions":
         """
         Args:
             clientCredentials: Blob with the client
@@ -865,10 +944,10 @@ class TlsOptions(CHandle):
         credentials = bytearray(clientCredentials)
         certs = bytearray(trustedCertificates)
         handle = internals.blpapi_TlsOptions_createFromBlobs(
-            credentials,
-            clientCredentialsPassword,
-            certs)
+            credentials, clientCredentialsPassword, certs
+        )
         return TlsOptions(handle)
+
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

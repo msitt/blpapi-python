@@ -2,13 +2,15 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from threading import Condition, Lock
 from blpapi_import_helper import blpapi
 from blpapi import Names
-from util.ConnectionAndAuthOptions import \
-    addConnectionAndAuthOptions, \
-    createSessionOptions
-from util.SubscriptionOptions import \
-    addSubscriptionOptionsForSnapshot, \
-    setSubscriptionSessionOptions, \
-    createSubscriptionStrings
+from util.ConnectionAndAuthOptions import (
+    addConnectionAndAuthOptions,
+    createSessionOptions,
+)
+from util.SubscriptionOptions import (
+    addSubscriptionOptionsForSnapshot,
+    setSubscriptionSessionOptions,
+    createSubscriptionStrings,
+)
 import time
 
 # Requests are throttled in the infrastructure. Snapshot request templates send
@@ -45,8 +47,9 @@ class MyCorrelation:
 def parseCmdLine():
     """Parse command line arguments"""
 
-    parser = ArgumentParser(formatter_class=RawTextHelpFormatter,
-                            description="Retrieve Snapshots")
+    parser = ArgumentParser(
+        formatter_class=RawTextHelpFormatter, description="Retrieve Snapshots"
+    )
     addConnectionAndAuthOptions(parser)
     addSubscriptionOptionsForSnapshot(parser)
 
@@ -56,7 +59,6 @@ def parseCmdLine():
 
 
 class SnapshotRequestTemplateExample:
-
     def __init__(self):
         self._snapshots = {}
 
@@ -89,7 +91,9 @@ class SnapshotRequestTemplateExample:
             self._responseCount = len(subscriptionStrings)
             for userTopic, subscriptionString in subscriptionStrings.items():
                 self.d_templateBatchingCondition.wait_for(
-                    lambda: not self._running or self._templateCount < TEMPLATE_BATCH_SIZE)
+                    lambda: not self._running
+                    or self._templateCount < TEMPLATE_BATCH_SIZE
+                )
 
                 if not self._running:
                     break
@@ -99,14 +103,15 @@ class SnapshotRequestTemplateExample:
 
                 statusCid = blpapi.CorrelationId(MyCorrelation(userTopic))
                 requestTemplate = session.createSnapshotRequestTemplate(
-                    subscriptionString,
-                    statusCid)
+                    subscriptionString, statusCid
+                )
                 self._snapshots[statusCid] = requestTemplate
 
             # Wait until all the request templates have finished, either
             # success or failure.
             self._responseCondition.wait_for(
-                lambda: not self._running or self._responseCount == 0)
+                lambda: not self._running or self._responseCount == 0
+            )
 
     def _sendRequests(self, session):
         while True:
@@ -122,13 +127,17 @@ class SnapshotRequestTemplateExample:
                     print(f"Sending request for {userTopic}")
                     session.sendRequestTemplate(
                         template,
-                        blpapi.CorrelationId(MyCorrelation(userTopic)))
+                        blpapi.CorrelationId(MyCorrelation(userTopic)),
+                    )
 
                 print("Waiting for the responses..., Press [Ctrl-C] to exit\n")
                 self._responseCondition.wait_for(
-                    lambda: not self._running or self._responseCount == 0)
+                    lambda: not self._running or self._responseCount == 0
+                )
 
-            print("Received all the responses, will send next request in 5 seconds\n")
+            print(
+                "Received all the responses, will send next request in 5 seconds\n"
+            )
             time.sleep(5)
 
     def run(self):
@@ -153,7 +162,9 @@ class SnapshotRequestTemplateExample:
             if self._snapshots:
                 self._sendRequests(session)
             else:
-                print("Failed to create all the request templates, stopping...")
+                print(
+                    "Failed to create all the request templates, stopping..."
+                )
         finally:
             session.stop()
 
@@ -167,8 +178,10 @@ class SnapshotRequestTemplateExample:
             cid = msg.correlationId()
             myCorrelation = cid.value()
             if messageType == Names.REQUEST_TEMPLATE_AVAILABLE:
-                print("Request template is successfully created for topic"
-                      f" {myCorrelation}")
+                print(
+                    "Request template is successfully created for topic"
+                    f" {myCorrelation}"
+                )
                 print(msg)
 
                 with self._lock:

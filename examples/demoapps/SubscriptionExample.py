@@ -4,13 +4,15 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 
 from blpapi_import_helper import blpapi
 
-from util.SubscriptionOptions import \
-    addSubscriptionOptions, \
-    setSubscriptionSessionOptions, \
-    createSubscriptionList
-from util.ConnectionAndAuthOptions import \
-    addConnectionAndAuthOptions, \
-    createSessionOptions
+from util.SubscriptionOptions import (
+    addSubscriptionOptions,
+    setSubscriptionSessionOptions,
+    createSubscriptionList,
+)
+from util.ConnectionAndAuthOptions import (
+    addConnectionAndAuthOptions,
+    createSessionOptions,
+)
 
 DEFAULT_QUEUE_SIZE = 10000
 
@@ -42,24 +44,32 @@ class SubscriptionEventHandler(object):
     def processMiscEvents(self, event):
         for msg in event:
             if msg.messageType() == blpapi.Names.SLOW_CONSUMER_WARNING:
-                print(f"{blpapi.Names.SLOW_CONSUMER_WARNING} - The event queue is " +
-                      "beginning to approach its maximum capacity and " +
-                      "the application is not processing the data fast " +
-                      "enough. This could lead to ticks being dropped" +
-                      " (DataLoss).\n")
-            elif msg.messageType() == blpapi.Names.SLOW_CONSUMER_WARNING_CLEARED:
-                print(f"{blpapi.Names.SLOW_CONSUMER_WARNING_CLEARED} - the event " +
-                      "queue has shrunk enough that there is no " +
-                      "longer any immediate danger of overflowing the " +
-                      "queue. If any precautionary actions were taken " +
-                      "when SlowConsumerWarning message was delivered, " +
-                      "it is now safe to continue as normal.\n")
+                print(
+                    f"{blpapi.Names.SLOW_CONSUMER_WARNING} - The event queue is "
+                    + "beginning to approach its maximum capacity and "
+                    + "the application is not processing the data fast "
+                    + "enough. This could lead to ticks being dropped"
+                    + " (DataLoss).\n"
+                )
+            elif (
+                msg.messageType() == blpapi.Names.SLOW_CONSUMER_WARNING_CLEARED
+            ):
+                print(
+                    f"{blpapi.Names.SLOW_CONSUMER_WARNING_CLEARED} - the event "
+                    + "queue has shrunk enough that there is no "
+                    + "longer any immediate danger of overflowing the "
+                    + "queue. If any precautionary actions were taken "
+                    + "when SlowConsumerWarning message was delivered, "
+                    + "it is now safe to continue as normal.\n"
+                )
             elif msg.messageType() == blpapi.Names.DATA_LOSS:
                 print(msg)
                 topic = msg.correlationId().value()
-                print(f"{blpapi.Names.DATA_LOSS} - The application is too slow to " +
-                      "process events and the event queue is overflowing. " +
-                      f"Data is lost for topic {topic}.\n")
+                print(
+                    f"{blpapi.Names.DATA_LOSS} - The application is too slow to "
+                    + "process events and the event queue is overflowing. "
+                    + f"Data is lost for topic {topic}.\n"
+                )
             elif event.eventType() == blpapi.Event.SESSION_STATUS:
                 # SESSION_STATUS events can happen at any time and
                 # should be handled as the session can be terminated,
@@ -85,8 +95,10 @@ class SubscriptionEventHandler(object):
 def parseCmdLine():
     """Parse command line arguments"""
 
-    parser = ArgumentParser(formatter_class=RawTextHelpFormatter,
-                            description="Asynchronous subscription with event handler")
+    parser = ArgumentParser(
+        formatter_class=RawTextHelpFormatter,
+        description="Asynchronous subscription with event handler",
+    )
     addConnectionAndAuthOptions(parser)
     addSubscriptionOptions(parser)
 
@@ -97,7 +109,8 @@ def parseCmdLine():
         help="The maximum number of events that is buffered by the session (default: %(default)d)",
         type=int,
         metavar="eventQueueSize",
-        default=DEFAULT_QUEUE_SIZE)
+        default=DEFAULT_QUEUE_SIZE,
+    )
 
     options = parser.parse_args()
 

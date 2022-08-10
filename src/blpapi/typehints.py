@@ -3,6 +3,7 @@
 """Type definitions for common type hints"""
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from blpapi import AbstractSession
     from blpapi import AuthOptions
@@ -32,23 +33,30 @@ from typing import Union, Any
 AnyPythonDatetime = Union[datetime.datetime, datetime.date, datetime.time]
 BlpapiNameOrStr = Union[str, "Name", bytes]
 BlpapiNameOrStrOrIndex = Union[str, "Name", bytes, int]
-SupportedElementTypes = Union[BlpapiNameOrStr, bool, int, float,
-                              AnyPythonDatetime, None]
+SupportedElementTypes = Union[
+    BlpapiNameOrStr, bool, int, float, AnyPythonDatetime, None
+]
 # placeholders for opaque handles
 BlpapiAbstractSessionHandle = Any
 BlpapiAuthOptionsHandle = Any
+BlpapiAuthAppHandle = Any
+BlpapiAuthTokenHandle = Any
 BlpapiAuthUserHandle = Any
 BlpapiConstantHandle = Any
 BlpapiConstantListHandle = Any
-BlpapiDatetime = Union[Any, "blpapi_HighPrecisionDatetime_tag"] # type: ignore
+BlpapiDatetime = Union[Any, "blpapi_HighPrecisionDatetime_tag"]  # type: ignore
 BlpapiElementHandle = Any
 BlpapiEventHandle = Any
 BlpapiIdentityHandle = Any
 BlpapiMessageHandle = Any
+BlpapiMessageFormatterHandle = Any
+BlpapiMessagePropertiesHandle = Any
 BlpapiNameHandle = Any
 BlpapiOperationHandle = Any
 BlpapiProviderSessionHandle = Any
 BlpapiRequestHandle = Any
+BlpapiRequestTemplateHandle = Any
+BlpapiSchemaHandle = Any
 BlpapiSchemaElementDefinitionHandle = Any
 BlpapiSchemaTypeDefinitionHandle = Any
 BlpapiServiceHandle = Any

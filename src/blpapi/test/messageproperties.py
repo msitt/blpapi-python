@@ -2,19 +2,22 @@
 
 """ Class for defining properties of mock messages. """
 
+from typing import Sequence
 import blpapi
 from blpapi import internals
 from blpapi.exception import _ExceptionUtil
 from blpapi.datetime import _DatetimeUtil
+from blpapi import typehints
 from ..utils import get_handle
 
-class MessageProperties():
+
+class MessageProperties:
     """
     This class represents properties of a message that are not part of the
     message contents, such as the correlation ids or timestamp.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Create 'MessageProperties' with default values.
 
@@ -27,47 +30,53 @@ class MessageProperties():
         rc, self.__handle = internals.blpapi_MessageProperties_create()
         _ExceptionUtil.raiseOnError(rc)
 
-    def __del__(self):
+    def __del__(self) -> None:
         try:
             self.destroy()
         except (NameError, AttributeError):
             pass
 
-    def destroy(self):
+    def destroy(self) -> None:
         """Destroy this :class:`MessageProperties`."""
         if self.__handle:
             internals.blpapi_MessageProperties_destroy(self.__handle)
             self.__handle = None
 
-    def setCorrelationIds(self, cids):
+    def setCorrelationIds(
+        self, cids: Sequence["typehints.CorrelationId"]
+    ) -> None:
         """
         Set the `correlationIds` properties of the message.
 
         Args:
-            cids ([blpapi.CorrelationId]): list of correlation ids of the
-                message.
+            cids: list of correlation ids of the message.
         """
         errorCode = internals.blpapi_MessageProperties_setCorrelationIds(
-            self.__handle, list(cids))
+            self.__handle, list(cids)
+        )
         _ExceptionUtil.raiseOnError(errorCode)
 
-    def setRecapType(self, recapType,
-                     fragmentType=blpapi.Message.FRAGMENT_NONE):
+    def setRecapType(
+        self,
+        recapType: int,
+        fragmentType: int = blpapi.Message.FRAGMENT_NONE,  # type: ignore
+    ) -> None:
         """
         Set the `recapType` and `fragmentType` properties of the message.
 
         Args:
-            recapType (int): Recap type of the message. See
-                :class:`blpapi.Message` for valid values.
-            fragmentType (int): Optional. Fragment type of the message. See
+            recapType: Recap type of the message. See :class:`blpapi.Message`
+                for valid values.
+            fragmentType: Optional. Fragment type of the message. See
                 :class:`blpapi.Message` for valid values. The default value is
                 ``blpapi.Message.FRAGMENT_NONE``.
         """
         errorCode = internals.blpapi_MessageProperties_setRecapType(
-            self.__handle, recapType, fragmentType)
+            self.__handle, recapType, fragmentType
+        )
         _ExceptionUtil.raiseOnError(errorCode)
 
-    def setTimeReceived(self, timestamp):
+    def setTimeReceived(self, timestamp: typehints.AnyPythonDatetime) -> None:
         """
         Set the `timeReceived` property of the message.
 
@@ -76,10 +85,11 @@ class MessageProperties():
         """
         ts = _DatetimeUtil.convertToBlpapi(timestamp)
         errorCode = internals.blpapi_MessageProperties_setTimeReceived(
-            self.__handle, ts)
+            self.__handle, ts
+        )
         _ExceptionUtil.raiseOnError(errorCode)
 
-    def setRequestId(self, requestId):
+    def setRequestId(self, requestId: str) -> None:
         """
         Set the `requestId` property.
         A copy of this string is expected to be returned
@@ -90,11 +100,11 @@ class MessageProperties():
             requestId (str): RequestId of the message.
         """
         errorCode = internals.blpapi_MessageProperties_setRequestId(
-            self.__handle, requestId)
+            self.__handle, requestId
+        )
         _ExceptionUtil.raiseOnError(errorCode)
 
-
-    def setService(self, service):
+    def setService(self, service: "typehints.Service") -> None:
         """
         Set the `service` property of the message.
 
@@ -102,10 +112,11 @@ class MessageProperties():
             service (blpapi.Service): Service of the message.
         """
         errorCode = internals.blpapi_MessageProperties_setService(
-            self.__handle, get_handle(service))
+            self.__handle, get_handle(service)
+        )
         _ExceptionUtil.raiseOnError(errorCode)
 
-    def _handle(self):
+    def _handle(self) -> typehints.BlpapiMessagePropertiesHandle:
         """For internal use only."""
         return self.__handle
 

@@ -4,10 +4,10 @@
 
 This component provides a topic that is used for publishing data on.
 """
-from typing import Set
+from typing import Any, Set, Optional
 from .typehints import BlpapiTopicHandle
 from . import internals
-from . import typehints # pylint: disable=unused-import
+from . import typehints  # pylint: disable=unused-import
 from .service import Service
 from .utils import get_handle
 from .chandle import CHandle
@@ -22,9 +22,11 @@ class Topic(CHandle):
     :class:`EventFormatter`.
     """
 
-    def __init__(self,
-                 handle: BlpapiTopicHandle,
-                 sessions: Set["typehints.AbstractSession"]):
+    def __init__(
+        self,
+        handle: Optional[BlpapiTopicHandle] = None,
+        sessions: Optional[Set["typehints.AbstractSession"]] = None,
+    ):
         """Create a :class:`Topic` object.
 
         Args:
@@ -39,7 +41,7 @@ class Topic(CHandle):
             selfhandle = internals.blpapi_Topic_create(handle)
         super(Topic, self).__init__(selfhandle, internals.blpapi_Topic_destroy)
         self.__handle = selfhandle
-        self.__sessions = sessions
+        self.__sessions = sessions if sessions is not None else set()
 
     def isValid(self) -> bool:
         """
@@ -57,23 +59,29 @@ class Topic(CHandle):
         """
         return bool(internals.blpapi_Topic_isActive(self.__handle))
 
-    def service(self) -> "typehints.Service": # type: ignore
+    def service(self) -> "typehints.Service":
         """
         Returns:
             Service: The service for which this topic was created.
         """
-        return Service(internals.blpapi_Topic_service(self.__handle),
-                       self.__sessions)
+        return Service(
+            internals.blpapi_Topic_service(self.__handle), self.__sessions
+        )
 
     def __lt__(self, other: "typehints.Topic") -> bool:
         """2-way comparison of Topic objects."""
-        return internals.blpapi_Topic_compare(
-            self.__handle, get_handle(other)) < 0
+        return (
+            internals.blpapi_Topic_compare(self.__handle, get_handle(other))
+            < 0
+        )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         """2-way comparison of Topic objects."""
-        return internals.blpapi_Topic_compare(
-            self.__handle, get_handle(other)) == 0
+        return (
+            internals.blpapi_Topic_compare(self.__handle, get_handle(other))
+            == 0
+        )
+
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

@@ -21,7 +21,7 @@ if __name__ == "__main__":
     for i, host in enumerate(options.hosts):
         so.setServerAddress(host, options.port, i)
 
-    so.setAuthenticationOptions(options.auth['option'])
+    so.setAuthenticationOptions(options.auth["option"])
 
     session = blpapi.Session(so, event_processor.processEvent)
 

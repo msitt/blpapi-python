@@ -5,7 +5,10 @@ from blpapi_import_helper import blpapi
 from snippets.instruments import CurveListRequests
 from snippets.instruments import GovtListRequests
 from snippets.instruments import InstrumentListRequests
-from util.ConnectionAndAuthOptions import addConnectionAndAuthOptions, createSessionOptions
+from util.ConnectionAndAuthOptions import (
+    addConnectionAndAuthOptions,
+    createSessionOptions,
+)
 from collections import namedtuple
 
 INSTRUMENT_SERVICE = "//blp/instruments"
@@ -22,7 +25,7 @@ FILTERS_CURVE = [
     "type",
     "subtype",
     "curveid",
-    "bbgid"
+    "bbgid",
 ]
 
 REQUEST_FAILURE = blpapi.Name("RequestFailure")
@@ -31,14 +34,14 @@ SESSION_STARTUP_FAILURE = blpapi.Name("SessionStartupFailure")
 SERVICE_OPEN_FAILURE = blpapi.Name("ServiceOpenFailure")
 
 # Defines a filter that is used in a //blp/instruments request.
-InstrumentsFilter = namedtuple('InstrumentsFilter', ['name', 'value'])
+InstrumentsFilter = namedtuple("InstrumentsFilter", ["name", "value"])
 
 
 class FilterAction(Action):
     """The action that parses filter options from user input"""
 
     def __call__(self, parser, args, values, option_string=None):
-        vals = values.split('=', 1)
+        vals = values.split("=", 1)
         if len(vals) != 2:
             parser.error(f"Invalid filter option '{values}'")
 
@@ -49,40 +52,55 @@ class FilterAction(Action):
 def parseCmdLine():
     """Parse command line arguments"""
 
-    parser = ArgumentParser(formatter_class=RawTextHelpFormatter,
-                            description="Security Lookup Example")
+    parser = ArgumentParser(
+        formatter_class=RawTextHelpFormatter,
+        description="Security Lookup Example",
+    )
 
     addConnectionAndAuthOptions(parser)
 
     lookup_group = parser.add_argument_group("Security Lookup Options")
-    lookup_group.add_argument("-r", "--request",
-                              dest="requestType",
-                              choices=[INSTRUMENT_LIST_REQUEST,
-                                       CURVE_LIST_REQUEST,
-                                       GOVT_LIST_REQUEST],
-                              help="specify the request type (default: %(default)s)",
-                              metavar="requestType",
-                              default=INSTRUMENT_LIST_REQUEST)
-    lookup_group.add_argument("-S", "--security",
-                              dest="query",
-                              help="security query string",
-                              metavar="security")
-    lookup_group.add_argument("--max-results",
-                              dest="maxResults",
-                              help="max results returned in the response (default: %(default)d)",
-                              metavar="maxResults",
-                              type=int,
-                              default=10)
-    lookup_group.add_argument("-F", "--filter",
-                              dest="filters",
-                              help=f'''filter and value separated by '=', e.g., countryCode=US. Can be specified multiple times.
+    lookup_group.add_argument(
+        "-r",
+        "--request",
+        dest="requestType",
+        choices=[
+            INSTRUMENT_LIST_REQUEST,
+            CURVE_LIST_REQUEST,
+            GOVT_LIST_REQUEST,
+        ],
+        help="specify the request type (default: %(default)s)",
+        metavar="requestType",
+        default=INSTRUMENT_LIST_REQUEST,
+    )
+    lookup_group.add_argument(
+        "-S",
+        "--security",
+        dest="query",
+        help="security query string",
+        metavar="security",
+    )
+    lookup_group.add_argument(
+        "--max-results",
+        dest="maxResults",
+        help="max results returned in the response (default: %(default)d)",
+        metavar="maxResults",
+        type=int,
+        default=10,
+    )
+    lookup_group.add_argument(
+        "-F",
+        "--filter",
+        dest="filters",
+        help=f"""filter and value separated by '=', e.g., countryCode=US. Can be specified multiple times.
 The applicable filters for each request:
 {INSTRUMENT_LIST_REQUEST}: {FILTERS_INSTRUMENTS}
 {CURVE_LIST_REQUEST} : {FILTERS_CURVE}
-{GOVT_LIST_REQUEST} : {FILTERS_GOVT}''',
-                              metavar="<filter>=<value>",
-                              action=FilterAction,
-                              default=[])
+{GOVT_LIST_REQUEST} : {FILTERS_GOVT}""",
+        metavar="<filter>=<value>",
+        action=FilterAction,
+        default=[],
+    )
 
     options = parser.parse_args()
 
@@ -98,19 +116,22 @@ def sendRequest(options, session):
             instrumentsService,
             options.query,
             options.maxResults,
-            options.filters)
+            options.filters,
+        )
     elif requestType == GOVT_LIST_REQUEST:
         request = GovtListRequests.createRequest(
             instrumentsService,
             options.query,
             options.maxResults,
-            options.filters)
+            options.filters,
+        )
     elif requestType == INSTRUMENT_LIST_REQUEST:
         request = InstrumentListRequests.createRequest(
             instrumentsService,
             options.query,
             options.maxResults,
-            options.filters)
+            options.filters,
+        )
 
     print(f"Sending Request {request}")
     session.sendRequest(request)

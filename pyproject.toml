@@ -1,0 +1,9 @@
+[tool.black]
+line-length = 79
+extend-exclude = '''
+/(
+  | docs
+)/
+| src/blpapi/internals.py
+| src/blpapi/versionhelper.py
+'''

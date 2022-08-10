@@ -48,41 +48,27 @@ def createTableOverrideRequest(service, options):
     request = service.createRequest("ReferenceDataRequest")
 
     # (rate, duration, transition)
-    rate1 = (1.0, 12, 'S') # S = Step
-    rate2 = (2.0, 12, 'R') # R = Ramp
+    rate1 = (1.0, 12, "S")  # S = Step
+    rate2 = (2.0, 12, "R")  # R = Ramp
 
     requestDict = {
         "securities": options.securities,
         "fields": options.fields,
         "overrides": [
-            {
-                "fieldId": "ALLOW_DYNAMIC_CASHFLOW_CALCS",
-                "value": "Y"
-            },
-            {
-                "fieldId": "LOSS_SEVERITY",
-                "value": 31
-            }
+            {"fieldId": "ALLOW_DYNAMIC_CASHFLOW_CALCS", "value": "Y"},
+            {"fieldId": "LOSS_SEVERITY", "value": 31},
         ],
         "tableOverrides": [
             {
                 "fieldId": "DEFAULT_VECTOR",
                 "row": [
-                    {
-                        "value": ["Anchor", "PROJ"]
-                    },
-                    {
-                        "value": ["Type", "CDR"]
-                    },
-                    {
-                        "value": rate1
-                    },
-                    {
-                        "value": rate2
-                    },
-                ]
+                    {"value": ["Anchor", "PROJ"]},
+                    {"value": ["Type", "CDR"]},
+                    {"value": rate1},
+                    {"value": rate2},
+                ],
             }
-        ]
+        ],
     }
     request.fromPy(requestDict)
 
@@ -112,7 +98,9 @@ def processResponseEvent(event):
             print(f"\nTicker: {ticker}")
 
             if security.hasElement(SECURITY_ERROR):
-                print(f"SECURITY FAILED: {security.getElement(SECURITY_ERROR)}")
+                print(
+                    f"SECURITY FAILED: {security.getElement(SECURITY_ERROR)}"
+                )
                 continue
 
             if security.hasElement(FIELD_DATA):
@@ -131,8 +119,10 @@ def processResponseEvent(event):
                 print("-----\t\t---------")
                 for k in range(fieldExceptions.numValues()):
                     fieldException = fieldExceptions.getValueAsElement(k)
-                    print(f"{fieldException.getElementAsString(FIELD_ID)} "
-                          f"\t\t {fieldException.getElement(ERROR_INFO)}")
+                    print(
+                        f"{fieldException.getElementAsString(FIELD_ID)} "
+                        f"\t\t {fieldException.getElement(ERROR_INFO)}"
+                    )
 
 
 __copyright__ = """

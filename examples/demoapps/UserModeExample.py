@@ -2,10 +2,11 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 
 from blpapi_import_helper import blpapi
 from blpapi import Session, Names, CorrelationId
-from util.ConnectionAndAuthOptions import \
-    addConnectionAndAuthOptions, \
-    createClientServerSetupAuthOptions, \
-    createSessionOptions
+from util.ConnectionAndAuthOptions import (
+    addConnectionAndAuthOptions,
+    createClientServerSetupAuthOptions,
+    createSessionOptions,
+)
 from util.events.SessionRouter import SessionRouter
 
 from functools import partial
@@ -29,16 +30,21 @@ class UserModeExample:
         self._router.addExceptionHandler(self._handleException)
 
         self._router.addMessageHandlerByMessageType(
-            Names.SESSION_STARTED, self._handleSessionStarted)
+            Names.SESSION_STARTED, self._handleSessionStarted
+        )
         self._router.addMessageHandlerByMessageType(
-            Names.SESSION_STARTUP_FAILURE, self._handleSessionStartupFailure)
+            Names.SESSION_STARTUP_FAILURE, self._handleSessionStartupFailure
+        )
         self._router.addMessageHandlerByMessageType(
-            Names.SESSION_TERMINATED, self._handleSessionTerminated)
+            Names.SESSION_TERMINATED, self._handleSessionTerminated
+        )
 
         self._router.addMessageHandlerByMessageType(
-            Names.SERVICE_OPENED, self._handleServiceOpened)
+            Names.SERVICE_OPENED, self._handleServiceOpened
+        )
         self._router.addMessageHandlerByMessageType(
-            Names.SERVICE_OPEN_FAILURE, self._handleServiceOpenFailure)
+            Names.SERVICE_OPEN_FAILURE, self._handleServiceOpenFailure
+        )
 
     @property
     def stopped(self):
@@ -61,43 +67,54 @@ class UserModeExample:
         print(exception)
         self._stop()
 
-    def _handleSessionStarted(self,
-                              _session: blpapi.AbstractSession,
-                              _event: blpapi.Event,
-                              _msg: blpapi.Message):
+    def _handleSessionStarted(
+        self,
+        _session: blpapi.AbstractSession,
+        _event: blpapi.Event,
+        _msg: blpapi.Message,
+    ):
 
         # Add the authorization messages handlers after the session
         # started to only react to the authorization messages of users,
         # i.e., avoid those of the session identity.
         self._router.addMessageHandlerByMessageType(
-            Names.AUTHORIZATION_SUCCESS, self._handleAuthorizationSuccess)
+            Names.AUTHORIZATION_SUCCESS, self._handleAuthorizationSuccess
+        )
         self._router.addMessageHandlerByMessageType(
-            Names.AUTHORIZATION_FAILURE, self._handleAuthorizationFailure)
+            Names.AUTHORIZATION_FAILURE, self._handleAuthorizationFailure
+        )
         self._router.addMessageHandlerByMessageType(
-            Names.AUTHORIZATION_REVOKED, self._handleAuthorizationRevoked)
+            Names.AUTHORIZATION_REVOKED, self._handleAuthorizationRevoked
+        )
 
         # both actions will run concurrently
         self._openServices()
         self._authorizeUsers()
 
-    def _handleSessionStartupFailure(self,
-                                     _session: blpapi.AbstractSession,
-                                     _event: blpapi.Event,
-                                     _msg: blpapi.Message):
+    def _handleSessionStartupFailure(
+        self,
+        _session: blpapi.AbstractSession,
+        _event: blpapi.Event,
+        _msg: blpapi.Message,
+    ):
         print("Failed to start session. Exiting...")
         self._sessionTerminatedSignal.set()
 
-    def _handleSessionTerminated(self,
-                                 _session: blpapi.AbstractSession,
-                                 _event: blpapi.Event,
-                                 _msg: blpapi.Message):
+    def _handleSessionTerminated(
+        self,
+        _session: blpapi.AbstractSession,
+        _event: blpapi.Event,
+        _msg: blpapi.Message,
+    ):
         print("Session terminated. Exiting...")
         self._sessionTerminatedSignal.set()
 
-    def _handleServiceOpened(self,
-                             session: blpapi.AbstractSession,
-                             _event: blpapi.Event,
-                             message: blpapi.Message):
+    def _handleServiceOpened(
+        self,
+        session: blpapi.AbstractSession,
+        _event: blpapi.Event,
+        message: blpapi.Message,
+    ):
         serviceName = message["serviceName"]
         self._refDataService = session.getService(serviceName)
 
@@ -109,10 +126,12 @@ class UserModeExample:
                 self._sendRefDataRequest(identity, userIdentifier)
         print(f"A service was opened: {serviceName}")
 
-    def _handleServiceOpenFailure(self,
-                                  _session: blpapi.AbstractSession,
-                                  _event: blpapi.Event,
-                                  message: blpapi.Message):
+    def _handleServiceOpenFailure(
+        self,
+        _session: blpapi.AbstractSession,
+        _event: blpapi.Event,
+        message: blpapi.Message,
+    ):
         serviceName = message["serviceName"]
         if serviceName == REFDATA_SVC_NAME:
             print(f"Failed to open service '{serviceName}', stopping...")
@@ -121,10 +140,12 @@ class UserModeExample:
 
         raise RuntimeError(f"An unknown service failed to open: {serviceName}")
 
-    def _handleAuthorizationSuccess(self,
-                                    session: blpapi.AbstractSession,
-                                    _event: blpapi.Event,
-                                    message: blpapi.Message):
+    def _handleAuthorizationSuccess(
+        self,
+        session: blpapi.AbstractSession,
+        _event: blpapi.Event,
+        message: blpapi.Message,
+    ):
         correlationId = message.correlationId()
         userIdentifier = correlationId.value()
         print(f"Successfully authorized {userIdentifier}")
@@ -138,22 +159,26 @@ class UserModeExample:
             userIdentifier = correlationId.value()
             self._sendRefDataRequest(identity, userIdentifier)
         else:
-            pass # the request will be sent by open service handler
+            pass  # the request will be sent by open service handler
 
-    def _handleAuthorizationFailure(self,
-                                    _session: blpapi.AbstractSession,
-                                    _event: blpapi.Event,
-                                    message: blpapi.Message):
+    def _handleAuthorizationFailure(
+        self,
+        _session: blpapi.AbstractSession,
+        _event: blpapi.Event,
+        message: blpapi.Message,
+    ):
         correlationId = message.correlationId()
         self._router.removeMessageHandlerByCorrelationId(correlationId)
 
         userIdentifier = correlationId.value()
         print(f"Failed to authorize {userIdentifier}")
 
-    def _handleAuthorizationRevoked(self,
-                                    _session: blpapi.AbstractSession,
-                                    _event: blpapi.Event,
-                                    message: blpapi.Message):
+    def _handleAuthorizationRevoked(
+        self,
+        _session: blpapi.AbstractSession,
+        _event: blpapi.Event,
+        message: blpapi.Message,
+    ):
         correlationId = message.correlationId()
         self._router.removeMessageHandlerByCorrelationId(correlationId)
 
@@ -166,11 +191,13 @@ class UserModeExample:
     def _authorizeUsers(self):
         # Authorize each of the users
         authOptionsByIdentifier = createClientServerSetupAuthOptions(
-            self._options)
+            self._options
+        )
         for userIdentifier, authOptions in authOptionsByIdentifier.items():
             correlationId = blpapi.CorrelationId(userIdentifier)
             self._session.generateAuthorizedIdentity(
-                authOptions, correlationId)
+                authOptions, correlationId
+            )
 
     def _openServices(self):
         self._session.openServiceAsync(REFDATA_SVC_NAME)
@@ -188,7 +215,7 @@ class UserModeExample:
         requestDict = {
             "securities": self._options.securities,
             "fields": ["PX_LAST", "DS002"],
-            "returnEids": True
+            "returnEids": True,
         }
 
         request.fromPy(requestDict)
@@ -197,14 +224,17 @@ class UserModeExample:
         correlationId = CorrelationId("example")
         self._router.addMessageHandlerByCorrelationId(
             correlationId,
-            partial(UserModeExample._processResponseMessage, userId))
+            partial(UserModeExample._processResponseMessage, userId),
+        )
         self._session.sendRequest(request, identity, correlationId)
 
     @staticmethod
-    def _processResponseMessage(userId,
-                                _session: blpapi.Session,
-                                _event: blpapi.Event,
-                                message: blpapi.Message):
+    def _processResponseMessage(
+        userId,
+        _session: blpapi.Session,
+        _event: blpapi.Event,
+        message: blpapi.Message,
+    ):
         if message.messageType() == Names.REQUEST_FAILURE:
             print(f"Request failed for {userId}.")
         else:
@@ -214,17 +244,20 @@ class UserModeExample:
 def parseCmdLine():
     """Parse command line arguments"""
     parser = ArgumentParser(
-        description="User Mode Example",
-        formatter_class=RawTextHelpFormatter)
+        description="User Mode Example", formatter_class=RawTextHelpFormatter
+    )
     addConnectionAndAuthOptions(parser, forClientServerSetup=True)
 
-    parser.add_argument("-S", "--security",
-                        dest="securities",
-                        help="security used in ReferenceDataRequest (default:"
-                        " IBM US Equity). Can be specified multiple times",
-                        metavar="security",
-                        action="append",
-                        default=[])
+    parser.add_argument(
+        "-S",
+        "--security",
+        dest="securities",
+        help="security used in ReferenceDataRequest (default:"
+        " IBM US Equity). Can be specified multiple times",
+        metavar="security",
+        action="append",
+        default=[],
+    )
 
     options = parser.parse_args()
 

@@ -14,7 +14,8 @@ CURVE_RESPONSE_ELEMENTS = [
     Name("type"),
     Name("subtype"),
     Name("publisher"),
-    Name("bbgid")]
+    Name("bbgid"),
+]
 
 
 def createRequest(instrumentsService, query, maxResults, filters):
@@ -38,13 +39,15 @@ def processResponse(event):
         print(f"Processing {len(results)} results:")
 
         for i, result in enumerate(results):
-            elements_values = [f"{n}={result[n]}"
-                               for n in CURVE_RESPONSE_ELEMENTS]
+            elements_values = [
+                f"{n}={result[n]}" for n in CURVE_RESPONSE_ELEMENTS
+            ]
 
             curve = result[NAME_CURVE]
             description = result[NAME_DESCRIPTION]
             print(
-                f"    {i + 1}  {curve}  - {description}, {' '.join(elements_values)}")
+                f"    {i + 1}  {curve}  - {description}, {' '.join(elements_values)}"
+            )
 
 
 __copyright__ = """

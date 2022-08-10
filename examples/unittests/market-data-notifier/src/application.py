@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 # pylint: disable=too-few-public-methods
-class Application():
+class Application:
     """Custom application for demonstration purposes."""
 
     def __init__(self, session, authorizer, subscriber, options):
@@ -24,8 +24,12 @@ class Application():
             return
 
         self._subscriber.subscribe(
-            self._options.topics, self._options.fields,
-            self._options.options, identity)
+            self._options.topics,
+            self._options.fields,
+            self._options.options,
+            identity,
+        )
+
 
 __copyright__ = """
 Copyright 2020. Bloomberg Finance L.P.

@@ -6,13 +6,12 @@ This file defines a class 'Name' which represents a string in a
 form for efficient string comparison.
 
 """
-from typing import Optional, Tuple, Union
+from typing import Any, Optional, Tuple, Union
 from . import internals
 from .utils import conv2str, get_handle, isstr
 from .chandle import CHandle
-from . import typehints # pylint: disable=unused-import
+from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiNameOrStr, BlpapiNameHandle
-
 
 
 # pylint: disable=broad-except
@@ -61,8 +60,9 @@ class Name(CHandle):
             If no such object exists, ``None`` is returned.
         """
         nameHandle = internals.blpapi_Name_findName(nameString)
-        return None if nameHandle is None \
-            else Name._createInternally(nameHandle)
+        return (
+            None if nameHandle is None else Name._createInternally(nameHandle)
+        )
 
     @staticmethod
     def hasName(nameString: str) -> bool:
@@ -80,8 +80,11 @@ class Name(CHandle):
     def _createInternally(handle: BlpapiNameHandle) -> "Name":
         return Name(None, handle)
 
-    def __init__(self, nameString: Optional[str],
-                 internalHandle: Optional[BlpapiNameHandle] = None) -> None:
+    def __init__(
+        self,
+        nameString: Optional[str],
+        internalHandle: Optional[BlpapiNameHandle] = None,
+    ) -> None:
         selfhandle = internalHandle
         if selfhandle is None:
             selfhandle = internals.blpapi_Name_create(nameString)
@@ -89,8 +92,7 @@ class Name(CHandle):
         self.__handle = selfhandle
 
     def __len__(self) -> int:
-        """Return the length of the string that this Name represents.
-        """
+        """Return the length of the string that this Name represents."""
 
         return internals.blpapi_Name_length(self.__handle)
 
@@ -103,7 +105,7 @@ class Name(CHandle):
 
         return internals.blpapi_Name_string(self.__handle)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         """x.__eq__(y) <==> x==y"""
         s = conv2str(other)
         if s is not None:
@@ -111,7 +113,7 @@ class Name(CHandle):
             return p != 0
         return self.__handle == get_handle(other)
 
-    def __ne__(self, other) -> bool:
+    def __ne__(self, other: Any) -> bool:
         """x.__ne__(y) <==> x!=y"""
         return not self.__eq__(other)
 
@@ -120,11 +122,9 @@ class Name(CHandle):
         return int(self.__handle)
 
 
-
-
 def getNamePair(
-        name: BlpapiNameOrStr) -> Union[Tuple[None, BlpapiNameHandle],
-                                        Tuple[str, None]]:
+    name: BlpapiNameOrStr,
+) -> Union[Tuple[None, BlpapiNameHandle], Tuple[str, None]]:
     """Create a tuple that contains a name string and blpapi_Name_t*.
 
     Args:
@@ -145,8 +145,8 @@ def getNamePair(
         return (None, get_handle(name))
     if isstr(name):
         return (conv2str(name), None)
-    raise TypeError(
-        "name should be an instance of a string or blpapi.Name")
+    raise TypeError("name should be an instance of a string or blpapi.Name")
+
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

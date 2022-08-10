@@ -44,11 +44,12 @@ class Iterator(IteratorABC):
 
     """
 
-    def __init__(self,
-                 objToIterate: Any,
-                 numFunc: Callable[[Any], int],
-                 getFunc: Callable[[Any, int], Any]
-                ) -> None:
+    def __init__(
+        self,
+        objToIterate: Any,
+        numFunc: Callable[[Any], int],
+        getFunc: Callable[[Any, int], Any],
+    ) -> None:
         self.__obj = objToIterate
         self.__index = 0
         self.__num = numFunc(objToIterate)
@@ -76,8 +77,7 @@ class MetaClassForClassesWithEnums(type):
     """
 
     class EnumError(TypeError):
-        """Raise this on attempt to change value of an enumeration constant.
-        """
+        """Raise this on attempt to change value of an enumeration constant."""
 
     def __setattr__(cls, name: str, value: Any) -> None:
         """Change the value of an attribute if it is not an enum.
@@ -97,9 +97,12 @@ class MetaClassForClassesWithEnums(type):
             raise cls.EnumError(f"Can't unbind enum {name}")
         type.__delattr__(cls, name)
 
+
 def get_handle(thing: Optional[CHandle]) -> Any:
     """Returns the result of thing._handle() or None if thing is None"""
-    return None if thing is None else thing._handle() #pylint: disable=protected-access
+    # pylint: disable=protected-access
+    return None if thing is None else thing._handle()
+
 
 def invoke_if_valid(cb: Any, value: Any) -> Any:
     """Returns the result of cb(value) if cb is callable, else -- just value"""
@@ -107,8 +110,9 @@ def invoke_if_valid(cb: Any, value: Any) -> Any:
         return value
     return cb(value)
 
+
 def deprecated(func_or_reason: Union[Callable, str]) -> Callable:
-    '''
+    """
     This is a decorator which can be used to mark classes or functions
     as deprecated. It results in a warning being emitted when the class or the
     function is called.
@@ -130,25 +134,25 @@ def deprecated(func_or_reason: Union[Callable, str]) -> Callable:
             @deprecated("use another function")
             def old_function(self, msg);
                 print(msg)
-    '''
+    """
 
     is_func = callable(func_or_reason)
     message = "see docstring for details." if is_func else func_or_reason
 
-    def decorate(func):
-
+    def decorate(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrap_func(*args, **kwargs):
+        def wrap_func(*args: Any, **kwargs: Any) -> Any:
             warnings.warn(
                 f"{func.__name__} is deprecated, {message}.",
                 category=DeprecationWarning,
-                stacklevel=2)
+                stacklevel=2,
+            )
             return func(*args, **kwargs)
 
         return wrap_func
 
     if is_func:
-        return decorate(func_or_reason)
+        return decorate(func_or_reason)  # type: ignore
 
     return decorate
 

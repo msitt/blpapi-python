@@ -16,22 +16,26 @@ from .schema import SchemaElementDefinition
 from .utils import conv2str, Iterator, isNonScalarSequence, isstr
 from .chandle import CHandle
 from . import internals
-from .typehints import BlpapiNameOrStr,\
-    BlpapiNameOrStrOrIndex,\
-    AnyPythonDatetime,\
-    SupportedElementTypes
-from . import typehints # pylint: disable=unused-import
+from .typehints import (
+    BlpapiNameOrStr,
+    BlpapiNameOrStrOrIndex,
+    AnyPythonDatetime,
+    SupportedElementTypes,
+)
+from . import typehints  # pylint: disable=unused-import
 from collections.abc import Iterator as IteratorABC, Mapping
-from typing import Any,\
-    Callable,\
-    Dict,\
-    Iterator as IteratorType,\
-    List,\
-    Optional,\
-    Sequence,\
-    Set,\
-    Tuple,\
-    Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterator as IteratorType,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Union,
+)
 
 # pylint: disable=protected-access,too-many-return-statements,too-many-public-methods
 class ElementIterator(IteratorABC):
@@ -144,55 +148,64 @@ class Element(CHandle):
     __boolTraits = (
         internals.blpapi_Element_setElementBool,
         internals.blpapi_Element_setValueBool,
-        None)
+        None,
+    )
 
     __datetimeTraits = (
         internals.blpapi_Element_setElementHighPrecisionDatetime,
         internals.blpapi_Element_setValueHighPrecisionDatetime,
-        _DatetimeUtil.convertToBlpapi)
+        _DatetimeUtil.convertToBlpapi,
+    )
 
     __int32Traits = (
         internals.blpapi_Element_setElementInt32,
         internals.blpapi_Element_setValueInt32,
-        None)
+        None,
+    )
 
     __int64Traits = (
         internals.blpapi_Element_setElementInt64,
         internals.blpapi_Element_setValueInt64,
-        None)
+        None,
+    )
 
     __floatTraits = (
         internals.blpapi_Element_setElementFloat,
         internals.blpapi_Element_setValueFloat,
-        None)
+        None,
+    )
 
     __nameTraits = (
         internals.blpapi_Element_setElementFromName,
         internals.blpapi_Element_setValueFromName,
-        Name._handle)
+        Name._handle,
+    )
 
     __stringTraits = (
         internals.blpapi_Element_setElementString,
         internals.blpapi_Element_setValueString,
-        conv2str)
+        conv2str,
+    )
 
     __defaultTraits = (
         internals.blpapi_Element_setElementString,
         internals.blpapi_Element_setValueString,
-        str)
+        str,
+    )
 
     @staticmethod
-    def __getTraits(value: SupportedElementTypes
-                    ) -> Tuple[Callable, Callable, Optional[Any]]:
-        """ traits dispatcher """
+    def __getTraits(
+        value: SupportedElementTypes,
+    ) -> Tuple[Callable, Callable, Optional[Any]]:
+        """traits dispatcher"""
         if isstr(value):
             return Element.__stringTraits
         if isinstance(value, bool):
             return Element.__boolTraits
         if isinstance(value, int):
-            if -(2 ** 31) <= value <= (2 ** 31 - 1):
+            if -(2**31) <= value <= (2**31 - 1):
                 return Element.__int32Traits
-            if -(2 ** 63) <= value <= (2 ** 63 - 1):
+            if -(2**63) <= value <= (2**63 - 1):
                 return Element.__int64Traits
             raise ValueError("value is out of element's supported range")
         if isinstance(value, float):
@@ -207,19 +220,21 @@ class Element(CHandle):
         if not self.isValid():
             raise RuntimeError("Element is not valid")
 
-    def __init__(self,
-                 handle: "typehints.BlpapiElementHandle",
-                 dataHolder: Optional[Union["Element",
-                                            "typehints.Message",
-                                            "typehints.Request"]]) -> None:
+    def __init__(
+        self,
+        handle: "typehints.BlpapiElementHandle",
+        dataHolder: Optional[
+            Union["Element", "typehints.Message", "typehints.Request"]
+        ],
+    ) -> None:
         noop = lambda *args: None
         super(Element, self).__init__(handle, noop)
         self.__handle = handle
         self.__dataHolder = dataHolder
 
-    def _getDataHolder(self) -> Optional[Union["Element",
-                                               "typehints.Message",
-                                               "typehints.Request"]]:
+    def _getDataHolder(
+        self,
+    ) -> Optional[Union["Element", "typehints.Message", "typehints.Request"]]:
         """Return the owner of underlying data. For internal use."""
         return self if self.__dataHolder is None else self.__dataHolder
 
@@ -241,9 +256,9 @@ class Element(CHandle):
 
         return self.toString()
 
-    def __getitem__(self,
-                    nameOrIndex: BlpapiNameOrStrOrIndex
-                    ) -> Union[SupportedElementTypes, "Element"]:
+    def __getitem__(
+        self, nameOrIndex: BlpapiNameOrStrOrIndex
+    ) -> Union[SupportedElementTypes, "Element"]:
         """
         Args:
             nameOrIndex: The :class:`Name` identifying the
@@ -277,9 +292,11 @@ class Element(CHandle):
 
         # is name
         if not self.hasElement(nameOrIndex):
-            raise KeyError(f"Element {self.name()} " # type: ignore
-                           f"does not contain element"
-                           f" {nameOrIndex}")
+            raise KeyError(
+                f"Element {self.name()} "  # type: ignore
+                f"does not contain element"
+                f" {nameOrIndex}"
+            )
 
         element = self.getElement(nameOrIndex)
 
@@ -291,10 +308,11 @@ class Element(CHandle):
 
         return element.getValue()
 
-    def __setitem__(self,
-                    name: BlpapiNameOrStr,
-                    value: Union[Mapping, Sequence, SupportedElementTypes]
-                    ) -> None:
+    def __setitem__(
+        self,
+        name: BlpapiNameOrStr,
+        value: Union[Mapping, Sequence, SupportedElementTypes],
+    ) -> None:
         """
         Args:
             name: The :class:`Name` identifying one of this
@@ -364,7 +382,7 @@ class Element(CHandle):
             ``item`` is a value in this :class:`Element`.
         """
         if self.isComplexType():
-            return self.hasElement(item) # type: ignore
+            return self.hasElement(item)  # type: ignore
         return item in self.values()
 
     def name(self) -> Name:
@@ -381,7 +399,8 @@ class Element(CHandle):
 
         self.__assertIsValid()
         return Name._createInternally(
-            internals.blpapi_Element_name(self.__handle))
+            internals.blpapi_Element_name(self.__handle)
+        )
 
     def datatype(self) -> int:
         """
@@ -450,7 +469,8 @@ class Element(CHandle):
         self.__assertIsValid()
         return SchemaElementDefinition(
             internals.blpapi_Element_definition(self.__handle),
-            self._sessions())
+            self._sessions(),
+        )
 
     def numValues(self) -> int:
         """
@@ -482,7 +502,7 @@ class Element(CHandle):
         self.__assertIsValid()
         return internals.blpapi_Element_numElements(self.__handle)
 
-    def isNullValue(self, position: int=0) -> bool:
+    def isNullValue(self, position: int = 0) -> bool:
         """
         Args:
             position: Position of the sub-element
@@ -500,7 +520,7 @@ class Element(CHandle):
         if res in (0, 1):
             return bool(res)
         _ExceptionUtil.raiseOnError(res)
-        return False # unreachable
+        return False  # unreachable
 
     def toPy(self) -> Union[Dict, List, SupportedElementTypes]:
         """
@@ -571,7 +591,7 @@ class Element(CHandle):
         """
         return internals.blpapi_Element_toPy(self.__handle)
 
-    def toString(self, level: int=0, spacesPerLevel: int=4) -> str:
+    def toString(self, level: int = 0, spacesPerLevel: int = 4) -> str:
         """Format this :class:`Element` to the string at the specified
         indentation level.
 
@@ -589,9 +609,9 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        return internals.blpapi_Element_printHelper(self.__handle,
-                                                    level,
-                                                    spacesPerLevel)
+        return internals.blpapi_Element_printHelper(
+            self.__handle, level, spacesPerLevel
+        )
 
     def getElement(self, nameOrIndex: BlpapiNameOrStrOrIndex) -> "Element":
         """
@@ -611,9 +631,9 @@ class Element(CHandle):
         if not isinstance(nameOrIndex, int):
             self.__assertIsValid()
             name = getNamePair(nameOrIndex)
-            res = internals.blpapi_Element_getElement(self.__handle,
-                                                      name[0],
-                                                      name[1])
+            res = internals.blpapi_Element_getElement(
+                self.__handle, name[0], name[1]
+            )
             _ExceptionUtil.raiseOnError(res[0])
             return Element(res[1], self._getDataHolder())
         self.__assertIsValid()
@@ -638,12 +658,13 @@ class Element(CHandle):
 
         if self.datatype() != DataType.SEQUENCE:
             raise UnsupportedOperationException(
-                description="Only sequences are supported", errorCode=None)
+                description="Only sequences are supported", errorCode=None
+            )
         return Iterator(self, Element.numElements, Element.getElement)
 
-    def hasElement(self,
-                   name: BlpapiNameOrStr,
-                   excludeNullElements: bool=False) -> bool:
+    def hasElement(
+        self, name: BlpapiNameOrStr, excludeNullElements: bool = False
+    ) -> bool:
         """
         Args:
             name: Name of the element
@@ -665,7 +686,8 @@ class Element(CHandle):
             namepair[0],
             namepair[1],
             1 if excludeNullElements else 0,
-            0)
+            0,
+        )
         return bool(res)
 
     def getChoice(self) -> "Element":
@@ -682,7 +704,7 @@ class Element(CHandle):
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
-    def getValueAsBool(self, index: int=0) -> bool:
+    def getValueAsBool(self, index: int = 0) -> bool:
         """
         Args:
             index: Index of the value in the element
@@ -701,7 +723,7 @@ class Element(CHandle):
         _ExceptionUtil.raiseOnError(res[0])
         return bool(res[1])
 
-    def getValueAsString(self, index: int=0) -> str:
+    def getValueAsString(self, index: int = 0) -> str:
         """
         Args:
             index: Index of the value in the element
@@ -720,7 +742,7 @@ class Element(CHandle):
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
 
-    def getValueAsDatetime(self, index: int=0) -> AnyPythonDatetime:
+    def getValueAsDatetime(self, index: int = 0) -> AnyPythonDatetime:
         """
         Args:
             index: Index of the value in the element
@@ -737,11 +759,12 @@ class Element(CHandle):
 
         self.__assertIsValid()
         res = internals.blpapi_Element_getValueAsHighPrecisionDatetime(
-            self.__handle, index)
+            self.__handle, index
+        )
         _ExceptionUtil.raiseOnError(res[0])
         return _DatetimeUtil.convertToNative(res[1])
 
-    def getValueAsInteger(self, index: int=0) -> int:
+    def getValueAsInteger(self, index: int = 0) -> int:
         """
         Args:
             index: Index of the value in the element
@@ -760,7 +783,7 @@ class Element(CHandle):
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
 
-    def getValueAsFloat(self, index: int=0) -> float:
+    def getValueAsFloat(self, index: int = 0) -> float:
         """
         Args:
             index: Index of the value in the element
@@ -779,7 +802,7 @@ class Element(CHandle):
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
 
-    def getValueAsName(self, index: int=0) -> Name:
+    def getValueAsName(self, index: int = 0) -> Name:
         """
         Args:
             index: Index of the value in the element
@@ -798,7 +821,7 @@ class Element(CHandle):
         _ExceptionUtil.raiseOnError(res[0])
         return Name._createInternally(res[1])
 
-    def getValueAsElement(self, index: int=0) -> "Element":
+    def getValueAsElement(self, index: int = 0) -> "Element":
         """
         Args:
             index: Index of the value in the element
@@ -817,8 +840,9 @@ class Element(CHandle):
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
-    def getValue(self, index: int=0
-                 ) -> Union[SupportedElementTypes, "Element"]:
+    def getValue(
+        self, index: int = 0
+    ) -> Union[SupportedElementTypes, "Element"]:
         """
         Args:
             index: Index of the value in the element
@@ -834,9 +858,10 @@ class Element(CHandle):
         """
 
         datatype = self.datatype()
-        valueGetter = _ELEMENT_VALUE_GETTER.get(datatype,
-                                                Element.getValueAsString)
-        return valueGetter(self, index) # type: ignore
+        valueGetter = _ELEMENT_VALUE_GETTER.get(
+            datatype, Element.getValueAsString
+        )
+        return valueGetter(self, index)  # type: ignore
 
     def values(self) -> IteratorType:
         """
@@ -855,8 +880,9 @@ class Element(CHandle):
         if self.isComplexType():
             return iter(())  # empty tuple
         datatype = self.datatype()
-        valueGetter = _ELEMENT_VALUE_GETTER.get(datatype,
-                                                Element.getValueAsString)
+        valueGetter = _ELEMENT_VALUE_GETTER.get(
+            datatype, Element.getValueAsString
+        )
         return Iterator(self, Element.numValues, valueGetter)
 
     def getElementAsBool(self, name: BlpapiNameOrStr) -> bool:
@@ -963,8 +989,9 @@ class Element(CHandle):
 
         return self.getElement(name).getValueAsName()
 
-    def getElementValue(self, name: BlpapiNameOrStr
-                        ) -> Union[SupportedElementTypes, "Element"]:
+    def getElementValue(
+        self, name: BlpapiNameOrStr
+    ) -> Union[SupportedElementTypes, "Element"]:
         """
         Args:
             name: Sub-element identifier
@@ -980,9 +1007,9 @@ class Element(CHandle):
 
         return self.getElement(name).getValue()
 
-    def setElement(self,
-                   name: BlpapiNameOrStr,
-                   value: SupportedElementTypes) -> None:
+    def setElement(
+        self, name: BlpapiNameOrStr, value: SupportedElementTypes
+    ) -> None:
         """Set this Element's sub-element with 'name' to the specified 'value'.
 
         Args:
@@ -1017,9 +1044,10 @@ class Element(CHandle):
         if traits[2] is not None:
             value = traits[2](value)
         _ExceptionUtil.raiseOnError(
-            traits[0](self.__handle, namepair[0], namepair[1], value))
+            traits[0](self.__handle, namepair[0], namepair[1], value)
+        )
 
-    def setValue(self, value: SupportedElementTypes, index: int=0) -> None:
+    def setValue(self, value: SupportedElementTypes, index: int = 0) -> None:
         """Set the specified ``index``\ th entry in this :class:`Element` to
         the ``value``.
 
@@ -1117,14 +1145,15 @@ class Element(CHandle):
 
         self.__assertIsValid()
         name = getNamePair(selectionName)
-        res = internals.blpapi_Element_setChoice(self.__handle,
-                                                 name[0],
-                                                 name[1],
-                                                 0)
+        res = internals.blpapi_Element_setChoice(
+            self.__handle, name[0], name[1], 0
+        )
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
-    def fromPy(self, value: Union[Mapping, Sequence, SupportedElementTypes]):
+    def fromPy(
+        self, value: Union[Mapping, Sequence, SupportedElementTypes]
+    ) -> None:
         """Format this :class:`Element` with the provided native Python value.
 
         Args:
@@ -1258,10 +1287,12 @@ class Element(CHandle):
         """
         self._fromPyHelper(value)
 
-    def _fromPyHelper(self,
-                      value: Union[Mapping, Sequence, SupportedElementTypes],
-                      name: Optional[BlpapiNameOrStr]=None,
-                      path: Optional[str]=None):
+    def _fromPyHelper(
+        self,
+        value: Union[Mapping, Sequence, SupportedElementTypes],
+        name: Optional[BlpapiNameOrStr] = None,
+        path: Optional[str] = None,
+    ) -> None:
         """Helper method for `fromPy`.
 
         Args:
@@ -1278,7 +1309,7 @@ class Element(CHandle):
 
         activeElement = self
 
-        def getActivePathMessage(isArrayEntry: bool=False):
+        def getActivePathMessage(isArrayEntry: bool = False) -> str:
             elementType = "scalar"
             if activeElement.isArray():
                 elementType = "array"
@@ -1286,8 +1317,10 @@ class Element(CHandle):
                 elementType = "complex"
 
             arrayEntryText = "an entry in " if isArrayEntry else ""
-            return f"While operating on {arrayEntryText}{elementType} " \
-                   f" Element `{path}`, "
+            return (
+                f"While operating on {arrayEntryText}{elementType} "
+                f" Element `{path}`, "
+            )
 
         if path is None:
             path = str(activeElement.name())
@@ -1305,8 +1338,10 @@ class Element(CHandle):
 
         if isinstance(value, Mapping):
             if not activeElement.isComplexType():
-                errorMsg = "encountered a `Mapping` instance while" \
-                           " formatting a non-complex Element"
+                errorMsg = (
+                    "encountered a `Mapping` instance while"
+                    " formatting a non-complex Element"
+                )
                 raise Exception(getActivePathMessage() + errorMsg)
 
             complexElement = activeElement
@@ -1316,60 +1351,75 @@ class Element(CHandle):
 
         elif isNonScalarSequence(value):
             if not activeElement.isArray():
-                errorMsg = "encountered a `Sequence` while formatting a" \
-                           " non-array Element"
+                errorMsg = (
+                    "encountered a `Sequence` while formatting a"
+                    " non-array Element"
+                )
                 raise Exception(getActivePathMessage() + errorMsg)
 
             arrayElement = activeElement
             typeDef = arrayElement.elementDefinition().typeDefinition()
             arrayValuesAreScalar = not typeDef.isComplexType()
-            for index, val in enumerate(value): # type: ignore
+            for index, val in enumerate(value):  # type: ignore
                 if isinstance(val, Mapping):
                     if arrayValuesAreScalar:
                         path += f"[{index}]"
-                        errorMsg = "encountered a `Mapping` where a scalar" \
-                                   " value was expected."
-                        raise Exception(getActivePathMessage(isArrayEntry=True)
-                                        + errorMsg)
+                        errorMsg = (
+                            "encountered a `Mapping` where a scalar"
+                            " value was expected."
+                        )
+                        raise Exception(
+                            getActivePathMessage(isArrayEntry=True) + errorMsg
+                        )
 
                     appendedElement = arrayElement.appendElement()
                     arrayEntryPath = path + f"[{index}]"
                     appendedElement._fromPyHelper(val, path=arrayEntryPath)
                 elif isNonScalarSequence(val):
                     path += f"[{index}]"
-                    expectedObject = "scalar value" if arrayValuesAreScalar \
-                        else "`Mapping`"
-                    errorMsg = f"encountered a nested `Sequence` where a " \
-                               f"{expectedObject} was expected."
-                    raise Exception(getActivePathMessage(isArrayEntry=True)
-                                    + errorMsg)
+                    expectedObject = (
+                        "scalar value" if arrayValuesAreScalar else "`Mapping`"
+                    )
+                    errorMsg = (
+                        f"encountered a nested `Sequence` where a "
+                        f"{expectedObject} was expected."
+                    )
+                    raise Exception(
+                        getActivePathMessage(isArrayEntry=True) + errorMsg
+                    )
 
                 else:
                     if not arrayValuesAreScalar:
                         path += f"[{index}]"
-                        errorMsg = "encountered a scalar value where a" \
-                                   " `Mapping` was expected."
-                        raise Exception(getActivePathMessage(isArrayEntry=True)
-                                        + errorMsg)
+                        errorMsg = (
+                            "encountered a scalar value where a"
+                            " `Mapping` was expected."
+                        )
+                        raise Exception(
+                            getActivePathMessage(isArrayEntry=True) + errorMsg
+                        )
 
                     try:
                         arrayElement.appendValue(val)
                     except Exception as exc:
                         path += f"[{index}]"
                         errorMsg = f"encountered error: {exc}"
-                        raise Exception(getActivePathMessage(isArrayEntry=True)
-                                        + errorMsg)
+                        raise Exception(
+                            getActivePathMessage(isArrayEntry=True) + errorMsg
+                        )
         else:
             if value is None:
                 return
 
             if activeElement.isComplexType() or activeElement.isArray():
-                errorMsg = f"encountered an incompatible type, {type(value)}," \
-                           " for a non-scalar Element"
+                errorMsg = (
+                    f"encountered an incompatible type, {type(value)},"
+                    " for a non-scalar Element"
+                )
                 raise Exception(getActivePathMessage() + errorMsg)
 
             try:
-                activeElement.setValue(value) # type: ignore
+                activeElement.setValue(value)  # type: ignore
             except Exception as exc:
                 errorMsg = f"encountered error: {exc}"
                 raise Exception(getActivePathMessage() + errorMsg)
@@ -1389,7 +1439,7 @@ _ELEMENT_VALUE_GETTER = {
     DataType.DATETIME: Element.getValueAsDatetime,
     DataType.ENUMERATION: Element.getValueAsName,
     DataType.SEQUENCE: Element.getValueAsElement,
-    DataType.CHOICE: Element.getValueAsElement
+    DataType.CHOICE: Element.getValueAsElement,
 }
 
 __copyright__ = """

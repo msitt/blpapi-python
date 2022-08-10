@@ -3756,8 +3756,8 @@ PyObject *CorrelationId_t_getObject(const blpapi_CorrelationId_t *cid) {
 
 
 typedef union {
-  blpapi_UInt64_t      intValue;
-  blpapi_ManagedPtr_t  ptrValue;
+  blpapi_UInt64_t intValue;
+  blpapi_ManagedPtr_t ptrValue;
 } blpapi_CorrelationId_t__value;
 
 SWIGINTERN struct blpapi_CorrelationId_t_ *new_blpapi_CorrelationId_t___SWIG_0(void){

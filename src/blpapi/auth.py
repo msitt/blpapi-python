@@ -2,12 +2,18 @@
 
 """Provide a configuration to specify the settings used for authorization."""
 
-from typing import Callable, Any
-from .typehints import BlpapiAuthOptionsHandle, BlpapiAuthUserHandle
+from typing import Callable, Union
+from .typehints import (
+    BlpapiAuthOptionsHandle,
+    BlpapiAuthUserHandle,
+    BlpapiAuthTokenHandle,
+    BlpapiAuthAppHandle,
+)
 from . import internals
 from .utils import get_handle
 from .exception import _ExceptionUtil
 from .chandle import CHandle
+
 
 class AuthOptions(CHandle):
     """Defines the authorization options which the user can set on
@@ -15,9 +21,11 @@ class AuthOptions(CHandle):
     identity or use to authorize other identities.
     """
 
-    def __init__(self,
-                 handle: BlpapiAuthOptionsHandle,
-                 **kwargs) -> None:
+    def __init__(
+        self,
+        handle: BlpapiAuthOptionsHandle,
+        **kwargs: Union[BlpapiAuthAppHandle, BlpapiAuthTokenHandle]
+    ) -> None:
         """For internal use only."""
         noop = lambda *args: None
         super(AuthOptions, self).__init__(handle, noop)
@@ -29,8 +37,7 @@ class AuthOptions(CHandle):
         self._token_dtor = internals.blpapi_AuthToken_destroy
 
     @classmethod
-    def createWithUser(cls: Callable,
-                       user: "AuthUser") -> "AuthOptions":
+    def createWithUser(cls: Callable, user: "AuthUser") -> "AuthOptions":
         """Creates an :class:`AuthOptions` instance for User Mode with the
         Operating System Login (Domain/User), Active Directory, or Email.
 
@@ -44,8 +51,10 @@ class AuthOptions(CHandle):
         The behavior is undefined when ``user`` was created with
         :meth:`AuthUser.createWithManualOptions` or is ``None``.
         """
-        retcode, authOptions_handle = internals \
-            .blpapi_AuthOptions_create_forUserMode(get_handle(user))
+        (
+            retcode,
+            authOptions_handle,
+        ) = internals.blpapi_AuthOptions_create_forUserMode(get_handle(user))
         _ExceptionUtil.raiseOnError(retcode)
         return cls(authOptions_handle)
 
@@ -62,8 +71,10 @@ class AuthOptions(CHandle):
         The behavior is undefined when ``appName`` is ``None`` or ``""``.
         """
         app_handle = AuthOptions._create_app_handle(appName)
-        retcode, authOptions_handle = internals \
-            .blpapi_AuthOptions_create_forAppMode(app_handle)
+        (
+            retcode,
+            authOptions_handle,
+        ) = internals.blpapi_AuthOptions_create_forAppMode(app_handle)
         _ExceptionUtil.raiseOnError(retcode)
         return cls(authOptions_handle, app_handle=app_handle)
 
@@ -80,15 +91,17 @@ class AuthOptions(CHandle):
         The behavior is undefined when ``token`` is ``None`` or ``""``.
         """
         token_handle = AuthOptions._create_token_handle(token)
-        retcode, authOptions_handle = internals \
-            .blpapi_AuthOptions_create_forToken(token_handle)
+        (
+            retcode,
+            authOptions_handle,
+        ) = internals.blpapi_AuthOptions_create_forToken(token_handle)
         _ExceptionUtil.raiseOnError(retcode)
         return cls(authOptions_handle, token_handle=token_handle)
 
     @classmethod
-    def createWithUserAndApp(cls: Callable,
-                             user: "AuthUser",
-                             appName: str) -> "AuthOptions":
+    def createWithUserAndApp(
+        cls: Callable, user: "AuthUser", appName: str
+    ) -> "AuthOptions":
         """Create an :class:`AuthOptions` instance for User and Application
         Mode.
 
@@ -104,9 +117,12 @@ class AuthOptions(CHandle):
         The behavior is undefined when ``appName`` is ``None`` or ``""``.
         """
         app_handle = AuthOptions._create_app_handle(appName)
-        retcode, authOptions_handle = internals \
-            .blpapi_AuthOptions_create_forUserAndAppMode(get_handle(user),
-                                                         app_handle)
+        (
+            retcode,
+            authOptions_handle,
+        ) = internals.blpapi_AuthOptions_create_forUserAndAppMode(
+            get_handle(user), app_handle
+        )
         _ExceptionUtil.raiseOnError(retcode)
         return cls(authOptions_handle, app_handle=app_handle)
 
@@ -123,18 +139,16 @@ class AuthOptions(CHandle):
             self.__token_handle = None
 
     @staticmethod
-    def _create_app_handle(appName: str) -> Any:
+    def _create_app_handle(appName: str) -> BlpapiAuthAppHandle:
         """For internal use only."""
-        retcode, app_handle = internals \
-            .blpapi_AuthApplication_create(appName)
+        retcode, app_handle = internals.blpapi_AuthApplication_create(appName)
         _ExceptionUtil.raiseOnError(retcode)
         return app_handle
 
     @staticmethod
-    def _create_token_handle(token: str) -> Any:
+    def _create_token_handle(token: str) -> BlpapiAuthTokenHandle:
         """For internal use only."""
-        retcode, token_handle = internals \
-            .blpapi_AuthToken_create(token)
+        retcode, token_handle = internals.blpapi_AuthToken_create(token)
         _ExceptionUtil.raiseOnError(retcode)
         return token_handle
 
@@ -145,8 +159,9 @@ class AuthUser(CHandle):
     def __init__(self, handle: BlpapiAuthUserHandle) -> None:
         """For internal use only."""
         super(AuthUser, self).__init__(
-            handle, internals.blpapi_AuthUser_destroy)
-        self.__handle = handle # pylint: disable=unused-private-member
+            handle, internals.blpapi_AuthUser_destroy
+        )
+        self.__handle = handle  # pylint: disable=unused-private-member
 
     @classmethod
     def createWithLogonName(cls: Callable) -> "AuthUser":
@@ -156,15 +171,14 @@ class AuthUser(CHandle):
         Returns:
             Configured for Operating System Login (Domain/User) mode.
         """
-        retcode, handle = internals \
-            .blpapi_AuthUser_createWithLogonName()
+        retcode, handle = internals.blpapi_AuthUser_createWithLogonName()
         _ExceptionUtil.raiseOnError(retcode)
         return cls(handle)
 
     @classmethod
     def createWithActiveDirectoryProperty(
-            cls: Callable,
-            propertyName: str) -> "AuthUser":
+        cls: Callable, propertyName: str
+    ) -> "AuthUser":
         """Creates an :class:`AuthUser` instance configured for Active
         Directory authorization mode (DIRECTORY_SERVICE).
 
@@ -178,15 +192,19 @@ class AuthUser(CHandle):
         The behavior is undefined when ``propertyName`` is ``""`` or
         ``None``.
         """
-        retcode, handle = internals \
-            .blpapi_AuthUser_createWithActiveDirectoryProperty(
-                propertyName)
+        (
+            retcode,
+            handle,
+        ) = internals.blpapi_AuthUser_createWithActiveDirectoryProperty(
+            propertyName
+        )
         _ExceptionUtil.raiseOnError(retcode)
         return cls(handle)
 
     @classmethod
     def createWithManualOptions(
-            cls: Callable, userId: str, ipAddress:str) -> "AuthUser":
+        cls: Callable, userId: str, ipAddress: str
+    ) -> "AuthUser":
         """Creates an :class:`AuthUser` instance configured for manual
         authorization.
 
@@ -200,10 +218,12 @@ class AuthUser(CHandle):
         The behavior is undefined when either ``userId`` or ``ipAddress`` is
         ``""`` or ``None``.
         """
-        retcode, handle = internals \
-            .blpapi_AuthUser_createWithManualOptions(userId, ipAddress)
+        retcode, handle = internals.blpapi_AuthUser_createWithManualOptions(
+            userId, ipAddress
+        )
         _ExceptionUtil.raiseOnError(retcode)
         return cls(handle)
+
 
 __copyright__ = """
 Copyright 2020. Bloomberg Finance L.P.

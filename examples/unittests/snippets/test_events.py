@@ -10,27 +10,29 @@ import blpapi
 
 # pylint: disable=too-many-public-methods
 
+
 class TestEvents(unittest.TestCase):
     """The following test cases provide an example of how to mock different
     events supported by the blpapi-sdk. The code to set up the expectation and
     verification of values is omitted from example tests."""
 
-# =====================
-# SESSION STATUS EVENTS
-# =====================
+    # =====================
+    # SESSION STATUS EVENTS
+    # =====================
 
     def testSessionStarted(self):
         """Sample SessionStarted message"""
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SessionStarted"))
+            blpapi.Name("SessionStarted")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
         content = {
             "initialEndpoints": [
                 {"address": "12.34.56.78:8194"},
-                {"address": "98.76.54.32:8194"}
+                {"address": "98.76.54.32:8194"},
             ]
         }
 
@@ -42,7 +44,8 @@ class TestEvents(unittest.TestCase):
         """Sample SessionStartupFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SessionStartupFailure"))
+            blpapi.Name("SessionStartupFailure")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -64,7 +67,8 @@ class TestEvents(unittest.TestCase):
         """Sample SessionTerminated message"""
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SessionTerminated"))
+            blpapi.Name("SessionTerminated")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -86,7 +90,8 @@ class TestEvents(unittest.TestCase):
         """Sample SessionConnectionUp message"""
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SessionConnectionUp"))
+            blpapi.Name("SessionConnectionUp")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -94,7 +99,7 @@ class TestEvents(unittest.TestCase):
             "server": "12.34.56.78:8194",
             "serverId": "ny-hostname",
             "encryptionStatus": "Clear",
-            "compressionStatus": "Uncompressed"
+            "compressionStatus": "Uncompressed",
         }
 
         formatter.formatMessageDict(content)
@@ -105,7 +110,8 @@ class TestEvents(unittest.TestCase):
         """Sample SessionConnectionDown message"""
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SessionConnectionDown"))
+            blpapi.Name("SessionConnectionDown")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -122,7 +128,8 @@ class TestEvents(unittest.TestCase):
         """Sample SessionClusterInfo message"""
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SessionClusterInfo"))
+            blpapi.Name("SessionClusterInfo")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -130,8 +137,8 @@ class TestEvents(unittest.TestCase):
             "name": "clustername",
             "endpoints": [
                 {"address": "12.34.56.78:8194"},
-                {"address": "98.76.54.32:8194"}
-            ]
+                {"address": "98.76.54.32:8194"},
+            ],
         }
 
         formatter.formatMessageDict(content)
@@ -142,46 +149,43 @@ class TestEvents(unittest.TestCase):
         """Sample SessionClusterUpdate message"""
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SessionClusterUpdate"))
+            blpapi.Name("SessionClusterUpdate")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
         content = {
             "name": "clustername",
-            "endpointsAdded": [
-                {"address": "12.34.56.78:8194"}
-            ],
-            "endpointsRemoved": [
-                {"address": "98.76.54.32:8194"}
-            ]
+            "endpointsAdded": [{"address": "12.34.56.78:8194"}],
+            "endpointsRemoved": [{"address": "98.76.54.32:8194"}],
         }
 
         formatter.formatMessageDict(content)
         for msg in event:
             self.assertEqual(content, msg.toPy())
 
-# ============
-# ADMIN EVENTS
-# ============
+    # ============
+    # ADMIN EVENTS
+    # ============
 
     def testSlowConsumerWarning(self):
         """Sample SlowConsumerWarning message"""
         event = blpapi.test.createEvent(blpapi.Event.ADMIN)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SlowConsumerWarning"))
+            blpapi.Name("SlowConsumerWarning")
+        )
         blpapi.test.appendMessage(event, schema)
 
     def testSlowConsumerWarningCleared(self):
         """Sample SlowConsumerWarningCleared message"""
         event = blpapi.test.createEvent(blpapi.Event.ADMIN)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SlowConsumerWarningCleared"))
+            blpapi.Name("SlowConsumerWarningCleared")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
-        content = {
-            "eventsDropped": 123
-        }
+        content = {"eventsDropped": 123}
 
         formatter.formatMessageDict(content)
         for msg in event:
@@ -194,11 +198,7 @@ class TestEvents(unittest.TestCase):
 
         formatter = blpapi.test.appendMessage(event, schema)
 
-        content = {
-            "id": "id",
-            "source": "Test",
-            "numMessagesDropped": 123
-        }
+        content = {"id": "id", "source": "Test", "numMessagesDropped": 123}
 
         formatter.formatMessageDict(content)
         for msg in event:
@@ -208,18 +208,13 @@ class TestEvents(unittest.TestCase):
         """Sample RequestTemplateAvailable message"""
         event = blpapi.test.createEvent(blpapi.Event.ADMIN)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("RequestTemplateAvailable"))
+            blpapi.Name("RequestTemplateAvailable")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
         content = {
-            "boundTo": {
-                "dataConnection": [
-                    {
-                        "address": "12.34.56.78:8194"
-                    }
-                ]
-            }
+            "boundTo": {"dataConnection": [{"address": "12.34.56.78:8194"}]}
         }
 
         formatter.formatMessageDict(content)
@@ -230,7 +225,8 @@ class TestEvents(unittest.TestCase):
         """Sample RequestTemplatePending message"""
         event = blpapi.test.createEvent(blpapi.Event.ADMIN)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("RequestTemplatePending"))
+            blpapi.Name("RequestTemplatePending")
+        )
 
         blpapi.test.appendMessage(event, schema)
 
@@ -238,7 +234,8 @@ class TestEvents(unittest.TestCase):
         """Sample RequestTemplateTerminated message"""
         event = blpapi.test.createEvent(blpapi.Event.ADMIN)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("RequestTemplateTerminated"))
+            blpapi.Name("RequestTemplateTerminated")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -256,21 +253,20 @@ class TestEvents(unittest.TestCase):
         for msg in event:
             self.assertEqual(content, msg.toPy())
 
-# =====================
-# SERVICE STATUS EVENTS
-# =====================
+    # =====================
+    # SERVICE STATUS EVENTS
+    # =====================
 
     def testServiceOpened(self):
         """Sample ServiceOpened message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceOpened"))
+            blpapi.Name("ServiceOpened")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
-        content = {
-            "serviceName": "//blp/myservice"
-        }
+        content = {"serviceName": "//blp/myservice"}
 
         formatter.formatMessageDict(content)
         for msg in event:
@@ -280,7 +276,8 @@ class TestEvents(unittest.TestCase):
         """Sample ServiceOpenFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceOpenFailure"))
+            blpapi.Name("ServiceOpenFailure")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -302,13 +299,12 @@ class TestEvents(unittest.TestCase):
         """Sample ServiceRegistered message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceRegistered"))
+            blpapi.Name("ServiceRegistered")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
-        content = {
-            "serviceName": "//blp/myservice"
-        }
+        content = {"serviceName": "//blp/myservice"}
 
         formatter.formatMessageDict(content)
         for msg in event:
@@ -318,7 +314,8 @@ class TestEvents(unittest.TestCase):
         """Sample ServiceRegisterFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceRegisterFailure"))
+            blpapi.Name("ServiceRegisterFailure")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -340,13 +337,12 @@ class TestEvents(unittest.TestCase):
         """Sample ServiceDeregistered message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceDeregistered"))
+            blpapi.Name("ServiceDeregistered")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
-        content = {
-            "serviceName": "//blp/myservice"
-        }
+        content = {"serviceName": "//blp/myservice"}
 
         formatter.formatMessageDict(content)
         for msg in event:
@@ -356,7 +352,8 @@ class TestEvents(unittest.TestCase):
         """Sample ServiceDown message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceDown"))
+            blpapi.Name("ServiceDown")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -382,7 +379,8 @@ class TestEvents(unittest.TestCase):
         """Sample ServiceUp message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceUp"))
+            blpapi.Name("ServiceUp")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -408,42 +406,35 @@ class TestEvents(unittest.TestCase):
         """Sample ServiceAvailabilityInfo message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceAvailabilityInfo"))
+            blpapi.Name("ServiceAvailabilityInfo")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
         content = {
             "serviceName": "//blp/myservice",
-            "serverAdded": {
-                "address": "12.34.56.78"
-            },
-            "serverRemoved": {
-                "address": "12.34.56.78"
-            },
-            "servers": [
-                "12.34.56.78",
-                "12.34.56.78"
-            ]
+            "serverAdded": {"address": "12.34.56.78"},
+            "serverRemoved": {"address": "12.34.56.78"},
+            "servers": ["12.34.56.78", "12.34.56.78"],
         }
         formatter.formatMessageDict(content)
         for msg in event:
             self.assertEqual(content, msg.toPy())
 
-# ===================
-# TOKEN STATUS EVENTS
-# ===================
+    # ===================
+    # TOKEN STATUS EVENTS
+    # ===================
 
     def testTokenGenerationSuccess(self):
         """Sample TokenGenerationSuccess message"""
         event = blpapi.test.createEvent(blpapi.Event.TOKEN_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TokenGenerationSuccess"))
+            blpapi.Name("TokenGenerationSuccess")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
-        content = {
-            "token": "mytoken"
-        }
+        content = {"token": "mytoken"}
 
         formatter.formatMessageDict(content)
         for msg in event:
@@ -453,7 +444,8 @@ class TestEvents(unittest.TestCase):
         """Sample TokenGenerationFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.TOKEN_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TokenGenerationFailure"))
+            blpapi.Name("TokenGenerationFailure")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -471,15 +463,16 @@ class TestEvents(unittest.TestCase):
         for msg in event:
             self.assertEqual(content, msg.toPy())
 
-# ==========================
-# SUBSCRIPTION STATUS EVENTS
-# ==========================
+    # ==========================
+    # SUBSCRIPTION STATUS EVENTS
+    # ==========================
 
     def testSubscriptionStarted(self):
         """Sample SubscriptionStarted message"""
         event = blpapi.test.createEvent(blpapi.Event.SUBSCRIPTION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SubscriptionStarted"))
+            blpapi.Name("SubscriptionStarted")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -493,13 +486,13 @@ class TestEvents(unittest.TestCase):
                         "category": "CATEGORY",
                         "description": "for testing",
                         "subcategory": "SUBCATEGORY",
-                    }
+                    },
                 }
             ],
             "resubscriptionId": 123,
             "streamIds": ["123", "456"],
             "receivedFrom": {"address": "12.34.56.78:81964"},
-            "reason": "TestUtil"
+            "reason": "TestUtil",
         }
 
         formatter.formatMessageDict(content)
@@ -510,7 +503,8 @@ class TestEvents(unittest.TestCase):
         """Sample SubscriptionFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.SUBSCRIPTION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SubscriptionFailure"))
+            blpapi.Name("SubscriptionFailure")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -531,7 +525,7 @@ class TestEvents(unittest.TestCase):
                         "category": "CATEGORY",
                         "description": "for testing",
                         "subcategory": "SUBCATEGORY",
-                    }
+                    },
                 }
             ],
             "resubscriptionId": 123,
@@ -545,18 +539,16 @@ class TestEvents(unittest.TestCase):
         """Sample SubscriptionStreamsActivated message"""
         event = blpapi.test.createEvent(blpapi.Event.SUBSCRIPTION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SubscriptionStreamsActivated"))
+            blpapi.Name("SubscriptionStreamsActivated")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
         content = {
             "streams": [
-                {
-                    "id": "streamId",
-                    "endpoint": {"address": "12.34.56.78:8194"}
-                }
+                {"id": "streamId", "endpoint": {"address": "12.34.56.78:8194"}}
             ],
-            "reason": "TestUtil"
+            "reason": "TestUtil",
         }
 
         formatter.formatMessageDict(content)
@@ -567,18 +559,16 @@ class TestEvents(unittest.TestCase):
         """Sample SubscriptionStreamsDeactivated message"""
         event = blpapi.test.createEvent(blpapi.Event.SUBSCRIPTION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SubscriptionStreamsDeactivated"))
+            blpapi.Name("SubscriptionStreamsDeactivated")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
         content = {
             "streams": [
-                {
-                    "id": "streamId",
-                    "endpoint": {"address": "12.34.56.78:8194"}
-                }
+                {"id": "streamId", "endpoint": {"address": "12.34.56.78:8194"}}
             ],
-            "reason": "TestUtil"
+            "reason": "TestUtil",
         }
 
         formatter.formatMessageDict(content)
@@ -589,7 +579,8 @@ class TestEvents(unittest.TestCase):
         """Sample SubscriptionTerminated message"""
         event = blpapi.test.createEvent(blpapi.Event.SUBSCRIPTION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SubscriptionTerminated"))
+            blpapi.Name("SubscriptionTerminated")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -607,15 +598,16 @@ class TestEvents(unittest.TestCase):
         for msg in event:
             self.assertEqual(content, msg.toPy())
 
-# =====================
-# REQUEST STATUS EVENTS
-# =====================
+    # =====================
+    # REQUEST STATUS EVENTS
+    # =====================
 
     def testRequestFailure(self):
         """Sample RequestFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.REQUEST_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("RequestFailure"))
+            blpapi.Name("RequestFailure")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -633,21 +625,20 @@ class TestEvents(unittest.TestCase):
         for msg in event:
             self.assertEqual(content, msg.toPy())
 
-# ========================
-# RESOLUTION STATUS EVENTS
-# ========================
+    # ========================
+    # RESOLUTION STATUS EVENTS
+    # ========================
 
     def testResolutionSuccess(self):
         """Sample ResolutionSuccess message"""
         event = blpapi.test.createEvent(blpapi.Event.RESOLUTION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ResolutionSuccess"))
+            blpapi.Name("ResolutionSuccess")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
-        content = {
-            "resolvedTopic": "//blp/myservice/rtopic"
-        }
+        content = {"resolvedTopic": "//blp/myservice/rtopic"}
 
         formatter.formatMessageDict(content)
         for msg in event:
@@ -657,7 +648,8 @@ class TestEvents(unittest.TestCase):
         """Sample ResolutionFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.RESOLUTION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ResolutionFailure"))
+            blpapi.Name("ResolutionFailure")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -675,15 +667,16 @@ class TestEvents(unittest.TestCase):
         for msg in event:
             self.assertEqual(content, msg.toPy())
 
-# ============================
-# PERMISSION STATUS OPERATIONS
-# ============================
+    # ============================
+    # PERMISSION STATUS OPERATIONS
+    # ============================
 
     def testPermissionRequest(self):
         """Sample PermissionRequest message"""
         event = blpapi.test.createEvent(blpapi.Event.REQUEST)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("PermissionRequest"))
+            blpapi.Name("PermissionRequest")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -695,7 +688,7 @@ class TestEvents(unittest.TestCase):
             "applicationId": 1234,
             "userName": "someName",
             "appName": "myAppName",
-            "deviceAddress": "myDevice"
+            "deviceAddress": "myDevice",
         }
 
         formatter.formatMessageDict(content)
@@ -714,22 +707,20 @@ class TestEvents(unittest.TestCase):
         # `ProviderSession::publish()` method to capture the published events.
         # See the provided testing examples for more detail.
 
-
-# ===================
-# TOPIC STATUS EVENTS
-# ===================
+    # ===================
+    # TOPIC STATUS EVENTS
+    # ===================
 
     def testTopicCreated(self):
         """Sample TopicCreated message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicCreated"))
+            blpapi.Name("TopicCreated")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
-        content = {
-            "topic": "mytopic"
-        }
+        content = {"topic": "mytopic"}
 
         formatter.formatMessageDict(content)
         for msg in event:
@@ -739,7 +730,8 @@ class TestEvents(unittest.TestCase):
         """Sample TopicCreateFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicCreateFailure"))
+            blpapi.Name("TopicCreateFailure")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -751,7 +743,7 @@ class TestEvents(unittest.TestCase):
                 "category": "CATEGORY",
                 "description": "for testing",
                 "subcategory": "SUBCATEGORY",
-            }
+            },
         }
 
         formatter.formatMessageDict(content)
@@ -762,14 +754,12 @@ class TestEvents(unittest.TestCase):
         """Sample TopicDeleted message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicDeleted"))
+            blpapi.Name("TopicDeleted")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
-        content = {
-            "topic": "mytopic",
-            "reason": "TestUtil"
-        }
+        content = {"topic": "mytopic", "reason": "TestUtil"}
 
         formatter.formatMessageDict(content)
         for msg in event:
@@ -779,14 +769,12 @@ class TestEvents(unittest.TestCase):
         """Sample TopicSubscribed message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicSubscribed"))
+            blpapi.Name("TopicSubscribed")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
-        content = {
-            "topic": "mytopic",
-            "topicWithOptions": "topicwithopts"
-        }
+        content = {"topic": "mytopic", "topicWithOptions": "topicwithopts"}
 
         formatter.formatMessageDict(content)
         for msg in event:
@@ -796,14 +784,15 @@ class TestEvents(unittest.TestCase):
         """Sample TopicResubscribed message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicResubscribed"))
+            blpapi.Name("TopicResubscribed")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
         content = {
             "topic": "mytopic",
             "topicWithOptions": "topicwithopts",
-            "reason": "TestUtil"
+            "reason": "TestUtil",
         }
 
         formatter.formatMessageDict(content)
@@ -814,14 +803,12 @@ class TestEvents(unittest.TestCase):
         """Sample TopicUnsubscribed message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicUnsubscribed"))
+            blpapi.Name("TopicUnsubscribed")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
-        content = {
-            "topic": "mytopic",
-            "reason": "TestUtil"
-        }
+        content = {"topic": "mytopic", "reason": "TestUtil"}
 
         formatter.formatMessageDict(content)
         for msg in event:
@@ -831,13 +818,12 @@ class TestEvents(unittest.TestCase):
         """Sample TopicActivated message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicActivated"))
+            blpapi.Name("TopicActivated")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
-        content = {
-            "topic": "mytopic"
-        }
+        content = {"topic": "mytopic"}
 
         formatter.formatMessageDict(content)
         for msg in event:
@@ -847,14 +833,12 @@ class TestEvents(unittest.TestCase):
         """Sample TopicDeactivated message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicDeactivated"))
+            blpapi.Name("TopicDeactivated")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
-        content = {
-            "topic": "mytopic",
-            "reason": "TestUtil"
-        }
+        content = {"topic": "mytopic", "reason": "TestUtil"}
 
         formatter.formatMessageDict(content)
         for msg in event:
@@ -864,21 +848,23 @@ class TestEvents(unittest.TestCase):
         """Sample TopicRecap message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicRecap"))
+            blpapi.Name("TopicRecap")
+        )
 
         formatter = blpapi.test.appendMessage(event, schema)
 
         content = {
             "topic": "mytopic",
             "isSolicited": True,
-            "topicWithOptions": "topicwithopts"
+            "topicWithOptions": "topicwithopts",
         }
 
         formatter.formatMessageDict(content)
         for msg in event:
             self.assertEqual(content, msg.toPy())
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
 
 

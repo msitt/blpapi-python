@@ -12,22 +12,26 @@ a representation for lists of such constants
 
 
 from typing import Any, Iterator as IteratorType, Optional, Set
-from .exception import \
-    _ExceptionUtil, \
-    NotFoundException, \
-    IndexOutOfRangeException
+from .exception import (
+    _ExceptionUtil,
+    NotFoundException,
+    IndexOutOfRangeException,
+)
 from .name import Name, getNamePair
 from .datatype import DataType
 from .datetime import _DatetimeUtil
-from . import typehints # pylint: disable=unused-import
-from .typehints import \
-    AnyPythonDatetime, \
-    BlpapiConstantHandle, \
-    BlpapiConstantListHandle
+from . import typehints  # pylint: disable=unused-import
+from .typehints import (
+    AnyPythonDatetime,
+    BlpapiConstantHandle,
+    BlpapiConstantListHandle,
+    BlpapiNameOrStr,
+)
 from . import utils
 from . import internals
 
 # pylint: disable=protected-access
+
 
 class Constant:
     """Represents the value of a schema enumeration constant.
@@ -48,9 +52,11 @@ class Constant:
     by other ``blpapi`` components.
     """
 
-    def __init__(self,
-                 handle: BlpapiConstantHandle,
-                 sessions: Optional[Set["typehints.AbstractSession"]]) -> None:
+    def __init__(
+        self,
+        handle: BlpapiConstantHandle,
+        sessions: Optional[Set["typehints.AbstractSession"]],
+    ) -> None:
         """
         Args:
             handle: Handle to the internal implementation
@@ -65,7 +71,8 @@ class Constant:
             The symbolic name of this :class:`Constant`.
         """
         return Name._createInternally(
-            internals.blpapi_Constant_name(self.__handle))
+            internals.blpapi_Constant_name(self.__handle)
+        )
 
     def description(self) -> str:
         """
@@ -103,10 +110,12 @@ class Constant:
         """
         if self.datatype() == DataType.INT32:
             errCode, value = internals.blpapi_Constant_getValueAsInt32(
-                self.__handle)
+                self.__handle
+            )
         else:
             errCode, value = internals.blpapi_Constant_getValueAsInt64(
-                self.__handle)
+                self.__handle
+            )
         _ExceptionUtil.raiseOnError(errCode)
         return value
 
@@ -121,10 +130,12 @@ class Constant:
         """
         if self.datatype() == DataType.FLOAT32:
             errCode, value = internals.blpapi_Constant_getValueAsFloat32(
-                self.__handle)
+                self.__handle
+            )
         else:
             errCode, value = internals.blpapi_Constant_getValueAsFloat64(
-                self.__handle)
+                self.__handle
+            )
         _ExceptionUtil.raiseOnError(errCode)
         return value
 
@@ -138,7 +149,8 @@ class Constant:
                 one of the datetime types.
         """
         errCode, value = internals.blpapi_Constant_getValueAsDatetime(
-            self.__handle)
+            self.__handle
+        )
         _ExceptionUtil.raiseOnError(errCode)
         return _DatetimeUtil.convertToNativeNotHighPrecision(value)
 
@@ -153,10 +165,12 @@ class Constant:
         """
         if self.datatype() == DataType.CHAR:
             errCode, value = internals.blpapi_Constant_getValueAsChar(
-                self.__handle)
+                self.__handle
+            )
         else:
             errCode, value = internals.blpapi_Constant_getValueAsString(
-                self.__handle)
+                self.__handle
+            )
         _ExceptionUtil.raiseOnError(errCode)
         return value
 
@@ -167,8 +181,8 @@ class Constant:
         """
         datatype = self.datatype()
         valueGetter = _CONSTANT_VALUE_GETTER.get(
-            datatype,
-            Constant.getValueAsString)
+            datatype, Constant.getValueAsString
+        )
         return valueGetter(self)
 
     def _sessions(self) -> Optional[Set["typehints.AbstractSession"]]:
@@ -191,9 +205,11 @@ class ConstantList:
     returned by other ``blpapi`` components.
     """
 
-    def __init__(self,
-                 handle: BlpapiConstantListHandle,
-                 sessions: Optional[Set["typehints.AbstractSession"]]) -> None:
+    def __init__(
+        self,
+        handle: BlpapiConstantListHandle,
+        sessions: Optional[Set["typehints.AbstractSession"]],
+    ) -> None:
         """
         Args:
             handle: Handle to the internal implementation
@@ -207,26 +223,27 @@ class ConstantList:
         Returns:
             Iterator over constants contained in this :class:`ConstantList`
         """
-        return utils.Iterator(self,
-                              ConstantList.numConstants,
-                              ConstantList.getConstantAt)
+        return utils.Iterator(
+            self, ConstantList.numConstants, ConstantList.getConstantAt
+        )
 
-    def name(self):
+    def name(self) -> Name:
         """
         Returns:
             Name: Symbolic name of this :class:`ConstantList`
         """
         return Name._createInternally(
-            internals.blpapi_ConstantList_name(self.__handle))
+            internals.blpapi_ConstantList_name(self.__handle)
+        )
 
-    def description(self):
+    def description(self) -> str:
         """
         Returns:
             str: Human readable description of this :class:`ConstantList`
         """
         return internals.blpapi_ConstantList_description(self.__handle)
 
-    def status(self):
+    def status(self) -> int:
         """
         Returns:
             int: Status of this :class:`ConstantList`
@@ -235,14 +252,14 @@ class ConstantList:
         """
         return internals.blpapi_ConstantList_status(self.__handle)
 
-    def numConstants(self):
+    def numConstants(self) -> int:
         """
         Returns:
             int: Number of :class:`Constant` objects in this list
         """
         return internals.blpapi_ConstantList_numConstants(self.__handle)
 
-    def datatype(self):
+    def datatype(self) -> int:
         """
         Returns:
             int: Data type used to represent the value of this constant
@@ -251,65 +268,69 @@ class ConstantList:
         """
         return internals.blpapi_ConstantList_datatype(self.__handle)
 
-    def hasConstant(self, name):
+    def hasConstant(self, name: BlpapiNameOrStr) -> bool:
         """
         Args:
-            name (Name or str): Name of the constant
+            name: Name of the constant
 
         Returns:
-            bool: ``True`` if this :class:`ConstantList` contains an item with
+            ``True`` if this :class:`ConstantList` contains an item with
             this ``name``.
 
         Raises:
             TypeError: If ``name`` is neither a :class:`Name` nor a string
         """
         names = getNamePair(name)
-        return bool(internals.blpapi_ConstantList_hasConstant(self.__handle,
-                                                              names[0],
-                                                              names[1]))
+        return bool(
+            internals.blpapi_ConstantList_hasConstant(
+                self.__handle, names[0], names[1]
+            )
+        )
 
-    def getConstant(self, name):
+    def getConstant(self, name: BlpapiNameOrStr) -> Constant:
         """
         Args:
-            name (Name or str): Name of the constant
+            name: Name of the constant
 
         Returns:
-            Constant: Constant with the specified ``name``
+            Constant with the specified ``name``
 
         Raises:
             NotFoundException: If this :class:`ConstantList` does not contain a
                 :class:`Constant` with the specified ``name``
         """
         names = getNamePair(name)
-        res = internals.blpapi_ConstantList_getConstant(self.__handle,
-                                                        names[0],
-                                                        names[1])
+        res = internals.blpapi_ConstantList_getConstant(
+            self.__handle, names[0], names[1]
+        )
         if res is None:
-            errMessage = \
+            errMessage = (
                 f"Constant '{name!s}' is not found in '{self.name()!s}'."
+            )
             raise NotFoundException(errMessage, 0)
         return Constant(res, self.__sessions)
 
-    def getConstantAt(self, position):
+    def getConstantAt(self, position: int) -> Constant:
         """
         Args:
-            position (int): Position of the requested constant in the list
+            position: Position of the requested constant in the list
 
         Returns:
-            Constant: Constant at the specified ``position``.
+            Constant at the specified ``position``.
 
         Raises:
             IndexOutOfRangeException: If ``position`` is not in the range from
                 ``0`` to ``numConstants() - 1``.
         """
-        res = internals.blpapi_ConstantList_getConstantAt(self.__handle,
-                                                          position)
+        res = internals.blpapi_ConstantList_getConstantAt(
+            self.__handle, position
+        )
         if res is None:
             errMessage = f"Index '{position}' out of bounds."
             raise IndexOutOfRangeException(errMessage, 0)
         return Constant(res, self.__sessions)
 
-    def _sessions(self):
+    def _sessions(self) -> Optional[Set["typehints.AbstractSession"]]:
         """Return session(s) this object is related to. For internal use."""
         return self.__sessions
 

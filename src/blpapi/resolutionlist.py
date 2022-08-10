@@ -13,7 +13,7 @@ from . import utils
 from .utils import deprecated, get_handle
 from .internals import CorrelationId
 from .chandle import CHandle
-from . import typehints # pylint: disable=unused-import
+from . import typehints  # pylint: disable=unused-import
 
 
 class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
@@ -28,22 +28,25 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     :class:`ResolutionList` can be.
     """
 
-    UNRESOLVED = internals.RESOLUTIONLIST_UNRESOLVED # type: ignore
-    RESOLVED = internals.RESOLUTIONLIST_RESOLVED # type: ignore
-    RESOLUTION_FAILURE_BAD_SERVICE = \
-        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_SERVICE # type: ignore
-    RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED = \
-        internals. \
-        RESOLUTIONLIST_RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED # type: ignore
-    RESOLUTION_FAILURE_BAD_TOPIC = \
-        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_TOPIC # type: ignore
-    RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED = \
-        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED # type: ignore
+    UNRESOLVED = internals.RESOLUTIONLIST_UNRESOLVED
+    RESOLVED = internals.RESOLUTIONLIST_RESOLVED
+    RESOLUTION_FAILURE_BAD_SERVICE = (
+        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_SERVICE
+    )
+    RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED = (
+        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED
+    )
+    RESOLUTION_FAILURE_BAD_TOPIC = (
+        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_TOPIC
+    )
+    RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED = (
+        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED
+    )
 
     @staticmethod
     @deprecated("attributes are no longer supported.")
     # pylint: disable=unused-argument,no-self-use
-    def extractAttributeFromResolutionSuccess(message, attribute):
+    def extractAttributeFromResolutionSuccess(message, attribute):  # type: ignore
         """
         Raises:
             UnsupportedOperationException: Unconditionally.
@@ -57,12 +60,16 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """Create an empty :class:`ResolutionList`."""
         selfhandle = internals.blpapi_ResolutionList_create(None)
         super(ResolutionList, self).__init__(
-            selfhandle,
-            internals.blpapi_ResolutionList_destroy)
+            selfhandle, internals.blpapi_ResolutionList_destroy
+        )
         self.__handle = selfhandle
         self.__sessions: Set["typehints.AbstractSession"] = set()
 
-    def add(self, topicOrMessage: Union[str, Message], correlationId: Optional[CorrelationId] = None) -> int:
+    def add(
+        self,
+        topicOrMessage: Union[str, Message],
+        correlationId: Optional[CorrelationId] = None,
+    ) -> int:
         """Add the specified topic or topic from message to this list.
 
         Args:
@@ -91,20 +98,19 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             correlationId = CorrelationId()
         if not isinstance(correlationId, CorrelationId):
             raise TypeError(
-                "correlationId should be an instance of 'CorrelationId'")
+                "correlationId should be an instance of 'CorrelationId'"
+            )
         if isinstance(topicOrMessage, Message):
             return internals.blpapi_ResolutionList_addFromMessage(
-                self.__handle,
-                get_handle(topicOrMessage),
-                correlationId)
+                self.__handle, get_handle(topicOrMessage), correlationId
+            )
         return internals.blpapi_ResolutionList_add(
-            self.__handle,
-            topicOrMessage,
-            correlationId)
+            self.__handle, topicOrMessage, correlationId
+        )
 
     @deprecated("attributes are no longer supported.")
     # pylint: disable=unused-argument,no-self-use
-    def addAttribute(self, attribute):
+    def addAttribute(self, attribute):  # type: ignore
         """
         Raises:
             UnsupportedOperationException: Unconditionally.
@@ -126,8 +132,8 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             IndexOutOfRangeException: If ``index >= size()``.
         """
         errorCode, cid = internals.blpapi_ResolutionList_correlationIdAt(
-            self.__handle,
-            index)
+            self.__handle, index
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return cid
 
@@ -146,8 +152,8 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
                 :class:`ResolutionList`.
         """
         errorCode, topic = internals.blpapi_ResolutionList_topicString(
-            self.__handle,
-            correlationId)
+            self.__handle, correlationId
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
@@ -163,8 +169,8 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             IndexOutOfRangeException: If ``index >= size()``.
         """
         errorCode, topic = internals.blpapi_ResolutionList_topicStringAt(
-            self.__handle,
-            index)
+            self.__handle, index
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
@@ -185,8 +191,8 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         :class:`ResolutionList`.
         """
         errorCode, status = internals.blpapi_ResolutionList_status(
-            self.__handle,
-            correlationId)
+            self.__handle, correlationId
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return status
 
@@ -205,14 +211,14 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         :class:`ResolutionList`.
         """
         errorCode, status = internals.blpapi_ResolutionList_statusAt(
-            self.__handle,
-            index)
+            self.__handle, index
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return status
 
     @deprecated("attributes are no longer supported")
     # pylint: disable=unused-argument,no-self-use
-    def attribute(self, attribute, correlationId):
+    def attribute(self, attribute, correlationId):  # type: ignore
         """
         Raises:
             UnsupportedOperationException: Unconditionally.
@@ -226,7 +232,7 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
 
     @deprecated("attributes are no longer supported")
     # pylint: disable=unused-argument,no-self-use
-    def attributeAt(self, attribute, index):
+    def attributeAt(self, attribute, index):  # type: ignore
         """
         Raises:
             UnsupportedOperationException: Unconditionally.
@@ -257,8 +263,8 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             of :class:`Topic`.
         """
         errorCode, message = internals.blpapi_ResolutionList_message(
-            self.__handle,
-            correlationId)
+            self.__handle, correlationId
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return Message(message, sessions=self._sessions())
 
@@ -280,8 +286,8 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             of :class:`Topic`.
         """
         errorCode, message = internals.blpapi_ResolutionList_messageAt(
-            self.__handle,
-            index)
+            self.__handle, index
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return Message(message, sessions=self._sessions())
 
@@ -303,6 +309,7 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
 
         For internal use."""
         self.__sessions.add(session)
+
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

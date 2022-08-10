@@ -9,15 +9,17 @@ except ImportError:
 
 import os
 import sys
-#pylint: disable=line-too-long,wrong-import-position
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
+# pylint: disable=line-too-long,wrong-import-position
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src"))
+)
 from event_processor import EventProcessor
 
 import blpapi
 
 
-MKTDATA_SCHEMA = \
-"""<?xml version="1.0" encoding="UTF-8" ?>
+MKTDATA_SCHEMA = """<?xml version="1.0" encoding="UTF-8" ?>
 <ServiceDefinition name="blp.mktdata" version="1.0.1.0">
    <service name="//blp/mktdata" version="1.0.0.0" authorizationService="//blp/apiauth">
       <event name="MarketDataEvents" eventType="MarketDataUpdate">
@@ -56,18 +58,20 @@ MKTDATA_SCHEMA = \
 </ServiceDefinition>
 """
 
+
 class TestEventProcessor(unittest.TestCase):
-    """ Test cases for EventProcessor. """
+    """Test cases for EventProcessor."""
 
     def setUp(self):
         self.mock_session = Mock()
         self.mock_notifier = Mock()
         self.mock_compute_engine = Mock()
-        self.event_processor = EventProcessor(self.mock_notifier,
-                                              self.mock_compute_engine)
+        self.event_processor = EventProcessor(
+            self.mock_notifier, self.mock_compute_engine
+        )
 
     def testNotifierReceivesSessionStarted(self):
-        """ Verify that notifier receives a `SessionStarted' message.
+        """Verify that notifier receives a `SessionStarted' message.
 
         Plan:
         1. Create a SessionStatus admin event using blpapi.test.createEvent().
@@ -90,9 +94,8 @@ class TestEventProcessor(unittest.TestCase):
         actual_message = self.mock_notifier.log_session_state.call_args[0][0]
         self.assertEqual(session_started, actual_message.messageType())
 
-
     def testNotifierReceivesSubscriptionStarted(self):
-        """ Verify that notifier receives a `SubscriptionStarted` message.
+        """Verify that notifier receives a `SubscriptionStarted` message.
 
         Plan:
         1. Create a SubscriptionStatus admin event using
@@ -106,19 +109,22 @@ class TestEventProcessor(unittest.TestCase):
         """
         event = blpapi.test.createEvent(blpapi.Event.SUBSCRIPTION_STATUS)
         subscription_started = blpapi.Name("SubscriptionStarted")
-        schema_def = blpapi.test.getAdminMessageDefinition(subscription_started)
+        schema_def = blpapi.test.getAdminMessageDefinition(
+            subscription_started
+        )
 
         blpapi.test.appendMessage(event, schema_def)
 
         self.event_processor.processEvent(event, self.mock_session)
 
         self.mock_notifier.log_subscription_state.assert_called_once()
-        actual_message = \
-            self.mock_notifier.log_subscription_state.call_args[0][0]
+        actual_message = self.mock_notifier.log_subscription_state.call_args[
+            0
+        ][0]
         self.assertEqual(subscription_started, actual_message.messageType())
 
     def testNotifierReceivesSubscriptionData(self):
-        """ Verify that:
+        """Verify that:
         1. Compute engine receives the correct LAST_PRICE.
         2. Compute engine performs the correct computation and returns the
            correct value.
@@ -144,22 +150,23 @@ class TestEventProcessor(unittest.TestCase):
         formatter = blpapi.test.appendMessage(event, schema_def)
 
         expected_last_price = 142.80
-        message_content = {
-            "LAST_PRICE": expected_last_price
-        }
+        message_content = {"LAST_PRICE": expected_last_price}
         formatter.formatMessageDict(message_content)
 
         expected_compute_result = 200.00
 
-        self.mock_compute_engine.someVeryComplexComputation.return_value = \
+        self.mock_compute_engine.someVeryComplexComputation.return_value = (
             expected_compute_result
+        )
 
         self.event_processor.processEvent(event, self.mock_session)
 
-        self.mock_compute_engine.someVeryComplexComputation \
-            .assert_called_once_with(expected_last_price)
-        self.mock_notifier.send_to_terminal \
-            .assert_called_once_with(expected_compute_result)
+        self.mock_compute_engine.someVeryComplexComputation.assert_called_once_with(
+            expected_last_price
+        )
+        self.mock_notifier.send_to_terminal.assert_called_once_with(
+            expected_compute_result
+        )
 
 
 if __name__ == "__main__":

@@ -23,7 +23,7 @@ session.start()
 """
 from . import utils
 from . import internals
-from . import typehints # pylint: disable=unused-import
+from . import typehints  # pylint: disable=unused-import
 from .exception import _ExceptionUtil
 from .sessionoptions import SessionOptions
 
@@ -47,13 +47,13 @@ class ZfpUtil(metaclass=utils.MetaClassForClassesWithEnums):
         session.start()
     """
 
-    REMOTE_8194 = internals.ZFPUTIL_REMOTE_8194 # type: ignore
-    REMOTE_8196 = internals.ZFPUTIL_REMOTE_8196 # type: ignore
+    REMOTE_8194 = internals.ZFPUTIL_REMOTE_8194
+    REMOTE_8196 = internals.ZFPUTIL_REMOTE_8196
 
     @staticmethod
-    def getZfpOptionsForLeasedLines(remote: int,
-                                    tlsOptions: "typehints.TlsOptions"
-                                    ) -> "typehints.SessionOptions":
+    def getZfpOptionsForLeasedLines(
+        remote: int, tlsOptions: "typehints.TlsOptions"
+    ) -> "typehints.SessionOptions":
         """Creates a :class:`SessionOptions` object for applications that
         leverage private leased lines to the Bloomberg network.
 
@@ -80,10 +80,12 @@ class ZfpUtil(metaclass=utils.MetaClassForClassesWithEnums):
         err = internals.blpapi_ZfpUtil_getOptionsForLeasedLines(
             utils.get_handle(sessionOptions),
             utils.get_handle(tlsOptions),
-            remote)
+            remote,
+        )
         _ExceptionUtil.raiseOnError(err)
 
         return sessionOptions
+
 
 __copyright__ = """
 Copyright 2019. Bloomberg Finance L.P.

@@ -5,7 +5,8 @@
 
 # pylint: disable=no-member
 import platform
-if platform.system().lower() == 'windows':
+
+if platform.system().lower() == "windows":
     import glob
     import os
 
@@ -19,6 +20,7 @@ if platform.system().lower() == 'windows':
     # In that case, the next block is going to be skipped entirely.
     for filename in glob.glob(os.path.join(blpapi_dir, dll_glob)):
         from ctypes import CDLL
+
         CDLL(os.path.abspath(filename))
 
 try:
@@ -27,6 +29,7 @@ except ImportError as error:
     # The most likely reason for a failure here is a failure to locate the
     # shared object for the C++ library. Provide a meaningful error message.
     from .debug import debug_load_error
+
     raise debug_load_error(error)
 
 from .abstractsession import AbstractSession
@@ -50,7 +53,11 @@ from .requesttemplate import RequestTemplate
 from .resolutionlist import ResolutionList
 from .schema import SchemaElementDefinition, SchemaStatus, SchemaTypeDefinition
 from .service import Service, Operation
-from .session import Session, SubscriptionPreprocessError, SubscriptionPreprocessMode
+from .session import (
+    Session,
+    SubscriptionPreprocessError,
+    SubscriptionPreprocessMode,
+)
 from .sessionoptions import SessionOptions, TlsOptions
 from .subscriptionlist import SubscriptionList
 from .topic import Topic

@@ -22,9 +22,9 @@ class EventDispatcher(CHandle):
     callbacks from one or more internal threads for one or more sessions.
     """
 
-    __handle = None # pylint: disable=unused-private-member
+    __handle = None  # pylint: disable=unused-private-member
 
-    def __init__(self, numDispatcherThreads: int = 1):
+    def __init__(self, numDispatcherThreads: int = 1) -> None:
         """Construct an :class:`EventDispatcher`.
 
         Args:
@@ -36,10 +36,12 @@ class EventDispatcher(CHandle):
         ``numDispatcherThreads`` threads is created to dispatch events. The
         behavior is undefined if ``numDispatcherThreads`` is ``0``.
         """
-        selfhandle = internals.blpapi_EventDispatcher_create(numDispatcherThreads)
+        selfhandle = internals.blpapi_EventDispatcher_create(
+            numDispatcherThreads
+        )
         super(EventDispatcher, self).__init__(
-            selfhandle,
-            internals.blpapi_EventDispatcher_destroy)
+            selfhandle, internals.blpapi_EventDispatcher_destroy
+        )
         self.__handle = selfhandle
 
     def start(self) -> int:
@@ -49,7 +51,7 @@ class EventDispatcher(CHandle):
 
         return internals.blpapi_EventDispatcher_start(self.__handle)
 
-    def stop(self, async_: bool = False, **kwargs) -> int:
+    def stop(self, async_: bool = False, **kwargs: bool) -> int:
         """Stop generating callbacks.
 
         Args:
@@ -68,19 +70,22 @@ class EventDispatcher(CHandle):
             ``async_`` parameter is overridden to ``True``.
         """
 
-        if 'async' in kwargs:
+        if "async" in kwargs:
             warnings.warn(
                 "async parameter has been deprecated in favor of async_",
-                DeprecationWarning)
-            async_ = kwargs.pop('async')
+                DeprecationWarning,
+            )
+            async_ = kwargs.pop("async")
 
         if kwargs:
             raise TypeError(
                 "EventDispatcher.stop() got an unexpected keyword "
                 "argument. Only 'async' is allowed for backwards "
-                "compatibility.")
+                "compatibility."
+            )
 
         return internals.blpapi_EventDispatcher_stop(self.__handle, async_)
+
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

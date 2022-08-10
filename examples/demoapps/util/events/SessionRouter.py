@@ -13,8 +13,12 @@ def printEvent(event: blpapi.Event):
 class SessionRouter:
 
     EventHandler = Callable[[blpapi.AbstractSession, blpapi.Event], None]
-    MessageHandler = Callable[[blpapi.AbstractSession, blpapi.Event, blpapi.Message], None]
-    ExceptionHandler = Callable[[blpapi.AbstractSession, blpapi.Event, Exception], None]
+    MessageHandler = Callable[
+        [blpapi.AbstractSession, blpapi.Event, blpapi.Message], None
+    ]
+    ExceptionHandler = Callable[
+        [blpapi.AbstractSession, blpapi.Event, Exception], None
+    ]
 
     def __init__(self):
         super(SessionRouter, self).__init__()
@@ -24,61 +28,72 @@ class SessionRouter:
         self._messageHandlersByCorrelationId = {}
         self._exceptionHandlers = []
 
-    def processEvent(self,
-                     event: blpapi.Event,
-                     session: blpapi.AbstractSession):
+    def processEvent(
+        self, event: blpapi.Event, session: blpapi.AbstractSession
+    ):
         try:
             printEvent(event)
 
-            eventHandler = self._eventHandlersByEventType.get(event.eventType())
+            eventHandler = self._eventHandlersByEventType.get(
+                event.eventType()
+            )
             if eventHandler is not None:
                 eventHandler(session, event)
 
-            eventTypeMessageHandler = \
-                self._messageHandlersByEventType.get(event.eventType())
+            eventTypeMessageHandler = self._messageHandlersByEventType.get(
+                event.eventType()
+            )
 
             for message in event:
                 for cid in message.correlationIds():
-                    cidMessageHandler = self._messageHandlersByCorrelationId.get(cid)
+                    cidMessageHandler = (
+                        self._messageHandlersByCorrelationId.get(cid)
+                    )
                     if cidMessageHandler is not None:
                         cidMessageHandler(session, event, message)
 
                 if eventTypeMessageHandler is not None:
                     eventTypeMessageHandler(session, event, message)
 
-                messageTypeMessageHandler = \
-                    self._messageHandlersByMessageType.get(message.messageType())
+                messageTypeMessageHandler = (
+                    self._messageHandlersByMessageType.get(
+                        message.messageType()
+                    )
+                )
                 if messageTypeMessageHandler is not None:
                     messageTypeMessageHandler(session, event, message)
         except Exception as exception:  # pylint: disable=broad-except
             for exceptionHandler in self._exceptionHandlers:
                 exceptionHandler(session, event, exception)
 
-    def addEventHandlerByEventType(self,
-                                   eventType: int,
-                                   eventHandler: EventHandler):
+    def addEventHandlerByEventType(
+        self, eventType: int, eventHandler: EventHandler
+    ):
         self._eventHandlersByEventType[eventType] = eventHandler
 
-    def addMessageHandlerByEventType(self,
-                                     eventType: int,
-                                     messageHandler: MessageHandler):
+    def addMessageHandlerByEventType(
+        self, eventType: int, messageHandler: MessageHandler
+    ):
         self._messageHandlersByEventType[eventType] = messageHandler
 
-    def addMessageHandlerByMessageType(self,
-                                       messageType: blpapi.Name,
-                                       messageHandler: MessageHandler):
+    def addMessageHandlerByMessageType(
+        self, messageType: blpapi.Name, messageHandler: MessageHandler
+    ):
         self._messageHandlersByMessageType[messageType] = messageHandler
 
-    def addMessageHandlerByCorrelationId(self,
-                                         correlationId: blpapi.CorrelationId,
-                                         messageHandler: MessageHandler):
+    def addMessageHandlerByCorrelationId(
+        self,
+        correlationId: blpapi.CorrelationId,
+        messageHandler: MessageHandler,
+    ):
         self._messageHandlersByCorrelationId[correlationId] = messageHandler
 
     def addExceptionHandler(self, exceptionHandler: ExceptionHandler):
         self._exceptionHandlers.append(exceptionHandler)
 
-    def removeMessageHandlerByCorrelationId(self,
-                                            correlationId: blpapi.CorrelationId):
+    def removeMessageHandlerByCorrelationId(
+        self, correlationId: blpapi.CorrelationId
+    ):
         self._messageHandlersByCorrelationId.pop(correlationId, None)
 
 

@@ -19,15 +19,19 @@ and management of snapshot request templates.
 
 from . import internals
 from .chandle import CHandle
+from .typehints import BlpapiRequestTemplateHandle
+
 
 class RequestTemplate(CHandle):
     """Request templates cache the necessary information to make a request and
     eliminate the need to create new requests for snapshot services.
     """
 
-    def __init__(self, handle):
+    def __init__(self, handle: BlpapiRequestTemplateHandle) -> None:
         super(RequestTemplate, self).__init__(
-            handle, internals.blpapi_RequestTemplate_release)
+            handle, internals.blpapi_RequestTemplate_release
+        )
+
 
 __copyright__ = """
 Copyright 2018. Bloomberg Finance L.P.

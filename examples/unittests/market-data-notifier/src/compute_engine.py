@@ -1,12 +1,13 @@
 """Dummy 'compute engine' for testing purposes"""
 
 # pylint: disable=too-few-public-methods, no-init, no-self-use
-class ComputeEngine():
+class ComputeEngine:
     """A class that does some 'financial computation'."""
 
     def someVeryComplexComputation(self, value):
         """Computation to be tested."""
         return value * 2
+
 
 __copyright__ = """
 Copyright 2020. Bloomberg Finance L.P.

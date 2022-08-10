@@ -17,7 +17,7 @@ class AuthOptionsAction(Action):
     """The action that parses authorization options from user input"""
 
     def __call__(self, parser, args, values, option_string=None):
-        vals = values.split('=', 1)
+        vals = values.split("=", 1)
 
         if vals[0] == AUTH_OPTION_USER:
             authOptions = AUTH_USER
@@ -41,28 +41,33 @@ def parseCmdLine():
 
     parser = ArgumentParser(
         description="Generate a token for a user to be used on the server side",
-        formatter_class=RawTextHelpFormatter)
-    parser.add_argument("-H",
-                        "--host",
-                        required=True,
-                        dest="ipAndPort",
-                        help="Server name or IP and port separated by ':'",
-                        metavar="host:port")
-    parser.add_argument("-a",
-                        "--auth",
-                        required=True,
-                        dest="authOptions",
-                        help="Authentication option: \n"
-                             "    user              as a user using OS logon  information\n"
-                             "    dir=<property>    as a user using directory services\n"
-                             "    app=<app>         as the specified application\n"
-                             "    userapp=<app>     as user and application using logon information for the user\n",
-                        metavar="option",
-                        action=AuthOptionsAction)
+        formatter_class=RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "-H",
+        "--host",
+        required=True,
+        dest="ipAndPort",
+        help="Server name or IP and port separated by ':'",
+        metavar="host:port",
+    )
+    parser.add_argument(
+        "-a",
+        "--auth",
+        required=True,
+        dest="authOptions",
+        help="Authentication option: \n"
+        "    user              as a user using OS logon  information\n"
+        "    dir=<property>    as a user using directory services\n"
+        "    app=<app>         as the specified application\n"
+        "    userapp=<app>     as user and application using logon information for the user\n",
+        metavar="option",
+        action=AuthOptionsAction,
+    )
 
     options = parser.parse_args()
 
-    ipAndPort = options.ipAndPort.split(':')
+    ipAndPort = options.ipAndPort.split(":")
     if len(ipAndPort) != 2:
         parser.error(f"Invalid host '{options.ipAndPort}'")
 
@@ -110,7 +115,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
         print(e)
 
 __copyright__ = """

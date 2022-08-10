@@ -1,17 +1,20 @@
 import sys
 
+
 def addMaxEventsOption(argparser):
-    '''
+    """
     Helper function that adds the option for the maximum number of events
     before stopping to the argument parser and parses the command line
     argument to an integer as the maximum number of events.
-    '''
-    argparser.add_argument("--max-events",
-                           dest="maxEvents",
-                           help="number of events to process before stopping (default: %(default)d).",
-                           metavar="maxEvents",
-                           type=int,
-                           default=sys.maxsize)
+    """
+    argparser.add_argument(
+        "--max-events",
+        dest="maxEvents",
+        help="number of events to process before stopping (default: %(default)d).",
+        metavar="maxEvents",
+        type=int,
+        default=sys.maxsize,
+    )
 
 
 __copyright__ = """

@@ -56,7 +56,9 @@ def processResponseEvent(response):
         data = msgDict[BAR_DATA][BAR_TICK_DATA]
         print(f"Response contains {len(data)} bar(s)")
         spaces = "\t\t\t\t"
-        print(f"Datetime{spaces}Open{spaces}High{spaces}Low{spaces}Close{spaces}NumEvents{spaces}Volume")
+        print(
+            f"Datetime{spaces}Open{spaces}High{spaces}Low{spaces}Close{spaces}NumEvents{spaces}Volume"
+        )
         for bar in data:
             barTime = bar[TIME]
             barOpen = bar[OPEN]
@@ -66,9 +68,11 @@ def processResponseEvent(response):
             barNumEvents = bar[NUM_EVENTS]
             barVolume = bar[VOLUME]
 
-            print(f"{barTime.strftime(DATETIME_FORMAT)}{spaces}{barOpen:.2f}"
-                  f"{spaces}{barHigh:.2f}{spaces}{barLow:.2f}{spaces}"
-                  f"{barClose:.2f}{spaces}{barNumEvents}{spaces}{barVolume}")
+            print(
+                f"{barTime.strftime(DATETIME_FORMAT)}{spaces}{barOpen:.2f}"
+                f"{spaces}{barHigh:.2f}{spaces}{barLow:.2f}{spaces}"
+                f"{barClose:.2f}{spaces}{barNumEvents}{spaces}{barVolume}"
+            )
 
 
 __copyright__ = """

@@ -6,7 +6,7 @@ TOKEN_FAILURE = blpapi.Name("TokenFailure")
 TOKEN = blpapi.Name("token")
 
 # pylint: disable=too-few-public-methods
-class EventProcessor():
+class EventProcessor:
     """Custom EventHandler implementation for demonstration purposes."""
 
     def __init__(self, notifier, compute_engine):
@@ -22,9 +22,11 @@ class EventProcessor():
                 self._notifier.log_subscription_state(msg)
             elif event.eventType() == blpapi.Event.SUBSCRIPTION_DATA:
                 last_price = msg.getElementAsFloat("LAST_PRICE")
-                result = \
-                    self._compute_engine.someVeryComplexComputation(last_price)
+                result = self._compute_engine.someVeryComplexComputation(
+                    last_price
+                )
                 self._notifier.send_to_terminal(result)
+
 
 __copyright__ = """
 Copyright 2020. Bloomberg Finance L.P.

@@ -8,7 +8,7 @@ from typing import Any, Optional
 from .typehints import AnyPythonDatetime, BlpapiDatetime
 from . import internals
 from . import utils
-from . import typehints # pylint: disable=unused-import
+from . import typehints  # pylint: disable=unused-import
 
 
 # pylint: disable=no-member
@@ -55,11 +55,13 @@ class FixedOffset(_dt.tzinfo, metaclass=utils.MetaClassForClassesWithEnums):
         del dt
         return self.__offset
 
-    def dst(self, dt: Optional[_dt.datetime]) -> _dt.timedelta: # pylint: disable=no-self-use
+    def dst(
+        self, dt: Optional[_dt.datetime]
+    ) -> _dt.timedelta:  # pylint: disable=no-self-use
         del dt
         return _dt.timedelta(0)
 
-    def tzname(self, dt: Optional[_dt.datetime]) -> _dt.timedelta: # type: ignore # superclass returns str, but .__offset is a timedelta
+    def tzname(self, dt: Optional[_dt.datetime]) -> _dt.timedelta:  # type: ignore # superclass returns str, but .__offset is a timedelta
         del dt
         return self.__offset
 
@@ -74,7 +76,7 @@ class FixedOffset(_dt.tzinfo, metaclass=utils.MetaClassForClassesWithEnums):
         """x.__hash__() <==> hash(x)"""
         return self.getOffsetInMinutes()
 
-    def __eq__(self, other: "FixedOffset") -> bool: # type: ignore # mypy wants us to accept arbitrary object and check isinstance()
+    def __eq__(self, other: "FixedOffset") -> bool:  # type: ignore # mypy wants us to accept arbitrary object and check isinstance()
         """Let the equality operator work based on the time delta."""
         return self.getOffsetInMinutes() == other.getOffsetInMinutes()
 
@@ -93,86 +95,112 @@ UTC = FixedOffset(0)
 
 class _DatetimeUtil(object):
     """Utility methods that deal with BLPAPI dates and times."""
+
     @staticmethod
-    def convertToNative(blpapiDatetimeObj: BlpapiDatetime) -> AnyPythonDatetime:
+    def convertToNative(
+        blpapiDatetimeObj: BlpapiDatetime,
+    ) -> AnyPythonDatetime:
         """Convert BLPAPI Datetime object to a suitable Python object."""
 
         isHighPrecision = isinstance(
-            blpapiDatetimeObj,
-            internals.blpapi_HighPrecisionDatetime_tag)
+            blpapiDatetimeObj, internals.blpapi_HighPrecisionDatetime_tag
+        )
 
         if not isHighPrecision:
             raise ValueError(
-                "Datetime object is not high precision",
-                blpapiDatetimeObj)
+                "Datetime object is not high precision", blpapiDatetimeObj
+            )
 
         blpapiDatetime = blpapiDatetimeObj.datetime
         parts = blpapiDatetime.parts
-        hasDate = parts & internals.DATETIME_DATE_PART == \
-            internals.DATETIME_DATE_PART
+        hasDate = (
+            parts & internals.DATETIME_DATE_PART
+            == internals.DATETIME_DATE_PART
+        )
         hasTime = parts & internals.DATETIME_TIMEFRACSECONDS_PART != 0
-        microsecs = (blpapiDatetime.milliSeconds * 1000 +
-                     blpapiDatetimeObj.picoseconds // 1000 // 1000) \
-            if parts & internals.DATETIME_FRACSECONDS_PART else 0
+        microsecs = (
+            (
+                blpapiDatetime.milliSeconds * 1000
+                + blpapiDatetimeObj.picoseconds // 1000 // 1000
+            )
+            if parts & internals.DATETIME_FRACSECONDS_PART
+            else 0
+        )
 
-        return _DatetimeUtil._convertToNativeTypeHelper(hasDate,
-                                                        hasTime,
-                                                        blpapiDatetime,
-                                                        microsecs)
+        return _DatetimeUtil._convertToNativeTypeHelper(
+            hasDate, hasTime, blpapiDatetime, microsecs
+        )
 
     @staticmethod
-    def convertToNativeNotHighPrecision(blpapiDatetime: BlpapiDatetime) -> AnyPythonDatetime:
+    def convertToNativeNotHighPrecision(
+        blpapiDatetime: BlpapiDatetime,
+    ) -> AnyPythonDatetime:
         """Convert BLPAPI Datetime object to a suitable Python object.
         This version should only be used for logging callback which does not
         provide a high precision datetime alternative."""
 
         parts = blpapiDatetime.parts
-        hasDate = parts & internals.DATETIME_DATE_PART == \
-            internals.DATETIME_DATE_PART
-        hasTime = parts & internals.DATETIME_TIME_PART == \
-            internals.DATETIME_TIME_PART
-        microsecs = blpapiDatetime.milliSeconds * 1000 if parts & \
-            internals.DATETIME_MILLISECONDS_PART else 0
-        return _DatetimeUtil._convertToNativeTypeHelper(hasDate,
-                                                        hasTime,
-                                                        blpapiDatetime,
-                                                        microsecs)
+        hasDate = (
+            parts & internals.DATETIME_DATE_PART
+            == internals.DATETIME_DATE_PART
+        )
+        hasTime = (
+            parts & internals.DATETIME_TIME_PART
+            == internals.DATETIME_TIME_PART
+        )
+        microsecs = (
+            blpapiDatetime.milliSeconds * 1000
+            if parts & internals.DATETIME_MILLISECONDS_PART
+            else 0
+        )
+        return _DatetimeUtil._convertToNativeTypeHelper(
+            hasDate, hasTime, blpapiDatetime, microsecs
+        )
 
     @staticmethod
-    def _convertToNativeTypeHelper(hasDate: bool,
-                                   hasTime: bool,
-                                   blpapiDatetime: BlpapiDatetime,
-                                   microsecs: int
-                                  ) -> AnyPythonDatetime:
+    def _convertToNativeTypeHelper(
+        hasDate: bool,
+        hasTime: bool,
+        blpapiDatetime: BlpapiDatetime,
+        microsecs: int,
+    ) -> AnyPythonDatetime:
         parts = blpapiDatetime.parts
-        tzinfo = FixedOffset(blpapiDatetime.offset) if parts & \
-            internals.DATETIME_OFFSET_PART else None
+        tzinfo = (
+            FixedOffset(blpapiDatetime.offset)
+            if parts & internals.DATETIME_OFFSET_PART
+            else None
+        )
 
         if hasDate and hasTime:
-            return _dt.datetime(blpapiDatetime.year,
-                                blpapiDatetime.month,
-                                blpapiDatetime.day,
-                                blpapiDatetime.hours,
-                                blpapiDatetime.minutes,
-                                blpapiDatetime.seconds,
-                                microsecs,
-                                tzinfo)
+            return _dt.datetime(
+                blpapiDatetime.year,
+                blpapiDatetime.month,
+                blpapiDatetime.day,
+                blpapiDatetime.hours,
+                blpapiDatetime.minutes,
+                blpapiDatetime.seconds,
+                microsecs,
+                tzinfo,
+            )
         elif hasDate:
             # Skip an offset, because it's not informative if there is a
             # date without time
-            return _dt.date(blpapiDatetime.year,
-                            blpapiDatetime.month,
-                            blpapiDatetime.day)
+            return _dt.date(
+                blpapiDatetime.year, blpapiDatetime.month, blpapiDatetime.day
+            )
         elif hasTime:
-            return _dt.time(blpapiDatetime.hours,
-                            blpapiDatetime.minutes,
-                            blpapiDatetime.seconds,
-                            microsecs,
-                            tzinfo)
+            return _dt.time(
+                blpapiDatetime.hours,
+                blpapiDatetime.minutes,
+                blpapiDatetime.seconds,
+                microsecs,
+                tzinfo,
+            )
 
-        raise ValueError("Blpapi datetime object is invalid: missing"
-                         " both date and time parts")
-
+        raise ValueError(
+            "Blpapi datetime object is invalid: missing"
+            " both date and time parts"
+        )
 
     @staticmethod
     def isDatetime(dtime: Any) -> bool:
@@ -181,7 +209,7 @@ class _DatetimeUtil(object):
 
     @staticmethod
     def convertToBlpapi(dtime: AnyPythonDatetime) -> BlpapiDatetime:
-        "Convert a Python date/time object to a BLPAPI Datetime object."""
+        "Convert a Python date/time object to a BLPAPI Datetime object." ""
         highPrecDatetime = internals.blpapi_HighPrecisionDatetime_tag()
         res = highPrecDatetime.datetime
         offset = None
@@ -193,11 +221,14 @@ class _DatetimeUtil(object):
             res.hours = dtime.hour
             res.minutes = dtime.minute
             res.seconds = dtime.second
-            (res.milliSeconds, highPrecDatetime.picoseconds) = \
-                    divmod(dtime.microsecond, 1000)
+            (res.milliSeconds, highPrecDatetime.picoseconds) = divmod(
+                dtime.microsecond, 1000
+            )
             highPrecDatetime.picoseconds *= 1000 * 1000
-            res.parts = internals.DATETIME_DATE_PART | \
-                internals.DATETIME_TIMEFRACSECONDS_PART
+            res.parts = (
+                internals.DATETIME_DATE_PART
+                | internals.DATETIME_TIMEFRACSECONDS_PART
+            )
         elif isinstance(dtime, _dt.date):
             res.year = dtime.year
             res.month = dtime.month
@@ -208,18 +239,22 @@ class _DatetimeUtil(object):
             res.hours = dtime.hour
             res.minutes = dtime.minute
             res.seconds = dtime.second
-            (res.milliSeconds, highPrecDatetime.picoseconds) = \
-                    divmod(dtime.microsecond, 1000)
+            (res.milliSeconds, highPrecDatetime.picoseconds) = divmod(
+                dtime.microsecond, 1000
+            )
             highPrecDatetime.picoseconds *= 1000 * 1000
             res.parts = internals.DATETIME_TIMEFRACSECONDS_PART
         else:
-            raise TypeError("Datetime can be created only from \
-datetime.datetime, datetime.date or datetime.time")
+            raise TypeError(
+                "Datetime can be created only from \
+datetime.datetime, datetime.date or datetime.time"
+            )
         if offset is not None:
             offsetInMinutes = int(offset.total_seconds() // 60)
             res.offset = offsetInMinutes
             res.parts |= internals.DATETIME_OFFSET_PART
         return highPrecDatetime
+
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

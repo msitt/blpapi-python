@@ -9,13 +9,16 @@ except ImportError:
 
 import os
 import sys
-#pylint: disable=line-too-long,wrong-import-position
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
+# pylint: disable=line-too-long,wrong-import-position
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src"))
+)
 from application import Application
 
 
 class TestApplication(unittest.TestCase):
-    """ Test cases for Application. """
+    """Test cases for Application."""
 
     def setUp(self):
         self.mock_session = Mock()
@@ -24,7 +27,7 @@ class TestApplication(unittest.TestCase):
         self.mock_options = Mock()
 
     def testSessionStartFail(self):
-        """ Verify that if the session fails to start, no authorization or
+        """Verify that if the session fails to start, no authorization or
         subscriptions are made.
 
         Plan:
@@ -33,10 +36,12 @@ class TestApplication(unittest.TestCase):
         b. authorize() is not called.
         c. subscribe() is not called.
         """
-        application = Application(self.mock_session,
-                                  self.mock_authorizer,
-                                  self.mock_subscriber,
-                                  self.mock_options)
+        application = Application(
+            self.mock_session,
+            self.mock_authorizer,
+            self.mock_subscriber,
+            self.mock_options,
+        )
 
         self.mock_session.start.return_value = False
         application.run()
@@ -46,7 +51,7 @@ class TestApplication(unittest.TestCase):
         self.mock_subscriber.subscribe.assert_not_called()
 
     def testSessionAuthorizeFail(self):
-        """ Verify that if authorization fails, no subscriptions are made.
+        """Verify that if authorization fails, no subscriptions are made.
 
         Plan:
         Set up and verify the following mocks:
@@ -54,10 +59,12 @@ class TestApplication(unittest.TestCase):
         b. authorize() fails and returns False.
         c. subscribe() is not called.
         """
-        application = Application(self.mock_session,
-                                  self.mock_authorizer,
-                                  self.mock_subscriber,
-                                  self.mock_options)
+        application = Application(
+            self.mock_session,
+            self.mock_authorizer,
+            self.mock_subscriber,
+            self.mock_options,
+        )
 
         self.mock_session.start.return_value = True
         self.mock_authorizer.authorize.return_value = False
@@ -69,7 +76,7 @@ class TestApplication(unittest.TestCase):
         self.mock_subscriber.subscribe.assert_not_called()
 
     def testSubscribeWithConfig(self):
-        """ Verify the correct topics and fields are used when subscribing on
+        """Verify the correct topics and fields are used when subscribing on
         the session.
 
         Plan:
@@ -83,16 +90,20 @@ class TestApplication(unittest.TestCase):
         expected_fields = ["LAST_PRICE", "BID", "ASK"]
         service_name = "//blp/mktdata"
 
-        self.mock_options.configure_mock(**{
-            "service": service_name,
-            "topics": expected_topics,
-            "fields": expected_fields
-        })
+        self.mock_options.configure_mock(
+            **{
+                "service": service_name,
+                "topics": expected_topics,
+                "fields": expected_fields,
+            }
+        )
 
-        application = Application(self.mock_session,
-                                  self.mock_authorizer,
-                                  self.mock_subscriber,
-                                  self.mock_options)
+        application = Application(
+            self.mock_session,
+            self.mock_authorizer,
+            self.mock_subscriber,
+            self.mock_options,
+        )
 
         self.mock_session.start.return_value = True
         self.mock_authorizer.authorize.return_value = True

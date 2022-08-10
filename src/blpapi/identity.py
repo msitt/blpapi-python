@@ -11,7 +11,7 @@ from .element import Element
 from .exception import _ExceptionUtil
 from . import internals
 from . import utils
-from . import typehints # pylint: disable=unused-import
+from . import typehints  # pylint: disable=unused-import
 from .utils import get_handle
 from .chandle import CHandle
 
@@ -35,16 +35,18 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     The class attributes represent the various seat types.
     """
 
-    INVALID_SEAT = internals.SEATTYPE_INVALID_SEAT # type: ignore
+    INVALID_SEAT = internals.SEATTYPE_INVALID_SEAT  # type: ignore
     """Unknown seat type"""
-    BPS = internals.SEATTYPE_BPS # type: ignore
+    BPS = internals.SEATTYPE_BPS  # type: ignore
     """Bloomberg Professional Service"""
-    NONBPS = internals.SEATTYPE_NONBPS # type: ignore
+    NONBPS = internals.SEATTYPE_NONBPS  # type: ignore
     """Non-BPS"""
 
-    def __init__(self,
-                 handle: BlpapiIdentityHandle,
-                 sessions: Sequence["typehints.AbstractSession"]):
+    def __init__(
+        self,
+        handle: BlpapiIdentityHandle,
+        sessions: Sequence["typehints.AbstractSession"],
+    ):
         """Create an :class:`Identity` associated with the ``sessions``
 
         Args:
@@ -52,16 +54,18 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             sessions: Sessions associated with this object
         """
         super(Identity, self).__init__(
-            handle, internals.blpapi_Identity_release)
+            handle, internals.blpapi_Identity_release
+        )
         self.__handle = handle  # pylint: disable=unused-private-member
         self.__sessions = sessions  # pylint: disable=unused-private-member
 
         internals.blpapi_Identity_addRef(self.__handle)
 
-    def hasEntitlements(self,
-                        service: "typehints.Service",
-                        entitlements: Union[Sequence[int], "typehints.Element"]
-                        ) -> bool:
+    def hasEntitlements(
+        self,
+        service: "typehints.Service",
+        entitlements: Union[Sequence[int], "typehints.Element"],
+    ) -> bool:
         """
         Args:
             service: Service to check authorization for
@@ -83,7 +87,8 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
                 None,
                 0,
                 None,
-                None)
+                None,
+            )
         else:
             # Otherwise, assume entitlements is a list, or tuple, etc
             numberOfEIDs = len(entitlements)
@@ -97,14 +102,15 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
                 carrayOfEIDs,
                 numberOfEIDs,
                 None,
-                None)
+                None,
+            )
         return True if res else False
 
-    def getFailedEntitlements(self,
-                              service: "typehints.Service",
-                              entitlements: Union[Sequence[int],
-                                                  "typehints.Element"]
-                              ) -> Tuple[bool, List[int]]:
+    def getFailedEntitlements(
+        self,
+        service: "typehints.Service",
+        entitlements: Union[Sequence[int], "typehints.Element"],
+    ) -> Tuple[bool, List[int]]:
         """
         Args:
             service: Service to check authorization for
@@ -133,7 +139,8 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
                 None,
                 0,
                 failedEIDs,
-                failedEIDsSize)
+                failedEIDsSize,
+            )
         else:
             # Otherwise, assume entitlements is a list, or tuple, etc
             numberOfEIDs = len(entitlements)
@@ -151,7 +158,8 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
                 carrayOfEIDs,
                 numberOfEIDs,
                 failedEIDs,
-                failedEIDsSize)
+                failedEIDsSize,
+            )
         result = []
         for i in range(failedEIDsSize[0]):
             result.append(failedEIDs[i])
@@ -167,8 +175,8 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             specified ``service``, ``False`` otherwise.
         """
         res = internals.blpapi_Identity_isAuthorized(
-            self.__handle,
-            get_handle(service))
+            self.__handle, get_handle(service)
+        )
         return True if res else False
 
     def getSeatType(self) -> int:

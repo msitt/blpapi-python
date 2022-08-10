@@ -2,7 +2,7 @@
 from __future__ import print_function
 
 # pylint: disable=no-init,no-self-use
-class Notifier():
+class Notifier:
     """
     Notifier is an approximation of a class that attempts to:
     1. Log all session events (for example SessionStartupFailure).
@@ -21,6 +21,7 @@ class Notifier():
     def send_to_terminal(self, value):
         """Print the provided value."""
         print("VALUE = " + str(value))
+
 
 __copyright__ = """
 Copyright 2020. Bloomberg Finance L.P.

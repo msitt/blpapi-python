@@ -12,11 +12,13 @@ from . import internals
 
 # pylint: disable=redefined-builtin
 
+
 class Exception(_StandardException):
     """This class defines a base exception for blpapi operations.
 
     Objects of this class contain the error description for the exception.
     """
+
     def __init__(self, description: str, errorCode: Optional[int]) -> None:
         """Create a blpapi exception
 
@@ -105,27 +107,29 @@ class UnknownErrorException(Exception):
 
 class _ExceptionUtil:
     """Internal exception generating class."""
+
     __errorClasses = {
-        internals.INVALIDSTATE_CLASS: InvalidStateException, # type: ignore
-        internals.INVALIDARG_CLASS: InvalidArgumentException, # type: ignore
-        internals.CNVERROR_CLASS: InvalidConversionException, # type: ignore
-        internals.BOUNDSERROR_CLASS: IndexOutOfRangeException, # type: ignore
-        internals.NOTFOUND_CLASS: NotFoundException, # type: ignore
-        internals.FLDNOTFOUND_CLASS: FieldNotFoundException, # type: ignore
-        internals.UNSUPPORTED_CLASS: UnsupportedOperationException # type: ignore
+        internals.INVALIDSTATE_CLASS: InvalidStateException,  # type: ignore
+        internals.INVALIDARG_CLASS: InvalidArgumentException,  # type: ignore
+        internals.CNVERROR_CLASS: InvalidConversionException,  # type: ignore
+        internals.BOUNDSERROR_CLASS: IndexOutOfRangeException,  # type: ignore
+        internals.NOTFOUND_CLASS: NotFoundException,  # type: ignore
+        internals.FLDNOTFOUND_CLASS: FieldNotFoundException,  # type: ignore
+        internals.UNSUPPORTED_CLASS: UnsupportedOperationException,  # type: ignore
     }
 
     @staticmethod
     def __getErrorClass(errorCode: int) -> Type:
-        """ returns proper error class for the code """
+        """returns proper error class for the code"""
         if errorCode == internals.ERROR_DUPLICATE_CORRELATIONID:
             return DuplicateCorrelationIdException
-        errorClass = errorCode & 0xff0000
-        return _ExceptionUtil.__errorClasses.get(errorClass,
-                                                 UnknownErrorException)
+        errorClass = errorCode & 0xFF0000
+        return _ExceptionUtil.__errorClasses.get(
+            errorClass, UnknownErrorException
+        )
 
     @staticmethod
-    def raiseException(errorCode: int, description: str=None) -> None:
+    def raiseException(errorCode: int, description: str = None) -> None:
         """Throw the appropriate exception for the specified 'errorCode'."""
         if description is None:
             description = internals.blpapi_getLastErrorDescription(errorCode)
@@ -135,12 +139,13 @@ class _ExceptionUtil:
         raise errorClass(description, errorCode)
 
     @staticmethod
-    def raiseOnError(errorCode: int, description: str=None) -> None:
+    def raiseOnError(errorCode: int, description: str = None) -> None:
         """Throw the appropriate exception for the specified 'errorCode' if the
         'errorCode != 0'.
         """
         if errorCode:
             _ExceptionUtil.raiseException(errorCode, description)
+
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.

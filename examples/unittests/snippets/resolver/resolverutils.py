@@ -24,10 +24,11 @@ RESOLVER_ID = "service:hostname"
 # This can be any string, but it's helpful to provide information on the
 # instance of the resolver that responded to debug failures in production.
 
-def resolutionServiceRegistration(providerSession,
-                                  providerIdentity,
-                                  serviceName):
-    """ This helper demonstrates how to register a service.
+
+def resolutionServiceRegistration(
+    providerSession, providerIdentity, serviceName
+):
+    """This helper demonstrates how to register a service.
 
     This helper assumes the following:
     * Specified `providerSession` is already started
@@ -49,26 +50,30 @@ def resolutionServiceRegistration(providerSession,
     serviceOptions.setServicePriority(dummyPriority)
 
     serviceOptions.setPartsToRegister(
-        blpapi.ServiceRegistrationOptions.PART_PUBLISHER_RESOLUTION)
+        blpapi.ServiceRegistrationOptions.PART_PUBLISHER_RESOLUTION
+    )
 
-    if not providerSession.registerService(serviceName,
-                                           providerIdentity,
-                                           serviceOptions):
+    if not providerSession.registerService(
+        serviceName, providerIdentity, serviceOptions
+    ):
         print("Failed to register {}".format(serviceName))
         return False
 
     return True
 
+
 def handlePermissionRequest(providerSession, service, request):
-    """ Respond to a PermissionRequest.
+    """Respond to a PermissionRequest.
 
     Only accept requests with applicationId `ALLOWED_APP_ID`.
     """
     assert request.messageType() == PERMISSION_REQUEST
 
     disallowed = 1
-    if request.hasElement("applicationId") and \
-            request.getElementAsInteger("applicationId") == ALLOWED_APP_ID:
+    if (
+        request.hasElement("applicationId")
+        and request.getElementAsInteger("applicationId") == ALLOWED_APP_ID
+    ):
         disallowed = 0
 
     response = service.createResponseEvent(request.correlationIds()[0])

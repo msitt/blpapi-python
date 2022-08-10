@@ -3,14 +3,16 @@ from threading import Event as ThreadingEvent
 import time
 
 from blpapi_import_helper import blpapi
-from blpapi import AbstractSession, Message, Name, Names, Session
-from util.ConnectionAndAuthOptions import \
-    addConnectionAndAuthOptions, \
-    createClientServerSetupAuthOptions, \
-    createSessionOptions
-from util.SubscriptionOptions import \
-    addSubscriptionOptions, \
-    createSubscriptionList
+from blpapi import AbstractSession, Message, Name, Names, Session, Event
+from util.ConnectionAndAuthOptions import (
+    addConnectionAndAuthOptions,
+    createClientServerSetupAuthOptions,
+    createSessionOptions,
+)
+from util.SubscriptionOptions import (
+    addSubscriptionOptions,
+    createSubscriptionList,
+)
 from util.events.SessionRouter import SessionRouter
 
 
@@ -20,8 +22,9 @@ ENTITLEMENT_CHANGED = Name("EntitlementChanged")
 
 def parseCmdLine():
     parser = ArgumentParser(
-            formatter_class=RawTextHelpFormatter,
-            description="Entitlements verification subscription example")
+        formatter_class=RawTextHelpFormatter,
+        description="Entitlements verification subscription example",
+    )
     addConnectionAndAuthOptions(parser, forClientServerSetup=True)
     addSubscriptionOptions(parser)
 
@@ -37,7 +40,6 @@ def parseCmdLine():
 
 
 class EntitlementsVerificationSubscriptionExample:
-
     def __init__(self, options):
         self._options = options
         self._router = SessionRouter()
@@ -47,18 +49,24 @@ class EntitlementsVerificationSubscriptionExample:
 
         self._router.addExceptionHandler(self._handleException)
 
-        self._router.addMessageHandlerByMessageType(Names.SESSION_STARTED,
-                                                    self._handleSessionStarted)
-        self._router.addMessageHandlerByMessageType(Names.SESSION_STARTUP_FAILURE,
-                                                    self._handleSessionStartupFailure)
-        self._router.addMessageHandlerByMessageType(Names.SESSION_TERMINATED,
-                                                    self._handleSessionTerminated)
-        self._router.addMessageHandlerByMessageType(Names.SERVICE_OPENED,
-                                                    self._handleServiceOpened)
-        self._router.addMessageHandlerByMessageType(Names.SERVICE_OPEN_FAILURE,
-                                                    self._handleServiceOpenFailure)
-        self._router.addMessageHandlerByMessageType(Name("EntitlementChanged"),
-                                                    self._handleEntitlementChanged)
+        self._router.addMessageHandlerByMessageType(
+            Names.SESSION_STARTED, self._handleSessionStarted
+        )
+        self._router.addMessageHandlerByMessageType(
+            Names.SESSION_STARTUP_FAILURE, self._handleSessionStartupFailure
+        )
+        self._router.addMessageHandlerByMessageType(
+            Names.SESSION_TERMINATED, self._handleSessionTerminated
+        )
+        self._router.addMessageHandlerByMessageType(
+            Names.SERVICE_OPENED, self._handleServiceOpened
+        )
+        self._router.addMessageHandlerByMessageType(
+            Names.SERVICE_OPEN_FAILURE, self._handleServiceOpenFailure
+        )
+        self._router.addMessageHandlerByMessageType(
+            Name("EntitlementChanged"), self._handleEntitlementChanged
+        )
 
     @property
     def stopped(self):
@@ -80,20 +88,24 @@ class EntitlementsVerificationSubscriptionExample:
 
     def _authorizeUsers(self):
         # Authorize each of the users
-        authOptionsByIdentifier = \
-            createClientServerSetupAuthOptions(self._options)
+        authOptionsByIdentifier = createClientServerSetupAuthOptions(
+            self._options
+        )
 
         for identifier, authOptions in authOptionsByIdentifier.items():
             cid = blpapi.CorrelationId(identifier)
             self._session.generateAuthorizedIdentity(authOptions, cid)
 
     def _subscribe(self):
-        self._router.addMessageHandlerByEventType(blpapi.Event.SUBSCRIPTION_DATA,
-                                                  self._handleSubscriptionData)
-        self._router.addMessageHandlerByMessageType(Names.SUBSCRIPTION_FAILURE,
-                                                    self._handleSubscriptionFailure)
-        self._router.addMessageHandlerByMessageType(Names.SUBSCRIPTION_TERMINATED,
-                                                    self._handleSubscriptionTerminated)
+        self._router.addEventHandlerByEventType(
+            blpapi.Event.SUBSCRIPTION_DATA, self._handleSubscriptionData
+        )
+        self._router.addMessageHandlerByMessageType(
+            Names.SUBSCRIPTION_FAILURE, self._handleSubscriptionFailure
+        )
+        self._router.addMessageHandlerByMessageType(
+            Names.SUBSCRIPTION_TERMINATED, self._handleSubscriptionTerminated
+        )
 
         print("Subscribing...")
         subscriptionList = createSubscriptionList(self._options)
@@ -107,12 +119,15 @@ class EntitlementsVerificationSubscriptionExample:
         # Add the authorization messages handlers after the session
         # started to only react to the authorization messages of users,
         # i.e., avoid those of the session identity.
-        self._router.addMessageHandlerByMessageType(Names.AUTHORIZATION_SUCCESS,
-                                                    self._handleAuthorizationSuccess)
-        self._router.addMessageHandlerByMessageType(Names.AUTHORIZATION_FAILURE,
-                                                    self._handleAuthorizationFailure)
-        self._router.addMessageHandlerByMessageType(Names.AUTHORIZATION_REVOKED,
-                                                    self._handleAuthorizationRevoked)
+        self._router.addMessageHandlerByMessageType(
+            Names.AUTHORIZATION_SUCCESS, self._handleAuthorizationSuccess
+        )
+        self._router.addMessageHandlerByMessageType(
+            Names.AUTHORIZATION_FAILURE, self._handleAuthorizationFailure
+        )
+        self._router.addMessageHandlerByMessageType(
+            Names.AUTHORIZATION_REVOKED, self._handleAuthorizationRevoked
+        )
 
         self._authorizeUsers()
         self._openServices()
@@ -146,7 +161,9 @@ class EntitlementsVerificationSubscriptionExample:
         if serviceName == self._options.service:
             self._stop()
         else:
-            raise Exception(f"A service which is unknown failed to open: {serviceName}")
+            raise Exception(
+                f"A service which is unknown failed to open: {serviceName}"
+            )
 
     @staticmethod
     def _handleEntitlementChanged(_1, _2, message: Message):
@@ -155,32 +172,39 @@ class EntitlementsVerificationSubscriptionExample:
         userIdentifier = correlationId.value()
         print(f"Entitlements updated for {userIdentifier}")
 
-    def _handleSubscriptionData(self, _1, _2, message: Message):
-        topic = message.correlationId().value()
+    def _handleSubscriptionData(self, _, event: Event):
+        for message in event:
+            topic = message.correlationId().value()
 
-        service = message.service()
+            service = message.service()
 
-        if message.hasElement(EID, excludeNullElements=True):
-            entitlements = message.getElement(EID)
+            if message.hasElement(EID, excludeNullElements=True):
+                entitlements = message.getElement(EID)
 
-            for cid, identity in self._identitiesByCorrelationId.items():
-                userIdentifier = cid.value()
-                isAuthorizedForAllEntitlements, failedEntitlements = \
-                    identity.getFailedEntitlements(service, entitlements)
-                if isAuthorizedForAllEntitlements:
-                    print(f"{userIdentifier} is entitled to get data for: {topic}")
+                for cid, identity in self._identitiesByCorrelationId.items():
+                    userIdentifier = cid.value()
+                    (
+                        isAuthorizedForAllEntitlements,
+                        failedEntitlements,
+                    ) = identity.getFailedEntitlements(service, entitlements)
+                    if isAuthorizedForAllEntitlements:
+                        print(
+                            f"{userIdentifier} is entitled to get data for: {topic}"
+                        )
 
-                    # Now distribute the message to the user.
-                else:
-                    print(f"{userIdentifier} is NOT entitled to get data for: "
-                          f"{topic} - Failed eids: {failedEntitlements}")
+                        # Now distribute the message to the user.
+                    else:
+                        print(
+                            f"{userIdentifier} is NOT entitled to get data for: "
+                            f"{topic} - Failed eids: {failedEntitlements}"
+                        )
 
-        else:
-            print(f"No entitlements are required for: {topic}")
+            else:
+                print(f"No entitlements are required for: {topic}")
 
-            # Now distribute the message to the authorized users.
+                # Now distribute the message to the authorized users.
 
-        print()
+            print()
 
     @staticmethod
     def _handleSubscriptionFailure(_1, _2, message: Message):
@@ -192,10 +216,9 @@ class EntitlementsVerificationSubscriptionExample:
         topic = message.correlationId().value()
         print(f"Subscription terminated: {topic}")
 
-    def _handleAuthorizationSuccess(self,
-                                    session: AbstractSession,
-                                    _,
-                                    message: Message):
+    def _handleAuthorizationSuccess(
+        self, session: AbstractSession, _, message: Message
+    ):
         correlationId = message.correlationId()
         userIdentifier = correlationId.value()
         print(f"Successfully authorized {userIdentifier}")

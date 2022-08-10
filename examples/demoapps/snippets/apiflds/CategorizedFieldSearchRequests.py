@@ -23,8 +23,10 @@ def processResponse(event):
         for category in categories:
             category_name = category["categoryName"]
             category_id = category["categoryId"]
-            print(f"\nCategory Name: {category_name.ljust(ApiFieldsRequestUtils.CAT_NAME_LEN)}"
-                  f"\tId: {category_id}")
+            print(
+                f"\nCategory Name: {category_name.ljust(ApiFieldsRequestUtils.CAT_NAME_LEN)}"
+                f"\tId: {category_id}"
+            )
 
             ApiFieldsRequestUtils.printHeader()
 

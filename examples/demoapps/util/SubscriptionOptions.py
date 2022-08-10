@@ -19,53 +19,65 @@ def addSubscriptionOptions(parser, isSnapshot=False):
     parser.
     """
     subscription_group = parser.add_argument_group("Subscription Options")
-    subscription_group.add_argument("-s",
-                                    "--service",
-                                    dest="service",
-                                    help="service name (default: %(default)s)",
-                                    metavar="service",
-                                    default=DEFAULT_SERVICE)
-    subscription_group.add_argument("-t",
-                                    "--topic",
-                                    dest="topics",
-                                    help=f"""topic name (default: {DEFAULT_TOPIC}). Can be specified multiple times.
+    subscription_group.add_argument(
+        "-s",
+        "--service",
+        dest="service",
+        help="service name (default: %(default)s)",
+        metavar="service",
+        default=DEFAULT_SERVICE,
+    )
+    subscription_group.add_argument(
+        "-t",
+        "--topic",
+        dest="topics",
+        help=f"""topic name (default: {DEFAULT_TOPIC}). Can be specified multiple times.
 Can be one of the following:
 * Instrument
 * Instrument qualified with a prefix
 * Instrument qualified with a service and a prefix
                                     """,
-                                    metavar="topic",
-                                    action="append",
-                                    default=[])
-    subscription_group.add_argument("-f",
-                                    "--field",
-                                    dest="fields",
-                                    help="field to subscribe. Can be specified multiple times.",
-                                    metavar="field",
-                                    action="append",
-                                    default=[])
-    subscription_group.add_argument("-o",
-                                    "--option",
-                                    dest="options",
-                                    help="subscription options. Can be specified multiple times.",
-                                    metavar="option",
-                                    action="append",
-                                    default=[])
-    subscription_group.add_argument("-x",
-                                    "--topic-prefix",
-                                    dest="topicPrefix",
-                                    help="The topic prefix to be used for subscriptions (default: %(default)s)",
-                                    metavar="prefix",
-                                    default=DEFAULT_TOPIC_PREFIX)
+        metavar="topic",
+        action="append",
+        default=[],
+    )
+    subscription_group.add_argument(
+        "-f",
+        "--field",
+        dest="fields",
+        help="field to subscribe. Can be specified multiple times.",
+        metavar="field",
+        action="append",
+        default=[],
+    )
+    subscription_group.add_argument(
+        "-o",
+        "--option",
+        dest="options",
+        help="subscription options. Can be specified multiple times.",
+        metavar="option",
+        action="append",
+        default=[],
+    )
+    subscription_group.add_argument(
+        "-x",
+        "--topic-prefix",
+        dest="topicPrefix",
+        help="The topic prefix to be used for subscriptions (default: %(default)s)",
+        metavar="prefix",
+        default=DEFAULT_TOPIC_PREFIX,
+    )
 
     if not isSnapshot:
-        subscription_group.add_argument("-i",
-                                        "--interval",
-                                        dest="interval",
-                                        type=float,
-                                        help="subscription option that specifies a time in seconds to "
-                                             "intervalize the subscriptions",
-                                        metavar="interval")
+        subscription_group.add_argument(
+            "-i",
+            "--interval",
+            dest="interval",
+            type=float,
+            help="subscription option that specifies a time in seconds to "
+            "intervalize the subscriptions",
+            metavar="interval",
+        )
 
 
 def setSubscriptionSessionOptions(sessionOptions, options):
@@ -90,10 +102,9 @@ def createSubscriptionList(options):
 
     subscriptions = blpapi.SubscriptionList()
     for topic in options.topics:
-        subscriptions.add(topic,
-                          options.fields,
-                          options.options,
-                          blpapi.CorrelationId(topic))
+        subscriptions.add(
+            topic, options.fields, options.options, blpapi.CorrelationId(topic)
+        )
     return subscriptions
 
 
@@ -112,8 +123,10 @@ def createSubscriptionStrings(options):
     for i, userTopic in enumerate(options.topics):
         subscriptionList.add(userTopic, options.fields, options.options)
         subscriptionStrings[userTopic] = subscriptionList.topicStringAt(i)
-        print(f"topic: {userTopic} -> subscription string: "
-              f"{subscriptionStrings[userTopic]}")
+        print(
+            f"topic: {userTopic} -> subscription string: "
+            f"{subscriptionStrings[userTopic]}"
+        )
 
     return subscriptionStrings
 

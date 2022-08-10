@@ -5,7 +5,8 @@ from blpapi import internals
 from blpapi.datetime import _DatetimeUtil, UTC
 import datetime
 
-def now(tzinfo: datetime.tzinfo = UTC):
+
+def now(tzinfo: datetime.tzinfo = UTC) -> datetime.datetime:
     """Return the current time using the same clock as is used to measure the
     'timeReceived' value on incoming messages; note that this is *not*
     necessarily the same clock as is accessed by calls to 'datetime.now'. The
@@ -15,6 +16,7 @@ def now(tzinfo: datetime.tzinfo = UTC):
     if err_code != 0:
         raise RuntimeError("High resolution clock error")
     original = internals.blpapi_HighPrecisionDatetime_fromTimePoint_wrapper(
-        time_point)
+        time_point
+    )
     native = _DatetimeUtil.convertToNative(original)
-    return native.astimezone(tzinfo) # type: ignore
+    return native.astimezone(tzinfo)  # type: ignore

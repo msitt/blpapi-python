@@ -9,15 +9,17 @@ except ImportError:
 
 import os
 import sys
-#pylint: disable=line-too-long,wrong-import-position
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
+# pylint: disable=line-too-long,wrong-import-position
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src"))
+)
 from authorizer import Authorizer
 
 import blpapi
 
 
-APIAUTH_SCHEMA = \
-"""<?xml version="1.0" encoding="UTF-8" ?>
+APIAUTH_SCHEMA = """<?xml version="1.0" encoding="UTF-8" ?>
 <ServiceDefinition name="blp.apiauth" version="1.0.7.2">
     <service name="//blp/apiauth" version="1.0.7.2">
         <operation name="AuthorizationRequest" serviceId="99">
@@ -158,18 +160,20 @@ APIAUTH_SCHEMA = \
 </ServiceDefinition>
 """
 
+
 class TestAuthorizer(unittest.TestCase):
-    """ Test cases for Authorizer. """
+    """Test cases for Authorizer."""
 
     def setUp(self):
         self.mock_session = Mock()
         self.mock_token_generator = Mock()
-        self.authorizer = Authorizer(self.mock_session,
-                                     self.mock_token_generator)
+        self.authorizer = Authorizer(
+            self.mock_session, self.mock_token_generator
+        )
         self.mock_event_queue = Mock()
 
     def testAuthorizationSuccess(self):
-        """ Verify that for a valid identity the authorization returns True.
+        """Verify that for a valid identity the authorization returns True.
 
         Plan:
         1. Create a service instance from the apiauth schema.
@@ -193,8 +197,9 @@ class TestAuthorizer(unittest.TestCase):
 
         event = blpapi.test.createEvent(blpapi.Event.RESPONSE)
         authorization_success = blpapi.Name("AuthorizationSuccess")
-        schema_def = \
-            blpapi.test.getAdminMessageDefinition(authorization_success)
+        schema_def = blpapi.test.getAdminMessageDefinition(
+            authorization_success
+        )
 
         blpapi.test.appendMessage(event, schema_def)
 
@@ -204,8 +209,9 @@ class TestAuthorizer(unittest.TestCase):
         self.mock_event_queue.nextEvent.return_value = event
 
         identity = Mock()
-        authorization_result = self.authorizer.authorize(identity,
-                                                         self.mock_event_queue)
+        authorization_result = self.authorizer.authorize(
+            identity, self.mock_event_queue
+        )
 
         self.mock_session.openService.assert_called_once()
         self.mock_session.getService.assert_called_once()
@@ -217,7 +223,7 @@ class TestAuthorizer(unittest.TestCase):
         self.assertTrue(authorization_result)
 
     def testAuthorizationFailure(self):
-        """ Verify that for a invalid identity the authorization returns False.
+        """Verify that for a invalid identity the authorization returns False.
 
         Plan:
         1. Create a service instance from the apiauth schema.
@@ -240,9 +246,9 @@ class TestAuthorizer(unittest.TestCase):
         event = blpapi.test.createEvent(blpapi.Event.RESPONSE)
         authorization_request = blpapi.Name("AuthorizationRequest")
         authorization_failure_index = 1
-        schema_def = service \
-                        .getOperation(authorization_request) \
-                        .getResponseDefinitionAt(authorization_failure_index)
+        schema_def = service.getOperation(
+            authorization_request
+        ).getResponseDefinitionAt(authorization_failure_index)
 
         formatter = blpapi.test.appendMessage(event, schema_def)
 
@@ -252,7 +258,7 @@ class TestAuthorizer(unittest.TestCase):
                 "message": "Invalid user",
                 "category": "BAD_ARGS",
                 "subcategory": "INVALID_USER",
-                "source": "test-source"
+                "source": "test-source",
             }
         }
 
@@ -261,8 +267,9 @@ class TestAuthorizer(unittest.TestCase):
         self.mock_event_queue.nextEvent.return_value = event
 
         identity = Mock()
-        authorization_result = self.authorizer.authorize(identity,
-                                                         self.mock_event_queue)
+        authorization_result = self.authorizer.authorize(
+            identity, self.mock_event_queue
+        )
 
         self.mock_session.openService.assert_called_once()
         self.mock_session.getService.assert_called_once()

@@ -7,7 +7,7 @@ TOKEN_FAILURE = blpapi.Name("TokenGenerationFailure")
 TOKEN = blpapi.Name("token")
 
 # pylint: disable=too-few-public-methods
-class TokenGenerator():
+class TokenGenerator:
     """Generates a token for later authorization."""
 
     def __init__(self, session):
@@ -23,8 +23,10 @@ class TokenGenerator():
         self._session.generateToken(blpapi.CorrelationId(), event_queue)
 
         event = event_queue.nextEvent()
-        if event.eventType() == blpapi.Event.REQUEST_STATUS or \
-                event.eventType() == blpapi.Event.TOKEN_STATUS:
+        if (
+            event.eventType() == blpapi.Event.REQUEST_STATUS
+            or event.eventType() == blpapi.Event.TOKEN_STATUS
+        ):
             for msg in event:
                 if msg.messageType() == TOKEN_SUCCESS:
                     token = msg.getElementAsString(TOKEN)
@@ -32,6 +34,7 @@ class TokenGenerator():
                 if msg.messageType() == TOKEN_FAILURE:
                     return None
         return None
+
 
 __copyright__ = """
 Copyright 2020. Bloomberg Finance L.P.

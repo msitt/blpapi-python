@@ -60,8 +60,10 @@ def processResponseEvent(response):
             if CONDITION_CODES in item:
                 itemConditionCodes = item[CONDITION_CODES]
 
-            print(f"{itemTime.strftime(DATETIME_FORMAT)}\t{itemType}\t"
-                  f"{itemValue:.2f}\t\t{itemSize}\t{itemConditionCodes}")
+            print(
+                f"{itemTime.strftime(DATETIME_FORMAT)}\t{itemType}\t"
+                f"{itemValue:.2f}\t\t{itemSize}\t{itemConditionCodes}"
+            )
 
 
 __copyright__ = """

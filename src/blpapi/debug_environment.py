@@ -16,13 +16,17 @@ from io import StringIO
 
 def _path_diagnostics(print_to_str: Callable[[str], None]) -> None:
     # Information for PATH related issues
-    print_to_str('blpapi 64-bit will be loaded from:'
-                 f' "{util.find_library("blpapi3_64")}"')
-    print_to_str('blpapi 32-bit will be loaded from:'
-                 f' "{util.find_library("blpapi3_32")}"')
+    print_to_str(
+        "blpapi 64-bit will be loaded from:"
+        f' "{util.find_library("blpapi3_64")}"'
+    )
+    print_to_str(
+        "blpapi 32-bit will be loaded from:"
+        f' "{util.find_library("blpapi3_32")}"'
+    )
     print_to_str("System PATH: (* marks locations where blpapi was found)")
     for p in os.environ["PATH"].split(os.pathsep):
-        if p: # Skip empty entries
+        if p:  # Skip empty entries
             dll_32 = os.path.join(p, "blpapi3_32.dll")
             dll_64 = os.path.join(p, "blpapi3_64.dll")
             found_blpapi_dll = os.path.isfile(dll_32) or os.path.isfile(dll_64)
@@ -30,7 +34,9 @@ def _path_diagnostics(print_to_str: Callable[[str], None]) -> None:
     print_to_str("")
 
 
-def _add_dll_directory_diagnostics(print_to_str: Callable[[str], None]) -> None:
+def _add_dll_directory_diagnostics(
+    print_to_str: Callable[[str], None]
+) -> None:
     print_to_str("This Python version does not use PATH to find dlls")
 
 
@@ -50,7 +56,7 @@ def get_env_diagnostics() -> str:
     print_to_str("Python implementation:", platform.python_implementation())
     print_to_str()
 
-    if 'add_dll_directory' not in dir(os):
+    if "add_dll_directory" not in dir(os):
         _path_diagnostics(print_to_str)
     else:
         _add_dll_directory_diagnostics(print_to_str)
@@ -60,7 +66,7 @@ def get_env_diagnostics() -> str:
     for i in pkgutil.iter_modules():
         if i[1] == "blpapi":
             # some modules don't have a .path (e.g. MetaPathFinder)
-            print_to_str(f'blpapi package at: "{i[0].path}"') # type: ignore
+            print_to_str(f'blpapi package at: "{i[0].path}"')  # type: ignore
             blpapi_package_found = True
 
     if not blpapi_package_found:
@@ -77,10 +83,14 @@ def get_env_diagnostics() -> str:
     print_to_str(f'Current directory: "{os.getcwd()}"')
     if os.path.isfile(os.path.join(".", "blpapi", "__init__.py")):
         print_to_str("WARNING: Using the blpapi module from current path")
-        print_to_str("    CWD files:", ", ".join(
-            [x for x in os.listdir(".") if os.path.isfile(x)]))
-        print_to_str("    CWD dirs:", ", ".join(
-            [x for x in os.listdir(".") if not os.path.isfile(x)]))
+        print_to_str(
+            "    CWD files:",
+            ", ".join([x for x in os.listdir(".") if os.path.isfile(x)]),
+        )
+        print_to_str(
+            "    CWD dirs:",
+            ", ".join([x for x in os.listdir(".") if not os.path.isfile(x)]),
+        )
 
     return strIO.getvalue()
 

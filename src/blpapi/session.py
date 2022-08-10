@@ -5,7 +5,7 @@
 This component implements a consumer session for getting services.
 """
 
-from weakref import ref, ReferenceType # pylint: disable=unused-import
+from weakref import ref, ReferenceType  # pylint: disable=unused-import
 from typing import Optional, Callable, List
 import sys
 import traceback
@@ -23,7 +23,7 @@ from .internals import CorrelationId
 from .sessionoptions import SessionOptions
 from .requesttemplate import RequestTemplate
 from .utils import get_handle, MetaClassForClassesWithEnums
-from . import typehints # pylint: disable=unused-import
+from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiEventHandle
 
 # pylint: disable=too-many-arguments,protected-access,bare-except
@@ -44,6 +44,7 @@ class SubscriptionPreprocessMode(Enum):
     :class:`SubscriptionPreprocessError` is returned, each representing an
     error due to an invalid subscription in the :class:`SubscriptionList`. The
     valid subscriptions will move forward."""
+
 
 class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
     """Consumer session for making requests for Bloomberg services.
@@ -103,26 +104,25 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
     The class attributes represent the states in which a subscription can be.
     """
 
-    UNSUBSCRIBED = internals.SUBSCRIPTIONSTATUS_UNSUBSCRIBED # type: ignore
+    UNSUBSCRIBED = internals.SUBSCRIPTIONSTATUS_UNSUBSCRIBED
     """No longer active, terminated by API."""
-    SUBSCRIBING = internals.SUBSCRIPTIONSTATUS_SUBSCRIBING # type: ignore
+    SUBSCRIBING = internals.SUBSCRIPTIONSTATUS_SUBSCRIBING
     """Initiated but no updates received."""
-    SUBSCRIBED = internals.SUBSCRIPTIONSTATUS_SUBSCRIBED # type: ignore
+    SUBSCRIBED = internals.SUBSCRIPTIONSTATUS_SUBSCRIBED
     """Updates are flowing."""
-    CANCELLED = internals.SUBSCRIPTIONSTATUS_CANCELLED # type: ignore
+    CANCELLED = internals.SUBSCRIPTIONSTATUS_CANCELLED
     """No longer active, terminated by Application."""
-    PENDING_CANCELLATION = \
-        internals.SUBSCRIPTIONSTATUS_PENDING_CANCELLATION # type: ignore
+    PENDING_CANCELLATION = internals.SUBSCRIPTIONSTATUS_PENDING_CANCELLATION
     """No longer active, terminated by Application."""
 
-    __handle = None # pylint: disable=unused-private-member
-    __handlerProxy = None # pylint: disable=unused-private-member
+    __handle = None  # pylint: disable=unused-private-member
+    __handlerProxy = None  # pylint: disable=unused-private-member
 
     @staticmethod
     def __dispatchEvent(
-            sessionRef: "ReferenceType[Session]",
-            eventHandle: BlpapiEventHandle) -> None: # pragma: no cover
-        """ event dispatcher """
+        sessionRef: "ReferenceType[Session]", eventHandle: BlpapiEventHandle
+    ) -> None:  # pragma: no cover
+        """event dispatcher"""
         try:
             session = sessionRef()
             if session is not None:
@@ -134,10 +134,11 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             os._exit(1)
 
     def __init__(
-            self,
-            options: Optional[SessionOptions]=None,
-            eventHandler: Optional[Callable]=None,
-            eventDispatcher: Optional["typehints.EventDispatcher"]=None) -> None:
+        self,
+        options: Optional[SessionOptions] = None,
+        eventHandler: Optional[Callable[[Event, "Session"], None]] = None,
+        eventDispatcher: Optional["typehints.EventDispatcher"] = None,
+    ) -> None:
         """Create a consumer :class:`Session`.
 
         Args:
@@ -180,27 +181,32 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         """
         if (eventHandler is None) and (eventDispatcher is not None):
             raise exception.InvalidArgumentException(
-                "eventDispatcher is specified but eventHandler is None", 0)
+                "eventDispatcher is specified but eventHandler is None", 0
+            )
         if options is None:
             options = SessionOptions()
         if eventHandler is not None:
-            self.__handler = eventHandler # pylint: disable=unused-private-member
-            self.__handlerProxy = functools.partial(Session.__dispatchEvent,
-                                                    ref(self))
+            # pylint: disable=unused-private-member
+            self.__handler = eventHandler
+            self.__handlerProxy = functools.partial(
+                Session.__dispatchEvent, ref(self)
+            )
         self.__handle = internals.Session_createHelper(
             get_handle(options),
             self.__handlerProxy,
-            get_handle(eventDispatcher))
+            get_handle(eventDispatcher),
+        )
 
         _destroy = internals.Session_destroyHelper
         # note: AbstractSession destroy passes AbstractSession handle
         _dtor = lambda hndl: _destroy(self.__handle, self.__handlerProxy)
-        atexit.register(self.stop) # we must stop session before shutdown
+        atexit.register(self.stop)  # we must stop session before shutdown
 
         AbstractSession.__init__(
             self,
             internals.blpapi_Session_getAbstractSession(self.__handle),
-            _dtor)
+            _dtor,
+        )
 
     def start(self) -> bool:
         """Start this :class:`Session` in synchronous mode.
@@ -268,7 +274,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         """
         return internals.blpapi_Session_stopAsync(self.__handle) == 0
 
-    def nextEvent(self, timeout: int=0) -> Event:
+    def nextEvent(self, timeout: int = 0) -> Event:
         """
         Args:
             timeout: Timeout threshold in milliseconds
@@ -289,8 +295,9 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         If :meth:`nextEvent()` returns due to a timeout it will return an event
         of type :attr:`~Event.TIMEOUT`.
         """
-        retCode, event = internals.blpapi_Session_nextEvent(self.__handle,
-                                                            timeout)
+        retCode, event = internals.blpapi_Session_nextEvent(
+            self.__handle, timeout
+        )
 
         _ExceptionUtil.raiseOnError(retCode)
 
@@ -311,28 +318,33 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         return Event(event, {self})
 
     @staticmethod
-    def _createErrorAppender(errorList):
+    def _createErrorAppender(
+        errorList: List["SubscriptionPreprocessError"],
+    ) -> Callable:
         def errorAppender(
-                correlationId: CorrelationId,
-                subscriptionString: str,
-                errorCode: int,
-                description: str):
+            correlationId: CorrelationId,
+            subscriptionString: str,
+            errorCode: int,
+            description: str,
+        ) -> None:
             errorList.append(
                 SubscriptionPreprocessError(
                     correlationId,
                     subscriptionString,
                     SubscriptionPreprocessError.ErrorCode(errorCode),
-                    description))
+                    description,
+                )
+            )
 
         return errorAppender
 
-    def subscribe(self,
-                  subscriptionList: "typehints.SubscriptionList",
-                  identity: Optional["typehints.Identity"]=None,
-                  requestLabel: str="",
-                  mode: SubscriptionPreprocessMode=
-                  SubscriptionPreprocessMode.FAIL_ON_FIRST_ERROR
-                  ) -> Optional[List["SubscriptionPreprocessError"]]:
+    def subscribe(
+        self,
+        subscriptionList: "typehints.SubscriptionList",
+        identity: Optional["typehints.Identity"] = None,
+        requestLabel: str = "",
+        mode: SubscriptionPreprocessMode = SubscriptionPreprocessMode.FAIL_ON_FIRST_ERROR,
+    ) -> Optional[List["SubscriptionPreprocessError"]]:
         """Begin subscriptions for each entry in the specified list.
 
         Args:
@@ -368,13 +380,16 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         subMode = SubscriptionPreprocessMode(mode)
 
         if subMode == SubscriptionPreprocessMode.FAIL_ON_FIRST_ERROR:
-            _ExceptionUtil.raiseOnError(internals.blpapi_Session_subscribe(
-                self.__handle,
-                get_handle(subscriptionList),
-                get_handle(identity),
-                requestLabel))
+            _ExceptionUtil.raiseOnError(
+                internals.blpapi_Session_subscribe(
+                    self.__handle,
+                    get_handle(subscriptionList),
+                    get_handle(identity),
+                    requestLabel,
+                )
+            )
         elif subMode == SubscriptionPreprocessMode.RETURN_INDIVIDUAL_ERRORS:
-            errorList = [] # type: ignore
+            errorList = []  # type: ignore
             errorAppender = Session._createErrorAppender(errorList)
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_Session_subscribeEx_helper(
@@ -382,16 +397,20 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
                     get_handle(subscriptionList),
                     get_handle(identity),
                     requestLabel,
-                    errorAppender))
+                    errorAppender,
+                )
+            )
 
             return errorList
         else:
             raise exception.InvalidArgumentException(
-                "Unsupported SubscriptionPreprocessMode: '{}'".format(mode), 0)
+                "Unsupported SubscriptionPreprocessMode: '{}'".format(mode), 0
+            )
         return None
 
-    def unsubscribe(self,
-                    subscriptionList: "typehints.SubscriptionList") -> None:
+    def unsubscribe(
+        self, subscriptionList: "typehints.SubscriptionList"
+    ) -> None:
         """Cancel subscriptions from the specified ``subscriptionList``.
 
         Args:
@@ -417,18 +436,18 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         to aggressively re-use correlation IDs, particularly with an
         asynchronous :class:`Session`.
         """
-        _ExceptionUtil.raiseOnError(internals.blpapi_Session_unsubscribe(
-            self.__handle,
-            get_handle(subscriptionList),
-            None))
+        _ExceptionUtil.raiseOnError(
+            internals.blpapi_Session_unsubscribe(
+                self.__handle, get_handle(subscriptionList), None
+            )
+        )
 
     def resubscribe(
-            self,
-            subscriptionList: "typehints.SubscriptionList",
-            requestLabel: str="",
-            resubscriptionId: Optional[int]=None,
-            mode: SubscriptionPreprocessMode=
-            SubscriptionPreprocessMode.FAIL_ON_FIRST_ERROR
+        self,
+        subscriptionList: "typehints.SubscriptionList",
+        requestLabel: str = "",
+        resubscriptionId: Optional[int] = None,
+        mode: SubscriptionPreprocessMode = SubscriptionPreprocessMode.FAIL_ON_FIRST_ERROR,
     ) -> Optional[List["SubscriptionPreprocessError"]]:
         """Modify subscriptions in ``subscriptionList``.
 
@@ -472,16 +491,20 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
                     internals.blpapi_Session_resubscribe(
                         self.__handle,
                         get_handle(subscriptionList),
-                        requestLabel))
+                        requestLabel,
+                    )
+                )
             else:
                 _ExceptionUtil.raiseOnError(
                     internals.blpapi_Session_resubscribeWithId(
                         self.__handle,
                         get_handle(subscriptionList),
-                        resubscriptionId, # an int, not a cid
-                        requestLabel))
+                        resubscriptionId,  # an int, not a cid
+                        requestLabel,
+                    )
+                )
         elif subMode == SubscriptionPreprocessMode.RETURN_INDIVIDUAL_ERRORS:
-            errorList = [] # type: ignore
+            errorList = []  # type: ignore
             errorAppender = Session._createErrorAppender(errorList)
 
             if resubscriptionId is None:
@@ -490,28 +513,33 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
                         self.__handle,
                         get_handle(subscriptionList),
                         requestLabel,
-                        errorAppender))
+                        errorAppender,
+                    )
+                )
             else:
                 _ExceptionUtil.raiseOnError(
                     internals.blpapi_Session_resubscribeWithIdEx_helper(
                         self.__handle,
                         get_handle(subscriptionList),
-                        resubscriptionId, # an int, not a cid
+                        resubscriptionId,  # an int, not a cid
                         requestLabel,
-                        errorAppender))
+                        errorAppender,
+                    )
+                )
 
             return errorList
         else:
             raise exception.InvalidArgumentException(
-                "Unsupported SubscriptionPreprocessMode: '{}'".format(mode), 0)
+                "Unsupported SubscriptionPreprocessMode: '{}'".format(mode), 0
+            )
         return None
 
-
     def setStatusCorrelationId(
-            self,
-            service: "typehints.Service",
-            correlationId: CorrelationId,
-            identity: Optional["typehints.Identity"]=None) -> None:
+        self,
+        service: "typehints.Service",
+        correlationId: CorrelationId,
+        identity: Optional["typehints.Identity"] = None,
+    ) -> None:
         """Set the Correlation id on which service status messages will be
         received.
 
@@ -530,14 +558,18 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
                 self.__handle,
                 get_handle(service),
                 get_handle(identity),
-                correlationId))
+                correlationId,
+            )
+        )
 
-    def sendRequest(self,
-                    request: "typehints.Request",
-                    identity: Optional["typehints.Identity"]=None,
-                    correlationId: Optional[CorrelationId]=None,
-                    eventQueue: Optional["typehints.EventQueue"]=None,
-                    requestLabel: str="") -> CorrelationId:
+    def sendRequest(
+        self,
+        request: "typehints.Request",
+        identity: Optional["typehints.Identity"] = None,
+        correlationId: Optional[CorrelationId] = None,
+        eventQueue: Optional["typehints.EventQueue"] = None,
+        requestLabel: str = "",
+    ) -> CorrelationId:
         """Send the specified ``request``.
 
         Args:
@@ -585,16 +617,17 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             correlationId,
             get_handle(identity),
             get_handle(eventQueue),
-            requestLabel)
+            requestLabel,
+        )
         _ExceptionUtil.raiseOnError(res)
         if eventQueue is not None:
             eventQueue._registerSession(self)
         return correlationId
 
     def sendRequestTemplate(
-            self,
-            requestTemplate: RequestTemplate,
-            correlationId: Optional[CorrelationId]=None
+        self,
+        requestTemplate: RequestTemplate,
+        correlationId: Optional[CorrelationId] = None,
     ) -> CorrelationId:
         """Send a request defined by the specified ``requestTemplate``.
 
@@ -623,17 +656,16 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         if correlationId is None:
             correlationId = CorrelationId()
         res = internals.blpapi_Session_sendRequestTemplate(
-            self.__handle,
-            get_handle(requestTemplate),
-            correlationId)
+            self.__handle, get_handle(requestTemplate), correlationId
+        )
         _ExceptionUtil.raiseOnError(res)
         return correlationId
 
     def createSnapshotRequestTemplate(
-            self,
-            subscriptionString: str,
-            correlationId: CorrelationId,
-            identity: Optional["typehints.Identity"]=None
+        self,
+        subscriptionString: str,
+        correlationId: CorrelationId,
+        identity: Optional["typehints.Identity"] = None,
     ) -> RequestTemplate:
         """Create a snapshot request template for getting subscription data
         specified by the ``subscriptionString`` using the specified
@@ -728,10 +760,8 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             identityArg = correlationId
 
         rc, template = internals.blpapi_Session_createSnapshotRequestTemplate(
-            self.__handle,
-            subscriptionString,
-            get_handle(identityArg),
-            cidArg)
+            self.__handle, subscriptionString, get_handle(identityArg), cidArg
+        )
         _ExceptionUtil.raiseOnError(rc)
         reqTemplate = RequestTemplate(template)
         return reqTemplate
@@ -740,15 +770,17 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
 class SubscriptionPreprocessError(NamedTuple):
     """Class representing an error due to an invalid subscription."""
 
-    class ErrorCode(Enum): # type: ignore
+    class ErrorCode(Enum):  # type: ignore
         """The error codes used by :class:`SubscriptionPreprocessError`."""
 
-        SUBSCRIPTIONPREPROCESS_INVALID_SUBSCRIPTION_STRING = \
+        SUBSCRIPTIONPREPROCESS_INVALID_SUBSCRIPTION_STRING = (
             internals.SUBSCRIPTIONPREPROCESS_INVALID_SUBSCRIPTION_STRING
+        )
         """Error due to an invalid subscription string."""
 
-        SUBSCRIPTIONPREPROCESS_CORRELATIONID_ERROR = \
+        SUBSCRIPTIONPREPROCESS_CORRELATIONID_ERROR = (
             internals.SUBSCRIPTIONPREPROCESS_CORRELATIONID_ERROR
+        )
         """Error due to misuse of correlation id, such as using a duplicate."""
 
     correlationId: CorrelationId
@@ -757,17 +789,19 @@ class SubscriptionPreprocessError(NamedTuple):
     subscriptionString: str
     """The subscription string."""
 
-    errorCode: ErrorCode # type: ignore
+    errorCode: ErrorCode  # type: ignore
     """Error code representing the error."""
 
     description: str
     """Description of the error."""
 
     def __str__(self) -> str:
-        return (f"{{correlationId: {self.correlationId}"
-                f", subscriptionString: {self.subscriptionString}"
-                f", code: {self.errorCode}"
-                f", description: {self.description}}}")
+        return (
+            f"{{correlationId: {self.correlationId}"
+            f", subscriptionString: {self.subscriptionString}"
+            f", code: {self.errorCode}"
+            f", description: {self.description}}}"
+        )
 
 
 __copyright__ = """

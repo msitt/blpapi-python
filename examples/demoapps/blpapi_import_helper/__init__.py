@@ -7,11 +7,15 @@ import platform as plat
 import sys
 import contextlib
 
+
 @contextlib.contextmanager
 def _libdir():
-    if sys.version_info >= (3, 8) and plat.system().lower() == "windows" \
-            and os.getenv('BLPAPI_LIBDIR') is not None:
-        yield os.add_dll_directory(os.getenv('BLPAPI_LIBDIR'))
+    if (
+        sys.version_info >= (3, 8)
+        and plat.system().lower() == "windows"
+        and os.getenv("BLPAPI_LIBDIR") is not None
+    ):
+        yield os.add_dll_directory(os.getenv("BLPAPI_LIBDIR"))
     else:
         yield None
 

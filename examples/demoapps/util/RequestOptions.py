@@ -11,14 +11,14 @@ REFERENCE_DATA_REQUEST_TABLE_OVERRIDE = "ReferenceDataRequestTableOverride"
 HISTORICAL_DATA_REQUEST = "HistoricalDataRequest"
 
 # Defines a parameter override in a reference data request.
-Override = namedtuple('Override', ['fieldId', 'value'])
+Override = namedtuple("Override", ["fieldId", "value"])
 
 
 class OverridesAction(Action):
     """The action that parses overrides options from user input"""
 
     def __call__(self, parser, args, values, option_string=None):
-        vals = values.split('=', 1)
+        vals = values.split("=", 1)
         overrides = getattr(args, self.dest)
         overrides.append(Override(vals[0], vals[1]))
 
@@ -34,95 +34,122 @@ def addRequestOptions(parser):
     """
 
     # Compute default start/end datetime
-    (defaultStartDateTime, defaultIntradayBarEndDateTime,
-     defaultIntradayTickEndDateTime) = computeDefaultStartAndEndDateTime()
+    (
+        defaultStartDateTime,
+        defaultIntradayBarEndDateTime,
+        defaultIntradayTickEndDateTime,
+    ) = computeDefaultStartAndEndDateTime()
     formattedDefaultStartDateTime = defaultStartDateTime.isoformat(
-        timespec="seconds")
-    formattedDefaultIntradayBarEndDateTime = defaultIntradayBarEndDateTime.isoformat(
-        timespec="seconds")
-    formattedDefaultIntradayTickEndDateTime = defaultIntradayTickEndDateTime.isoformat(
-        timespec="seconds")
+        timespec="seconds"
+    )
+    formattedDefaultIntradayBarEndDateTime = (
+        defaultIntradayBarEndDateTime.isoformat(timespec="seconds")
+    )
+    formattedDefaultIntradayTickEndDateTime = (
+        defaultIntradayTickEndDateTime.isoformat(timespec="seconds")
+    )
 
     isoDatetimeFormat = "YYYY-MM-DDTHH:MM:SS"
 
     # Request options
     defaultBarInterval = 5
     argGroupRequest = parser.add_argument_group("Request Options")
-    argGroupRequest.add_argument("-s",
-                                 "--service",
-                                 dest="service",
-                                 help="The service name (default: %(default)s)",
-                                 metavar="service",
-                                 default=REFDATA_SERVICE)
-    argGroupRequest.add_argument("-S",
-                                 "--security",
-                                 dest="securities",
-                                 help="Security to request. Can be specified multiple times.",
-                                 metavar="security",
-                                 action="append",
-                                 default=[])
-    argGroupRequest.add_argument("-f",
-                                 "--field",
-                                 dest="fields",
-                                 help="Field to request. Can be specified multiple times.",
-                                 metavar="field",
-                                 action="append",
-                                 default=[])
-    argGroupRequest.add_argument("-e",
-                                 "--event",
-                                 dest="eventTypes",
-                                 help="Event Type (default: ['TRADE']). Can be specified multiple times.",
-                                 metavar="eventType",
-                                 action="append",
-                                 default=[])
-    argGroupRequest.add_argument("-i",
-                                 "--interval",
-                                 dest="barInterval",
-                                 type=int,
-                                 help="Bar interval in minutes (default: %(default)d)",
-                                 metavar="barInterval",
-                                 default=defaultBarInterval)
-    argGroupRequest.add_argument("-I",
-                                 "--include-condition-codes",
-                                 dest="conditionCodes",
-                                 help="Include condition codes",
-                                 action='store_true',
-                                 default=False)
-    argGroupRequest.add_argument("-G",
-                                 "--gap-fill-initial-bar",
-                                 dest="gapFillInitialBar",
-                                 help="Gap fill initial bar",
-                                 action='store_true',
-                                 default=False)
-    argGroupRequest.add_argument("--start-date",
-                                 dest="startDateTime",
-                                 help="Start datetime in the format of "
-                                 f"{isoDatetimeFormat}",
-                                 metavar="startDateTime",
-                                 type=parseDatetime)
-    argGroupRequest.add_argument("--end-date",
-                                 dest="endDateTime",
-                                 help="End datetime in the format of "
-                                 f"{isoDatetimeFormat}",
-                                 metavar="endDateTime",
-                                 type=parseDatetime)
-    argGroupRequest.add_argument("-O",
-                                 "--override",
-                                 dest="overrides",
-                                 help="Field to override. Can be specified multiple times.",
-                                 metavar="<fieldId>=<value>",
-                                 action=OverridesAction,
-                                 default=[])
-    argGroupRequest.add_argument("-r",
-                                 "--request",
-                                 dest="requestType",
-                                 choices=[REFERENCE_DATA_REQUEST,
-                                          REFERENCE_DATA_REQUEST_OVERRIDE,
-                                          REFERENCE_DATA_REQUEST_TABLE_OVERRIDE,
-                                          INTRADAY_BAR_REQUEST,
-                                          INTRADAY_TICK_REQUEST,
-                                          HISTORICAL_DATA_REQUEST],
-                                 help=f"""Request Type (default: %(default)s)
+    argGroupRequest.add_argument(
+        "-s",
+        "--service",
+        dest="service",
+        help="The service name (default: %(default)s)",
+        metavar="service",
+        default=REFDATA_SERVICE,
+    )
+    argGroupRequest.add_argument(
+        "-S",
+        "--security",
+        dest="securities",
+        help="Security to request. Can be specified multiple times.",
+        metavar="security",
+        action="append",
+        default=[],
+    )
+    argGroupRequest.add_argument(
+        "-f",
+        "--field",
+        dest="fields",
+        help="Field to request. Can be specified multiple times.",
+        metavar="field",
+        action="append",
+        default=[],
+    )
+    argGroupRequest.add_argument(
+        "-e",
+        "--event",
+        dest="eventTypes",
+        help="Event Type (default: ['TRADE']). Can be specified multiple times.",
+        metavar="eventType",
+        action="append",
+        default=[],
+    )
+    argGroupRequest.add_argument(
+        "-i",
+        "--interval",
+        dest="barInterval",
+        type=int,
+        help="Bar interval in minutes (default: %(default)d)",
+        metavar="barInterval",
+        default=defaultBarInterval,
+    )
+    argGroupRequest.add_argument(
+        "-I",
+        "--include-condition-codes",
+        dest="conditionCodes",
+        help="Include condition codes",
+        action="store_true",
+        default=False,
+    )
+    argGroupRequest.add_argument(
+        "-G",
+        "--gap-fill-initial-bar",
+        dest="gapFillInitialBar",
+        help="Gap fill initial bar",
+        action="store_true",
+        default=False,
+    )
+    argGroupRequest.add_argument(
+        "--start-date",
+        dest="startDateTime",
+        help="Start datetime in the format of " f"{isoDatetimeFormat}",
+        metavar="startDateTime",
+        type=parseDatetime,
+    )
+    argGroupRequest.add_argument(
+        "--end-date",
+        dest="endDateTime",
+        help="End datetime in the format of " f"{isoDatetimeFormat}",
+        metavar="endDateTime",
+        type=parseDatetime,
+    )
+    argGroupRequest.add_argument(
+        "-O",
+        "--override",
+        dest="overrides",
+        help="Field to override. Can be specified multiple times.",
+        metavar="<fieldId>=<value>",
+        action=OverridesAction,
+        default=[],
+    )
+    argGroupRequest.add_argument(
+        "-r",
+        "--request",
+        dest="requestType",
+        choices=[
+            REFERENCE_DATA_REQUEST,
+            REFERENCE_DATA_REQUEST_OVERRIDE,
+            REFERENCE_DATA_REQUEST_TABLE_OVERRIDE,
+            INTRADAY_BAR_REQUEST,
+            INTRADAY_TICK_REQUEST,
+            HISTORICAL_DATA_REQUEST,
+        ],
+        help=f"""Request Type (default: %(default)s)
 To retrieve reference data:
     -r, --request {REFERENCE_DATA_REQUEST}
     [-S, --security <security = {{IBM US Equity, MSFT US Equity}}>]
@@ -160,8 +187,9 @@ To retrieve historical data:
     -r, --request {HISTORICAL_DATA_REQUEST}
     [-S, --security <security = {{IBM US Equity, MSFT US Equity}}>]
     [-f, --field <field = PX_LAST>]""",
-                                 metavar="requestType",
-                                 default=REFERENCE_DATA_REQUEST)
+        metavar="requestType",
+        default=REFERENCE_DATA_REQUEST,
+    )
 
 
 def setDefaultValues(options):
@@ -182,21 +210,31 @@ def setDefaultValues(options):
             if options.requestType == REFERENCE_DATA_REQUEST_OVERRIDE:
                 options.fields += ["DS002", "EQY_WEIGHTED_AVG_PX"]
 
-    if not options.overrides and options.requestType == REFERENCE_DATA_REQUEST_OVERRIDE:
-        options.overrides = [Override("VWAP_START_TIME", "9:30"),
-                             Override("VWAP_END_TIME", "11:30")]
+    if (
+        not options.overrides
+        and options.requestType == REFERENCE_DATA_REQUEST_OVERRIDE
+    ):
+        options.overrides = [
+            Override("VWAP_START_TIME", "9:30"),
+            Override("VWAP_END_TIME", "11:30"),
+        ]
 
     # Compute default start/end datetime
     if not options.startDateTime or not options.endDateTime:
-        (defaultStartDateTime, defaultIntradayBarEndDateTime,
-         defaultIntradayTickEndDateTime) = computeDefaultStartAndEndDateTime()
+        (
+            defaultStartDateTime,
+            defaultIntradayBarEndDateTime,
+            defaultIntradayTickEndDateTime,
+        ) = computeDefaultStartAndEndDateTime()
         if not options.startDateTime:
             options.startDateTime = defaultStartDateTime
 
         if not options.endDateTime:
-            options.endDateTime = (defaultIntradayBarEndDateTime
-                                   if options.requestType == INTRADAY_BAR_REQUEST
-                                   else defaultIntradayTickEndDateTime)
+            options.endDateTime = (
+                defaultIntradayBarEndDateTime
+                if options.requestType == INTRADAY_BAR_REQUEST
+                else defaultIntradayTickEndDateTime
+            )
 
 
 def computeDefaultStartAndEndDateTime():
@@ -208,8 +246,7 @@ def computeDefaultStartAndEndDateTime():
         previousTradingDate = previousTradingDate - datetime.timedelta(days=2)
 
     # Start on the market open time (GMT) on previous trading day.
-    startDateTime = previousTradingDate.replace(
-        hour=14, minute=30, second=0)
+    startDateTime = previousTradingDate.replace(hour=14, minute=30, second=0)
 
     # The default bar interval is 5 minute, by default there are 12 bars
     intradayBarEndDateTime = startDateTime + datetime.timedelta(minutes=60)

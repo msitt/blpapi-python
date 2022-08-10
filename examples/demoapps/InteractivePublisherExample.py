@@ -1,8 +1,10 @@
 from argparse import ArgumentParser, RawTextHelpFormatter
 
 from blpapi_import_helper import blpapi
-from util.ConnectionAndAuthOptions import addConnectionAndAuthOptions, \
-    createSessionOptions
+from util.ConnectionAndAuthOptions import (
+    addConnectionAndAuthOptions,
+    createSessionOptions,
+)
 import threading
 import time
 
@@ -11,14 +13,16 @@ TOPICS = blpapi.Name("topics")
 
 
 class MyEventHandler(object):
-    def __init__(self,
-                 serviceName,
-                 eids,
-                 resolveSubServiceCode,
-                 mutex,
-                 stop,
-                 condition,
-                 isPageData):
+    def __init__(
+        self,
+        serviceName,
+        eids,
+        resolveSubServiceCode,
+        mutex,
+        stop,
+        condition,
+        isPageData,
+    ):
         self.serviceName = serviceName
         self.eids = eids
         self.resolveSubServiceCode = resolveSubServiceCode
@@ -49,8 +53,10 @@ class MyEventHandler(object):
                     resolvedTopic = msg.getElementAsString(RESOLVED_TOPIC)
                     print(f"ResolvedTopic:  {resolvedTopic}")
                 elif msg.messageType() == blpapi.Names.RESOLUTION_FAILURE:
-                    print("Topic resolution failed "
-                          f"(CorrelationId = {msg.correlationId()})")
+                    print(
+                        "Topic resolution failed "
+                        f"(CorrelationId = {msg.correlationId()})"
+                    )
 
         elif eventType == blpapi.Event.REQUEST:
             for msg in event:
@@ -114,7 +120,6 @@ class MyEventHandler(object):
         if len(unsubscribedTopics) > 0:
             session.deleteTopics(unsubscribedTopics)
 
-
     def processPermissionRequest(self, session, msg):
         service = session.getService(self.serviceName)
 
@@ -146,21 +151,25 @@ class MyEventHandler(object):
             ef.setElement("topic", topic)
             if self.resolveSubServiceCode:
                 try:
-                    ef.setElement("subServiceCode",
-                                  self.resolveSubServiceCode)
-                    print(f"Mapping topic {topic} to subServiceCode"
-                          f" {self.resolveSubServiceCode}")
+                    ef.setElement("subServiceCode", self.resolveSubServiceCode)
+                    print(
+                        f"Mapping topic {topic} to subServiceCode"
+                        f" {self.resolveSubServiceCode}"
+                    )
                 except blpapi.Exception:
-                    print("subServiceCode could not be set."
-                          " Resolving without subServiceCode")
+                    print(
+                        "subServiceCode could not be set."
+                        " Resolving without subServiceCode"
+                    )
             ef.setElement("result", permission)
             if permission == 1:  # DENIED
                 ef.pushElement("reason")
                 ef.setElement("source", "My Publisher Name")
                 ef.setElement("category", "NOT_AUTHORIZED")
                 ef.setElement("subcategory", "Publisher Controlled")
-                ef.setElement("description",
-                              "Permission denied by My Publisher Name")
+                ef.setElement(
+                    "description", "Permission denied by My Publisher Name"
+                )
                 ef.popElement()
             elif self.eids:
                 ef.pushElement("permissions")
@@ -178,6 +187,7 @@ class MyEventHandler(object):
         # Service is implicit in the Event. sendResponse has a second parameter
         # - partialResponse - that defaults to false.
         session.sendResponse(response)
+
 
 def formatPageRecapEvent(eventFormatter):
     numRows = 5
@@ -199,89 +209,120 @@ def formatPageRecapEvent(eventFormatter):
 
     eventFormatter.popElement()
 
+
 def formatMarketDataRecapEvent(eventFormatter):
     eventFormatter.setElement("OPEN", 100.0)
 
 
 def parseCmdLine():
-    parser = ArgumentParser(formatter_class=RawTextHelpFormatter,
-                            description="Interactive data publisher.")
+    parser = ArgumentParser(
+        formatter_class=RawTextHelpFormatter,
+        description="Interactive data publisher.",
+    )
     addConnectionAndAuthOptions(parser)
 
     publisher_group = parser.add_argument_group("Publisher Options")
-    publisher_group.add_argument("-s", "--service",
-                                 dest="service",
-                                 help="the service name",
-                                 required=True,
-                                 metavar="service")
-    publisher_group.add_argument("-g", "--group-id",
-                                 dest="groupId",
-                                 help="the group ID of the service, default to an "
-                                 "automatically generated unique value",
-                                 metavar="groupId")
-    publisher_group.add_argument("-p", "--priority",
-                                 type=int,
-                                 dest="priority",
-                                 help="the service priority (default: %(default)s)",
-                                 metavar="priority",
-                                 default=blpapi.ServiceRegistrationOptions.PRIORITY_HIGH)
-    publisher_group.add_argument("--register-ssc",
-                                 dest="ssc",
-                                 help="specify active sub-service code range and "
-                                 "priority separated by ','",
-                                 metavar="begin,end,priority")
-    publisher_group.add_argument("--clear-cache",
-                                 type=int,
-                                 dest="clearInterval",
-                                 help="number of events after which cache will be "
-                                 "cleared (default: 0 i.e cache never cleared)",
-                                 metavar="eventCount",
-                                 default=0)
-    publisher_group.add_argument("--resolve-ssc",
-                                 dest="rssc",
-                                 type=int,
-                                 help="sub-service code to be used in permission response",
-                                 metavar="subServiceCode")
-    publisher_group.add_argument("-E", "--eid",
-                                 dest="eids",
-                                 type=int,
-                                 help="EIDs that are used in permission response. Can be specified multiple times.",
-                                 metavar="eid",
-                                 action="append",
-                                 default=[])
-    publisher_group.add_argument("-P", "--page",
-                                 dest="isPageData",
-                                 help="publish as page data",
-                                 action="store_true",
-                                 default=False)
+    publisher_group.add_argument(
+        "-s",
+        "--service",
+        dest="service",
+        help="the service name",
+        required=True,
+        metavar="service",
+    )
+    publisher_group.add_argument(
+        "-g",
+        "--group-id",
+        dest="groupId",
+        help="the group ID of the service, default to an "
+        "automatically generated unique value",
+        metavar="groupId",
+    )
+    publisher_group.add_argument(
+        "-p",
+        "--priority",
+        type=int,
+        dest="priority",
+        help="the service priority (default: %(default)s)",
+        metavar="priority",
+        default=blpapi.ServiceRegistrationOptions.PRIORITY_HIGH,
+    )
+    publisher_group.add_argument(
+        "--register-ssc",
+        dest="ssc",
+        help="specify active sub-service code range and "
+        "priority separated by ','",
+        metavar="begin,end,priority",
+    )
+    publisher_group.add_argument(
+        "--clear-cache",
+        type=int,
+        dest="clearInterval",
+        help="number of events after which cache will be "
+        "cleared (default: 0 i.e cache never cleared)",
+        metavar="eventCount",
+        default=0,
+    )
+    publisher_group.add_argument(
+        "--resolve-ssc",
+        dest="rssc",
+        type=int,
+        help="sub-service code to be used in permission response",
+        metavar="subServiceCode",
+    )
+    publisher_group.add_argument(
+        "-E",
+        "--eid",
+        dest="eids",
+        type=int,
+        help="EIDs that are used in permission response. Can be specified multiple times.",
+        metavar="eid",
+        action="append",
+        default=[],
+    )
+    publisher_group.add_argument(
+        "-P",
+        "--page",
+        dest="isPageData",
+        help="publish as page data",
+        action="store_true",
+        default=False,
+    )
 
     options = parser.parse_args()
 
     # Parse sub-service code range and priority
     if options.ssc:
         options.sscBegin, options.sscEnd, options.sscPriority = map(
-            int, options.ssc.split(","))
+            int, options.ssc.split(",")
+        )
 
     return options
 
 
 def activate(options, session):
     if options.ssc:
-        print("Activating sub service code range ["
-              f"{options.sscBegin}, {options.sscEnd}] @ {options.sscPriority}")
-        session.activateSubServiceCodeRange(options.service,
-                                            options.sscBegin,
-                                            options.sscEnd,
-                                            options.sscPriority)
+        print(
+            "Activating sub service code range ["
+            f"{options.sscBegin}, {options.sscEnd}] @ {options.sscPriority}"
+        )
+        session.activateSubServiceCodeRange(
+            options.service,
+            options.sscBegin,
+            options.sscEnd,
+            options.sscPriority,
+        )
 
 
 def deactivate(options, session):
     if options.ssc:
-        print("Deactivating sub service code range ["
-              f"{options.sscBegin}, {options.sscEnd}] @ {options.sscPriority}")
-        session.deactivateSubServiceCodeRange(options.service,
-                                              options.sscBegin,
-                                              options.sscEnd)
+        print(
+            "Deactivating sub service code range ["
+            f"{options.sscBegin}, {options.sscEnd}] @ {options.sscPriority}"
+        )
+        session.deactivateSubServiceCodeRange(
+            options.service, options.sscBegin, options.sscEnd
+        )
 
 
 def main():
@@ -291,17 +332,20 @@ def main():
     stop = threading.Event()
     condition = threading.Condition(mutex)
 
-    myEventHandler = MyEventHandler(options.service,
-                                    options.eids,
-                                    options.rssc,
-                                    mutex,
-                                    stop,
-                                    condition,
-                                    options.isPageData)
+    myEventHandler = MyEventHandler(
+        options.service,
+        options.eids,
+        options.rssc,
+        mutex,
+        stop,
+        condition,
+        options.isPageData,
+    )
 
     sessionOptions = createSessionOptions(options)
-    session = blpapi.ProviderSession(sessionOptions,
-                                     myEventHandler.processEvent)
+    session = blpapi.ProviderSession(
+        sessionOptions, myEventHandler.processEvent
+    )
 
     if not session.start():
         print("Failed to start session.")
@@ -313,20 +357,24 @@ def main():
     serviceOptions.setServicePriority(options.priority)
 
     if options.ssc:
-        print("Adding active sub-service code range ["
-              f"{options.sscBegin}, {options.sscEnd}] @ {options.sscPriority}")
+        print(
+            "Adding active sub-service code range ["
+            f"{options.sscBegin}, {options.sscEnd}] @ {options.sscPriority}"
+        )
         try:
-            serviceOptions.addActiveSubServiceCodeRange(options.sscBegin,
-                                                        options.sscEnd,
-                                                        options.sscPriority)
+            serviceOptions.addActiveSubServiceCodeRange(
+                options.sscBegin, options.sscEnd, options.sscPriority
+            )
         except blpapi.Exception as exception:
-            print("FAILED to add active sub-service codes."
-                  f" Exception {exception.description()}")
+            print(
+                "FAILED to add active sub-service codes."
+                f" Exception {exception.description()}"
+            )
 
     try:
-        if not session.registerService(options.service,
-                                       session.getAuthorizedIdentity(),
-                                       serviceOptions):
+        if not session.registerService(
+            options.service, session.getAuthorizedIdentity(), serviceOptions
+        ):
             print(f"Failed to register '{options.service}'")
             return
 
@@ -335,13 +383,15 @@ def main():
         while not stop.is_set():
             with condition:
                 if not condition.wait_for(
-                        lambda: len(myEventHandler.activeTopics) > 0,
-                        timeout=1):
+                    lambda: len(myEventHandler.activeTopics) > 0, timeout=1
+                ):
                     continue
 
             publishNull = False
-            if options.clearInterval > 0 \
-                    and eventCount == options.clearInterval:
+            if (
+                options.clearInterval > 0
+                and eventCount == options.clearInterval
+            ):
                 eventCount = 0
                 publishNull = True
 
@@ -353,7 +403,9 @@ def main():
                     if options.isPageData:
                         formatPageEvent(eventFormatter, topic, publishNull)
                     else:
-                        formatMarketDataEvent(eventFormatter, topic, publishNull)
+                        formatMarketDataEvent(
+                            eventFormatter, topic, publishNull
+                        )
 
             print("Publishing event:")
             for msg in event:
@@ -370,6 +422,7 @@ def main():
     finally:
         print("Stopping the session")
         session.stop()
+
 
 def formatMarketDataEvent(eventFormatter, topic, publishNull):
     # NOTE: This function demonstrates how to use the `Element`-based interface
@@ -401,9 +454,7 @@ def formatPageEvent(eventFormatter, topic, publishNull):
         eventFormatter.appendMessage("RowUpdate", topic)
 
         secondsStr = time.strftime("%S", time.localtime())
-        messageDict = {
-            "rowNum": i
-        }
+        messageDict = {"rowNum": i}
         if publishNull:
             messageDict["spanUpdate"] = {}
         else:

@@ -4,24 +4,25 @@
 create events/messages for unit-testing their applications.
 """
 
+from typing import Optional
 from blpapi import internals
 from blpapi import Event, Name, SchemaElementDefinition, Service, Topic
 from blpapi.exception import _ExceptionUtil
 from blpapi.utils import conv2str, get_handle, isstr
 from blpapi.test import MessageProperties, MessageFormatter
+from blpapi.typehints import BlpapiNameOrStr
 
 
-def createEvent(eventType):
-    """ Create an :class:`blpapi.Event` with the specified ``eventType`` to be
+def createEvent(eventType: int) -> Event:
+    """Create an :class:`blpapi.Event` with the specified ``eventType`` to be
     used for testing.
 
     Args:
-        eventType (int): Specifies the type of event. See :class:`blpapi.Event`
+        eventType: Specifies the type of event. See :class:`blpapi.Event`
             for a list of enumerated values (e.g., `Event.SUBSCRIPTION_DATA`).
 
     Returns:
-        blpapi.Event: An event used for testing. It cannot be used for
-        publishing.
+        An event used for testing. It cannot be used for publishing.
 
     The behavior is undefined if :class:`blpapi.EventFormatter` is
     used with the returned :class:`blpapi.Event`.
@@ -31,22 +32,24 @@ def createEvent(eventType):
     event = Event(event_handle, sessions=None)
     return event
 
-def appendMessage(event, elementDef, properties=None):
-    """ Create a new message and append it to the specified ``event``.
+
+def appendMessage(
+    event: Event,
+    elementDef: SchemaElementDefinition,
+    properties: Optional[MessageProperties] = None,
+) -> MessageFormatter:
+    """Create a new message and append it to the specified ``event``.
     Return a :class:`MessageFormatter` to format the last appended message.
 
     Args:
-        event (blpapi.Event): The ``event`` to which the new message will
-            be appended. The ``event`` must be a test :class:`blpapi.Event`
-            created by :meth:`createEvent()`.
-        elementDef (blpapi.SchemaElementDefinition): Used to verify and encode
-            the contents of the message.
-        properties (blpapi.test.MessageProperties): Used to set the metadata
-            properties for the message.
+        event: The ``event`` to which the new message will be appended. The
+            ``event`` must be a test :class:`blpapi.Event` created by
+            :meth:`createEvent()`.
+        elementDef: Used to verify and encode the contents of the message.
+        properties: Used to set the metadata properties for the message.
 
     Returns:
-        blpapi.test.MessageFormatter: The :class:`MessageFormatter` used to
-        format the last appended message.
+        The :class:`MessageFormatter` used to format the last appended message.
 
     Raises:
         Exception: If the method fails to append the message.
@@ -55,95 +58,104 @@ def appendMessage(event, elementDef, properties=None):
         properties = MessageProperties()
     rc, formatter_handle = internals.blpapi_TestUtil_appendMessage(
         get_handle(event),
-        get_handle(elementDef),
-        get_handle(properties))
+        get_handle(elementDef),  # type: ignore
+        get_handle(properties),  # type: ignore
+    )
     _ExceptionUtil.raiseOnError(rc)
     message_formatter = MessageFormatter(formatter_handle)
     return message_formatter
 
-def deserializeService(serviceXMLStr):
-    """ Create a :class:`blpapi.Service` instance from the specified
+
+def deserializeService(serviceXMLStr: str) -> Service:
+    """Create a :class:`blpapi.Service` instance from the specified
     ``serviceXMLStr``.
 
     Args:
-        serviceXMLStr (str): A ``str`` representation of a
+        serviceXMLStr: A ``str`` representation of a
             :class:`blpapi.Service` in ``XML`` format. The ``str`` should only
             contain ASCII characters without any embedded ``null`` characters.
     Returns:
-        blpapi.Service: A :class:`blpapi.Service` created from
-        ``serviceXMLStr``.
+        A :class:`blpapi.Service` created from ``serviceXMLStr``.
 
     Raises:
         Exception: If deserialization fails.
     """
     rc, service_handle = internals.blpapi_TestUtil_deserializeService(
-        serviceXMLStr,
-        len(serviceXMLStr))
+        serviceXMLStr, len(serviceXMLStr)
+    )
     _ExceptionUtil.raiseOnError(rc)
-    service = Service(service_handle, sessions=None)
+    service = Service(service_handle, set())
     return service
 
-def serializeService(service):
-    """ Serialize the provided ``service`` in ``XML`` format.
+
+def serializeService(service: Service) -> str:
+    """Serialize the provided ``service`` in ``XML`` format.
 
     Args:
-        service (blpapi.Service): The :class:`blpapi.Service` to be serialized.
+        service: The :class:`blpapi.Service` to be serialized.
 
     Returns:
-        str: The ``service`` represented as an ``XML`` formatted ``str``.
+        The ``service`` represented as an ``XML`` formatted ``str``.
 
     Raises:
         Exception: If the service can't be serialized successfully.
     """
     service_str = internals.blpapi_TestUtil_serializeServiceHelper(
-        get_handle(service))
+        get_handle(service)
+    )
     return service_str
 
-def createTopic(service, isActive=True):
-    """ Create a valid :class:`blpapi.Topic` with the specified ``service`` to
+
+def createTopic(service: Service, isActive: bool = True) -> Topic:
+    """Create a valid :class:`blpapi.Topic` with the specified ``service`` to
     support testing publishers. The expected use case is to support returning a
     custom :class:`blpapi.Topic` while mocking
     :meth:`blpapi.ProviderSession.getTopic()` methods.
 
     Args:
-        service (blpapi.Service): The :class:`blpapi.Service` to which the
-            returned :class:`blpapi.Topic` will belong.
-        isActive (bool): Optional. Specifies whether the returned
+        service: The :class:`blpapi.Service` to which the returned
+            :class:`blpapi.Topic` will belong.
+        isActive: Optional. Specifies whether the returned
             :class:`blpapi.Topic` is active.
 
     Returns:
-        blpapi.Topic: A valid :class:`blpapi.Topic` with the specified
-        ``service``.
+        A valid :class:`blpapi.Topic` with the specified ``service``.
     """
     rc, topic_handle = internals.blpapi_TestUtil_createTopic(
-        get_handle(service),
-        isActive)
+        get_handle(service), isActive
+    )
     _ExceptionUtil.raiseOnError(rc)
-    topic = Topic(topic_handle, sessions=None)
+    topic = Topic(topic_handle, sessions=set())
     return topic
 
-def getAdminMessageDefinition(messageName):
-    """ Return the definition for an admin message of the specified
+
+def getAdminMessageDefinition(
+    messageName: BlpapiNameOrStr,
+) -> SchemaElementDefinition:
+    """Return the definition for an admin message of the specified
     ``messageName``.
 
     Args:
-        messageName (blpapi.Name or str): The name of the desired admin message.
+        messageName: The name of the desired admin message.
 
     Returns:
-        blpapi.SchemaElementDefinition: The element definition for the message
-        specified by ``messageName``.
+        The element definition for the message specified by ``messageName``.
 
     Raises:
         Exception: If ``messageName`` does not name an admin message.
     """
     if isstr(messageName):
-        messageName = Name(conv2str(messageName))
-    rc, schema_element_definition_handle = \
-        internals.blpapi_TestUtil_getAdminMessageDefinition(
-            get_handle(messageName))
+        messageName = Name(conv2str(messageName))  # type: ignore
+    (
+        rc,
+        schema_element_definition_handle,
+    ) = internals.blpapi_TestUtil_getAdminMessageDefinition(
+        get_handle(messageName)  # type: ignore
+    )
     _ExceptionUtil.raiseOnError(rc)
-    schema_definition = \
-        SchemaElementDefinition(schema_element_definition_handle, sessions=None)
+    schema_definition = SchemaElementDefinition(
+        schema_element_definition_handle, set()
+    )
     return schema_definition
 
 

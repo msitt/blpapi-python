@@ -9,15 +9,18 @@ except ImportError:
 
 import os
 import sys
-#pylint: disable=line-too-long,wrong-import-position
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
+# pylint: disable=line-too-long,wrong-import-position
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../src"))
+)
 from token_generator import TokenGenerator
 
 import blpapi
 
 
 class TestTokenGenerator(unittest.TestCase):
-    """ Test cases for TokenGenerator. """
+    """Test cases for TokenGenerator."""
 
     def setUp(self):
         self.mock_session = Mock()
@@ -25,7 +28,7 @@ class TestTokenGenerator(unittest.TestCase):
         self.token_generator = TokenGenerator(self.mock_session)
 
     def testTokenGenerationSuccess(self):
-        """ Verify that on token generation success, the application receives
+        """Verify that on token generation success, the application receives
         a valid token.
 
         Plan:
@@ -48,9 +51,7 @@ class TestTokenGenerator(unittest.TestCase):
         formatter = blpapi.test.appendMessage(event, schema_def)
 
         expected_token = "dummy_token"
-        message_content = {
-            "token": expected_token
-        }
+        message_content = {"token": expected_token}
 
         formatter.formatMessageDict(message_content)
 
@@ -63,7 +64,7 @@ class TestTokenGenerator(unittest.TestCase):
         self.assertEqual(expected_token, actual_token)
 
     def testTokenGenerationFailure(self):
-        """ Verify that on token generation failure, the application receives an
+        """Verify that on token generation failure, the application receives an
         empty token.
 
         Plan:
@@ -84,7 +85,7 @@ class TestTokenGenerator(unittest.TestCase):
                 "category": "NO_AUTH",
                 "errorCode": 3,
                 "description": "App not in emrs ...",
-                "subcategory": "INVALID_APP"
+                "subcategory": "INVALID_APP",
             }
         }
         event = blpapi.test.createEvent(blpapi.Event.TOKEN_STATUS)

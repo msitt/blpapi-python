@@ -7,41 +7,51 @@
 from functools import singledispatch, update_wrapper
 from datetime import date, time, datetime
 from json import dumps
+from typing import Any, Callable, Union
 
 from blpapi import internals, Name
+from blpapi.typehints import (
+    AnyPythonDatetime,
+    BlpapiMessageFormatterHandle,
+    BlpapiNameOrStr,
+    SupportedElementTypes,
+)
 from blpapi.datetime import _DatetimeUtil
 from blpapi.exception import _ExceptionUtil
-from blpapi.utils import \
-        conv2str, \
-        get_handle, \
-        isstr, \
-        MAX_32BIT_INT, \
-        MIN_32BIT_INT, \
-        MIN_64BIT_INT, \
-        MAX_64BIT_INT, \
-        STR_TYPES
+from blpapi.utils import (
+    conv2str,
+    get_handle,
+    isstr,
+    MAX_32BIT_INT,
+    MIN_32BIT_INT,
+    MIN_64BIT_INT,
+    MAX_64BIT_INT,
+    STR_TYPES,
+)
 
 
-def _singledispatchmethod(arg_index):
-    """ Decorator to implement singledispatch on a class method.
+def _singledispatchmethod(arg_index: int) -> Callable:
+    """Decorator to implement singledispatch on a class method.
     `arg_index` indicates the argument whose type will be used to determine
     the function to which to dispatch.
     """
 
-    def _singleDispatchMethodImpl(func):
-        """ Implementation of `_singledispatchmethod`. """
+    def _singleDispatchMethodImpl(func: Callable) -> Callable:
+        """Implementation of `_singledispatchmethod`."""
         dispatcher = singledispatch(func)
         # `dispatcher` is `func` wrapped by singledispatch
         # `dispatcher` has an attribute `register()`, which is a decorator,
         # which registers the typed funcs to call based on the arg passed to
         # `func`
-        def _wrapper(*args, **kw):
+        def _wrapper(*args: Any, **kw: Any) -> Any:
             # singledispatch bases the type on the first arg, which is `self`
             # in a method. Instead, we need the 3rd argument, skipping over
             # `self` and `name` in `setElement(self, name, value)`
             return dispatcher.dispatch(args[arg_index].__class__)(*args, **kw)
+
         # give `_wrapper` a `.register()` attribute
-        _wrapper.register = dispatcher.register
+        # pylint: disable=no-member
+        _wrapper.__setattr__("register", dispatcher.register)
         # makes `_wrapper` look like `func` with regards to metadata and
         # attributes
         update_wrapper(_wrapper, func)
@@ -49,8 +59,9 @@ def _singledispatchmethod(arg_index):
 
     return _singleDispatchMethodImpl
 
-class MessageFormatter():
-    """ :class:`MessageFormatter` is used to populate/format a message. It
+
+class MessageFormatter:
+    """:class:`MessageFormatter` is used to populate/format a message. It
     supports writing only once to each field. Attempting to set an already set
     element will fail.
 
@@ -75,24 +86,23 @@ class MessageFormatter():
       offset or sub-microsecond precision (e.g. nanoseconds) are not supported.
     """
 
-    def __init__(self, handle):
-        """ For internal use only. """
+    def __init__(self, handle: BlpapiMessageFormatterHandle) -> None:
+        """For internal use only."""
         self.__handle = handle
 
-    def _handle(self):
+    def _handle(self) -> BlpapiMessageFormatterHandle:
         return self.__handle
 
-    def setElement(self, name, value):
-        """ Set the element with the specified ``name`` to the specified
+    def setElement(
+        self, name: BlpapiNameOrStr, value: SupportedElementTypes
+    ) -> None:
+        """Set the element with the specified ``name`` to the specified
         ``value`` in the current :class:`blpapi.Message` referenced by this
         :class:`MessageFormatter`.
 
         Args:
-            name (blpapi.Name or str): Identifies the element which will be set
-                to ``value``.
-            value (bool or str or int or float or datetime.date or \
-                   datetime.time or datetime.datetime or blpapi.Name or None):
-                The value to assign to the specified element.
+            name: Identifies the element which will be set to ``value``.
+            value: The value to assign to the specified element.
 
         Raises:
             Exception: An exception is raised if any of the following are true:
@@ -102,13 +112,13 @@ class MessageFormatter():
                     ``name``
         """
         if isstr(name):
-            name = Name(conv2str(name))
+            name = Name(conv2str(name))  # type: ignore
         self._setElement(name, value)
 
     # pylint: disable=unused-argument,no-self-use
     @_singledispatchmethod(2)
-    def _setElement(self, name, value):
-        """ Implementation for :meth:`setElement`.
+    def _setElement(self, name: Name, value: SupportedElementTypes) -> None:
+        """Implementation for :meth:`setElement`.
 
         Args:
             name (Name): Identifies the element which will be set to ``value``
@@ -123,86 +133,92 @@ class MessageFormatter():
                 - The ``value`` cannot be assigned to the element identified by
                     ``name``
         """
-        raise TypeError(f"The type of value {value} is not supported. Type"
-                        f" is {type(value)}. Please refer to the"
-                        " documentation for the supported types.")
+        raise TypeError(
+            f"The type of value {value} is not supported. Type"
+            f" is {type(value)}. Please refer to the"
+            " documentation for the supported types."
+        )
 
     @_setElement.register(bool)
-    def _(self, name, value):
-        """ Dispatch method for setting `bool` types. """
+    def _(self, name: Name, value: bool) -> None:
+        """Dispatch method for setting `bool` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_setValueBool(
-                self.__handle,
-                get_handle(name),
-                value))
+                self.__handle, get_handle(name), value
+            )
+        )
 
-    @_setElement.register(datetime) # type: ignore
+    @_setElement.register(datetime)
     @_setElement.register(date)
     @_setElement.register(time)
-    def _(self, name, value):
-        """ Dispatch method for setting time types. """
+    def _(self, name: Name, value: AnyPythonDatetime) -> None:
+        """Dispatch method for setting time types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_setValueHighPrecisionDatetime(
                 self.__handle,
                 get_handle(name),
-                _DatetimeUtil.convertToBlpapi(value)))
+                _DatetimeUtil.convertToBlpapi(value),
+            )
+        )
 
     @_setElement.register(int)
-    def _setElementInt(self, name, value):
-        """ Dispatch method for setting integer types. """
+    def _setElementInt(self, name: Name, value: int) -> None:
+        """Dispatch method for setting integer types."""
         if MIN_32BIT_INT <= value <= MAX_32BIT_INT:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_MessageFormatter_setValueInt32(
-                    self.__handle,
-                    get_handle(name),
-                    value))
+                    self.__handle, get_handle(name), value
+                )
+            )
         elif MIN_64BIT_INT <= value <= MAX_64BIT_INT:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_MessageFormatter_setValueInt64(
-                    self.__handle,
-                    get_handle(name),
-                    value))
+                    self.__handle, get_handle(name), value
+                )
+            )
         else:
             raise ValueError("Value is out of element's supported range")
 
-    @_setElement.register(float) # type: ignore
-    def _(self, name, value):
-        """ Dispatch method for setting `float` types. """
+    @_setElement.register(float)
+    def _(self, name: Name, value: float) -> None:
+        """Dispatch method for setting `float` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_setValueFloat(
-                self.__handle,
-                get_handle(name),
-                value))
+                self.__handle, get_handle(name), value
+            )
+        )
 
-    @_setElement.register(Name) # type: ignore
-    def _(self, name, value):
-        """ Dispatch method for setting `Name` types. """
+    @_setElement.register(Name)
+    def _(self, name: Name, value: Name) -> None:
+        """Dispatch method for setting `Name` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_setValueFromName(
-                self.__handle,
-                get_handle(name),
-                get_handle(value)))
+                self.__handle, get_handle(name), get_handle(value)
+            )
+        )
 
-    @_setElement.register(type(None)) # type: ignore
-    def _(self, name, _):
-        """ Dispatch method for setting `None` types. """
+    @_setElement.register(type(None))
+    def _(self, name: Name, _: Any) -> None:
+        """Dispatch method for setting `None` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_setValueNull(
-                self.__handle,
-                get_handle(name)))
+                self.__handle, get_handle(name)
+            )
+        )
 
-    def _setElementStr(self, name, value):
-        """ Dispatch method for setting string types. """
+    def _setElementStr(self, name: Name, value: Union[bytes, str]) -> None:
+        """Dispatch method for setting string types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_setValueString(
-                self.__handle,
-                get_handle(name),
-                conv2str(value)))
+                self.__handle, get_handle(name), conv2str(value)
+            )
+        )
+
     for _str_type in STR_TYPES:
         _setElement.register(_str_type, _setElementStr)
 
-    def pushElement(self, name):
-        """ Change the level at which this :class:`MessageFormatter` is
+    def pushElement(self, name: BlpapiNameOrStr) -> None:
+        """Change the level at which this :class:`MessageFormatter` is
         operating to the element specified by ``name``.
 
         After this returns, the context of the :class:`MessageFormatter` is set
@@ -216,24 +232,25 @@ class MessageFormatter():
         :meth:`appendElement()` must be used.
 
         Args:
-            name (blpapi.Name or str): Specifies the :class:`blpapi.Element` on
-                which to operate. The element must identify either a choice, a
-                sequence or an array at the current level of the schema or the
-                behavior is undefined.
+            name: Specifies the :class:`blpapi.Element` on which to operate.
+                The element must identify either a choice, a sequence or an
+                array at the current level of the schema or the behavior is
+                undefined.
 
         Raises:
             Exception: If the ``name`` is invalid for the current message or if
                 the element identified by ``name`` has already been set.
         """
         if isstr(name):
-            name = Name(conv2str(name))
+            name = Name(conv2str(name))  # type: ignore
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_pushElement(
-                self.__handle,
-                get_handle(name)))
+                self.__handle, get_handle(name)  # type: ignore
+            )
+        )
 
-    def popElement(self):
-        """ Undo the most recent call to :meth:`pushElement` or
+    def popElement(self) -> None:
+        """Undo the most recent call to :meth:`pushElement` or
         :meth:`appendElement` on this :class:`MessageFormatter` and return the
         context of the :class:`MessageFormatter` to where it was before the
         call to :meth:`pushElement` or :meth:`appendElement`. Once
@@ -241,17 +258,16 @@ class MessageFormatter():
         re-visit the same context.
         """
         _ExceptionUtil.raiseOnError(
-            internals.blpapi_MessageFormatter_popElement(self.__handle))
+            internals.blpapi_MessageFormatter_popElement(self.__handle)
+        )
 
     @_singledispatchmethod(1)
-    def appendValue(self, value):
-        """ Append the specified ``value`` to the element on which this
+    def appendValue(self, value: SupportedElementTypes) -> None:
+        """Append the specified ``value`` to the element on which this
         :class:`MessageFormatter` is operating.
 
         Args:
-            value (bool or str or int or float or datetime.date or \
-                   datetime.time or datetime.datetime or blpapi.Name):
-                The value to append.
+            value: The value to append.
 
         Raises:
             Exception: If the schema of the message is flat or the current
@@ -259,70 +275,79 @@ class MessageFormatter():
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_appendValueString(
-                self.__handle,
-                value))
+                self.__handle, value
+            )
+        )
 
-    @appendValue.register(bool) # type: ignore
-    def _(self, value):
-        """ Dispatch method for appending `bool` types. """
+    @appendValue.register(bool)
+    def _(self, value: bool) -> None:
+        """Dispatch method for appending `bool` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_appendValueBool(
-                self.__handle,
-                value))
+                self.__handle, value
+            )
+        )
 
-    @appendValue.register(datetime) # type: ignore
+    @appendValue.register(datetime)
     @appendValue.register(date)
     @appendValue.register(time)
-    def _(self, value):
-        """ Dispatch method for appending time types. """
+    def _(self, value: AnyPythonDatetime) -> None:
+        """Dispatch method for appending time types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_appendValueHighPrecisionDatetime(
-                self.__handle,
-                _DatetimeUtil.convertToBlpapi(value)))
+                self.__handle, _DatetimeUtil.convertToBlpapi(value)
+            )
+        )
 
     @appendValue.register(int)
-    def _appendValueInt(self, value):
-        """ Dispatch method for appending integer types. """
+    def _appendValueInt(self, value: int) -> None:
+        """Dispatch method for appending integer types."""
         if MIN_32BIT_INT <= value <= MAX_32BIT_INT:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_MessageFormatter_appendValueInt32(
-                    self.__handle,
-                    value))
+                    self.__handle, value
+                )
+            )
         elif MIN_64BIT_INT <= value <= MAX_64BIT_INT:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_MessageFormatter_appendValueInt64(
-                    self.__handle,
-                    value))
+                    self.__handle, value
+                )
+            )
         else:
             raise ValueError("Value is out of element's supported range")
 
-    @appendValue.register(float) # type: ignore
-    def _(self, value):
-        """ Dispatch method for appending `float` types. """
+    @appendValue.register(float)
+    def _(self, value: float) -> None:
+        """Dispatch method for appending `float` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_appendValueFloat(
-                self.__handle,
-                value))
+                self.__handle, value
+            )
+        )
 
-    @appendValue.register(Name) # type: ignore
-    def _(self, value):
-        """ Dispatch method for appending `Name` types. """
+    @appendValue.register(Name)
+    def _(self, value: Name) -> None:
+        """Dispatch method for appending `Name` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_appendValueFromName(
-                self.__handle,
-                get_handle(value)))
+                self.__handle, get_handle(value)
+            )
+        )
 
-    def _appendValueStr(self, value):
-        """ Dispatch method for appending string types. """
+    def _appendValueStr(self, value: Union[bytes, str]) -> None:
+        """Dispatch method for appending string types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_appendValueString(
-                self.__handle,
-                conv2str(value)))
+                self.__handle, conv2str(value)
+            )
+        )
+
     for _str_type in STR_TYPES:
         appendValue.register(_str_type, _appendValueStr)
 
-    def appendElement(self):
-        """ Create an array :class:`blpapi.Element` and append it to the
+    def appendElement(self) -> None:
+        """Create an array :class:`blpapi.Element` and append it to the
         :class:`blpapi.Element` on which this :class:`MessageFormatter` is
         operating.
 
@@ -333,10 +358,11 @@ class MessageFormatter():
                 sequence or a choice.
         """
         _ExceptionUtil.raiseOnError(
-            internals.blpapi_MessageFormatter_appendElement(self.__handle))
+            internals.blpapi_MessageFormatter_appendElement(self.__handle)
+        )
 
-    def formatMessageJson(self, jsonMessage):
-        """ Format the :class:`blpapi.Message` from its ``JSON`` representation.
+    def formatMessageJson(self, jsonMessage: str) -> None:
+        """Format the :class:`blpapi.Message` from its ``JSON`` representation.
 
         Args:
             jsonMessage (str): A ``JSON``-formatted ``str`` representing the
@@ -351,11 +377,12 @@ class MessageFormatter():
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_FormatMessageJson(
-                self.__handle,
-                jsonMessage))
+                self.__handle, jsonMessage
+            )
+        )
 
-    def formatMessageXml(self, xmlMessage):
-        """ Format the :class:`blpapi.Message` from its ``XML`` representation.
+    def formatMessageXml(self, xmlMessage: str) -> None:
+        """Format the :class:`blpapi.Message` from its ``XML`` representation.
 
         Args:
             xmlMessage (str): An ``XML``-formatted ``str`` representing the
@@ -370,14 +397,15 @@ class MessageFormatter():
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_FormatMessageXml(
-                self.__handle,
-                xmlMessage))
+                self.__handle, xmlMessage
+            )
+        )
 
-    def formatMessageDict(self, dictMessage):
-        """ Format the :class:`blpapi.Message` from its ``dict`` representation.
+    def formatMessageDict(self, dictMessage: dict) -> None:
+        """Format the :class:`blpapi.Message` from its ``dict`` representation.
 
         Args:
-            dictMessage (dict): A dictionary representing the content used to
+            dictMessage: A dictionary representing the content used to
                 format the message.
 
         Raises:

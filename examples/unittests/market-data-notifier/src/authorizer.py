@@ -10,7 +10,7 @@ AUTHORIZATION_SUCCESS = blpapi.Name("AuthorizationSuccess")
 TOKEN = blpapi.Name("token")
 
 # pylint: disable=too-few-public-methods, too-many-branches
-class Authorizer():
+class Authorizer:
     """Helper for authorization."""
 
     def __init__(self, session, token_generator):
@@ -35,16 +35,19 @@ class Authorizer():
 
         # Send authorization request to "fill" the Identity
         self._session.sendAuthorizationRequest(
-            auth_request, identity, cid, event_queue)
+            auth_request, identity, cid, event_queue
+        )
 
         # Process related responses
         start_time = datetime.datetime.today()
         WAIT_TIME_SECONDS = 10
         while True:
             event = event_queue.nextEvent(WAIT_TIME_SECONDS * 1000)
-            if event.eventType() == blpapi.Event.RESPONSE or \
-                    event.eventType() == blpapi.Event.REQUEST_STATUS or \
-                    event.eventType() == blpapi.Event.PARTIAL_RESPONSE:
+            if (
+                event.eventType() == blpapi.Event.RESPONSE
+                or event.eventType() == blpapi.Event.REQUEST_STATUS
+                or event.eventType() == blpapi.Event.PARTIAL_RESPONSE
+            ):
                 for msg in event:
                     print(msg)
                     if msg.messageType() == AUTHORIZATION_SUCCESS:
@@ -67,6 +70,7 @@ class Authorizer():
             cid = blpapi.CorrelationId("auth")
             return self._authorize(service, identity, cid, queue)
         return False
+
 
 __copyright__ = """
 Copyright 2020. Bloomberg Finance L.P.

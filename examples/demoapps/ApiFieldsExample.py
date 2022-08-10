@@ -1,7 +1,10 @@
 from argparse import ArgumentParser, RawTextHelpFormatter
 
 from blpapi_import_helper import blpapi
-from util.ConnectionAndAuthOptions import addConnectionAndAuthOptions, createSessionOptions
+from util.ConnectionAndAuthOptions import (
+    addConnectionAndAuthOptions,
+    createSessionOptions,
+)
 
 from snippets.apiflds import CategorizedFieldSearchRequests
 from snippets.apiflds import FieldInfoRequests
@@ -52,18 +55,23 @@ def processResponse(requestType, event):
 def main():
     parser = ArgumentParser(
         description="Retrieve API data fields",
-        formatter_class=RawTextHelpFormatter)
+        formatter_class=RawTextHelpFormatter,
+    )
     addConnectionAndAuthOptions(parser)
-    parser.add_argument("-r",
-                        "--request",
-                        dest="requestType",
-                        help="API fields request type, choices are: %(choices)s",
-                        required=True,
-                        choices=[CATEGORIZED_FIELD_SEARCH_REQUEST,
-                                 FIELD_INFO_REQUEST,
-                                 FIELD_LIST_REQUEST,
-                                 FIELD_SEARCH_REQUEST],
-                        metavar="requestType")
+    parser.add_argument(
+        "-r",
+        "--request",
+        dest="requestType",
+        help="API fields request type, choices are: %(choices)s",
+        required=True,
+        choices=[
+            CATEGORIZED_FIELD_SEARCH_REQUEST,
+            FIELD_INFO_REQUEST,
+            FIELD_LIST_REQUEST,
+            FIELD_SEARCH_REQUEST,
+        ],
+        metavar="requestType",
+    )
 
     options = parser.parse_args()
 
@@ -96,8 +104,10 @@ def main():
                         print(msg)
                         done = True
                         break
-            elif eventType in [blpapi.Event.RESPONSE,
-                               blpapi.Event.PARTIAL_RESPONSE]:
+            elif eventType in [
+                blpapi.Event.RESPONSE,
+                blpapi.Event.PARTIAL_RESPONSE,
+            ]:
 
                 processResponse(options.requestType, event)
 
@@ -112,7 +122,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
         print(e)
 
 __copyright__ = """

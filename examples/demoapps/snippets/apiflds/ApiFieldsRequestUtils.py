@@ -5,12 +5,16 @@ CAT_NAME_LEN = 40
 
 
 def printHeader():
-    print(f'{"FIELD ID".ljust(ID_LEN)}'
-          f'{"MNEMONIC".ljust(MNEMONIC_LEN)}'
-          f'{"DESCRIPTION".ljust(DESC_LEN)}')
-    print(f'{"-----------".ljust(ID_LEN)}'
-          f'{"-----------".ljust(MNEMONIC_LEN)}'
-          f'{"-----------".ljust(DESC_LEN)}')
+    print(
+        f'{"FIELD ID".ljust(ID_LEN)}'
+        f'{"MNEMONIC".ljust(MNEMONIC_LEN)}'
+        f'{"DESCRIPTION".ljust(DESC_LEN)}'
+    )
+    print(
+        f'{"-----------".ljust(ID_LEN)}'
+        f'{"-----------".ljust(MNEMONIC_LEN)}'
+        f'{"-----------".ljust(DESC_LEN)}'
+    )
 
 
 def printField(field):
@@ -20,9 +24,11 @@ def printField(field):
         fieldMnemonic = fieldInfo["mnemonic"]
         fieldDesc = fieldInfo["description"]
 
-        print(f"{fieldId.ljust(ID_LEN)}"
-              f"{fieldMnemonic.ljust(MNEMONIC_LEN)}"
-              f"{fieldDesc.ljust(DESC_LEN)}")
+        print(
+            f"{fieldId.ljust(ID_LEN)}"
+            f"{fieldMnemonic.ljust(MNEMONIC_LEN)}"
+            f"{fieldDesc.ljust(DESC_LEN)}"
+        )
     else:
         errorMsg = field["fieldError"]["message"]
 

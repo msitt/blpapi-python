@@ -12,23 +12,23 @@ from typing import Callable, Any
 class CHandle:
     """A base class for objects that rely on C handles"""
 
-    def __init__(self, handle: Any, dtor: Callable):
-        """ Set the handle and the dtor """
+    def __init__(self, handle: Any, dtor: Callable) -> None:
+        """Set the handle and the dtor"""
         self.__handle = handle
         self._dtor = dtor
 
-    def __del__(self):
-        """ Destroy the object """
+    def __del__(self) -> None:
+        """Destroy the object"""
         try:
             self.destroy()
         except (NameError, AttributeError):
             pass
 
-    def destroy(self):
-        """ Destroy the handle using stored dtor """
+    def destroy(self) -> None:
+        """Destroy the handle using stored dtor"""
         if self.__handle:
             self._dtor(self.__handle)
-            self._dtor = None
+            self._dtor = None  # type: ignore
             self.__handle = None
 
     def _handle(self) -> Any:

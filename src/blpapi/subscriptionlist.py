@@ -89,7 +89,7 @@ from . import internals
 from .internals import CorrelationId
 from .utils import conv2str, get_handle, isstr
 from .chandle import CHandle
-from . import typehints # pylint: disable=unused-import
+from . import typehints  # pylint: disable=unused-import
 
 
 class SubscriptionList(CHandle):
@@ -134,18 +134,22 @@ class SubscriptionList(CHandle):
     |             |                          | | needs to be canceled.    |
     +-------------+--------------------------+----------------------------+
     """
+
     def __init__(self) -> None:
         """Create an empty :class:`SubscriptionList`."""
         selfhandle = internals.blpapi_SubscriptionList_create()
         super(SubscriptionList, self).__init__(
-            selfhandle,
-            internals.blpapi_SubscriptionList_destroy)
+            selfhandle, internals.blpapi_SubscriptionList_destroy
+        )
         self.__handle = selfhandle
 
-    def add(self, topic: str,
-                  fields: Union[str, Sequence[str], None] = None,
-                  options: Union[str, Sequence[str], Mapping, None] = None,
-                  correlationId: Optional[CorrelationId] = None) -> int:
+    def add(
+        self,
+        topic: str,
+        fields: Union[str, Sequence[str], None] = None,
+        options: Union[str, Sequence[str], Mapping, None] = None,
+        correlationId: Optional[CorrelationId] = None,
+    ) -> int:
         """Add the specified ``topic`` to this :class:`SubscriptionList`.
 
         Args:
@@ -172,26 +176,26 @@ class SubscriptionList(CHandle):
 
         if fields is not None:
             if isstr(fields):
-                fields = conv2str(fields) # type: ignore # the isstr() check means fields must be string by this point
+                fields = conv2str(fields)  # type: ignore # the isstr() check means fields must be string by this point
             else:
                 fields = ",".join(fields)
 
         if options is not None:
             if isstr(options):
-                options = conv2str(options) # type: ignore # the isstr() check means options must be string by this point
+                options = conv2str(options)  # type: ignore # the isstr() check means options must be string by this point
             elif isinstance(options, (list, tuple)):
                 options = "&".join(options)
             elif isinstance(options, dict):
-                options = "&".join([key if val is None
-                                    else f"{key}={val}"
-                                    for key, val in options.items()])
+                options = "&".join(
+                    [
+                        key if val is None else f"{key}={val}"
+                        for key, val in options.items()
+                    ]
+                )
 
         return internals.blpapi_SubscriptionList_addHelper(
-            self.__handle,
-            topic,
-            correlationId,
-            fields,
-            options)
+            self.__handle, topic, correlationId, fields, options
+        )
 
     def append(self, other: "typehints.SubscriptionList") -> int:
         """Append a copy of the specified :class:`SubscriptionList` to this
@@ -201,8 +205,8 @@ class SubscriptionList(CHandle):
             other: List to append to this one
         """
         return internals.blpapi_SubscriptionList_append(
-            self.__handle,
-            get_handle(other))
+            self.__handle, get_handle(other)
+        )
 
     def clear(self) -> int:
         """Remove all entries from this object."""
@@ -227,8 +231,8 @@ class SubscriptionList(CHandle):
             Exception: If ``index >= size()``.
         """
         errorCode, cid = internals.blpapi_SubscriptionList_correlationIdAt(
-            self.__handle,
-            index)
+            self.__handle, index
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return cid
 
@@ -244,13 +248,16 @@ class SubscriptionList(CHandle):
             Exception: If ``index >= size()``.
         """
         errorCode, topic = internals.blpapi_SubscriptionList_topicStringAt(
-            self.__handle,
-            index)
+            self.__handle, index
+        )
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
-    def addResolved(self, subscriptionString: str,
-                          correlationId: Optional[CorrelationId] = None) -> int:
+    def addResolved(
+        self,
+        subscriptionString: str,
+        correlationId: Optional[CorrelationId] = None,
+    ) -> int:
         """
         Args:
             subscriptionString: Fully-resolved subscription string
@@ -274,7 +281,8 @@ class SubscriptionList(CHandle):
         if correlationId is None:
             correlationId = internals.CorrelationId()
         return internals.blpapi_SubscriptionList_addResolved(
-            self.__handle, subscriptionString, correlationId)
+            self.__handle, subscriptionString, correlationId
+        )
 
     def isResolvedTopicAt(self, index: int) -> bool:
         """
@@ -288,9 +296,11 @@ class SubscriptionList(CHandle):
             is thrown if ``index >= size()``.
         """
         err, res = internals.blpapi_SubscriptionList_isResolvedAt(
-            self.__handle, index)
+            self.__handle, index
+        )
         _ExceptionUtil.raiseOnError(err)
         return res
+
 
 __copyright__ = """
 Copyright 2012. Bloomberg Finance L.P.
