@@ -21,6 +21,9 @@ from util.RequestOptions import (
     HISTORICAL_DATA_REQUEST,
 )
 
+SERVICE_NAME = blpapi.Name("serviceName")
+REASON = blpapi.Name("reason")
+
 
 def parseCmdLine():
     """Parse command line arguments"""
@@ -63,7 +66,7 @@ def processGenericEvent(event):
                 return True
         elif eventType == blpapi.Event.SERVICE_STATUS:
             if messageType == blpapi.Names.SERVICE_OPEN_FAILURE:
-                serviceName = msg.getElementAsString("serviceName")
+                serviceName = msg.getElementAsString(SERVICE_NAME)
                 print(f"Failed to open {serviceName}")
                 printContactSupportMessage(msg)
 
@@ -148,7 +151,7 @@ def waitForResponse(session, requestType):
             for msg in event:
                 print(msg)
                 if msg.messageType == blpapi.Names.REQUEST_FAILURE:
-                    reason = msg.getElement("reason")
+                    reason = msg.getElement(REASON)
                     print(f"Request failed: {reason}")
                     printContactSupportMessage(msg)
                     done = True

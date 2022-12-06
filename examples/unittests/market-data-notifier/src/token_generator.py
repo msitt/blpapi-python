@@ -2,8 +2,8 @@
 
 import blpapi
 
-TOKEN_SUCCESS = blpapi.Name("TokenGenerationSuccess")
-TOKEN_FAILURE = blpapi.Name("TokenGenerationFailure")
+TOKEN_SUCCESS = blpapi.Names.TOKEN_GENERATION_SUCCESS
+TOKEN_FAILURE = blpapi.Names.TOKEN_GENERATION_FAILURE
 TOKEN = blpapi.Name("token")
 
 # pylint: disable=too-few-public-methods

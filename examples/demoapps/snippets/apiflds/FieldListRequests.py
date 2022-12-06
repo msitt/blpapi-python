@@ -1,10 +1,16 @@
 from snippets.apiflds import ApiFieldsRequestUtils
 
+from blpapi import Name
+
+FIELD_DATA = Name("fieldData")
+FIELD_TYPE = Name("fieldType")
+RETURN_FIELD_DOC = Name("returnFieldDocumentation")
+
 
 def createRequest(apifldsService):
     request = apifldsService.createRequest("FieldListRequest")
-    request["fieldType"] = "Static"
-    request["returnFieldDocumentation"] = False
+    request[FIELD_TYPE] = "Static"
+    request[RETURN_FIELD_DOC] = False
 
     return request
 
@@ -16,7 +22,7 @@ def processResponse(event):
     for msg in event:
         ApiFieldsRequestUtils.printHeader()
 
-        fields = msg.getElement("fieldData")
+        fields = msg.getElement(FIELD_DATA)
         for i in range(fields.numValues()):
             ApiFieldsRequestUtils.printField(fields.getValueAsElement(i))
 

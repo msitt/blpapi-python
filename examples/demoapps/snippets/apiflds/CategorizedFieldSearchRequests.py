@@ -1,28 +1,40 @@
 from snippets.apiflds import ApiFieldsRequestUtils
 
+from blpapi import Name
+
+EXCLUDE = Name("exclude")
+FIELD_TYPE = Name("fieldType")
+FIELD_DATA = Name("fieldData")
+SEARCH_SPEC = Name("searchSpec")
+RETURN_FIELD_DOC = Name("returnFieldDocumentation")
+CATEGORY = Name("category")
+CATEGORY_NAME = Name("categoryName")
+CATEGORY_ID = Name("categoryId")
+FIELD_SEARCH_ERROR = Name("fieldSearchError")
+
 
 def createRequest(apifldsService):
     request = apifldsService.createRequest("CategorizedFieldSearchRequest")
-    request.set("searchSpec", "last price")
+    request.set(SEARCH_SPEC, "last price")
 
-    exclude = request.getElement("exclude")
-    exclude.setElement("fieldType", "Static")
+    exclude = request.getElement(EXCLUDE)
+    exclude.setElement(FIELD_TYPE, "Static")
 
-    request.set("returnFieldDocumentation", False)
+    request.set(RETURN_FIELD_DOC, False)
 
     return request
 
 
 def processResponse(event):
     for msg in event:
-        if "fieldSearchError" in msg:
+        if FIELD_SEARCH_ERROR in msg:
             print(msg)
             continue
 
-        categories = msg["category"]
+        categories = msg[CATEGORY]
         for category in categories:
-            category_name = category["categoryName"]
-            category_id = category["categoryId"]
+            category_name = category[CATEGORY_NAME]
+            category_id = category[CATEGORY_ID]
             print(
                 f"\nCategory Name: {category_name.ljust(ApiFieldsRequestUtils.CAT_NAME_LEN)}"
                 f"\tId: {category_id}"
@@ -30,7 +42,7 @@ def processResponse(event):
 
             ApiFieldsRequestUtils.printHeader()
 
-            fields = category["fieldData"]
+            fields = category[FIELD_DATA]
             for field in fields:
                 ApiFieldsRequestUtils.printField(field)
 

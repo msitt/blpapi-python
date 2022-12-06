@@ -1,14 +1,19 @@
 # IntradayTickRequests.py
 
-import blpapi
+from blpapi import Name
 
-TICK_DATA = blpapi.Name("tickData")
-CONDITION_CODES = blpapi.Name("conditionCodes")
-SIZE = blpapi.Name("size")
-TIME = blpapi.Name("time")
-TYPE = blpapi.Name("type")
-VALUE = blpapi.Name("value")
-RESPONSE_ERROR = blpapi.Name("responseError")
+TICK_DATA = Name("tickData")
+CONDITION_CODES = Name("conditionCodes")
+SIZE = Name("size")
+TIME = Name("time")
+TYPE = Name("type")
+VALUE = Name("value")
+RESPONSE_ERROR = Name("responseError")
+SECURITY = Name.getName("security")
+EVENT_TYPES = Name.getName("eventTypes")
+START_DATE_TIME = Name.getName("startDateTime")
+END_DATE_TIME = Name.getName("endDateTime")
+INCLUDE_CONDITION_CODES = Name.getName("includeConditionCodes")
 
 DATETIME_FORMAT = "%m/%d/%Y %H:%M"
 
@@ -20,14 +25,14 @@ def createRequest(service, options):
     request = service.createRequest("IntradayTickRequest")
 
     requestDict = {
-        "security": options.securities[0],
-        "eventTypes": options.eventTypes,
+        SECURITY: options.securities[0],
+        EVENT_TYPES: options.eventTypes,
         # All times are in GMT
-        "startDateTime": options.startDateTime,
-        "endDateTime": options.endDateTime,
+        START_DATE_TIME: options.startDateTime,
+        END_DATE_TIME: options.endDateTime,
     }
     if options.conditionCodes:
-        requestDict["includeConditionCodes"] = True
+        requestDict[INCLUDE_CONDITION_CODES] = True
 
     request.fromPy(requestDict)
 

@@ -1,5 +1,16 @@
 # HistoricalDataRequest.py
 
+from blpapi import Name
+
+SECURITIES = Name("securities")
+PERIODICITY_ADJUSTMENT = Name("periodicityAdjustment")
+PERIODICITY_SELECTION = Name("periodicitySelection")
+START_DATE = Name("startDate")
+END_DATE = Name("endDate")
+MAX_DATA_POINTS = Name("maxDataPoints")
+RETURN_EIDS = Name("returnEids")
+FIELDS = Name("fields")
+
 
 def createRequest(service, options):
     # NOTE: this function uses `Request.__setitem__` to format a `Request`. See
@@ -7,15 +18,15 @@ def createRequest(service, options):
     # for examples of alternative interfaces for formatting a `Request`.
     request = service.createRequest("HistoricalDataRequest")
 
-    request["securities"] = options.securities
-    request["fields"] = options.fields
+    request[SECURITIES] = options.securities
+    request[FIELDS] = options.fields
 
-    request["periodicityAdjustment"] = "ACTUAL"
-    request["periodicitySelection"] = "MONTHLY"
-    request["startDate"] = "20200101"
-    request["endDate"] = "20201231"
-    request["maxDataPoints"] = 100
-    request["returnEids"] = True
+    request[PERIODICITY_ADJUSTMENT] = "ACTUAL"
+    request[PERIODICITY_SELECTION] = "MONTHLY"
+    request[START_DATE] = "20200101"
+    request[END_DATE] = "20201231"
+    request[MAX_DATA_POINTS] = 100
+    request[RETURN_EIDS] = True
 
     return request
 

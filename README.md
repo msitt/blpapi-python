@@ -1,17 +1,5 @@
 # Bloomberg Python API
 
-[![Build Status](https://rdp.jaas.dev.bloomberg.com/buildStatus/icon?job=apisdk%2Fblpapi-py%2Fmain)](https://rdp.jaas.dev.bloomberg.com/job/apisdk/job/blpapi-py/job/main/)
-[![failed/skipped/total unit tests](https://rdp.jaas.dev.bloomberg.com/job/apisdk/job/blpapi-py/job/main/lastCompletedBuild/artifact/failed_skipped_total_unit_tests-badge.svg 'apisdk/blpapi-py/main failed/skipped/total unit tests')](https://rdp.jaas.dev.bloomberg.com/job/apisdk/job/blpapi-py/job/main/lastCompletedBuild/testReport/)
-
-[![python coverage](https://rdp.jaas.dev.bloomberg.com/job/apisdk/job/blpapi-py/job/main/lastCompletedBuild/artifact/python_coverage-badge.svg 'apisdk/blpapi-py/main python coverage')](https://rdp.jaas.dev.bloomberg.com/job/apisdk/job/blpapi-py/job/main/lastCompletedBuild/cobertura/)
-[![c/c++ swig coverage](https://rdp.jaas.dev.bloomberg.com/job/apisdk/job/blpapi-py/job/main/lastCompletedBuild/artifact/c_c++_swig_coverage-badge.svg 'apisdk/blpapi-py/main c/c++ swig coverage')](https://rdp.jaas.dev.bloomberg.com/job/apisdk/job/blpapi-py/job/main/lastCompletedBuild/HTML_20Coverage_20Report_20_28c_2fc_2b_2b_20swig_29/)
-[![c/c++ blpapi coverage](https://rdp.jaas.dev.bloomberg.com/job/apisdk/job/blpapi-py/job/main/lastCompletedBuild/artifact/c_c++_blpapi_coverage-badge.svg 'apisdk/blpapi-py/main c/c++ blpapi coverage')](https://rdp.jaas.dev.bloomberg.com/job/apisdk/job/blpapi-py/job/main/lastCompletedBuild/HTML_20Coverage_20Report_20_28c_2fc_2b_2b_20blpapi_29/)
-
-[![ARTA tests and coverage](https://badges.dev.bloomberg.com/badge//ARTA%20tests%20and%20coverage/blue?icon=codecov "ARTA tests and coverage")](https://bbgithub.dev.bloomberg.com/apisdk/arta-jaas-dailies/blob/main/README.md)
-
-[![blpapi python docs](https://rdp.jaas.dev.bloomberg.com/job/apisdk/job/blpapi-py/job/main/lastCompletedBuild/artifact/blpapi_python_docs-badge.svg 'blpapi python docs apisdk/blpapi-py/main')](http://static-html-server.rdpsdk.ob1.bcc.bloomberg.com:8080/blpapi-docs/apisdk/blpapi-py/main/html)
-[![blpapi release docs](https://badges.dev.bloomberg.com/badge/blpapi%20docs/release/blue?icon=fa-book "blpapi release docs")](https://bloomberg.github.io/blpapi-docs/)
-
 This directory contains an interface for interacting with Bloomberg API
 services using the Python programming language. This package is the source
 installer, and requires a C/C++ compilation environment compatible with

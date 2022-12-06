@@ -24,7 +24,7 @@ class TestEvents(unittest.TestCase):
         """Sample SessionStarted message"""
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SessionStarted")
+            blpapi.Names.SESSION_STARTED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -44,7 +44,7 @@ class TestEvents(unittest.TestCase):
         """Sample SessionStartupFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SessionStartupFailure")
+            blpapi.Names.SESSION_STARTUP_FAILURE
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -67,7 +67,7 @@ class TestEvents(unittest.TestCase):
         """Sample SessionTerminated message"""
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SessionTerminated")
+            blpapi.Names.SESSION_TERMINATED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -90,7 +90,7 @@ class TestEvents(unittest.TestCase):
         """Sample SessionConnectionUp message"""
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SessionConnectionUp")
+            blpapi.Names.SESSION_CONNECTION_UP
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -110,7 +110,7 @@ class TestEvents(unittest.TestCase):
         """Sample SessionConnectionDown message"""
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SessionConnectionDown")
+            blpapi.Names.SESSION_CONNECTION_DOWN
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -128,7 +128,7 @@ class TestEvents(unittest.TestCase):
         """Sample SessionClusterInfo message"""
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SessionClusterInfo")
+            blpapi.Names.SESSION_CLUSTER_INFO
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -149,7 +149,7 @@ class TestEvents(unittest.TestCase):
         """Sample SessionClusterUpdate message"""
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SessionClusterUpdate")
+            blpapi.Names.SESSION_CLUSTER_UPDATE
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -172,7 +172,7 @@ class TestEvents(unittest.TestCase):
         """Sample SlowConsumerWarning message"""
         event = blpapi.test.createEvent(blpapi.Event.ADMIN)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SlowConsumerWarning")
+            blpapi.Names.SLOW_CONSUMER_WARNING
         )
         blpapi.test.appendMessage(event, schema)
 
@@ -180,7 +180,7 @@ class TestEvents(unittest.TestCase):
         """Sample SlowConsumerWarningCleared message"""
         event = blpapi.test.createEvent(blpapi.Event.ADMIN)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SlowConsumerWarningCleared")
+            blpapi.Names.SLOW_CONSUMER_WARNING_CLEARED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -208,7 +208,7 @@ class TestEvents(unittest.TestCase):
         """Sample RequestTemplateAvailable message"""
         event = blpapi.test.createEvent(blpapi.Event.ADMIN)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("RequestTemplateAvailable")
+            blpapi.Names.REQUEST_TEMPLATE_AVAILABLE
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -225,7 +225,7 @@ class TestEvents(unittest.TestCase):
         """Sample RequestTemplatePending message"""
         event = blpapi.test.createEvent(blpapi.Event.ADMIN)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("RequestTemplatePending")
+            blpapi.Names.REQUEST_TEMPLATE_PENDING
         )
 
         blpapi.test.appendMessage(event, schema)
@@ -234,7 +234,7 @@ class TestEvents(unittest.TestCase):
         """Sample RequestTemplateTerminated message"""
         event = blpapi.test.createEvent(blpapi.Event.ADMIN)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("RequestTemplateTerminated")
+            blpapi.Names.REQUEST_TEMPLATE_TERMINATED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -261,7 +261,7 @@ class TestEvents(unittest.TestCase):
         """Sample ServiceOpened message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceOpened")
+            blpapi.Names.SERVICE_OPENED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -276,7 +276,7 @@ class TestEvents(unittest.TestCase):
         """Sample ServiceOpenFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceOpenFailure")
+            blpapi.Names.SERVICE_OPEN_FAILURE
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -299,7 +299,7 @@ class TestEvents(unittest.TestCase):
         """Sample ServiceRegistered message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceRegistered")
+            blpapi.Names.SERVICE_REGISTERED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -314,7 +314,7 @@ class TestEvents(unittest.TestCase):
         """Sample ServiceRegisterFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceRegisterFailure")
+            blpapi.Names.SERVICE_REGISTER_FAILURE
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -337,7 +337,7 @@ class TestEvents(unittest.TestCase):
         """Sample ServiceDeregistered message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceDeregistered")
+            blpapi.Names.SERVICE_DEREGISTERED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -352,7 +352,7 @@ class TestEvents(unittest.TestCase):
         """Sample ServiceDown message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceDown")
+            blpapi.Names.SERVICE_DOWN
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -378,9 +378,7 @@ class TestEvents(unittest.TestCase):
     def testServiceUp(self):
         """Sample ServiceUp message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
-        schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceUp")
-        )
+        schema = blpapi.test.getAdminMessageDefinition(blpapi.Names.SERVICE_UP)
 
         formatter = blpapi.test.appendMessage(event, schema)
 
@@ -406,7 +404,7 @@ class TestEvents(unittest.TestCase):
         """Sample ServiceAvailabilityInfo message"""
         event = blpapi.test.createEvent(blpapi.Event.SERVICE_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ServiceAvailabilityInfo")
+            blpapi.Names.SERVICE_AVAILABILITY_INFO
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -429,7 +427,7 @@ class TestEvents(unittest.TestCase):
         """Sample TokenGenerationSuccess message"""
         event = blpapi.test.createEvent(blpapi.Event.TOKEN_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TokenGenerationSuccess")
+            blpapi.Names.TOKEN_GENERATION_SUCCESS
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -444,7 +442,7 @@ class TestEvents(unittest.TestCase):
         """Sample TokenGenerationFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.TOKEN_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TokenGenerationFailure")
+            blpapi.Names.TOKEN_GENERATION_FAILURE
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -471,7 +469,7 @@ class TestEvents(unittest.TestCase):
         """Sample SubscriptionStarted message"""
         event = blpapi.test.createEvent(blpapi.Event.SUBSCRIPTION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SubscriptionStarted")
+            blpapi.Names.SUBSCRIPTION_STARTED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -503,7 +501,7 @@ class TestEvents(unittest.TestCase):
         """Sample SubscriptionFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.SUBSCRIPTION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SubscriptionFailure")
+            blpapi.Names.SUBSCRIPTION_FAILURE
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -539,7 +537,7 @@ class TestEvents(unittest.TestCase):
         """Sample SubscriptionStreamsActivated message"""
         event = blpapi.test.createEvent(blpapi.Event.SUBSCRIPTION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SubscriptionStreamsActivated")
+            blpapi.Names.SUBSCRIPTION_STREAMS_ACTIVATED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -559,7 +557,7 @@ class TestEvents(unittest.TestCase):
         """Sample SubscriptionStreamsDeactivated message"""
         event = blpapi.test.createEvent(blpapi.Event.SUBSCRIPTION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SubscriptionStreamsDeactivated")
+            blpapi.Names.SUBSCRIPTION_STREAMS_DEACTIVATED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -579,7 +577,7 @@ class TestEvents(unittest.TestCase):
         """Sample SubscriptionTerminated message"""
         event = blpapi.test.createEvent(blpapi.Event.SUBSCRIPTION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("SubscriptionTerminated")
+            blpapi.Names.SUBSCRIPTION_TERMINATED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -606,7 +604,7 @@ class TestEvents(unittest.TestCase):
         """Sample RequestFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.REQUEST_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("RequestFailure")
+            blpapi.Names.REQUEST_FAILURE
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -633,7 +631,7 @@ class TestEvents(unittest.TestCase):
         """Sample ResolutionSuccess message"""
         event = blpapi.test.createEvent(blpapi.Event.RESOLUTION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ResolutionSuccess")
+            blpapi.Names.RESOLUTION_SUCCESS
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -648,7 +646,7 @@ class TestEvents(unittest.TestCase):
         """Sample ResolutionFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.RESOLUTION_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("ResolutionFailure")
+            blpapi.Names.RESOLUTION_FAILURE
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -675,7 +673,7 @@ class TestEvents(unittest.TestCase):
         """Sample PermissionRequest message"""
         event = blpapi.test.createEvent(blpapi.Event.REQUEST)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("PermissionRequest")
+            blpapi.Names.PERMISSION_REQUEST
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -715,7 +713,7 @@ class TestEvents(unittest.TestCase):
         """Sample TopicCreated message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicCreated")
+            blpapi.Names.TOPIC_CREATED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -730,7 +728,7 @@ class TestEvents(unittest.TestCase):
         """Sample TopicCreateFailure message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicCreateFailure")
+            blpapi.Names.TOPIC_CREATE_FAILURE
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -754,7 +752,7 @@ class TestEvents(unittest.TestCase):
         """Sample TopicDeleted message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicDeleted")
+            blpapi.Names.TOPIC_DELETED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -769,7 +767,7 @@ class TestEvents(unittest.TestCase):
         """Sample TopicSubscribed message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicSubscribed")
+            blpapi.Names.TOPIC_SUBSCRIBED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -784,7 +782,7 @@ class TestEvents(unittest.TestCase):
         """Sample TopicResubscribed message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicResubscribed")
+            blpapi.Names.TOPIC_RESUBSCRIBED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -803,7 +801,7 @@ class TestEvents(unittest.TestCase):
         """Sample TopicUnsubscribed message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicUnsubscribed")
+            blpapi.Names.TOPIC_UNSUBSCRIBED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -818,7 +816,7 @@ class TestEvents(unittest.TestCase):
         """Sample TopicActivated message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicActivated")
+            blpapi.Names.TOPIC_ACTIVATED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -833,7 +831,7 @@ class TestEvents(unittest.TestCase):
         """Sample TopicDeactivated message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicDeactivated")
+            blpapi.Names.TOPIC_DEACTIVATED
         )
 
         formatter = blpapi.test.appendMessage(event, schema)
@@ -848,7 +846,7 @@ class TestEvents(unittest.TestCase):
         """Sample TopicRecap message"""
         event = blpapi.test.createEvent(blpapi.Event.TOPIC_STATUS)
         schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Name("TopicRecap")
+            blpapi.Names.TOPIC_RECAP
         )
 
         formatter = blpapi.test.appendMessage(event, schema)

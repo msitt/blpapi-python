@@ -20,7 +20,7 @@ permitted to be associated with that identifier.
 from typing import Sequence, Set, Optional
 from typing import Iterator as IteratorType
 from . import typehints  # pylint: disable=unused-import
-from .typehints import BlpapiNameOrStr, BlpapiNameOrStrOrIndex
+from .typehints import BlpapiNameOrIndex
 from .typehints import BlpapiSchemaElementDefinitionHandle
 from .typehints import BlpapiSchemaTypeDefinitionHandle
 from .exception import NotFoundException, IndexOutOfRangeException
@@ -343,7 +343,7 @@ class SchemaTypeDefinition:
             )
         )
 
-    def hasElementDefinition(self, name: BlpapiNameOrStr) -> bool:
+    def hasElementDefinition(self, name: Name) -> bool:
         """
         Args:
             name: Item identifier
@@ -354,6 +354,11 @@ class SchemaTypeDefinition:
 
         Raises:
             Exception: If ``name`` is neither a :class:`Name` nor a string.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         namepair = getNamePair(name)
@@ -364,7 +369,7 @@ class SchemaTypeDefinition:
         )
 
     def getElementDefinition(
-        self, nameOrIndex: BlpapiNameOrStrOrIndex
+        self, nameOrIndex: BlpapiNameOrIndex
     ) -> "SchemaElementDefinition":
         """
         Args:
@@ -378,6 +383,11 @@ class SchemaTypeDefinition:
                 ``hasElement(nameOrIndex) != True``.
             IndexOutOfRangeException: If ``nameOrIndex`` is an integer and
                 ``nameOrIndex >= numElementDefinitions()``
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``nameOrIndex``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         if not isinstance(nameOrIndex, int):

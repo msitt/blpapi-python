@@ -17,9 +17,9 @@ def main():
         description="Multiple requests with override example",
     )
     addConnectionAndAuthOptions(parser)
-    options = parser.parse_args()
+    cliOptions = parser.parse_args()
 
-    sessionOptions = createSessionOptions(options)
+    sessionOptions = createSessionOptions(cliOptions)
     session = blpapi.Session(sessionOptions)
 
     try:

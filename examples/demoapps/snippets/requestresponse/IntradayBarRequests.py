@@ -1,17 +1,23 @@
 # IntradayBarRequests.py
 
-BAR_DATA = "barData"
-BAR_TICK_DATA = "barTickData"
-OPEN = "open"
-HIGH = "high"
-LOW = "low"
-CLOSE = "close"
-VOLUME = "volume"
-NUM_EVENTS = "numEvents"
-TIME = "time"
-RESPONSE_ERROR = "responseError"
-CATEGORY = "category"
-MESSAGE = "message"
+from blpapi import Name
+
+BAR_DATA = Name("barData")
+BAR_TICK_DATA = Name("barTickData")
+OPEN = Name("open")
+HIGH = Name("high")
+LOW = Name("low")
+CLOSE = Name("close")
+VOLUME = Name("volume")
+NUM_EVENTS = Name("numEvents")
+TIME = Name("time")
+RESPONSE_ERROR = Name("responseError")
+SECURITY = Name("security")
+EVENT_TYPE = Name("eventType")
+INTERVAL = Name("interval")
+START_DATE_TIME = Name("startDateTime")
+END_DATE_TIME = Name("endDateTime")
+GAP_FILL_INITIAL_BAR = Name("gapFillInitialBar")
 
 DATETIME_FORMAT = "%m/%d/%Y %H:%M"
 
@@ -23,15 +29,15 @@ def createRequest(service, options):
     request = service.createRequest("IntradayBarRequest")
 
     # Only one security / eventType per request
-    request.set("security", options.securities[0])
-    request.set("eventType", options.eventTypes[0])
-    request.set("interval", options.barInterval)
+    request.set(SECURITY, options.securities[0])
+    request.set(EVENT_TYPE, options.eventTypes[0])
+    request.set(INTERVAL, options.barInterval)
 
-    request.set("startDateTime", options.startDateTime)
-    request.set("endDateTime", options.endDateTime)
+    request.set(START_DATE_TIME, options.startDateTime)
+    request.set(END_DATE_TIME, options.endDateTime)
 
     if options.gapFillInitialBar:
-        request.set("gapFillInitialBar", options.gapFillInitialBar)
+        request.set(GAP_FILL_INITIAL_BAR, options.gapFillInitialBar)
 
     return request
 

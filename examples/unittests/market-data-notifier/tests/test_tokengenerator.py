@@ -45,7 +45,7 @@ class TestTokenGenerator(unittest.TestCase):
         6. Verify that the expected token value is generated.
         """
         event = blpapi.test.createEvent(blpapi.Event.TOKEN_STATUS)
-        token_success = blpapi.Name("TokenGenerationSuccess")
+        token_success = blpapi.Names.TOKEN_GENERATION_SUCCESS
         schema_def = blpapi.test.getAdminMessageDefinition(token_success)
 
         formatter = blpapi.test.appendMessage(event, schema_def)
@@ -90,7 +90,7 @@ class TestTokenGenerator(unittest.TestCase):
         }
         event = blpapi.test.createEvent(blpapi.Event.TOKEN_STATUS)
 
-        token_failure = blpapi.Name("TokenGenerationFailure")
+        token_failure = blpapi.Names.TOKEN_GENERATION_FAILURE
         schema_def = blpapi.test.getAdminMessageDefinition(token_failure)
 
         formatter = blpapi.test.appendMessage(event, schema_def)

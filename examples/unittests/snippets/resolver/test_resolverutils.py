@@ -4,6 +4,7 @@ submodule in the context of resolvers.
 
 import unittest
 
+
 try:
     from unittest.mock import ANY, Mock
 except ImportError:
@@ -22,8 +23,11 @@ REASON = blpapi.Name("reason")
 CATEGORY = blpapi.Name("category")
 NOT_AUTHORIZED = blpapi.Name("NOT_AUTHORIZED")
 TOPIC_PERMISSIONS = blpapi.Name("topicPermissions")
-PERMISSION_REQUEST = blpapi.Name("PermissionRequest")
-PERMISSION_RESPONSE = blpapi.Name("PermissionResponse")
+PERMISSION_REQUEST = blpapi.Names.PERMISSION_REQUEST
+PERMISSION_RESPONSE = blpapi.Names.PERMISSION_RESPONSE
+TOPICS = blpapi.Name("topics")
+SERVICE_NAME = blpapi.Name("serviceName")
+APPLICATION_ID = blpapi.Name("applicationId")
 
 ALLOWED_APP_ID = 1234
 INVALID_APP_ID = 4321
@@ -38,6 +42,8 @@ def createPermissionEvent(cid, applicationId):
 
     schemaDef = blpapi.test.getAdminMessageDefinition(PERMISSION_REQUEST)
 
+    # this goes through Json converter for demonstration purposes
+    # and Json doesn't support Names as keys -- hence, strings.
     content = {
         "topics": ["topic1", "topic2"],
         "serviceName": "//blp/mytestservice",

@@ -31,10 +31,9 @@ import datetime
 from typing import Union, Any
 
 AnyPythonDatetime = Union[datetime.datetime, datetime.date, datetime.time]
-BlpapiNameOrStr = Union[str, "Name", bytes]
-BlpapiNameOrStrOrIndex = Union[str, "Name", bytes, int]
+BlpapiNameOrIndex = Union["Name", int]
 SupportedElementTypes = Union[
-    BlpapiNameOrStr, bool, int, float, AnyPythonDatetime, None
+    "Name", str, bytes, bool, int, float, AnyPythonDatetime, None
 ]
 # placeholders for opaque handles
 BlpapiAbstractSessionHandle = Any

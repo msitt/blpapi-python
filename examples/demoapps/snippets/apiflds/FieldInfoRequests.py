@@ -1,15 +1,21 @@
 from snippets.apiflds import ApiFieldsRequestUtils
 
+from blpapi import Name
+
+ID = Name("id")
+FIELD_DATA = Name("fieldData")
+RETURN_FIELD_DOC = Name("returnFieldDocumentation")
+
 
 def createRequest(apifldsService):
     request = apifldsService.createRequest("FieldInfoRequest")
 
-    idElement = request.getElement("id")
+    idElement = request.getElement(ID)
     idElement.appendValue("LAST_PRICE")
     idElement.appendValue("pq005")
     idElement.appendValue("zz0002")
 
-    request.set("returnFieldDocumentation", True)
+    request.set(RETURN_FIELD_DOC, True)
 
     return request
 
@@ -21,7 +27,7 @@ def processResponse(event):
     for msg in event:
         ApiFieldsRequestUtils.printHeader()
 
-        fields = msg["fieldData"]
+        fields = msg[FIELD_DATA]
         for field in fields:
             ApiFieldsRequestUtils.printField(field)
 

@@ -4,7 +4,7 @@
 
 from . import versionhelper
 
-__version__ = "3.18.3"
+__version__ = "3.19.1"
 
 
 def print_version() -> None:

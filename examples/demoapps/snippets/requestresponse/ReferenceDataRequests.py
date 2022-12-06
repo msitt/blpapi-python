@@ -10,6 +10,12 @@ SECURITY_ERROR = blpapi.Name("securityError")
 FIELD_EXCEPTIONS = blpapi.Name("fieldExceptions")
 FIELD_ID = blpapi.Name("fieldId")
 ERROR_INFO = blpapi.Name("errorInfo")
+SECURITIES = blpapi.Name("securities")
+FIELDS = blpapi.Name("fields")
+OVERRIDES = blpapi.Name("overrides")
+VALUE = blpapi.Name("value")
+ROW = blpapi.Name("row")
+TABLE_OVERRIDES = blpapi.Name("tableOverrides")
 
 
 def createRequest(service, options):
@@ -20,22 +26,22 @@ def createRequest(service, options):
     # examples of alternative interfaces for formatting a `Request`.
 
     request = service.createRequest("ReferenceDataRequest")
-    securitiesElement = request.getElement("securities")
+    securitiesElement = request.getElement(SECURITIES)
 
     for security in options.securities:
         securitiesElement.appendValue(security)
 
-    fieldsElement = request.getElement("fields")
+    fieldsElement = request.getElement(FIELDS)
     for field in options.fields:
         fieldsElement.appendValue(field)
 
     if options.overrides:
         # Add overrides
-        overridesElement = request.getElement("overrides")
+        overridesElement = request.getElement(OVERRIDES)
         for override in options.overrides:
             overrideElement = overridesElement.appendElement()
-            overrideElement.setElement("fieldId", override.fieldId)
-            overrideElement.setElement("value", override.value)
+            overrideElement.setElement(FIELD_ID, override.fieldId)
+            overrideElement.setElement(VALUE, override.value)
 
     return request
 
@@ -52,20 +58,20 @@ def createTableOverrideRequest(service, options):
     rate2 = (2.0, 12, "R")  # R = Ramp
 
     requestDict = {
-        "securities": options.securities,
-        "fields": options.fields,
-        "overrides": [
-            {"fieldId": "ALLOW_DYNAMIC_CASHFLOW_CALCS", "value": "Y"},
-            {"fieldId": "LOSS_SEVERITY", "value": 31},
+        SECURITIES: options.securities,
+        FIELDS: options.fields,
+        OVERRIDES: [
+            {FIELD_ID: "ALLOW_DYNAMIC_CASHFLOW_CALCS", VALUE: "Y"},
+            {FIELD_ID: "LOSS_SEVERITY", VALUE: 31},
         ],
-        "tableOverrides": [
+        TABLE_OVERRIDES: [
             {
-                "fieldId": "DEFAULT_VECTOR",
-                "row": [
-                    {"value": ["Anchor", "PROJ"]},
-                    {"value": ["Type", "CDR"]},
-                    {"value": rate1},
-                    {"value": rate2},
+                FIELD_ID: "DEFAULT_VECTOR",
+                ROW: [
+                    {VALUE: ["Anchor", "PROJ"]},
+                    {VALUE: ["Type", "CDR"]},
+                    {VALUE: rate1},
+                    {VALUE: rate2},
                 ],
             }
         ],

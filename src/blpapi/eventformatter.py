@@ -19,11 +19,10 @@ from . import internals
 from .utils import get_handle, invoke_if_valid, isNonScalarSequence
 from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
-from .typehints import BlpapiNameOrStr
 
 from collections import deque
 from collections.abc import Mapping
-from typing import Any, Callable, Optional, Deque, Tuple
+from typing import Any, Callable, Deque, Optional, Tuple, Union
 from typing import Mapping as MappingType
 
 
@@ -93,6 +92,12 @@ class EventFormatter(CHandle):
         None,
     )
 
+    __bytesTraits = (
+        internals.blpapi_EventFormatter_setValueBytes,
+        None,
+        None,
+    )
+
     __defaultTraits = (
         internals.blpapi_EventFormatter_setValueString,
         internals.blpapi_EventFormatter_appendValueString,
@@ -103,10 +108,12 @@ class EventFormatter(CHandle):
     @staticmethod
     def __getTraits(
         value: Any,
-    ) -> Tuple[Callable, Callable, Optional[Callable]]:
+    ) -> Tuple[Callable, Optional[Callable], Optional[Callable]]:
         """Returns traits for value based on its type"""
         if isinstance(value, str):
             return EventFormatter.__stringTraits
+        if isinstance(value, bytes):
+            return EventFormatter.__bytesTraits
         if isinstance(value, bool):
             return EventFormatter.__boolTraits
         if isinstance(value, int):
@@ -142,11 +149,11 @@ class EventFormatter(CHandle):
             selfhandle, internals.blpapi_EventFormatter_destroy
         )
         self.__handle = selfhandle
-        self.latestMessageName: Optional[BlpapiNameOrStr] = None
+        self.latestMessageName: Optional[Union[Name, str]] = None
 
     def appendMessage(
         self,
-        messageType: BlpapiNameOrStr,
+        messageType: Name,
         topic: "typehints.Topic",
         sequenceNumber: Optional[int] = None,
     ) -> None:
@@ -166,6 +173,11 @@ class EventFormatter(CHandle):
             wrapped or ``None`` is specified) than the last value used in any
             previous message on this ``topic``, otherwise the behavior is
             undefined.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
         name = getNamePair(messageType)
 
@@ -189,7 +201,7 @@ class EventFormatter(CHandle):
 
         self.latestMessageName = messageType
 
-    def appendResponse(self, operationName: BlpapiNameOrStr) -> None:
+    def appendResponse(self, operationName: Name) -> None:
         """Append an (empty) response message for the specified
         ``operationName``.
 
@@ -209,6 +221,11 @@ class EventFormatter(CHandle):
         Note:
             For ``PermissionRequest`` messages, use the ``PermissionResponse``
             operation name.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``operationName``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
         name = getNamePair(operationName)
         _ExceptionUtil.raiseOnError(
@@ -300,13 +317,13 @@ class EventFormatter(CHandle):
 
         self.latestMessageName = "<Recap>"
 
-    def setElement(self, name: BlpapiNameOrStr, value: Any) -> None:
+    def setElement(self, name: Name, value: Any) -> None:
         """Set an element in the :class:`Event` referenced by this
         :class:`EventFormatter`.
 
         Args:
             name: Name of the element to set
-            value (bool or str or int or float or ~datetime.datetime or Name):
+            value (bool or str or bytes or int or float or ~datetime.datetime or Name):
                 Value to set the element to
 
         If the ``name`` is invalid for the current message, or if
@@ -318,6 +335,11 @@ class EventFormatter(CHandle):
             Clients wishing to format and publish null values (e.g. for the
             purpose of cache management) should *not* use this function; use
             :meth:`setElementNull` instead.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
         traits = EventFormatter.__getTraits(value)
         namepair = getNamePair(name)
@@ -326,7 +348,7 @@ class EventFormatter(CHandle):
             traits[0](self.__handle, namepair[0], namepair[1], value)
         )
 
-    def setElementNull(self, name: BlpapiNameOrStr) -> None:
+    def setElementNull(self, name: Name) -> None:
         """Create a null element with the specified ``name``.
 
         Args:
@@ -336,6 +358,11 @@ class EventFormatter(CHandle):
             Whether or not fields containing null values are published to
             subscribers depends on the details of the service and schema
             configuration.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
         namepair = getNamePair(name)
         _ExceptionUtil.raiseOnError(
@@ -344,7 +371,7 @@ class EventFormatter(CHandle):
             )
         )
 
-    def pushElement(self, name: BlpapiNameOrStr) -> None:
+    def pushElement(self, name: Name) -> None:
         """Change the level at which this :class:`EventFormatter` is operating.
 
         Args:
@@ -373,6 +400,11 @@ class EventFormatter(CHandle):
             The element ``name`` must identify either a choice, a sequence or
             an array at the current level of the schema or the behavior is
             undefined.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
         namepair = getNamePair(name)
         _ExceptionUtil.raiseOnError(
@@ -400,6 +432,8 @@ class EventFormatter(CHandle):
                 Value to append
         """
         traits = EventFormatter.__getTraits(value)
+        if traits[1] is None:
+            raise NotImplementedError("Arrays of bytes are not supported.")
         value = invoke_if_valid(traits[2], value)
         _ExceptionUtil.raiseOnError(traits[1](self.__handle, value))
 
@@ -408,7 +442,7 @@ class EventFormatter(CHandle):
             internals.blpapi_EventFormatter_appendElement(self.__handle)
         )
 
-    def fromPy(self, value: MappingType[BlpapiNameOrStr, Any]) -> None:
+    def fromPy(self, value: MappingType[Name, Any]) -> None:
         """
         Format this :class:`EventFormatter`\ 's underlying :class:`Event` using
         ``value``.
@@ -437,14 +471,20 @@ class EventFormatter(CHandle):
         scalar value (e.g. :py:class:`str` or :py:class:`int`).
 
         Note:
-            Although :py:class:`str`, :py:class:`bytes`, :py:class:`bytearray`,
-            and :py:class:`memoryview` are sub-types of
+            Although :py:class:`str`, :py:class:`bytearray`, and
+            :py:class:`memoryview` are sub-types of
             :py:class:`collections.abc.Sequence`, :meth:`fromPy` treats them as
             scalars of type string and will use them to format scalar
             :class:`Element`\ s. If you wish to format an array
             :class:`Element` with instances of the aforementioned types, put
             them in a different :py:class:`collections.abc.Sequence`, like
             :py:class:`list`.
+
+        Note:
+            Although :py:class:`bytes` is sub-type of
+            :py:class:`collections.abc.Sequence`, :meth:`fromPy` treats it as a
+            scalar of type :py:class:`bytes` and will use it to format scalar
+            :class:`Element`. Arrays of :py:class:`bytes` are not supported.
 
         For null :class:`Element`\ s:
 
@@ -453,6 +493,11 @@ class EventFormatter(CHandle):
         * A null scalar :class:`Element` is formatted using ``None``.
         * An empty array :class:`Element` is formatted using an empty
           :py:class:`collections.abc.Sequence`.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            MappingType key. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
 
         Note:
             The behavior is undefined if :meth:`fromPy` is used to format an
@@ -540,8 +585,8 @@ class EventFormatter(CHandle):
     def _fromPyHelper(
         self,
         value: Any,
-        name: Optional[BlpapiNameOrStr] = None,
-        dpath: Optional[Deque[BlpapiNameOrStr]] = None,
+        name: Optional[Union[Name, str]] = None,
+        dpath: Optional[Deque[Union[Name, str]]] = None,
     ) -> None:
         """
         Args:
@@ -552,6 +597,11 @@ class EventFormatter(CHandle):
                 is ``None``, format the :class:`Event` at the current level.
             dpath: represents the level at which this
                 :class:`Eventformatter` is operating
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
         path = deque() if dpath is None else dpath
         namestr = "" if name is None else str(name)
@@ -590,7 +640,7 @@ class EventFormatter(CHandle):
 
         elif isNonScalarSequence(value):
             try:
-                self.pushElement(namestr)
+                self.pushElement(Name(namestr))
             except Exception as exc:
                 raise Exception(
                     getPathErrorMessage() + _fromPyErrorTemplate.format(exc)
@@ -635,9 +685,9 @@ class EventFormatter(CHandle):
         else:
             try:
                 if value is None:
-                    self.setElementNull(namestr)
+                    self.setElementNull(Name(namestr))
                 else:
-                    self.setElement(namestr, value)
+                    self.setElement(Name(namestr), value)
             except IndexOutOfRangeException:
                 path.append(namestr)
                 errorMsg = (

@@ -10,7 +10,6 @@ from blpapi import Event, Name, SchemaElementDefinition, Service, Topic
 from blpapi.exception import _ExceptionUtil
 from blpapi.utils import conv2str, get_handle, isstr
 from blpapi.test import MessageProperties, MessageFormatter
-from blpapi.typehints import BlpapiNameOrStr
 
 
 def createEvent(eventType: int) -> Event:
@@ -130,7 +129,7 @@ def createTopic(service: Service, isActive: bool = True) -> Topic:
 
 
 def getAdminMessageDefinition(
-    messageName: BlpapiNameOrStr,
+    messageName: Name,
 ) -> SchemaElementDefinition:
     """Return the definition for an admin message of the specified
     ``messageName``.
@@ -143,14 +142,23 @@ def getAdminMessageDefinition(
 
     Raises:
         Exception: If ``messageName`` does not name an admin message.
+
+    Note:
+        **Please use** :class:`blpapi.Name` **over** :class:`str` **where possible for**
+        ``messageName``. :class:`blpapi.Name` **objects should be initialized
+        once and then reused** as each :class:`blpapi.Name` instance refers to an
+        entry in a global static table which grows in an unbounded manner.
     """
     if isstr(messageName):
+        # although we hint that messageName should be a Name
+        # it may actually be a string, if users ignore this typehint
+        # in this case, we need to convert it
         messageName = Name(conv2str(messageName))  # type: ignore
     (
         rc,
         schema_element_definition_handle,
     ) = internals.blpapi_TestUtil_getAdminMessageDefinition(
-        get_handle(messageName)  # type: ignore
+        get_handle(messageName)
     )
     _ExceptionUtil.raiseOnError(rc)
     schema_definition = SchemaElementDefinition(

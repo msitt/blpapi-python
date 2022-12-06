@@ -14,6 +14,8 @@ from util.ConnectionAndAuthOptions import (
 )
 from util.MaxEventsOption import addMaxEventsOption
 
+SERVICE_NAME = blpapi.Name("serviceName")
+
 
 def parseCmdLine():
     """Parse command line arguments"""
@@ -116,7 +118,7 @@ def processGenericMessage(eventType, message):
             return True
     elif eventType == blpapi.Event.SERVICE_STATUS:
         if messageType == Names.SERVICE_OPEN_FAILURE:
-            serviceName = message.getElementAsString("serviceName")
+            serviceName = message.getElementAsString(SERVICE_NAME)
             print(f"Failed to open {serviceName}")
             printContactSupportMessage(message)
 

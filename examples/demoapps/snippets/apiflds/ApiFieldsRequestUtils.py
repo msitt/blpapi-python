@@ -1,3 +1,12 @@
+from blpapi import Name
+
+ID = Name("id")
+FIELD_INFO = Name("fieldInfo")
+MNEMONIC = Name("mnemonic")
+DESCRIPTION = Name("description")
+FIELD_ERROR = Name("fieldError")
+MESSAGE = Name("message")
+
 ID_LEN = 13
 MNEMONIC_LEN = 36
 DESC_LEN = 40
@@ -18,11 +27,11 @@ def printHeader():
 
 
 def printField(field):
-    fieldId = field["id"]
-    if "fieldInfo" in field:
-        fieldInfo = field["fieldInfo"]
-        fieldMnemonic = fieldInfo["mnemonic"]
-        fieldDesc = fieldInfo["description"]
+    fieldId = field[ID]
+    if FIELD_INFO in field:
+        fieldInfo = field[FIELD_INFO]
+        fieldMnemonic = fieldInfo[MNEMONIC]
+        fieldDesc = fieldInfo[DESCRIPTION]
 
         print(
             f"{fieldId.ljust(ID_LEN)}"
@@ -30,7 +39,7 @@ def printField(field):
             f"{fieldDesc.ljust(DESC_LEN)}"
         )
     else:
-        errorMsg = field["fieldError"]["message"]
+        errorMsg = field[FIELD_ERROR][MESSAGE]
 
         print()
         print(f" ERROR: {fieldId} - {errorMsg}")

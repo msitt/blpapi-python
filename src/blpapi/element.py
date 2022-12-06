@@ -13,12 +13,11 @@ from .datetime import _DatetimeUtil
 from .datatype import DataType
 from .name import Name, getNamePair
 from .schema import SchemaElementDefinition
-from .utils import conv2str, Iterator, isNonScalarSequence, isstr
+from .utils import Iterator, isNonScalarSequence
 from .chandle import CHandle
 from . import internals
 from .typehints import (
-    BlpapiNameOrStr,
-    BlpapiNameOrStrOrIndex,
+    BlpapiNameOrIndex,
     AnyPythonDatetime,
     SupportedElementTypes,
 )
@@ -98,7 +97,8 @@ class Element(CHandle):
     the ``getElementAs...()`` family of methods. This example shows how to get
     the value of the element ``city`` in the sequence element ``address``::
 
-        city = address.getElementAsString("city")
+        name_city = Name("city") # Ideally defined once (globally or class level)
+        city = address.getElementAsString(name_city)
 
     Note:
         ``getElementAsXYZ(name)`` method is a shortcut to
@@ -125,7 +125,8 @@ class Element(CHandle):
     value of the element ``city`` in the sequence element ``address`` to a
     string::
 
-        address.setElement("city", "New York")
+        name_city = Name("city") # Ideally defined once (globally or class level)
+        address.setElement(name_city, "New York")
 
     Methods which specify an :class:`Element` name accept name in two forms:
     :class:`Name` or a string. Passing :class:`Name` is more efficient.
@@ -184,7 +185,13 @@ class Element(CHandle):
     __stringTraits = (
         internals.blpapi_Element_setElementString,
         internals.blpapi_Element_setValueString,
-        conv2str,
+        None,
+    )
+
+    __bytesTraits = (
+        internals.blpapi_Element_setElementBytes,
+        internals.blpapi_Element_setValueBytes,
+        None,
     )
 
     __defaultTraits = (
@@ -198,8 +205,10 @@ class Element(CHandle):
         value: SupportedElementTypes,
     ) -> Tuple[Callable, Callable, Optional[Any]]:
         """traits dispatcher"""
-        if isstr(value):
+        if isinstance(value, str):
             return Element.__stringTraits
+        if isinstance(value, bytes):
+            return Element.__bytesTraits
         if isinstance(value, bool):
             return Element.__boolTraits
         if isinstance(value, int):
@@ -257,7 +266,7 @@ class Element(CHandle):
         return self.toString()
 
     def __getitem__(
-        self, nameOrIndex: BlpapiNameOrStrOrIndex
+        self, nameOrIndex: BlpapiNameOrIndex
     ) -> Union[SupportedElementTypes, "Element"]:
         """
         Args:
@@ -293,7 +302,7 @@ class Element(CHandle):
         # is name
         if not self.hasElement(nameOrIndex):
             raise KeyError(
-                f"Element {self.name()} "  # type: ignore
+                f"Element {self.name()} "
                 f"does not contain element"
                 f" {nameOrIndex}"
             )
@@ -310,7 +319,7 @@ class Element(CHandle):
 
     def __setitem__(
         self,
-        name: BlpapiNameOrStr,
+        name: Name,
         value: Union[Mapping, Sequence, SupportedElementTypes],
     ) -> None:
         """
@@ -613,7 +622,7 @@ class Element(CHandle):
             self.__handle, level, spacesPerLevel
         )
 
-    def getElement(self, nameOrIndex: BlpapiNameOrStrOrIndex) -> "Element":
+    def getElement(self, nameOrIndex: BlpapiNameOrIndex) -> "Element":
         """
         Args:
             nameOrIndex: Sub-element identifier
@@ -626,6 +635,11 @@ class Element(CHandle):
                 ``hasElement(nameOrIndex) != True``, or if ``nameOrIndex`` is an
                 integer and ``nameOrIndex >= numElements()``. Also if this
                 :class:`Element` is neither a sequence nor a choice.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``BlpapiNameOrStrOrIndex``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         if not isinstance(nameOrIndex, int):
@@ -663,7 +677,7 @@ class Element(CHandle):
         return Iterator(self, Element.numElements, Element.getElement)
 
     def hasElement(
-        self, name: BlpapiNameOrStr, excludeNullElements: bool = False
+        self, name: Name, excludeNullElements: bool = False
     ) -> bool:
         """
         Args:
@@ -677,6 +691,11 @@ class Element(CHandle):
 
         Raises:
             Exception: If ``name`` is neither a :class:`Name` nor a string.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         self.__assertIsValid()
@@ -739,6 +758,25 @@ class Element(CHandle):
 
         self.__assertIsValid()
         res = internals.blpapi_Element_getValueAsString(self.__handle, index)
+        _ExceptionUtil.raiseOnError(res[0])
+        return res[1]
+
+    def getValueAsBytes(self, index: int = 0) -> bytes:
+        """
+        Args:
+            index: Index of the value in the element
+
+        Returns:
+            ``index``\ th entry in the :class:`Element` as bytes.
+
+        Raises:
+            InvalidConversionException: If the data type of this
+                :class:`Element` cannot be converted to bytes.
+            IndexOutOfRangeException: If ``index >= numValues()``.
+        """
+
+        self.__assertIsValid()
+        res = internals.blpapi_Element_getValueAsBytes(self.__handle, index)
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
 
@@ -885,7 +923,7 @@ class Element(CHandle):
         )
         return Iterator(self, Element.numValues, valueGetter)
 
-    def getElementAsBool(self, name: BlpapiNameOrStr) -> bool:
+    def getElementAsBool(self, name: Name) -> bool:
         """
         Args:
             name: Sub-element identifier
@@ -898,11 +936,16 @@ class Element(CHandle):
                 if this :class:`Element` is neither a sequence nor a choice, or
                 in case it has no sub-element with the specified ``name``, or
                 in case the element's value can't be returned as a boolean.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         return self.getElement(name).getValueAsBool()
 
-    def getElementAsString(self, name: BlpapiNameOrStr) -> str:
+    def getElementAsString(self, name: Name) -> str:
         """
         Args:
             name: Sub-element identifier
@@ -915,11 +958,38 @@ class Element(CHandle):
                 if this :class:`Element` is neither a sequence nor a choice, or
                 in case it has no sub-element with the specified ``name``, or
                 in case the element's value can't be returned as a string.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         return self.getElement(name).getValueAsString()
 
-    def getElementAsDatetime(self, name: BlpapiNameOrStr) -> AnyPythonDatetime:
+    def getElementAsBytes(self, name: Name) -> bytes:
+        """
+        Args:
+            name: Sub-element identifier
+
+        Returns:
+            This element's sub-element with ``name`` as bytes
+
+        Raises:
+            Exception: If ``name`` is neither a :class:`Name` nor a string, or
+                if this :class:`Element` is neither a sequence nor a choice, or
+                in case it has no sub-element with the specified ``name``, or
+                in case the element's value can't be returned as bytes.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
+        """
+
+        return self.getElement(name).getValueAsBytes()
+
+    def getElementAsDatetime(self, name: Name) -> AnyPythonDatetime:
         """
         Args:
             name: Sub-element identifier
@@ -933,11 +1003,16 @@ class Element(CHandle):
                 if this :class:`Element` is neither a sequence nor a choice, or
                 in case it has no sub-element with the specified ``name``, or
                 in case the element's value can't be returned as a datetime.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         return self.getElement(name).getValueAsDatetime()
 
-    def getElementAsInteger(self, name: BlpapiNameOrStr) -> int:
+    def getElementAsInteger(self, name: Name) -> int:
         """
         Args:
             name: Sub-element identifier
@@ -950,11 +1025,16 @@ class Element(CHandle):
                 if this :class:`Element` is neither a sequence nor a choice, or
                 in case it has no sub-element with the specified ``name``, or
                 in case the element's value can't be returned as an integer.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         return self.getElement(name).getValueAsInteger()
 
-    def getElementAsFloat(self, name: BlpapiNameOrStr) -> float:
+    def getElementAsFloat(self, name: Name) -> float:
         """
         Args:
             name: Sub-element identifier
@@ -967,11 +1047,16 @@ class Element(CHandle):
                 if this :class:`Element` is neither a sequence nor a choice, or
                 in case it has no sub-element with the specified ``name``, or
                 in case the element's value can't be returned as a float.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         return self.getElement(name).getValueAsFloat()
 
-    def getElementAsName(self, name: BlpapiNameOrStr) -> Name:
+    def getElementAsName(self, name: Name) -> Name:
         """
         Args:
             name: Sub-element identifier
@@ -985,12 +1070,17 @@ class Element(CHandle):
                 in case it has no sub-element with the specified ``name``, or
                 in case the element's value can't be returned as a
                 :class:`Name`.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         return self.getElement(name).getValueAsName()
 
     def getElementValue(
-        self, name: BlpapiNameOrStr
+        self, name: Name
     ) -> Union[SupportedElementTypes, "Element"]:
         """
         Args:
@@ -1003,13 +1093,16 @@ class Element(CHandle):
             Exception: If ``name`` is neither a :class:`Name` nor a string, or
                 if this :class:`Element` is neither a sequence nor a choice, or
                 in case it has no sub-element with the specified ``name``.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         return self.getElement(name).getValue()
 
-    def setElement(
-        self, name: BlpapiNameOrStr, value: SupportedElementTypes
-    ) -> None:
+    def setElement(self, name: Name, value: SupportedElementTypes) -> None:
         """Set this Element's sub-element with 'name' to the specified 'value'.
 
         Args:
@@ -1029,12 +1122,18 @@ class Element(CHandle):
         - integers
         - float
         - string
+        - bytes
         - datetypes (``datetime.time``, ``datetime.date`` or
           ``datetime.datetime``)
         - :class:`Name`
 
         Any other ``value`` will be converted to a string with ``str`` function
         and then processed in the same way as string ``value``.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         self.__assertIsValid()
@@ -1067,6 +1166,7 @@ class Element(CHandle):
         - integers
         - float
         - string
+        - bytes
         - datetypes (``datetime.time``, ``datetime.date`` or
           ``datetime.datetime``)
         - :class:`Name`
@@ -1108,6 +1208,8 @@ class Element(CHandle):
 
         Any other ``value`` will be converted to a string with ``str`` function
         and then processed in the same way as string ``value``.
+
+        Arrays of bytes are not supported.
         """
 
         self.setValue(value, internals.ELEMENT_INDEX_END)
@@ -1129,7 +1231,7 @@ class Element(CHandle):
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
-    def setChoice(self, selectionName: BlpapiNameOrStr) -> "Element":
+    def setChoice(self, selectionName: Name) -> "Element":
         """Set this :class:`Element`\ 's active element to ``selectionName``.
 
         Args:
@@ -1182,14 +1284,20 @@ class Element(CHandle):
         value (e.g :py:class:`str` or :py:class:`int`).
 
         Note:
-            Although :py:class:`str`, :py:class:`bytes`, :py:class:`bytearray`,
-            and :py:class:`memoryview` are sub-types of
+            Although :py:class:`str`, :py:class:`bytearray`, and
+            :py:class:`memoryview` are sub-types of
             :py:class:`collections.abc.Sequence`, :meth:`fromPy` treats them as
             scalars of type string and will use them to format scalar
             :class:`Element`\ s. If you wish to format an array
             :class:`Element` with instances of the aforementioned types, put
             them in a different :py:class:`collections.abc.Sequence`, like
             :py:class:`list`.
+
+        Note:
+            Although :py:class:`bytes` is sub-type of
+            :py:class:`collections.abc.Sequence`, :meth:`fromPy` treats it as a
+            scalar of type :py:class:`bytes` and will use it to format scalar
+            :class:`Element`. Arrays of :py:class:`bytes` are not supported.
 
         Note:
             Using :meth:`fromPy` to format an :class:`Element` or one of its
@@ -1290,7 +1398,7 @@ class Element(CHandle):
     def _fromPyHelper(
         self,
         value: Union[Mapping, Sequence, SupportedElementTypes],
-        name: Optional[BlpapiNameOrStr] = None,
+        name: Optional[Name] = None,
         path: Optional[str] = None,
     ) -> None:
         """Helper method for `fromPy`.
@@ -1437,6 +1545,7 @@ _ELEMENT_VALUE_GETTER = {
     DataType.DATE: Element.getValueAsDatetime,
     DataType.TIME: Element.getValueAsDatetime,
     DataType.DATETIME: Element.getValueAsDatetime,
+    DataType.BYTEARRAY: Element.getValueAsBytes,
     DataType.ENUMERATION: Element.getValueAsName,
     DataType.SEQUENCE: Element.getValueAsElement,
     DataType.CHOICE: Element.getValueAsElement,

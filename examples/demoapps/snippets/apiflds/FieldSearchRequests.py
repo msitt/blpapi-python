@@ -1,14 +1,25 @@
+from demoapps.snippets.apiflds.CategorizedFieldSearchRequests import (
+    SEARCH_SPEC,
+)
 from snippets.apiflds import ApiFieldsRequestUtils
+
+from blpapi import Name
+
+EXCLUDE = Name("exclude")
+FIELD_TYPE = Name("fieldType")
+FIELD_DATA = Name("fieldData")
+SEARCH_SPEC = Name("searchSpec")
+RETURN_FIELD_DOC = Name("returnFieldDocumentation")
 
 
 def createRequest(apifldsService):
     request = apifldsService.createRequest("FieldSearchRequest")
-    request.set("searchSpec", "last price")
+    request.set(SEARCH_SPEC, "last price")
 
-    exclude = request.getElement("exclude")
-    exclude.setElement("fieldType", "Static")
+    exclude = request.getElement(EXCLUDE)
+    exclude.setElement(FIELD_TYPE, "Static")
 
-    request.set("returnFieldDocumentation", False)
+    request.set(RETURN_FIELD_DOC, False)
 
     return request
 
@@ -17,7 +28,7 @@ def processResponse(event):
     for msg in event:
         ApiFieldsRequestUtils.printHeader()
 
-        fields = msg["fieldData"]
+        fields = msg[FIELD_DATA]
         for field in fields:
             ApiFieldsRequestUtils.printField(field)
 

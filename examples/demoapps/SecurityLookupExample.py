@@ -46,7 +46,7 @@ class FilterAction(Action):
             parser.error(f"Invalid filter option '{values}'")
 
         filters = getattr(args, self.dest)
-        filters.append(InstrumentsFilter(vals[0], vals[1]))
+        filters.append(InstrumentsFilter(blpapi.Name(vals[0]), vals[1]))
 
 
 def parseCmdLine():

@@ -83,7 +83,7 @@ class TestEventProcessor(unittest.TestCase):
            notifier.log_session_state().
         """
         event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
-        session_started = blpapi.Name("SessionStarted")
+        session_started = blpapi.Names.SESSION_STARTED
         schema_def = blpapi.test.getAdminMessageDefinition(session_started)
 
         blpapi.test.appendMessage(event, schema_def)
@@ -108,7 +108,7 @@ class TestEventProcessor(unittest.TestCase):
            notifier.log_subscription_state().
         """
         event = blpapi.test.createEvent(blpapi.Event.SUBSCRIPTION_STATUS)
-        subscription_started = blpapi.Name("SubscriptionStarted")
+        subscription_started = blpapi.Names.SUBSCRIPTION_STARTED
         schema_def = blpapi.test.getAdminMessageDefinition(
             subscription_started
         )

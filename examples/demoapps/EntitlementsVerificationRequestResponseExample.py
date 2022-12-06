@@ -18,6 +18,10 @@ SECURITY_DATA = Name("securityData")
 SECURITY = Name("security")
 EID_DATA = Name("eidData")
 ENTITLEMENT_CHANGED = Name("EntitlementChanged")
+SECURITIES = Name("securities")
+FIELDS = Name("fields")
+RETURN_EIDS = Name("returnEids")
+SERVICE_NAME = Name("serviceName")
 
 
 class EntitlementsVerificationRequestResponseExample:
@@ -103,7 +107,7 @@ class EntitlementsVerificationRequestResponseExample:
         session.openServiceAsync(REFDATA_SVC_NAME)
 
     def _handleServiceOpened(self, session, _1, message):
-        serviceName = message["serviceName"]
+        serviceName = message[SERVICE_NAME]
         service = session.getService(serviceName)
 
         if serviceName == REFDATA_SVC_NAME:
@@ -111,7 +115,7 @@ class EntitlementsVerificationRequestResponseExample:
             return
 
     def _handleServiceOpenFailure(self, session, _1, message):
-        serviceName = message["serviceName"]
+        serviceName = message[SERVICE_NAME]
         if serviceName == REFDATA_SVC_NAME:
             print(f"Failed to open service '{serviceName}', stopping...")
             self._stop(session)
@@ -122,9 +126,9 @@ class EntitlementsVerificationRequestResponseExample:
     def _sendRefDataRequest(self, session, refDataService):
         request = refDataService.createRequest("ReferenceDataRequest")
         requestDict = {
-            "securities": self._options.securities,
-            "fields": ["PX_LAST", "DS002"],
-            "returnEids": True,
+            SECURITIES: self._options.securities,
+            FIELDS: ["PX_LAST", "DS002"],
+            RETURN_EIDS: True,
         }
 
         request.fromPy(requestDict)

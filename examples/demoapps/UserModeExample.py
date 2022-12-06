@@ -14,6 +14,10 @@ from threading import Event as ThreadingEvent
 from time import sleep
 
 REFDATA_SVC_NAME = "//blp/refdata"
+SECURITIES = blpapi.Name("securities")
+FIELDS = blpapi.Name("fields")
+RETURN_EIDS = blpapi.Name("returnEids")
+SERVICE_NAME = blpapi.Name("serviceName")
 
 
 class UserModeExample:
@@ -115,7 +119,7 @@ class UserModeExample:
         _event: blpapi.Event,
         message: blpapi.Message,
     ):
-        serviceName = message["serviceName"]
+        serviceName = message[SERVICE_NAME]
         self._refDataService = session.getService(serviceName)
 
         if serviceName == REFDATA_SVC_NAME:
@@ -132,7 +136,7 @@ class UserModeExample:
         _event: blpapi.Event,
         message: blpapi.Message,
     ):
-        serviceName = message["serviceName"]
+        serviceName = message[SERVICE_NAME]
         if serviceName == REFDATA_SVC_NAME:
             print(f"Failed to open service '{serviceName}', stopping...")
             self._stop()
@@ -213,9 +217,9 @@ class UserModeExample:
         # and in authorization handler if the service is open (after).
         request = self._refDataService.createRequest("ReferenceDataRequest")
         requestDict = {
-            "securities": self._options.securities,
-            "fields": ["PX_LAST", "DS002"],
-            "returnEids": True,
+            SECURITIES: self._options.securities,
+            FIELDS: ["PX_LAST", "DS002"],
+            RETURN_EIDS: True,
         }
 
         request.fromPy(requestDict)

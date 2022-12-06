@@ -6,7 +6,6 @@ import datetime
 
 import blpapi
 
-AUTHORIZATION_SUCCESS = blpapi.Name("AuthorizationSuccess")
 TOKEN = blpapi.Name("token")
 
 # pylint: disable=too-few-public-methods, too-many-branches
@@ -50,7 +49,7 @@ class Authorizer:
             ):
                 for msg in event:
                     print(msg)
-                    if msg.messageType() == AUTHORIZATION_SUCCESS:
+                    if msg.messageType() == blpapi.Names.AUTHORIZATION_SUCCESS:
                         return True
                     print("Authorization failed")
                     return False

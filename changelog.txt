@@ -1,3 +1,27 @@
+Version 3.19.1:
+===============
+- Stability and performance improvements
+
+Version 3.19.0:
+===============
+- Add complete support for elements with bytearray data types ('bytes')
+	'EventFormatter.setValue(Name, bytes)' can now be used to set elements
+	of type Bytearray and the value of these elements are retrievable via
+	'Message.getElementAsBytes(Name)' or 'Element.getElementAsBytes(Name)'
+	or 'Element.getValueAsBytes()'.
+
+- Encourage usage of 'Name' in setters and getters taking the 'name' argument by string
+	Developers are encouraged to prefer 'Name' type parameter for methods
+	that accept either 'Name' or 'str' as the use of 'Name' is more
+	performant and functionally equivalent to 'str'.
+
+	This recommendation is enforced for clients with strict type check enabled.
+
+	Classes with such methods include 'Element', 'EventFormatter', 'Message',
+	'MessageFormatter', 'Request', 'Service', 'Name' and 'Schema'.
+
+- Stability and performance improvements
+
 Version 3.18.3:
 ===============
 - Stability and performance improvements

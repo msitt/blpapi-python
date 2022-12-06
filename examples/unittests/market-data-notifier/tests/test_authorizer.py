@@ -196,7 +196,7 @@ class TestAuthorizer(unittest.TestCase):
         self.mock_token_generator.generate.return_value = token
 
         event = blpapi.test.createEvent(blpapi.Event.RESPONSE)
-        authorization_success = blpapi.Name("AuthorizationSuccess")
+        authorization_success = blpapi.Names.AUTHORIZATION_SUCCESS
         schema_def = blpapi.test.getAdminMessageDefinition(
             authorization_success
         )

@@ -13,6 +13,16 @@ import time
 DEFAULT_MARKET_DATA_TOPIC = "IBM Equity"
 DEFAULT_PAGE_TOPIC = "1245/4/5"
 
+MARKET_DATA_EVENTS = blpapi.Name("MarketDataEvents")
+HIGH = blpapi.Name("HIGH")
+LOW = blpapi.Name("LOW")
+MESSAGE_TYPE_ROW_UPDATE = blpapi.Name("RowUpdate")
+ROW_NUM = blpapi.Name("rowNum")
+SPAN_UPDATE = blpapi.Name("spanUpdate")
+START_COL = blpapi.Name("startCol")
+LENGTH = blpapi.Name("length")
+TEXT = blpapi.Name("text")
+
 
 class MyStream(object):
     def __init__(self, sid=""):
@@ -106,10 +116,6 @@ def formatMarketData(eventFormatter, topic):
     # format an `Event`. For an example of formatting an `Event` using the
     # `Element`-based` interface of `EventFormatter`, see
     # `InteractivePublisherExample.formatMarketDataEvent`.
-    MARKET_DATA_EVENTS = blpapi.Name("MarketDataEvents")
-    HIGH = blpapi.Name("HIGH")
-    LOW = blpapi.Name("LOW")
-
     eventFormatter.appendMessage(MARKET_DATA_EVENTS, topic)
 
     secondsStr = time.strftime("%S", time.localtime())
@@ -126,14 +132,14 @@ def formatPageData(eventFormatter, topic):
     # `InteractivePublisherExample.formatPageEvent`.
     numRows = 5
     for i in range(1, numRows + 1):
-        eventFormatter.appendMessage("RowUpdate", topic)
-        eventFormatter.setElement("rowNum", i)
-        eventFormatter.pushElement("spanUpdate")
+        eventFormatter.appendMessage(MESSAGE_TYPE_ROW_UPDATE, topic)
+        eventFormatter.setElement(ROW_NUM, i)
+        eventFormatter.pushElement(SPAN_UPDATE)
         eventFormatter.appendElement()
-        eventFormatter.setElement("startCol", 1)
+        eventFormatter.setElement(START_COL, 1)
         secondsStr = time.strftime("%S", time.localtime())
-        eventFormatter.setElement("length", len(secondsStr))
-        eventFormatter.setElement("text", secondsStr)
+        eventFormatter.setElement(LENGTH, len(secondsStr))
+        eventFormatter.setElement(TEXT, secondsStr)
         eventFormatter.popElement()
 
         eventFormatter.popElement()

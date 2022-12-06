@@ -11,7 +11,7 @@ import warnings
 from typing import Optional, Set
 from typing import Iterator as IteratorType
 from . import typehints  # pylint: disable=unused-import
-from .typehints import BlpapiNameOrStr, BlpapiNameOrStrOrIndex
+from .typehints import BlpapiNameOrIndex
 from .typehints import BlpapiServiceHandle, BlpapiOperationHandle
 from .event import Event
 from .name import getNamePair
@@ -248,7 +248,7 @@ class Service(CHandle):
         """
         return internals.blpapi_Service_description(self.__handle)
 
-    def hasOperation(self, name: BlpapiNameOrStr) -> bool:
+    def hasOperation(self, name: "typehints.Name") -> bool:
         """
         Returns:
             ``True`` if the specified ``name`` is a valid
@@ -262,7 +262,7 @@ class Service(CHandle):
             )
         )
 
-    def getOperation(self, nameOrIndex: BlpapiNameOrStrOrIndex) -> Operation:
+    def getOperation(self, nameOrIndex: BlpapiNameOrIndex) -> Operation:
         """
         Args:
             nameOrIndex: Name or index of the operation
@@ -274,6 +274,12 @@ class Service(CHandle):
             Exception: If ``nameOrIndex`` is a string or a :class:`Name` and
                 ``hasOperation(nameOrIndex) != True``, or if ``nameOrIndex`` is
                 an integer and ``nameOrIndex >= numOperations()``.
+
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``nameOrIndex``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         if not isinstance(nameOrIndex, int):
@@ -306,7 +312,7 @@ class Service(CHandle):
             self, Service.numOperations, Service.getOperation
         )
 
-    def hasEventDefinition(self, name: BlpapiNameOrStr) -> bool:
+    def hasEventDefinition(self, name: "typehints.Name") -> bool:
         """
         Args:
             name: Event identifier
@@ -317,6 +323,11 @@ class Service(CHandle):
 
         Raises:
             Exception: If ``name`` is neither a :class:`Name` nor a string.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         names = getNamePair(name)
@@ -327,7 +338,7 @@ class Service(CHandle):
         )
 
     def getEventDefinition(
-        self, nameOrIndex: BlpapiNameOrStrOrIndex
+        self, nameOrIndex: BlpapiNameOrIndex
     ) -> SchemaElementDefinition:
         """Get the definition of a specified event.
 
@@ -343,6 +354,11 @@ class Service(CHandle):
                 ``hasEventDefinition(nameOrIndex) != True``
             IndexOutOfRangeException: If ``nameOrIndex`` is an integer and
                 ``nameOrIndex >= numEventDefinitions()``
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``nameOrIndex``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
         """
 
         if not isinstance(nameOrIndex, int):

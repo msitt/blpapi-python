@@ -7,13 +7,12 @@
 from functools import singledispatch, update_wrapper
 from datetime import date, time, datetime
 from json import dumps
-from typing import Any, Callable, Union
+from typing import Any, Callable
 
 from blpapi import internals, Name
 from blpapi.typehints import (
     AnyPythonDatetime,
     BlpapiMessageFormatterHandle,
-    BlpapiNameOrStr,
     SupportedElementTypes,
 )
 from blpapi.datetime import _DatetimeUtil
@@ -26,7 +25,6 @@ from blpapi.utils import (
     MIN_32BIT_INT,
     MIN_64BIT_INT,
     MAX_64BIT_INT,
-    STR_TYPES,
 )
 
 
@@ -93,9 +91,7 @@ class MessageFormatter:
     def _handle(self) -> BlpapiMessageFormatterHandle:
         return self.__handle
 
-    def setElement(
-        self, name: BlpapiNameOrStr, value: SupportedElementTypes
-    ) -> None:
+    def setElement(self, name: Name, value: SupportedElementTypes) -> None:
         """Set the element with the specified ``name`` to the specified
         ``value`` in the current :class:`blpapi.Message` referenced by this
         :class:`MessageFormatter`.
@@ -110,6 +106,12 @@ class MessageFormatter:
                 - The element identified by ``name`` has already been set
                 - The ``value`` cannot be assigned to the element identified by
                     ``name``
+
+        Note:
+            **Please use** :class:`blpapi.Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`blpapi.Name` **objects should be initialized
+            once and then reused** as each :class:`blpapi.Name` instance refers to an
+            entry in a global static table which grows in an unbounded manner.
         """
         if isstr(name):
             name = Name(conv2str(name))  # type: ignore
@@ -122,7 +124,7 @@ class MessageFormatter:
 
         Args:
             name (Name): Identifies the element which will be set to ``value``
-            value (bool or str or int or float or date or time or
+            value (bool or str or bytes or int or float or date or time or
                 datetime or Name or None):
                 The value to assign to the specified element.
 
@@ -134,7 +136,7 @@ class MessageFormatter:
                     ``name``
         """
         raise TypeError(
-            f"The type of value {value} is not supported. Type"
+            f"The type of value {value!r} is not supported. Type"
             f" is {type(value)}. Please refer to the"
             " documentation for the supported types."
         )
@@ -206,18 +208,25 @@ class MessageFormatter:
             )
         )
 
-    def _setElementStr(self, name: Name, value: Union[bytes, str]) -> None:
+    @_setElement.register(str)
+    def _(self, name: Name, value: str) -> None:
         """Dispatch method for setting string types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_setValueString(
-                self.__handle, get_handle(name), conv2str(value)
+                self.__handle, get_handle(name), value
             )
         )
 
-    for _str_type in STR_TYPES:
-        _setElement.register(_str_type, _setElementStr)
+    @_setElement.register(bytes)
+    def _(self, name: Name, value: bytes) -> None:
+        """Dispatch method for setting `bytes` types."""
+        _ExceptionUtil.raiseOnError(
+            internals.blpapi_MessageFormatter_setValueBytes(
+                self.__handle, get_handle(name), value
+            )
+        )
 
-    def pushElement(self, name: BlpapiNameOrStr) -> None:
+    def pushElement(self, name: Name) -> None:
         """Change the level at which this :class:`MessageFormatter` is
         operating to the element specified by ``name``.
 
@@ -240,12 +249,18 @@ class MessageFormatter:
         Raises:
             Exception: If the ``name`` is invalid for the current message or if
                 the element identified by ``name`` has already been set.
+
+        Note:
+            **Please use** :class:`blpapi.Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`blpapi.Name` **objects should be initialized
+            once and then reused** as each :class:`blpapi.Name` instance refers to an
+            entry in a global static table which grows in an unbounded manner.
         """
         if isstr(name):
             name = Name(conv2str(name))  # type: ignore
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_pushElement(
-                self.__handle, get_handle(name)  # type: ignore
+                self.__handle, get_handle(name)
             )
         )
 
@@ -335,16 +350,14 @@ class MessageFormatter:
             )
         )
 
-    def _appendValueStr(self, value: Union[bytes, str]) -> None:
+    @appendValue.register(str)
+    def _(self, value: str) -> None:
         """Dispatch method for appending string types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_appendValueString(
-                self.__handle, conv2str(value)
+                self.__handle, value
             )
         )
-
-    for _str_type in STR_TYPES:
-        appendValue.register(_str_type, _appendValueStr)
 
     def appendElement(self) -> None:
         """Create an array :class:`blpapi.Element` and append it to the

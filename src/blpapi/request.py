@@ -12,7 +12,6 @@ from typing import Any, Mapping, Set
 from .typehints import BlpapiRequestHandle
 from .element import Element
 from .exception import _ExceptionUtil
-from .typehints import BlpapiNameOrStr
 from . import internals
 from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
@@ -56,24 +55,48 @@ class Request(CHandle):
 
         return self.toString()
 
-    def __getitem__(self, name: BlpapiNameOrStr) -> Any:
+    def __getitem__(self, name: "typehints.Name") -> Any:
         """Equivalent to :meth:`asElement().__getitem__(name)
-        <Element.__getitem__>`."""
+        <Element.__getitem__>`.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
+        """
         return self.asElement()[name]
 
-    def __setitem__(self, name: BlpapiNameOrStr, value: Any) -> None:
+    def __setitem__(self, name: "typehints.Name", value: Any) -> None:
         """Equivalent to :meth:`asElement().__setitem__(name, value)
-        <Element.__setitem__>`."""
+        <Element.__setitem__>`.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
+        """
         self.asElement()[name] = value
 
-    def set(self, name: BlpapiNameOrStr, value: Any) -> None:
+    def set(self, name: "typehints.Name", value: Any) -> None:
         """Equivalent to :meth:`asElement().setElement(name, value)
-        <Element.setElement>`."""
+        <Element.setElement>`.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
+        """
         self.asElement().setElement(name, value)
 
-    def append(self, name: BlpapiNameOrStr, value: Any) -> None:
+    def append(self, name: "typehints.Name", value: Any) -> None:
         """Equivalent to :meth:`getElement(name).appendValue(value)
-        <Element.appendValue>`."""
+        <Element.appendValue>`.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
+        """
         self.getElement(name).appendValue(value)
 
     def fromPy(self, requestDict: Mapping) -> None:
@@ -108,9 +131,15 @@ class Request(CHandle):
             self.__element = weakref.ref(el)  # type: ignore
         return el
 
-    def getElement(self, name: BlpapiNameOrStr) -> Element:
+    def getElement(self, name: "typehints.Name") -> Element:
         """Equivalent to :meth:`asElement().getElement(name)
-        <Element.getElement>`."""
+        <Element.getElement>`.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
+        """
         return self.asElement().getElement(name)
 
     def getRequestId(self) -> str:

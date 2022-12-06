@@ -25,7 +25,6 @@ from .typehints import (
     AnyPythonDatetime,
     BlpapiConstantHandle,
     BlpapiConstantListHandle,
-    BlpapiNameOrStr,
 )
 from . import utils
 from . import internals
@@ -268,7 +267,7 @@ class ConstantList:
         """
         return internals.blpapi_ConstantList_datatype(self.__handle)
 
-    def hasConstant(self, name: BlpapiNameOrStr) -> bool:
+    def hasConstant(self, name: Name) -> bool:
         """
         Args:
             name: Name of the constant
@@ -287,7 +286,7 @@ class ConstantList:
             )
         )
 
-    def getConstant(self, name: BlpapiNameOrStr) -> Constant:
+    def getConstant(self, name: Name) -> Constant:
         """
         Args:
             name: Name of the constant

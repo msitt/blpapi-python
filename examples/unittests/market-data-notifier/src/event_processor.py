@@ -4,6 +4,7 @@ import blpapi
 TOKEN_SUCCESS = blpapi.Name("TokenSuccess")
 TOKEN_FAILURE = blpapi.Name("TokenFailure")
 TOKEN = blpapi.Name("token")
+LAST_PRICE = blpapi.Name("LAST_PRICE")
 
 # pylint: disable=too-few-public-methods
 class EventProcessor:
@@ -21,7 +22,7 @@ class EventProcessor:
             elif event.eventType() == blpapi.Event.SUBSCRIPTION_STATUS:
                 self._notifier.log_subscription_state(msg)
             elif event.eventType() == blpapi.Event.SUBSCRIPTION_DATA:
-                last_price = msg.getElementAsFloat("LAST_PRICE")
+                last_price = msg.getElementAsFloat(LAST_PRICE)
                 result = self._compute_engine.someVeryComplexComputation(
                     last_price
                 )

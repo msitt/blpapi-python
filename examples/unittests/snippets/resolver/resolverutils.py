@@ -7,8 +7,6 @@ import blpapi
 # are more efficient on use through the interface. By creating the
 # 'blpapi.Name' objects in advance we can take advantage of the efficiency
 # without paying the cost of constructing them when needed.
-PERMISSION_REQUEST = blpapi.Name("PermissionRequest")
-PERMISSION_RESPONSE = blpapi.Name("PermissionResponse")
 TOPIC = blpapi.Name("topic")
 TOPICS = blpapi.Name("topics")
 TOPIC_PERMISSION = blpapi.Name("topicPermissions")
@@ -67,7 +65,7 @@ def handlePermissionRequest(providerSession, service, request):
 
     Only accept requests with applicationId `ALLOWED_APP_ID`.
     """
-    assert request.messageType() == PERMISSION_REQUEST
+    assert request.messageType() == blpapi.Names.PERMISSION_REQUEST
 
     disallowed = 1
     if (
@@ -78,7 +76,7 @@ def handlePermissionRequest(providerSession, service, request):
 
     response = service.createResponseEvent(request.correlationIds()[0])
     formatter = blpapi.EventFormatter(response)
-    formatter.appendResponse(PERMISSION_RESPONSE)
+    formatter.appendResponse(blpapi.Names.PERMISSION_RESPONSE)
 
     topics = request.getElement(TOPICS)
     formatter.pushElement(TOPIC_PERMISSION)

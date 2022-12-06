@@ -15,7 +15,7 @@ import datetime
 from typing import Set, Optional, Any, List
 from blpapi.datetime import _DatetimeUtil, UTC
 from . import typehints  # pylint: disable=unused-import
-from .typehints import BlpapiNameOrStr, BlpapiNameOrStrOrIndex
+from .typehints import BlpapiNameOrIndex
 from .typehints import BlpapiMessageHandle, AnyPythonDatetime
 from .typehints import SupportedElementTypes
 from typing import Iterator as IteratorType
@@ -110,7 +110,7 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
 
         return self.toString()
 
-    def __getitem__(self, name: BlpapiNameOrStrOrIndex) -> Any:
+    def __getitem__(self, name: BlpapiNameOrIndex) -> Any:
         """Equivalent to
         :meth:`asElement().__getitem__()<Element.__getitem__()>`.
         """
@@ -249,9 +249,15 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
         return res
 
     def hasElement(
-        self, name: BlpapiNameOrStr, excludeNullElements: bool = False
+        self, name: Name, excludeNullElements: bool = False
     ) -> bool:
-        """Equivalent to asElement().hasElement(name, excludeNullElements)."""
+        """Equivalent to asElement().hasElement(name, excludeNullElements).
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
+        """
         return self.asElement().hasElement(name, excludeNullElements)
 
     def numElements(self) -> int:
@@ -259,34 +265,80 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
         <Element.numElements()>`."""
         return self.asElement().numElements()
 
-    def getElement(self, name: BlpapiNameOrStrOrIndex) -> Element:
+    def getElement(self, name: BlpapiNameOrIndex) -> Element:
         """Equivalent to :meth:`asElement().getElement(name)
-        <Element.getElement()>`."""
+        <Element.getElement()>`.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
+        """
         return self.asElement().getElement(name)
 
-    def getElementAsBool(self, name: BlpapiNameOrStr) -> bool:
+    def getElementAsBool(self, name: Name) -> bool:
         """Equivalent to :meth:`asElement().getElementAsBool(name)
-        <Element.getElementAsBool()>`."""
+        <Element.getElementAsBool()>`.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
+        """
         return self.asElement().getElementAsBool(name)
 
-    def getElementAsString(self, name: BlpapiNameOrStr) -> str:
+    def getElementAsString(self, name: Name) -> str:
         """Equivalent to :meth:`asElement().getElementAsString(name)
-        <Element.getElementAsString()>`."""
+        <Element.getElementAsString()>`.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
+        """
         return self.asElement().getElementAsString(name)
 
-    def getElementAsInteger(self, name: BlpapiNameOrStr) -> int:
+    def getElementAsBytes(self, name: Name) -> bytes:
+        """Equivalent to :meth:`asElement().getElementAsBytes(name)
+        <Element.getElementAsBytes()>`.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
+        """
+        return self.asElement().getElementAsBytes(name)
+
+    def getElementAsInteger(self, name: Name) -> int:
         """Equivalent to :meth:`asElement().getElementAsInteger(name)
-        <Element.getElementAsInteger()>`."""
+        <Element.getElementAsInteger()>`.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
+        """
         return self.asElement().getElementAsInteger(name)
 
-    def getElementAsFloat(self, name: BlpapiNameOrStr) -> float:
+    def getElementAsFloat(self, name: Name) -> float:
         """Equivalent to :meth:`asElement().getElementAsFloat(name)
-        <Element.getElementAsFloat()>`."""
+        <Element.getElementAsFloat()>`.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost.
+        """
         return self.asElement().getElementAsFloat(name)
 
-    def getElementAsDatetime(self, name: BlpapiNameOrStr) -> AnyPythonDatetime:
+    def getElementAsDatetime(self, name: Name) -> AnyPythonDatetime:
         """Equivalent to :meth:`asElement().getElementAsDatetime(name)
-        <Element.getElementAsDatetime()>`."""
+        <Element.getElementAsDatetime()>`.
+
+        Note:
+            **Please use** :class:`Name` **over** :class:`str` **where possible for**
+            ``name``. :class:`Name` **objects should be initialized
+            once and then reused** in order to minimize lookup cost."""
         return self.asElement().getElementAsDatetime(name)
 
     def getRequestId(self) -> Optional[str]:

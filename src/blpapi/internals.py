@@ -547,6 +547,9 @@ def blpapi_Element_getValueAsElement(element, index):
 def blpapi_Element_getValueAsName(element, index):
     return _internals.blpapi_Element_getValueAsName(element, index)
 
+def blpapi_Element_getValueAsBytes(element, index):
+    return _internals.blpapi_Element_getValueAsBytes(element, index)
+
 def blpapi_Element_getChoice(element):
     return _internals.blpapi_Element_getChoice(element)
 
@@ -565,6 +568,9 @@ def blpapi_Element_setValueString(element, value, index):
 def blpapi_Element_setValueHighPrecisionDatetime(element, value, index):
     return _internals.blpapi_Element_setValueHighPrecisionDatetime(element, value, index)
 
+def blpapi_Element_setValueBytes(element, value, index):
+    return _internals.blpapi_Element_setValueBytes(element, value, index)
+
 def blpapi_Element_setValueFromName(element, value, index):
     return _internals.blpapi_Element_setValueFromName(element, value, index)
 
@@ -582,6 +588,9 @@ def blpapi_Element_setElementString(element, nameString, name, value):
 
 def blpapi_Element_setElementHighPrecisionDatetime(element, nameString, name, value):
     return _internals.blpapi_Element_setElementHighPrecisionDatetime(element, nameString, name, value)
+
+def blpapi_Element_setElementBytes(element, nameString, name, value):
+    return _internals.blpapi_Element_setElementBytes(element, nameString, name, value)
 
 def blpapi_Element_setElementFromName(element, elementName, name, buffer):
     return _internals.blpapi_Element_setElementFromName(element, elementName, name, buffer)
@@ -645,6 +654,9 @@ def blpapi_EventFormatter_setValueString(formatter, typeString, typeName, value)
 
 def blpapi_EventFormatter_setValueFromName(formatter, typeString, typeName, value):
     return _internals.blpapi_EventFormatter_setValueFromName(formatter, typeString, typeName, value)
+
+def blpapi_EventFormatter_setValueBytes(formatter, typeString, typeName, value):
+    return _internals.blpapi_EventFormatter_setValueBytes(formatter, typeString, typeName, value)
 
 def blpapi_EventFormatter_setValueNull(formatter, typeString, typeName):
     return _internals.blpapi_EventFormatter_setValueNull(formatter, typeString, typeName)
@@ -738,6 +750,9 @@ def blpapi_MessageFormatter_setValueString(formatter, typeName, value):
 
 def blpapi_MessageFormatter_setValueFromName(formatter, typeName, value):
     return _internals.blpapi_MessageFormatter_setValueFromName(formatter, typeName, value)
+
+def blpapi_MessageFormatter_setValueBytes(formatter, typeName, value):
+    return _internals.blpapi_MessageFormatter_setValueBytes(formatter, typeName, value)
 
 def blpapi_MessageFormatter_setValueNull(formatter, typeName):
     return _internals.blpapi_MessageFormatter_setValueNull(formatter, typeName)
@@ -1065,6 +1080,12 @@ def blpapi_SessionOptions_flushPublishedEventsTimeout(parameters):
 
 def blpapi_SessionOptions_bandwidthSaveModeDisabled(parameters):
     return _internals.blpapi_SessionOptions_bandwidthSaveModeDisabled(parameters)
+
+def blpapi_SessionOptions_setApplicationIdentityKey(parameters, applicationIdentityKey, size):
+    return _internals.blpapi_SessionOptions_setApplicationIdentityKey(parameters, applicationIdentityKey, size)
+
+def blpapi_SessionOptions_applicationIdentityKey(size, parameters):
+    return _internals.blpapi_SessionOptions_applicationIdentityKey(size, parameters)
 
 def blpapi_TlsOptions_destroy(parameters):
     return _internals.blpapi_TlsOptions_destroy(parameters)

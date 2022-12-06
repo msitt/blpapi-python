@@ -11,13 +11,14 @@ from . import internals
 from .utils import conv2str, get_handle, isstr
 from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
-from .typehints import BlpapiNameOrStr, BlpapiNameHandle
+from .typehints import BlpapiNameHandle
 
 
 # pylint: disable=broad-except
 class Name(CHandle):
-    """:class:`Name` represents a string in a form which is efficient for
-    comparison.
+    """:class:`Name` represents a string in a form which is efficient for hashing and
+    comparison, thus providing efficient lookup when used as a key in either
+    ordered or hash-based containers.
 
     :class:`Name` objects are used to identify and access the classes which
     define the schema - :class:`SchemaTypeDefinition`,
@@ -30,7 +31,7 @@ class Name(CHandle):
     :class:`Name` objects constructed from equal strings will always compare
     equally.
 
-    Where possible, :class:`Name` objects should be initialized once and then
+    :class:`Name` objects should be initialized once and then
     reused.  Creating a :class:`Name` object involves a search in a container
     requiring multiple string comparison operations.
 
@@ -105,6 +106,15 @@ class Name(CHandle):
 
         return internals.blpapi_Name_string(self.__handle)
 
+    def __repr__(self) -> str:
+        """
+
+        Return a string that this Name represents.
+        Container's __str__ uses contained objects' __repr__
+
+        """
+        return f"blpapi.Name('{self}')"
+
     def __eq__(self, other: Any) -> bool:
         """x.__eq__(y) <==> x==y"""
         s = conv2str(other)
@@ -123,7 +133,7 @@ class Name(CHandle):
 
 
 def getNamePair(
-    name: BlpapiNameOrStr,
+    name: "Name",
 ) -> Union[Tuple[None, BlpapiNameHandle], Tuple[str, None]]:
     """Create a tuple that contains a name string and blpapi_Name_t*.
 
@@ -139,6 +149,10 @@ def getNamePair(
         TypeError: If ``name`` is neither a :class:`Name` nor a string
 
     For internal use only.
+
+    Note:
+        :class:`Name` **objects should be initialized
+        once and then reused** in order to minimize lookup cost.
     """
 
     if isinstance(name, Name):

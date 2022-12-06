@@ -12,6 +12,8 @@ AUTH_OPTION_APP = "app"
 AUTH_OPTION_USER_APP = "userapp"
 AUTH_OPTION_DIR = "dir"
 
+TOKEN = blpapi.Name("token")
+
 
 class AuthOptionsAction(Action):
     """The action that parses authorization options from user input"""
@@ -102,7 +104,7 @@ def main():
             for msg in event:
                 msgType = msg.messageType()
                 if msgType == blpapi.Names.TOKEN_GENERATION_SUCCESS:
-                    token = msg.getElementAsString("token")
+                    token = msg.getElementAsString(TOKEN)
                     print(f"Token is successfully generated: {token}")
                 elif msgType == blpapi.Names.TOKEN_GENERATION_FAILURE:
                     print(f"Failed to generate token: {msg}")

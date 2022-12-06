@@ -8,8 +8,35 @@ from util.ConnectionAndAuthOptions import (
 import threading
 import time
 
+TOPIC_PERMISSIONS = blpapi.Name("topicPermissions")
 RESOLVED_TOPIC = blpapi.Name("resolvedTopic")
+TOPIC = blpapi.Name("topic")
 TOPICS = blpapi.Name("topics")
+UUID = blpapi.Name("uuid")
+APPLICATION_ID = blpapi.Name("applicationId")
+SUBSERVICE_CODE = blpapi.Name("subServiceCode")
+RESULT = blpapi.Name("result")
+REASON = blpapi.Name("reason")
+SOURCE = blpapi.Name("source")
+CATEGORY = blpapi.Name("category")
+SUBCATEGORY = blpapi.Name("subcategory")
+PERMISSIONS = blpapi.Name("permissions")
+PERMISSION_SERVICE = blpapi.Name("permissionService")
+DESCRIPTION = blpapi.Name("description")
+EIDS = blpapi.Name("eids")
+NUM_ROWS = blpapi.Name("numRows")
+NUM_COLS = blpapi.Name("numCols")
+MESSAGE_TYPE_ROW_UPDATE = blpapi.Name("RowUpdate")
+ROW_UPDATE = blpapi.Name("rowUpdate")
+ROW_NUM = blpapi.Name("rowNum")
+SPAN_UPDATE = blpapi.Name("spanUpdate")
+START_COL = blpapi.Name("startCol")
+LENGTH = blpapi.Name("length")
+TEXT = blpapi.Name("text")
+OPEN = blpapi.Name("OPEN")
+MARKET_DATA_EVENTS = blpapi.Name("MarketDataEvents")
+HIGH = blpapi.Name("HIGH")
+LOW = blpapi.Name("LOW")
 
 
 class MyEventHandler(object):
@@ -130,28 +157,28 @@ class MyEventHandler(object):
         response = service.createResponseEvent(msg.correlationId())
         permission = 1  # ALLOWED: 0, DENIED: 1
         ef = blpapi.EventFormatter(response)
-        if msg.hasElement("uuid"):
-            msg.getElementAsInteger("uuid")
+        if msg.hasElement(UUID):
+            msg.getElementAsInteger(UUID)
             permission = 0
-        if msg.hasElement("applicationId"):
-            msg.getElementAsInteger("applicationId")
+        if msg.hasElement(APPLICATION_ID):
+            msg.getElementAsInteger(APPLICATION_ID)
             permission = 0
 
         # In appendResponse the string is the name of the
         # operation, the correlationId indicates which request we
         # are responding to.
-        ef.appendResponse("PermissionResponse")
-        ef.pushElement("topicPermissions")
+        ef.appendResponse(blpapi.Names.PERMISSION_RESPONSE)
+        ef.pushElement(TOPIC_PERMISSIONS)
 
         # For each of the topics in the request, add an entry to
         # the response.
         topicsElement = msg.getElement(TOPICS).values()
         for topic in topicsElement:
             ef.appendElement()
-            ef.setElement("topic", topic)
+            ef.setElement(TOPIC, topic)
             if self.resolveSubServiceCode:
                 try:
-                    ef.setElement("subServiceCode", self.resolveSubServiceCode)
+                    ef.setElement(SUBSERVICE_CODE, self.resolveSubServiceCode)
                     print(
                         f"Mapping topic {topic} to subServiceCode"
                         f" {self.resolveSubServiceCode}"
@@ -161,21 +188,21 @@ class MyEventHandler(object):
                         "subServiceCode could not be set."
                         " Resolving without subServiceCode"
                     )
-            ef.setElement("result", permission)
+            ef.setElement(RESULT, permission)
             if permission == 1:  # DENIED
-                ef.pushElement("reason")
-                ef.setElement("source", "My Publisher Name")
-                ef.setElement("category", "NOT_AUTHORIZED")
-                ef.setElement("subcategory", "Publisher Controlled")
+                ef.pushElement(REASON)
+                ef.setElement(SOURCE, "My Publisher Name")
+                ef.setElement(CATEGORY, "NOT_AUTHORIZED")
+                ef.setElement(SUBCATEGORY, "Publisher Controlled")
                 ef.setElement(
-                    "description", "Permission denied by My Publisher Name"
+                    DESCRIPTION, "Permission denied by My Publisher Name"
                 )
                 ef.popElement()
             elif self.eids:
-                ef.pushElement("permissions")
+                ef.pushElement(PERMISSIONS)
                 ef.appendElement()
-                ef.setElement("permissionService", "//blp/blpperm")
-                ef.pushElement("eids")
+                ef.setElement(PERMISSION_SERVICE, "//blp/blpperm")
+                ef.pushElement(EIDS)
                 for eid in self.eids:
                     ef.appendValue(eid)
                 ef.popElement()
@@ -191,18 +218,18 @@ class MyEventHandler(object):
 
 def formatPageRecapEvent(eventFormatter):
     numRows = 5
-    eventFormatter.setElement("numRows", numRows)
-    eventFormatter.setElement("numCols", 80)
-    eventFormatter.pushElement("rowUpdate")
+    eventFormatter.setElement(NUM_ROWS, numRows)
+    eventFormatter.setElement(NUM_COLS, 80)
+    eventFormatter.pushElement(ROW_UPDATE)
 
     for i in range(1, numRows + 1):
         eventFormatter.appendElement()
-        eventFormatter.setElement("rowNum", i)
-        eventFormatter.pushElement("spanUpdate")
+        eventFormatter.setElement(ROW_NUM, i)
+        eventFormatter.pushElement(SPAN_UPDATE)
         eventFormatter.appendElement()
-        eventFormatter.setElement("startCol", 1)
-        eventFormatter.setElement("length", 10)
-        eventFormatter.setElement("text", "RECAP")
+        eventFormatter.setElement(START_COL, 1)
+        eventFormatter.setElement(LENGTH, 10)
+        eventFormatter.setElement(TEXT, "RECAP")
         eventFormatter.popElement()
         eventFormatter.popElement()
         eventFormatter.popElement()
@@ -211,7 +238,7 @@ def formatPageRecapEvent(eventFormatter):
 
 
 def formatMarketDataRecapEvent(eventFormatter):
-    eventFormatter.setElement("OPEN", 100.0)
+    eventFormatter.setElement(OPEN, 100.0)
 
 
 def parseCmdLine():
@@ -368,7 +395,7 @@ def main():
         except blpapi.Exception as exception:
             print(
                 "FAILED to add active sub-service codes."
-                f" Exception {exception.description()}"
+                f" Exception {exception}"
             )
 
     try:
@@ -429,10 +456,6 @@ def formatMarketDataEvent(eventFormatter, topic, publishNull):
     # of `EventFormatter` to format an `Event`. For an example of formatting an
     # `Event` using `EventFormatter.fromPy`, see
     # `BroadcastPublisherExample.formatMarketData`.
-    MARKET_DATA_EVENTS = blpapi.Name("MarketDataEvents")
-    HIGH = blpapi.Name("HIGH")
-    LOW = blpapi.Name("LOW")
-
     eventFormatter.appendMessage(MARKET_DATA_EVENTS, topic)
     if publishNull:
         eventFormatter.setElementNull(HIGH)
@@ -451,18 +474,18 @@ def formatPageEvent(eventFormatter, topic, publishNull):
     # `BroadcastPublisherExample.formatPageData`.
     numRows = 5
     for i in range(1, numRows + 1):
-        eventFormatter.appendMessage("RowUpdate", topic)
+        eventFormatter.appendMessage(MESSAGE_TYPE_ROW_UPDATE, topic)
 
         secondsStr = time.strftime("%S", time.localtime())
-        messageDict = {"rowNum": i}
+        messageDict = {ROW_NUM: i}
         if publishNull:
-            messageDict["spanUpdate"] = {}
+            messageDict[SPAN_UPDATE] = {}
         else:
-            messageDict["spanUpdate"] = [
+            messageDict[SPAN_UPDATE] = [
                 {
-                    "startCol": 1,
-                    "length": len(secondsStr),
-                    "text": secondsStr,
+                    START_COL: 1,
+                    LENGTH: len(secondsStr),
+                    TEXT: secondsStr,
                 }
             ]
 

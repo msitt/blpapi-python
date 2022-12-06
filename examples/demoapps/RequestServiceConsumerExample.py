@@ -53,7 +53,7 @@ def main():
         fieldsElement.appendValue("DS002")
 
         # Set time stamp
-        request.set("timestamp", time.time())
+        request.set(TIMESTAMP, time.time())
 
         print(f"Sending Request: {request}")
 

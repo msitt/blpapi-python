@@ -18,6 +18,7 @@ from util.events.SessionRouter import SessionRouter
 
 EID = Name("EID")
 ENTITLEMENT_CHANGED = Name("EntitlementChanged")
+SERVICE_NAME = Name("serviceName")
 
 
 def parseCmdLine():
@@ -141,7 +142,7 @@ class EntitlementsVerificationSubscriptionExample:
         self._exampleStoppedThreadingEvent.set()
 
     def _handleServiceOpened(self, _1, _2, message: Message):
-        serviceName = message.getElementAsString("serviceName")
+        serviceName = message.getElementAsString(SERVICE_NAME)
         if serviceName == self._options.service:
             self._subscribe()
         else:
@@ -157,7 +158,7 @@ class EntitlementsVerificationSubscriptionExample:
             print(exc)
 
     def _handleServiceOpenFailure(self, _1, _2, message: Message):
-        serviceName = message.getElementAsString("serviceName")
+        serviceName = message.getElementAsString(SERVICE_NAME)
         if serviceName == self._options.service:
             self._stop()
         else:

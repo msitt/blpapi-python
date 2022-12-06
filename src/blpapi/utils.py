@@ -162,7 +162,7 @@ def deprecated(func_or_reason: Union[Callable, str]) -> Callable:
 # `Event` formatting.
 # pylint: disable=deprecated-class,no-name-in-module
 def isNonScalarSequence(obj: Any) -> bool:
-    scalarTypes = STR_TYPES + (bytearray, memoryview)
+    scalarTypes = (str, bytes, bytearray, memoryview)
     return isinstance(obj, Sequence) and not isinstance(obj, scalarTypes)
 
 
