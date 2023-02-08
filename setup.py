@@ -57,9 +57,12 @@ if is64bit:
 else:
     blpapiLibraryName = "blpapi3_32"
 
+extraCompileArgs = []
 extraLinkArgs = []
 package_data = {}
-if platform == "windows":
+if platform == "linux":
+    extraCompileArgs = ["-Werror=implicit-function-declaration"]
+elif platform == "windows":
     extraLinkArgs = ["/MANIFEST"]
 
     # Handle the very frequent case when user need to use Visual C++ 2010
@@ -85,6 +88,7 @@ blpapi_wrap = Extension(
     include_dirs=[blpapiIncludes],
     library_dirs=[blpapiLibraryPath],
     libraries=[blpapiLibraryName],
+    extra_compile_args=extraCompileArgs,
     extra_link_args=extraLinkArgs,
 )
 
@@ -94,6 +98,7 @@ versionhelper_wrap = Extension(
     include_dirs=[blpapiIncludes],
     library_dirs=[blpapiLibraryPath],
     libraries=[blpapiLibraryName],
+    extra_compile_args=extraCompileArgs,
     extra_link_args=extraLinkArgs,
 )
 
@@ -108,7 +113,7 @@ setup(
     packages=["blpapi", "blpapi.test"],
     package_dir={"": "src"},
     package_data=package_data,
-    python_requires=">=3",
+    python_requires=">=3.7",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",

@@ -16,7 +16,7 @@ def debug_load_error(error: ImportError) -> ImportError:
     # Try to load just the version.py
     version_imported = True
     try:
-        from .version import version, cpp_sdk_version
+        from .version import version, cpp_sdk_version, expected_cpp_sdk_version
     except ImportError as version_error:
         import_error = _version_load_error(version_error)
         version_imported = False
@@ -25,7 +25,7 @@ def debug_load_error(error: ImportError) -> ImportError:
         # If the version loading succeeds, the most likely reason for a failure
         # is a mismatch between C++ and Python SDKs.
         import_error = _version_mismatch_error(
-            error, version(), cpp_sdk_version()
+            error, version(), cpp_sdk_version(), expected_cpp_sdk_version()
         )
 
     # Environment diagnostics currently only works for windows
@@ -104,7 +104,10 @@ was added to {_linker_env()} before entering the interpreter.
 
 
 def _version_mismatch_error(
-    error: ImportError, py_version: str, cpp_version: str
+    error: ImportError,
+    py_version: str,
+    cpp_version: str,
+    expected_cpp_sdk_version: str,
 ) -> str:
     """Called when "import version" succeeds after "import internals" fails
     Returns some debugging message.
@@ -115,6 +118,7 @@ Mismatch between C++ and Python SDK libraries.
 
 Python SDK version    {py_version}
 Found C++ SDK version {cpp_version}
+Expected C++ SDK version >= {expected_cpp_sdk_version}
 
 Download and install the latest C++ SDK from:
 

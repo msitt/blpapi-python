@@ -1,3 +1,17 @@
+Version 3.19.3:
+==============
+- Add 'expected_cpp_sdk_version()' method that returns a minimum compatible
+	BLPAPI C++ SDK version.
+- Drop Python 3.6 support
+	Installation and use of the BLPAPI Python SDK now requires a Python 3.7+ runtime.
+- Add Python 3.11 support
+- Stability and performance improvements
+
+Version 3.19.2:
+===============
+- Remove Python 3.6 support from DPKG
+- Stability and performance improvements
+
 Version 3.19.1:
 ===============
 - Stability and performance improvements

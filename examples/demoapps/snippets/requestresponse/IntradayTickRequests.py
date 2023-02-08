@@ -9,11 +9,11 @@ TIME = Name("time")
 TYPE = Name("type")
 VALUE = Name("value")
 RESPONSE_ERROR = Name("responseError")
-SECURITY = Name.getName("security")
-EVENT_TYPES = Name.getName("eventTypes")
-START_DATE_TIME = Name.getName("startDateTime")
-END_DATE_TIME = Name.getName("endDateTime")
-INCLUDE_CONDITION_CODES = Name.getName("includeConditionCodes")
+SECURITY = Name("security")
+EVENT_TYPES = Name("eventTypes")
+START_DATE_TIME = Name("startDateTime")
+END_DATE_TIME = Name("endDateTime")
+INCLUDE_CONDITION_CODES = Name("includeConditionCodes")
 
 DATETIME_FORMAT = "%m/%d/%Y %H:%M"
 

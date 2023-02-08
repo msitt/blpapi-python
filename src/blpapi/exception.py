@@ -129,7 +129,9 @@ class _ExceptionUtil:
         )
 
     @staticmethod
-    def raiseException(errorCode: int, description: str = None) -> None:
+    def raiseException(
+        errorCode: int, description: Optional[str] = None
+    ) -> None:
         """Throw the appropriate exception for the specified 'errorCode'."""
         if description is None:
             description = internals.blpapi_getLastErrorDescription(errorCode)
@@ -139,7 +141,9 @@ class _ExceptionUtil:
         raise errorClass(description, errorCode)
 
     @staticmethod
-    def raiseOnError(errorCode: int, description: str = None) -> None:
+    def raiseOnError(
+        errorCode: int, description: Optional[str] = None
+    ) -> None:
         """Throw the appropriate exception for the specified 'errorCode' if the
         'errorCode != 0'.
         """

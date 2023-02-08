@@ -3946,8 +3946,9 @@ PyObject* getScalarValue(const blpapi_Element_t* element, const int index) {
             static PyObject* datetimeUtil = NULL;
             static PyObject* convertToNative = NULL;
             blpapi_HighPrecisionDatetime_t highPrecisionDatetimeBuffer;
-            PyObject* highPrecisionDatetimePyObj;
-            PyObject* pyDatetimeResult;
+            PyObject* datetimePyObj = NULL;
+            PyObject* highPrecisionDatetimePyObj = NULL;
+            PyObject* pyDatetimeResult = NULL;
 
             // initialize static variables once
             if (convertToNative == NULL) {
@@ -4008,11 +4009,14 @@ PyObject* getScalarValue(const blpapi_Element_t* element, const int index) {
                         "Internal error getting HighPrecisionDatetime");
                 return NULL;
             }
+
+            datetimePyObj = Py_BuildValue("(O)",
+                    highPrecisionDatetimePyObj);
             pyDatetimeResult = PyObject_Call(
                     convertToNative,
-                    Py_BuildValue("(O)",
-                                  highPrecisionDatetimePyObj),
+                    datetimePyObj,
                     NULL);
+            Py_DECREF(datetimePyObj);
             Py_DECREF(highPrecisionDatetimePyObj);
             return pyDatetimeResult;
         }

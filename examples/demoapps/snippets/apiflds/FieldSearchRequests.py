@@ -1,6 +1,3 @@
-from demoapps.snippets.apiflds.CategorizedFieldSearchRequests import (
-    SEARCH_SPEC,
-)
 from snippets.apiflds import ApiFieldsRequestUtils
 
 from blpapi import Name

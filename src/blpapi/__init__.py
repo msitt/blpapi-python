@@ -63,7 +63,13 @@ from .subscriptionlist import SubscriptionList
 from .topic import Topic
 from .topiclist import TopicList
 from .zfputil import ZfpUtil
-from .version import __version__, version, cpp_sdk_version, print_version
+from .version import (
+    __version__,
+    version,
+    cpp_sdk_version,
+    expected_cpp_sdk_version,
+    print_version,
+)
 
 # blpapi.test module
 from .test import *

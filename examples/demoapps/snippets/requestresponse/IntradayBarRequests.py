@@ -2,16 +2,18 @@
 
 from blpapi import Name
 
-BAR_DATA = Name("barData")
-BAR_TICK_DATA = Name("barTickData")
-OPEN = Name("open")
-HIGH = Name("high")
-LOW = Name("low")
-CLOSE = Name("close")
-VOLUME = Name("volume")
-NUM_EVENTS = Name("numEvents")
-TIME = Name("time")
-RESPONSE_ERROR = Name("responseError")
+# Used with `Message.toPy`, meaning they should use strings rather than `Name`
+BAR_DATA = "barData"
+BAR_TICK_DATA = "barTickData"
+OPEN = "open"
+HIGH = "high"
+LOW = "low"
+CLOSE = "close"
+VOLUME = "volume"
+NUM_EVENTS = "numEvents"
+TIME = "time"
+RESPONSE_ERROR = "responseError"
+
 SECURITY = Name("security")
 EVENT_TYPE = Name("eventType")
 INTERVAL = Name("interval")
