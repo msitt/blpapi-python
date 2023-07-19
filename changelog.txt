@@ -1,3 +1,21 @@
+Version 3.20.1:
+===============
+- Support for application identity key (AIK)
+    The application identity key (AIK) is obtained through Bloomberg for registered
+    applications. It uniquely identifies the registered application for a given Session
+    and can be provided by 'SessionOptions.setApplicationIdentityKey'.
+
+- Stability and performance improvements
+
+Version 3.20.0:
+===============
+- Add SOCKS5 proxy support
+    Users can configure, per endpoint in `SessionOptions`, a single SOCKS5
+    proxy host by using `Socks5Config` class. SOCKS5 authentication is not
+    supported.
+
+- Stability and performance improvements
+
 Version 3.19.3:
 ==============
 - Add 'expected_cpp_sdk_version()' method that returns a minimum compatible
@@ -77,13 +95,13 @@ Version 3.17.0:
 	to convert a 'Message' to 'dict' with 'Message.toPy'. 'Message's and
 	'Request's have 'dict'-like behavior with '__getitem__' and
 	'__setitem__'.
-	
+
 - A new method 'correlationId()' is added to 'blpapi.Message'
 	A new method 'Message.correlationId()' is added to return the
 	single CorrelationId associated with the message or None if the
 	message has no CorrelationIds. If the message has multiple
 	CorrelationIds, the first one is returned.
-	
+
 - Constants for common used `Names`
 	A new utility class `blpapi.Names` has been added with common
 	message names.
@@ -174,7 +192,7 @@ Version 3.15.0:
 	- Simplified existing multi-phased approach to authorization so that both
 	  token generation and authorization can be done by the SDK.
 		- If 'AuthOptions' instance is provided to the session through the
-		  newly introduced 'setSessionIdentityOptions' (part of'SessionOptions'),
+		  newly introduced 'setSessionIdentityOptions' (part of 'SessionOptions'),
 		  both token generation and subsequent authorization will be done by the
 		  SDK. Successfully authorized identity would become the default
 		  identity for the session that's used for all future requests unless

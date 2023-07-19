@@ -57,6 +57,7 @@ redundant with 'TopicCreated', 'TopicSubscribed', 'TopicDeleted', and
 publishers that do not maintain per-topic state.
 """
 
+from __future__ import annotations
 from weakref import ref, ReferenceType  # pylint: disable=unused-import
 from typing import Optional, Callable, Sequence
 import sys
@@ -77,6 +78,7 @@ from .utils import get_handle
 from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiEventHandle
+
 
 # pylint: disable=line-too-long,too-many-lines
 # pylint: disable=protected-access,too-many-public-methods,bare-except,too-many-function-args
@@ -317,7 +319,7 @@ class ProviderSession(
         self,
         options: Optional[SessionOptions] = None,
         eventHandler: Optional[
-            Callable[[Event, "ProviderSession"], None]
+            Callable[[Event, ProviderSession], None]
         ] = None,
         eventDispatcher: Optional["typehints.EventDispatcher"] = None,
     ) -> None:

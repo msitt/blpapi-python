@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+
 # pylint: disable=too-few-public-methods
 class Application:
     """Custom application for demonstration purposes."""

@@ -1,5 +1,6 @@
 """Dummy 'compute engine' for testing purposes"""
 
+
 # pylint: disable=too-few-public-methods, no-init, no-self-use
 class ComputeEngine:
     """A class that does some 'financial computation'."""

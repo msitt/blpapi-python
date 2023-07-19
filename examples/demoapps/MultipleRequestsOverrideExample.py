@@ -11,7 +11,6 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 
 
 def main():
-
     parser = ArgumentParser(
         formatter_class=RawTextHelpFormatter,
         description="Multiple requests with override example",

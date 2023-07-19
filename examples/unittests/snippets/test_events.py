@@ -100,6 +100,7 @@ class TestEvents(unittest.TestCase):
             "serverId": "ny-hostname",
             "encryptionStatus": "Clear",
             "compressionStatus": "Uncompressed",
+            "socks5Proxy": "socks5Host:1080",
         }
 
         formatter.formatMessageDict(content)
@@ -118,6 +119,7 @@ class TestEvents(unittest.TestCase):
         content = {
             "server": "12.34.56.78:8194",
             "serverId": "ny-hostname",
+            "socks5Proxy": "socks5Host:1080",
         }
 
         formatter.formatMessageDict(content)

@@ -7,6 +7,7 @@ This file defines these classes:
 
 """
 
+from __future__ import annotations
 from .exception import _ExceptionUtil
 from .exception import UnsupportedOperationException
 from .datetime import _DatetimeUtil
@@ -36,6 +37,7 @@ from typing import (
     Union,
 )
 
+
 # pylint: disable=protected-access,too-many-return-statements,too-many-public-methods
 class ElementIterator(IteratorABC):
     """An iterator over the objects within an :class:`Element`.
@@ -45,11 +47,11 @@ class ElementIterator(IteratorABC):
     value(s).
     """
 
-    def __init__(self, element: "Element") -> None:
+    def __init__(self, element: Element) -> None:
         self._element = element
         self._index = 0
 
-    def __next__(self) -> Union[SupportedElementTypes, "Element"]:
+    def __next__(self) -> Union[SupportedElementTypes, Element]:
         i = self._index
         self._index += 1
 
@@ -233,7 +235,7 @@ class Element(CHandle):
         self,
         handle: "typehints.BlpapiElementHandle",
         dataHolder: Optional[
-            Union["Element", "typehints.Message", "typehints.Request"]
+            Union[Element, "typehints.Message", "typehints.Request"]
         ],
     ) -> None:
         noop = lambda *args: None
@@ -243,7 +245,7 @@ class Element(CHandle):
 
     def _getDataHolder(
         self,
-    ) -> Optional[Union["Element", "typehints.Message", "typehints.Request"]]:
+    ) -> Optional[Union[Element, "typehints.Message", "typehints.Request"]]:
         """Return the owner of underlying data. For internal use."""
         return self if self.__dataHolder is None else self.__dataHolder
 
@@ -267,7 +269,7 @@ class Element(CHandle):
 
     def __getitem__(
         self, nameOrIndex: BlpapiNameOrIndex
-    ) -> Union[SupportedElementTypes, "Element"]:
+    ) -> Union[SupportedElementTypes, Element]:
         """
         Args:
             nameOrIndex: The :class:`Name` identifying the
@@ -622,7 +624,7 @@ class Element(CHandle):
             self.__handle, level, spacesPerLevel
         )
 
-    def getElement(self, nameOrIndex: BlpapiNameOrIndex) -> "Element":
+    def getElement(self, nameOrIndex: BlpapiNameOrIndex) -> Element:
         """
         Args:
             nameOrIndex: Sub-element identifier
@@ -709,7 +711,7 @@ class Element(CHandle):
         )
         return bool(res)
 
-    def getChoice(self) -> "Element":
+    def getChoice(self) -> Element:
         """
         Returns:
             The selection name of this element as :class:`Element`.
@@ -859,7 +861,7 @@ class Element(CHandle):
         _ExceptionUtil.raiseOnError(res[0])
         return Name._createInternally(res[1])
 
-    def getValueAsElement(self, index: int = 0) -> "Element":
+    def getValueAsElement(self, index: int = 0) -> Element:
         """
         Args:
             index: Index of the value in the element
@@ -880,7 +882,7 @@ class Element(CHandle):
 
     def getValue(
         self, index: int = 0
-    ) -> Union[SupportedElementTypes, "Element"]:
+    ) -> Union[SupportedElementTypes, Element]:
         """
         Args:
             index: Index of the value in the element
@@ -1081,7 +1083,7 @@ class Element(CHandle):
 
     def getElementValue(
         self, name: Name
-    ) -> Union[SupportedElementTypes, "Element"]:
+    ) -> Union[SupportedElementTypes, Element]:
         """
         Args:
             name: Sub-element identifier
@@ -1214,7 +1216,7 @@ class Element(CHandle):
 
         self.setValue(value, internals.ELEMENT_INDEX_END)
 
-    def appendElement(self) -> "Element":
+    def appendElement(self) -> Element:
         """Append a new element to this array :class:`Element`.
 
         Returns:
@@ -1231,7 +1233,7 @@ class Element(CHandle):
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
-    def setChoice(self, selectionName: Name) -> "Element":
+    def setChoice(self, selectionName: Name) -> Element:
         """Set this :class:`Element`\ 's active element to ``selectionName``.
 
         Args:

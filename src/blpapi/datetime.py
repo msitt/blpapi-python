@@ -2,6 +2,7 @@
 
 """Utilities that deal with blpapi.Datetime data type"""
 
+from __future__ import annotations
 import datetime as _dt
 from typing import Any, Optional
 
@@ -76,15 +77,15 @@ class FixedOffset(_dt.tzinfo, metaclass=utils.MetaClassForClassesWithEnums):
         """x.__hash__() <==> hash(x)"""
         return self.getOffsetInMinutes()
 
-    def __eq__(self, other: "FixedOffset") -> bool:  # type: ignore # mypy wants us to accept arbitrary object and check isinstance()
+    def __eq__(self, other: FixedOffset) -> bool:  # type: ignore # mypy wants us to accept arbitrary object and check isinstance()
         """Let the equality operator work based on the time delta."""
         return self.getOffsetInMinutes() == other.getOffsetInMinutes()
 
-    def __lt__(self, other: "FixedOffset") -> bool:
+    def __lt__(self, other: FixedOffset) -> bool:
         """Let the comparison operator work based on the time delta."""
         return self.getOffsetInMinutes() < other.getOffsetInMinutes()
 
-    def __le__(self, other: "FixedOffset") -> bool:
+    def __le__(self, other: FixedOffset) -> bool:
         """Let the comparison operator work based on the time delta."""
         return self.getOffsetInMinutes() <= other.getOffsetInMinutes()
 

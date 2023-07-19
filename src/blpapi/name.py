@@ -6,6 +6,7 @@ This file defines a class 'Name' which represents a string in a
 form for efficient string comparison.
 
 """
+from __future__ import annotations
 from typing import Any, Optional, Tuple, Union
 from . import internals
 from .utils import conv2str, get_handle, isstr
@@ -51,7 +52,7 @@ class Name(CHandle):
     """
 
     @staticmethod
-    def findName(nameString: str) -> Optional["Name"]:
+    def findName(nameString: str) -> Optional[Name]:
         """
         Args:
             nameString: String represented by an existing :class:`Name`
@@ -78,7 +79,7 @@ class Name(CHandle):
         return bool(internals.blpapi_Name_hasName(nameString))
 
     @staticmethod
-    def _createInternally(handle: BlpapiNameHandle) -> "Name":
+    def _createInternally(handle: BlpapiNameHandle) -> Name:
         return Name(None, handle)
 
     def __init__(
@@ -133,7 +134,7 @@ class Name(CHandle):
 
 
 def getNamePair(
-    name: "Name",
+    name: Name,
 ) -> Union[Tuple[None, BlpapiNameHandle], Tuple[str, None]]:
     """Create a tuple that contains a name string and blpapi_Name_t*.
 

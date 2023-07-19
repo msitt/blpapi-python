@@ -2676,48 +2676,49 @@ SWIGINTERN PyObject *SWIG_PyStaticMethod_New(PyObject *SWIGUNUSEDPARM(self), PyO
 #define SWIGTYPE_p_blpapi_ServiceRegistrationOptions swig_types[32]
 #define SWIGTYPE_p_blpapi_Session swig_types[33]
 #define SWIGTYPE_p_blpapi_SessionOptions swig_types[34]
-#define SWIGTYPE_p_blpapi_StreamWriter_t swig_types[35]
-#define SWIGTYPE_p_blpapi_SubscriptionItrerator swig_types[36]
-#define SWIGTYPE_p_blpapi_SubscriptionList swig_types[37]
-#define SWIGTYPE_p_blpapi_TimePoint swig_types[38]
-#define SWIGTYPE_p_blpapi_TlsOptions swig_types[39]
-#define SWIGTYPE_p_blpapi_Topic swig_types[40]
-#define SWIGTYPE_p_blpapi_TopicList swig_types[41]
-#define SWIGTYPE_p_char swig_types[42]
-#define SWIGTYPE_p_double swig_types[43]
-#define SWIGTYPE_p_f_p_q_const__struct_blpapi_CorrelationId_t__p_q_const__char_int_p_q_const__char_p_void__void swig_types[44]
-#define SWIGTYPE_p_f_p_struct_blpapi_Event_p_struct_blpapi_ProviderSession_p_void__void swig_types[45]
-#define SWIGTYPE_p_float swig_types[46]
-#define SWIGTYPE_p_int swig_types[47]
-#define SWIGTYPE_p_intArray swig_types[48]
-#define SWIGTYPE_p_long_long swig_types[49]
-#define SWIGTYPE_p_p_blpapi_AuthApplication swig_types[50]
-#define SWIGTYPE_p_p_blpapi_AuthOptions swig_types[51]
-#define SWIGTYPE_p_p_blpapi_AuthToken swig_types[52]
-#define SWIGTYPE_p_p_blpapi_AuthUser swig_types[53]
-#define SWIGTYPE_p_p_blpapi_Element swig_types[54]
-#define SWIGTYPE_p_p_blpapi_Event swig_types[55]
-#define SWIGTYPE_p_p_blpapi_Identity swig_types[56]
-#define SWIGTYPE_p_p_blpapi_Message swig_types[57]
-#define SWIGTYPE_p_p_blpapi_MessageFormatter swig_types[58]
-#define SWIGTYPE_p_p_blpapi_MessageProperties swig_types[59]
-#define SWIGTYPE_p_p_blpapi_Name swig_types[60]
-#define SWIGTYPE_p_p_blpapi_Operation swig_types[61]
-#define SWIGTYPE_p_p_blpapi_Request swig_types[62]
-#define SWIGTYPE_p_p_blpapi_RequestTemplate swig_types[63]
-#define SWIGTYPE_p_p_blpapi_SchemaElementDefinition swig_types[64]
-#define SWIGTYPE_p_p_blpapi_Service swig_types[65]
-#define SWIGTYPE_p_p_blpapi_Topic swig_types[66]
-#define SWIGTYPE_p_p_char swig_types[67]
-#define SWIGTYPE_p_p_void swig_types[68]
-#define SWIGTYPE_p_short swig_types[69]
-#define SWIGTYPE_p_size_t swig_types[70]
-#define SWIGTYPE_p_unsigned_char swig_types[71]
-#define SWIGTYPE_p_unsigned_int swig_types[72]
-#define SWIGTYPE_p_unsigned_long_long swig_types[73]
-#define SWIGTYPE_p_unsigned_short swig_types[74]
-static swig_type_info *swig_types[76];
-static swig_module_info swig_module = {swig_types, 75, 0, 0, 0, 0};
+#define SWIGTYPE_p_blpapi_Socks5Config swig_types[35]
+#define SWIGTYPE_p_blpapi_StreamWriter_t swig_types[36]
+#define SWIGTYPE_p_blpapi_SubscriptionItrerator swig_types[37]
+#define SWIGTYPE_p_blpapi_SubscriptionList swig_types[38]
+#define SWIGTYPE_p_blpapi_TimePoint swig_types[39]
+#define SWIGTYPE_p_blpapi_TlsOptions swig_types[40]
+#define SWIGTYPE_p_blpapi_Topic swig_types[41]
+#define SWIGTYPE_p_blpapi_TopicList swig_types[42]
+#define SWIGTYPE_p_char swig_types[43]
+#define SWIGTYPE_p_double swig_types[44]
+#define SWIGTYPE_p_f_p_q_const__struct_blpapi_CorrelationId_t__p_q_const__char_int_p_q_const__char_p_void__void swig_types[45]
+#define SWIGTYPE_p_f_p_struct_blpapi_Event_p_struct_blpapi_ProviderSession_p_void__void swig_types[46]
+#define SWIGTYPE_p_float swig_types[47]
+#define SWIGTYPE_p_int swig_types[48]
+#define SWIGTYPE_p_intArray swig_types[49]
+#define SWIGTYPE_p_long_long swig_types[50]
+#define SWIGTYPE_p_p_blpapi_AuthApplication swig_types[51]
+#define SWIGTYPE_p_p_blpapi_AuthOptions swig_types[52]
+#define SWIGTYPE_p_p_blpapi_AuthToken swig_types[53]
+#define SWIGTYPE_p_p_blpapi_AuthUser swig_types[54]
+#define SWIGTYPE_p_p_blpapi_Element swig_types[55]
+#define SWIGTYPE_p_p_blpapi_Event swig_types[56]
+#define SWIGTYPE_p_p_blpapi_Identity swig_types[57]
+#define SWIGTYPE_p_p_blpapi_Message swig_types[58]
+#define SWIGTYPE_p_p_blpapi_MessageFormatter swig_types[59]
+#define SWIGTYPE_p_p_blpapi_MessageProperties swig_types[60]
+#define SWIGTYPE_p_p_blpapi_Name swig_types[61]
+#define SWIGTYPE_p_p_blpapi_Operation swig_types[62]
+#define SWIGTYPE_p_p_blpapi_Request swig_types[63]
+#define SWIGTYPE_p_p_blpapi_RequestTemplate swig_types[64]
+#define SWIGTYPE_p_p_blpapi_SchemaElementDefinition swig_types[65]
+#define SWIGTYPE_p_p_blpapi_Service swig_types[66]
+#define SWIGTYPE_p_p_blpapi_Topic swig_types[67]
+#define SWIGTYPE_p_p_char swig_types[68]
+#define SWIGTYPE_p_p_void swig_types[69]
+#define SWIGTYPE_p_short swig_types[70]
+#define SWIGTYPE_p_size_t swig_types[71]
+#define SWIGTYPE_p_unsigned_char swig_types[72]
+#define SWIGTYPE_p_unsigned_int swig_types[73]
+#define SWIGTYPE_p_unsigned_long_long swig_types[74]
+#define SWIGTYPE_p_unsigned_short swig_types[75]
+static swig_type_info *swig_types[77];
+static swig_module_info swig_module = {swig_types, 76, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -2966,6 +2967,24 @@ void blpapi_SessionOptions_printHelper(
     StreamWriterData stream = {0};
     blpapi_SessionOptions_print(
         sessionOptions,
+        cstr_StreamWriter,
+        &stream,
+        level,
+        spacesPerLevel);
+    *output_allocated = stream.stream;
+    *output_size = stream.size;
+}
+
+void blpapi_Socks5Config_printHelper(
+    blpapi_Socks5Config_t *socks5Config,
+    int level,
+    int spacesPerLevel,
+    char **output_allocated,
+    int *output_size)
+{
+    StreamWriterData stream = {0};
+    blpapi_Socks5Config_print(
+        socks5Config,
         cstr_StreamWriter,
         &stream,
         level,
@@ -5127,6 +5146,56 @@ SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_printHelper(PyObject *SWIGUNUSE
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     blpapi_SessionOptions_printHelper(arg1,arg2,arg3,arg4,arg5);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_Py_Void();
+  if (*arg4) {
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_FromCharPtrAndSize(*arg4,*arg5));
+    free(*arg4);
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_Socks5Config_printHelper(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_Socks5Config_t *arg1 = (blpapi_Socks5Config_t *) 0 ;
+  int arg2 ;
+  int arg3 ;
+  char **arg4 = (char **) 0 ;
+  int *arg5 = (int *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  char *temp4 = 0 ;
+  int tempn4 ;
+  PyObject *swig_obj[3] ;
+  
+  arg4 = &temp4; arg5 = &tempn4;
+  if (!SWIG_Python_UnpackTuple(args, "blpapi_Socks5Config_printHelper", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_blpapi_Socks5Config, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_Socks5Config_printHelper" "', argument " "1"" of type '" "blpapi_Socks5Config_t *""'"); 
+  }
+  arg1 = (blpapi_Socks5Config_t *)(argp1);
+  ecode2 = SWIG_AsVal_int(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "blpapi_Socks5Config_printHelper" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = (int)(val2);
+  ecode3 = SWIG_AsVal_int(swig_obj[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "blpapi_Socks5Config_printHelper" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = (int)(val3);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    blpapi_Socks5Config_printHelper(arg1,arg2,arg3,arg4,arg5);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_Py_Void();
@@ -11763,6 +11832,77 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_blpapi_Socks5Config_create(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  size_t arg2 ;
+  unsigned short arg3 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  size_t val2 ;
+  int ecode2 = 0 ;
+  unsigned short val3 ;
+  int ecode3 = 0 ;
+  PyObject *swig_obj[3] ;
+  blpapi_Socks5Config_t *result = 0 ;
+  
+  if (!SWIG_Python_UnpackTuple(args, "blpapi_Socks5Config_create", 3, 3, swig_obj)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(swig_obj[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_Socks5Config_create" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = (char *)(buf1);
+  ecode2 = SWIG_AsVal_size_t(swig_obj[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "blpapi_Socks5Config_create" "', argument " "2"" of type '" "size_t""'");
+  } 
+  arg2 = (size_t)(val2);
+  ecode3 = SWIG_AsVal_unsigned_SS_short(swig_obj[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "blpapi_Socks5Config_create" "', argument " "3"" of type '" "unsigned short""'");
+  } 
+  arg3 = (unsigned short)(val3);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (blpapi_Socks5Config_t *)blpapi_Socks5Config_create((char const *)arg1,arg2,arg3);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_blpapi_Socks5Config, 0 |  0 );
+  if (alloc1 == SWIG_NEWOBJ) free((char*)buf1);
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) free((char*)buf1);
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_Socks5Config_destroy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_Socks5Config_t *arg1 = (blpapi_Socks5Config_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_blpapi_Socks5Config, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_Socks5Config_destroy" "', argument " "1"" of type '" "blpapi_Socks5Config_t *""'"); 
+  }
+  arg1 = (blpapi_Socks5Config_t *)(argp1);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    blpapi_Socks5Config_destroy(arg1);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_create(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   blpapi_SessionOptions_t *result = 0 ;
@@ -11919,6 +12059,67 @@ SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_setServerAddress(PyObject *SWIG
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     result = (int)blpapi_SessionOptions_setServerAddress(arg1,(char const *)arg2,arg3,arg4);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_From_int((int)(result));
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_setServerAddressWithProxy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  blpapi_SessionOptions_t *arg1 = (blpapi_SessionOptions_t *) 0 ;
+  char *arg2 = (char *) 0 ;
+  unsigned short arg3 ;
+  blpapi_Socks5Config_t *arg4 = (blpapi_Socks5Config_t *) 0 ;
+  size_t arg5 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  unsigned short val3 ;
+  int ecode3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  size_t val5 ;
+  int ecode5 = 0 ;
+  PyObject *swig_obj[5] ;
+  int result;
+  
+  if (!SWIG_Python_UnpackTuple(args, "blpapi_SessionOptions_setServerAddressWithProxy", 5, 5, swig_obj)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_blpapi_SessionOptions, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SessionOptions_setServerAddressWithProxy" "', argument " "1"" of type '" "blpapi_SessionOptions_t *""'"); 
+  }
+  arg1 = (blpapi_SessionOptions_t *)(argp1);
+  res2 = SWIG_AsCharPtrAndSize(swig_obj[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_SessionOptions_setServerAddressWithProxy" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = (char *)(buf2);
+  ecode3 = SWIG_AsVal_unsigned_SS_short(swig_obj[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "blpapi_SessionOptions_setServerAddressWithProxy" "', argument " "3"" of type '" "unsigned short""'");
+  } 
+  arg3 = (unsigned short)(val3);
+  res4 = SWIG_ConvertPtr(swig_obj[3], &argp4,SWIGTYPE_p_blpapi_Socks5Config, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "blpapi_SessionOptions_setServerAddressWithProxy" "', argument " "4"" of type '" "blpapi_Socks5Config_t const *""'"); 
+  }
+  arg4 = (blpapi_Socks5Config_t *)(argp4);
+  ecode5 = SWIG_AsVal_size_t(swig_obj[4], &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "blpapi_SessionOptions_setServerAddressWithProxy" "', argument " "5"" of type '" "size_t""'");
+  } 
+  arg5 = (size_t)(val5);
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (int)blpapi_SessionOptions_setServerAddressWithProxy(arg1,(char const *)arg2,arg3,(struct blpapi_Socks5Config const *)arg4,arg5);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
@@ -12837,42 +13038,50 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_getServerAddress(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_getServerAddressWithProxy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   blpapi_SessionOptions_t *arg1 = (blpapi_SessionOptions_t *) 0 ;
   char **arg2 = (char **) 0 ;
   unsigned short *arg3 = (unsigned short *) 0 ;
-  size_t arg4 ;
+  char **arg4 = (char **) 0 ;
+  unsigned short *arg5 = (unsigned short *) 0 ;
+  size_t arg6 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   char *temp2 = 0 ;
   unsigned short temp3 ;
-  size_t val4 ;
-  int ecode4 = 0 ;
+  char *temp4 = 0 ;
+  unsigned short temp5 ;
+  size_t val6 ;
+  int ecode6 = 0 ;
   PyObject *swig_obj[2] ;
   int result;
   
   arg2 = &temp2;
   arg3 = &temp3;
-  if (!SWIG_Python_UnpackTuple(args, "blpapi_SessionOptions_getServerAddress", 2, 2, swig_obj)) SWIG_fail;
+  arg4 = &temp4;
+  arg5 = &temp5;
+  if (!SWIG_Python_UnpackTuple(args, "blpapi_SessionOptions_getServerAddressWithProxy", 2, 2, swig_obj)) SWIG_fail;
   res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_blpapi_SessionOptions, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SessionOptions_getServerAddress" "', argument " "1"" of type '" "blpapi_SessionOptions_t *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SessionOptions_getServerAddressWithProxy" "', argument " "1"" of type '" "blpapi_SessionOptions_t *""'"); 
   }
   arg1 = (blpapi_SessionOptions_t *)(argp1);
-  ecode4 = SWIG_AsVal_size_t(swig_obj[1], &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "blpapi_SessionOptions_getServerAddress" "', argument " "4"" of type '" "size_t""'");
+  ecode6 = SWIG_AsVal_size_t(swig_obj[1], &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "blpapi_SessionOptions_getServerAddressWithProxy" "', argument " "6"" of type '" "size_t""'");
   } 
-  arg4 = (size_t)(val4);
+  arg6 = (size_t)(val6);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (int)blpapi_SessionOptions_getServerAddress(arg1,(char const **)arg2,arg3,arg4);
+    result = (int)blpapi_SessionOptions_getServerAddressWithProxy(arg1,(char const **)arg2,arg3,(char const **)arg4,arg5,arg6);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
   resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_FromCharPtr(*arg2));
   resultobj = SWIG_Python_AppendOutput(resultobj, PyInt_FromLong(*arg3));
+  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_FromCharPtr(*arg4));
+  resultobj = SWIG_Python_AppendOutput(resultobj, PyInt_FromLong(*arg5));
   return resultobj;
 fail:
   return NULL;
@@ -13453,40 +13662,41 @@ SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_setApplicationIdentityKey(PyObj
   size_t arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  int res2 ;
-  char *buf2 = 0 ;
-  int alloc2 = 0 ;
-  size_t val3 ;
-  int ecode3 = 0 ;
-  PyObject *swig_obj[3] ;
+  PyObject *asAscii2 = 0 ;
+  PyObject *swig_obj[2] ;
   int result;
   
-  if (!SWIG_Python_UnpackTuple(args, "blpapi_SessionOptions_setApplicationIdentityKey", 3, 3, swig_obj)) SWIG_fail;
+  if (!SWIG_Python_UnpackTuple(args, "blpapi_SessionOptions_setApplicationIdentityKey", 2, 2, swig_obj)) SWIG_fail;
   res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_blpapi_SessionOptions, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SessionOptions_setApplicationIdentityKey" "', argument " "1"" of type '" "blpapi_SessionOptions_t *""'"); 
   }
   arg1 = (blpapi_SessionOptions_t *)(argp1);
-  res2 = SWIG_AsCharPtrAndSize(swig_obj[1], &buf2, NULL, &alloc2);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_SessionOptions_setApplicationIdentityKey" "', argument " "2"" of type '" "char const *""'");
+  {
+    if (swig_obj[1] == Py_None) {
+      arg2 = 0;
+      arg3 = 0;
+    }
+    else {
+      if(PyUnicode_Check(swig_obj[1])) {
+        asAscii2 = PyUnicode_AsASCIIString(swig_obj[1]);
+        arg2 = PyString_AsString(asAscii2);
+        arg3 = PyString_Size(asAscii2);
+      }
+      else {
+        arg2 = PyString_AsString(swig_obj[1]);
+        arg3 = PyString_Size(swig_obj[1]);
+      }
+    }
   }
-  arg2 = (char *)(buf2);
-  ecode3 = SWIG_AsVal_size_t(swig_obj[2], &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "blpapi_SessionOptions_setApplicationIdentityKey" "', argument " "3"" of type '" "size_t""'");
-  } 
-  arg3 = (size_t)(val3);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     result = (int)blpapi_SessionOptions_setApplicationIdentityKey(arg1,(char const *)arg2,arg3);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
   return resultobj;
 fail:
-  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
   return NULL;
 }
 
@@ -13497,21 +13707,17 @@ SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_applicationIdentityKey(PyObject
   size_t *arg2 = (size_t *) 0 ;
   blpapi_SessionOptions_t *arg3 = (blpapi_SessionOptions_t *) 0 ;
   char *temp1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
+  size_t temp2 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  PyObject *swig_obj[2] ;
+  PyObject *swig_obj[1] ;
   int result;
   
   arg1 = &temp1;
-  if (!SWIG_Python_UnpackTuple(args, "blpapi_SessionOptions_applicationIdentityKey", 2, 2, swig_obj)) SWIG_fail;
-  res2 = SWIG_ConvertPtr(swig_obj[0], &argp2,SWIGTYPE_p_size_t, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_SessionOptions_applicationIdentityKey" "', argument " "2"" of type '" "size_t *""'"); 
-  }
-  arg2 = (size_t *)(argp2);
-  res3 = SWIG_ConvertPtr(swig_obj[1], &argp3,SWIGTYPE_p_blpapi_SessionOptions, 0 |  0 );
+  arg2 = &temp2;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res3 = SWIG_ConvertPtr(swig_obj[0], &argp3,SWIGTYPE_p_blpapi_SessionOptions, 0 |  0 );
   if (!SWIG_IsOK(res3)) {
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_SessionOptions_applicationIdentityKey" "', argument " "3"" of type '" "blpapi_SessionOptions_t *""'"); 
   }
@@ -13522,7 +13728,9 @@ SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_applicationIdentityKey(PyObject
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_FromCharPtr(*arg1));
+  {
+    resultobj = SWIG_Python_AppendOutput(resultobj, SWIG_FromCharPtrAndSize(*arg1, *arg2));
+  }
   return resultobj;
 fail:
   return NULL;
@@ -22795,6 +23003,7 @@ static PyMethodDef SwigMethods[] = {
 	 { "blpapi_SchemaTypeDefinition_printHelper", _wrap_blpapi_SchemaTypeDefinition_printHelper, METH_VARARGS, NULL},
 	 { "blpapi_Message_printHelper", _wrap_blpapi_Message_printHelper, METH_VARARGS, NULL},
 	 { "blpapi_SessionOptions_printHelper", _wrap_blpapi_SessionOptions_printHelper, METH_VARARGS, NULL},
+	 { "blpapi_Socks5Config_printHelper", _wrap_blpapi_Socks5Config_printHelper, METH_VARARGS, NULL},
 	 { "blpapi_TestUtil_serializeServiceHelper", _wrap_blpapi_TestUtil_serializeServiceHelper, METH_O, NULL},
 	 { "blpapi_SchemaTypeDefinition_hasElementDefinition", _wrap_blpapi_SchemaTypeDefinition_hasElementDefinition, METH_VARARGS, NULL},
 	 { "blpapi_ConstantList_hasConstant", _wrap_blpapi_ConstantList_hasConstant, METH_VARARGS, NULL},
@@ -22991,11 +23200,14 @@ static PyMethodDef SwigMethods[] = {
 	 { "blpapi_AuthToken_copy", _wrap_blpapi_AuthToken_copy, METH_VARARGS, NULL},
 	 { "blpapi_AuthToken_destroy", _wrap_blpapi_AuthToken_destroy, METH_O, NULL},
 	 { "blpapi_getLastErrorDescription", _wrap_blpapi_getLastErrorDescription, METH_O, NULL},
+	 { "blpapi_Socks5Config_create", _wrap_blpapi_Socks5Config_create, METH_VARARGS, NULL},
+	 { "blpapi_Socks5Config_destroy", _wrap_blpapi_Socks5Config_destroy, METH_O, NULL},
 	 { "blpapi_SessionOptions_create", _wrap_blpapi_SessionOptions_create, METH_NOARGS, NULL},
 	 { "blpapi_SessionOptions_destroy", _wrap_blpapi_SessionOptions_destroy, METH_O, NULL},
 	 { "blpapi_SessionOptions_setServerHost", _wrap_blpapi_SessionOptions_setServerHost, METH_VARARGS, NULL},
 	 { "blpapi_SessionOptions_setServerPort", _wrap_blpapi_SessionOptions_setServerPort, METH_VARARGS, NULL},
 	 { "blpapi_SessionOptions_setServerAddress", _wrap_blpapi_SessionOptions_setServerAddress, METH_VARARGS, NULL},
+	 { "blpapi_SessionOptions_setServerAddressWithProxy", _wrap_blpapi_SessionOptions_setServerAddressWithProxy, METH_VARARGS, NULL},
 	 { "blpapi_SessionOptions_removeServerAddress", _wrap_blpapi_SessionOptions_removeServerAddress, METH_VARARGS, NULL},
 	 { "blpapi_SessionOptions_setConnectTimeout", _wrap_blpapi_SessionOptions_setConnectTimeout, METH_VARARGS, NULL},
 	 { "blpapi_SessionOptions_setDefaultServices", _wrap_blpapi_SessionOptions_setDefaultServices, METH_VARARGS, NULL},
@@ -23023,7 +23235,7 @@ static PyMethodDef SwigMethods[] = {
 	 { "blpapi_SessionOptions_serverHost", _wrap_blpapi_SessionOptions_serverHost, METH_O, NULL},
 	 { "blpapi_SessionOptions_serverPort", _wrap_blpapi_SessionOptions_serverPort, METH_O, NULL},
 	 { "blpapi_SessionOptions_numServerAddresses", _wrap_blpapi_SessionOptions_numServerAddresses, METH_O, NULL},
-	 { "blpapi_SessionOptions_getServerAddress", _wrap_blpapi_SessionOptions_getServerAddress, METH_VARARGS, NULL},
+	 { "blpapi_SessionOptions_getServerAddressWithProxy", _wrap_blpapi_SessionOptions_getServerAddressWithProxy, METH_VARARGS, NULL},
 	 { "blpapi_SessionOptions_connectTimeout", _wrap_blpapi_SessionOptions_connectTimeout, METH_O, NULL},
 	 { "blpapi_SessionOptions_defaultServices", _wrap_blpapi_SessionOptions_defaultServices, METH_O, NULL},
 	 { "blpapi_SessionOptions_defaultSubscriptionService", _wrap_blpapi_SessionOptions_defaultSubscriptionService, METH_O, NULL},
@@ -23046,7 +23258,7 @@ static PyMethodDef SwigMethods[] = {
 	 { "blpapi_SessionOptions_flushPublishedEventsTimeout", _wrap_blpapi_SessionOptions_flushPublishedEventsTimeout, METH_O, NULL},
 	 { "blpapi_SessionOptions_bandwidthSaveModeDisabled", _wrap_blpapi_SessionOptions_bandwidthSaveModeDisabled, METH_O, NULL},
 	 { "blpapi_SessionOptions_setApplicationIdentityKey", _wrap_blpapi_SessionOptions_setApplicationIdentityKey, METH_VARARGS, NULL},
-	 { "blpapi_SessionOptions_applicationIdentityKey", _wrap_blpapi_SessionOptions_applicationIdentityKey, METH_VARARGS, NULL},
+	 { "blpapi_SessionOptions_applicationIdentityKey", _wrap_blpapi_SessionOptions_applicationIdentityKey, METH_O, NULL},
 	 { "blpapi_TlsOptions_destroy", _wrap_blpapi_TlsOptions_destroy, METH_O, NULL},
 	 { "blpapi_TlsOptions_createFromFiles", _wrap_blpapi_TlsOptions_createFromFiles, METH_VARARGS, NULL},
 	 { "blpapi_TlsOptions_createFromBlobs", _wrap_blpapi_TlsOptions_createFromBlobs, METH_VARARGS, NULL},
@@ -23362,6 +23574,7 @@ static swig_type_info _swigt__p_blpapi_Service = {"_p_blpapi_Service", "blpapi_S
 static swig_type_info _swigt__p_blpapi_ServiceRegistrationOptions = {"_p_blpapi_ServiceRegistrationOptions", "struct blpapi_ServiceRegistrationOptions *|blpapi_ServiceRegistrationOptions_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_Session = {"_p_blpapi_Session", "struct blpapi_Session *|blpapi_Session_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_SessionOptions = {"_p_blpapi_SessionOptions", "struct blpapi_SessionOptions *|blpapi_SessionOptions_t *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_blpapi_Socks5Config = {"_p_blpapi_Socks5Config", "struct blpapi_Socks5Config *|blpapi_Socks5Config_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_StreamWriter_t = {"_p_blpapi_StreamWriter_t", "blpapi_StreamWriter_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_SubscriptionItrerator = {"_p_blpapi_SubscriptionItrerator", "struct blpapi_SubscriptionItrerator *|blpapi_SubscriptionIterator_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_blpapi_SubscriptionList = {"_p_blpapi_SubscriptionList", "struct blpapi_SubscriptionList *|blpapi_SubscriptionList_t *", 0, 0, (void*)0, 0};
@@ -23439,6 +23652,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_blpapi_ServiceRegistrationOptions,
   &_swigt__p_blpapi_Session,
   &_swigt__p_blpapi_SessionOptions,
+  &_swigt__p_blpapi_Socks5Config,
   &_swigt__p_blpapi_StreamWriter_t,
   &_swigt__p_blpapi_SubscriptionItrerator,
   &_swigt__p_blpapi_SubscriptionList,
@@ -23516,6 +23730,7 @@ static swig_cast_info _swigc__p_blpapi_Service[] = {  {&_swigt__p_blpapi_Service
 static swig_cast_info _swigc__p_blpapi_ServiceRegistrationOptions[] = {  {&_swigt__p_blpapi_ServiceRegistrationOptions, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_Session[] = {  {&_swigt__p_blpapi_Session, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_SessionOptions[] = {  {&_swigt__p_blpapi_SessionOptions, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_blpapi_Socks5Config[] = {  {&_swigt__p_blpapi_Socks5Config, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_StreamWriter_t[] = {  {&_swigt__p_blpapi_StreamWriter_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_SubscriptionItrerator[] = {  {&_swigt__p_blpapi_SubscriptionItrerator, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_blpapi_SubscriptionList[] = {  {&_swigt__p_blpapi_SubscriptionList, 0, 0, 0},{0, 0, 0, 0}};
@@ -23593,6 +23808,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_blpapi_ServiceRegistrationOptions,
   _swigc__p_blpapi_Session,
   _swigc__p_blpapi_SessionOptions,
+  _swigc__p_blpapi_Socks5Config,
   _swigc__p_blpapi_StreamWriter_t,
   _swigc__p_blpapi_SubscriptionItrerator,
   _swigc__p_blpapi_SubscriptionList,

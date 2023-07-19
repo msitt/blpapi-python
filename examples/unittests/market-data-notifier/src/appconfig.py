@@ -7,7 +7,6 @@ class AuthOptionsAction(Action):  # pylint: disable=too-few-public-methods
     """Parse authorization args from user input."""
 
     def __call__(self, parser, args, values, option_string=None):
-
         value = values
         vals = value.split("=", 1)
 

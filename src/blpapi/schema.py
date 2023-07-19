@@ -17,6 +17,7 @@ with a particular type, as well as the number of values of that type that are
 permitted to be associated with that identifier.
 
 """
+from __future__ import annotations
 from typing import Sequence, Set, Optional
 from typing import Iterator as IteratorType
 from . import typehints  # pylint: disable=unused-import
@@ -28,6 +29,7 @@ from .name import Name, getNamePair
 from .constant import ConstantList
 from . import utils
 from . import internals
+
 
 # pylint: disable=protected-access,too-few-public-methods
 class SchemaStatus(metaclass=utils.MetaClassForClassesWithEnums):
@@ -132,7 +134,7 @@ class SchemaElementDefinition(metaclass=utils.MetaClassForClassesWithEnums):
 
         return internals.blpapi_SchemaElementDefinition_status(self.__handle)
 
-    def typeDefinition(self) -> "SchemaTypeDefinition":
+    def typeDefinition(self) -> SchemaTypeDefinition:
         """
         Returns:
             The type of values contained in this element.
@@ -370,7 +372,7 @@ class SchemaTypeDefinition:
 
     def getElementDefinition(
         self, nameOrIndex: BlpapiNameOrIndex
-    ) -> "SchemaElementDefinition":
+    ) -> SchemaElementDefinition:
         """
         Args:
             nameOrIndex: Name or index of the element
@@ -412,7 +414,7 @@ class SchemaTypeDefinition:
             raise IndexOutOfRangeException(errMessage, 0)
         return SchemaElementDefinition(res, self.__sessions)
 
-    def elementDefinitions(self) -> IteratorType["SchemaElementDefinition"]:
+    def elementDefinitions(self) -> IteratorType[SchemaElementDefinition]:
         """
         Returns:
             Iterator over :class:`SchemaElementDefinition`\ s defined by this

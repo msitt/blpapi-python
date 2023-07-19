@@ -2,6 +2,7 @@
 
 """Provide a configuration to specify the settings used for authorization."""
 
+from __future__ import annotations
 from typing import Callable, Union
 from .typehints import (
     BlpapiAuthOptionsHandle,
@@ -24,7 +25,7 @@ class AuthOptions(CHandle):
     def __init__(
         self,
         handle: BlpapiAuthOptionsHandle,
-        **kwargs: Union[BlpapiAuthAppHandle, BlpapiAuthTokenHandle]
+        **kwargs: Union[BlpapiAuthAppHandle, BlpapiAuthTokenHandle],
     ) -> None:
         """For internal use only."""
         noop = lambda *args: None
@@ -37,7 +38,7 @@ class AuthOptions(CHandle):
         self._token_dtor = internals.blpapi_AuthToken_destroy
 
     @classmethod
-    def createWithUser(cls: Callable, user: "AuthUser") -> "AuthOptions":
+    def createWithUser(cls: Callable, user: AuthUser) -> AuthOptions:
         """Creates an :class:`AuthOptions` instance for User Mode with the
         Operating System Login (Domain/User), Active Directory, or Email.
 
@@ -59,7 +60,7 @@ class AuthOptions(CHandle):
         return cls(authOptions_handle)
 
     @classmethod
-    def createWithApp(cls: Callable, appName: str) -> "AuthOptions":
+    def createWithApp(cls: Callable, appName: str) -> AuthOptions:
         """Create an :class:`AuthOptions` instance for Application Mode.
 
         Args:
@@ -79,7 +80,7 @@ class AuthOptions(CHandle):
         return cls(authOptions_handle, app_handle=app_handle)
 
     @classmethod
-    def createWithToken(cls: Callable, token: str) -> "AuthOptions":
+    def createWithToken(cls: Callable, token: str) -> AuthOptions:
         """Create an :class:`AuthOptions` instance for Manual Token Mode.
 
         Args:
@@ -100,8 +101,8 @@ class AuthOptions(CHandle):
 
     @classmethod
     def createWithUserAndApp(
-        cls: Callable, user: "AuthUser", appName: str
-    ) -> "AuthOptions":
+        cls: Callable, user: AuthUser, appName: str
+    ) -> AuthOptions:
         """Create an :class:`AuthOptions` instance for User and Application
         Mode.
 
@@ -164,7 +165,7 @@ class AuthUser(CHandle):
         self.__handle = handle  # pylint: disable=unused-private-member
 
     @classmethod
-    def createWithLogonName(cls: Callable) -> "AuthUser":
+    def createWithLogonName(cls: Callable) -> AuthUser:
         """Creates an :class:`AuthUser` instance configured for Operating
         System Login (Domain/User) authorization mode (OS_LOGON).
 
@@ -178,7 +179,7 @@ class AuthUser(CHandle):
     @classmethod
     def createWithActiveDirectoryProperty(
         cls: Callable, propertyName: str
-    ) -> "AuthUser":
+    ) -> AuthUser:
         """Creates an :class:`AuthUser` instance configured for Active
         Directory authorization mode (DIRECTORY_SERVICE).
 
@@ -204,7 +205,7 @@ class AuthUser(CHandle):
     @classmethod
     def createWithManualOptions(
         cls: Callable, userId: str, ipAddress: str
-    ) -> "AuthUser":
+    ) -> AuthUser:
         """Creates an :class:`AuthUser` instance configured for manual
         authorization.
 

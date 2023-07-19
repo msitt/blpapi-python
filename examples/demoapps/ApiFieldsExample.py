@@ -99,7 +99,6 @@ def main():
             if eventType == blpapi.Event.REQUEST_STATUS:
                 for msg in event:
                     if msg.messageType() == blpapi.Names.REQUEST_FAILURE:
-
                         # Request has failed, exit
                         print(msg)
                         done = True
@@ -108,7 +107,6 @@ def main():
                 blpapi.Event.RESPONSE,
                 blpapi.Event.PARTIAL_RESPONSE,
             ]:
-
                 processResponse(options.requestType, event)
 
                 # Received the final response, no further response events are

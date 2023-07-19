@@ -83,7 +83,6 @@ def processSubscriptionEvents(session, maxEvents):
                             f"Received init paint with RequestId {msg.getRequestId()}"
                         )
             else:
-
                 # SESSION_STATUS events can happen at any time and
                 # should be handled as the session can be terminated,
                 # e.g. session identity can be revoked at a later

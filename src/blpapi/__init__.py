@@ -58,7 +58,7 @@ from .session import (
     SubscriptionPreprocessError,
     SubscriptionPreprocessMode,
 )
-from .sessionoptions import SessionOptions, TlsOptions
+from .sessionoptions import SessionOptions, TlsOptions, Socks5Config
 from .subscriptionlist import SubscriptionList
 from .topic import Topic
 from .topiclist import TopicList

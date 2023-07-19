@@ -37,6 +37,7 @@ def _singledispatchmethod(arg_index: int) -> Callable:
     def _singleDispatchMethodImpl(func: Callable) -> Callable:
         """Implementation of `_singledispatchmethod`."""
         dispatcher = singledispatch(func)
+
         # `dispatcher` is `func` wrapped by singledispatch
         # `dispatcher` has an attribute `register()`, which is a decorator,
         # which registers the typed funcs to call based on the arg passed to

@@ -5,6 +5,7 @@
 This component implements a consumer session for getting services.
 """
 
+from __future__ import annotations
 from weakref import ref, ReferenceType  # pylint: disable=unused-import
 from typing import Optional, Callable, List
 import sys
@@ -12,7 +13,6 @@ import traceback
 import os
 import functools
 import atexit
-from typing import NamedTuple
 from enum import Enum
 from .abstractsession import AbstractSession
 from .event import Event
@@ -136,7 +136,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
     def __init__(
         self,
         options: Optional[SessionOptions] = None,
-        eventHandler: Optional[Callable[[Event, "Session"], None]] = None,
+        eventHandler: Optional[Callable[[Event, Session], None]] = None,
         eventDispatcher: Optional["typehints.EventDispatcher"] = None,
     ) -> None:
         """Create a consumer :class:`Session`.
@@ -319,7 +319,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
 
     @staticmethod
     def _createErrorAppender(
-        errorList: List["SubscriptionPreprocessError"],
+        errorList: List[SubscriptionPreprocessError],
     ) -> Callable:
         def errorAppender(
             correlationId: CorrelationId,
@@ -344,7 +344,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         identity: Optional["typehints.Identity"] = None,
         requestLabel: str = "",
         mode: SubscriptionPreprocessMode = SubscriptionPreprocessMode.FAIL_ON_FIRST_ERROR,
-    ) -> Optional[List["SubscriptionPreprocessError"]]:
+    ) -> Optional[List[SubscriptionPreprocessError]]:
         """Begin subscriptions for each entry in the specified list.
 
         Args:
@@ -389,7 +389,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
                 )
             )
         elif subMode == SubscriptionPreprocessMode.RETURN_INDIVIDUAL_ERRORS:
-            errorList = []  # type: ignore
+            errorList: List[SubscriptionPreprocessError] = []
             errorAppender = Session._createErrorAppender(errorList)
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_Session_subscribeEx_helper(
@@ -448,7 +448,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         requestLabel: str = "",
         resubscriptionId: Optional[int] = None,
         mode: SubscriptionPreprocessMode = SubscriptionPreprocessMode.FAIL_ON_FIRST_ERROR,
-    ) -> Optional[List["SubscriptionPreprocessError"]]:
+    ) -> Optional[List[SubscriptionPreprocessError]]:
         """Modify subscriptions in ``subscriptionList``.
 
         Args:
@@ -504,7 +504,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
                     )
                 )
         elif subMode == SubscriptionPreprocessMode.RETURN_INDIVIDUAL_ERRORS:
-            errorList = []  # type: ignore
+            errorList: List[SubscriptionPreprocessError] = []
             errorAppender = Session._createErrorAppender(errorList)
 
             if resubscriptionId is None:
@@ -767,10 +767,10 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         return reqTemplate
 
 
-class SubscriptionPreprocessError(NamedTuple):
+class SubscriptionPreprocessError:
     """Class representing an error due to an invalid subscription."""
 
-    class ErrorCode(Enum):  # type: ignore
+    class ErrorCode(Enum):
         """The error codes used by :class:`SubscriptionPreprocessError`."""
 
         SUBSCRIPTIONPREPROCESS_INVALID_SUBSCRIPTION_STRING = (
@@ -783,17 +783,17 @@ class SubscriptionPreprocessError(NamedTuple):
         )
         """Error due to misuse of correlation id, such as using a duplicate."""
 
-    correlationId: CorrelationId
-    """:class:`CorrelationId` of the subscription."""
-
-    subscriptionString: str
-    """The subscription string."""
-
-    errorCode: ErrorCode  # type: ignore
-    """Error code representing the error."""
-
-    description: str
-    """Description of the error."""
+    def __init__(
+        self,
+        correlationId: CorrelationId,
+        subscriptionString: str,
+        errorCode: SubscriptionPreprocessError.ErrorCode,
+        description: str,
+    ) -> None:
+        self.correlationId = correlationId
+        self.subscriptionString = subscriptionString
+        self.errorCode = errorCode
+        self.description = description
 
     def __str__(self) -> str:
         return (

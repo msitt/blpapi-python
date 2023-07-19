@@ -1,6 +1,7 @@
 """Sample class for testing purposes."""
 from __future__ import print_function
 
+
 # pylint: disable=no-init,no-self-use
 class Notifier:
     """

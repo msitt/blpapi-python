@@ -228,6 +228,9 @@ def blpapi_Message_printHelper(message, level, spacesPerLevel):
 def blpapi_SessionOptions_printHelper(sessionOptions, level, spacesPerLevel):
     return _internals.blpapi_SessionOptions_printHelper(sessionOptions, level, spacesPerLevel)
 
+def blpapi_Socks5Config_printHelper(socks5Config, level, spacesPerLevel):
+    return _internals.blpapi_Socks5Config_printHelper(socks5Config, level, spacesPerLevel)
+
 def blpapi_TestUtil_serializeServiceHelper(service):
     return _internals.blpapi_TestUtil_serializeServiceHelper(service)
 
@@ -919,6 +922,12 @@ ERROR_MSG_TOO_LARGE = _internals.ERROR_MSG_TOO_LARGE
 def blpapi_getLastErrorDescription(resultCode):
     return _internals.blpapi_getLastErrorDescription(resultCode)
 
+def blpapi_Socks5Config_create(hostname, hostname_size, port):
+    return _internals.blpapi_Socks5Config_create(hostname, hostname_size, port)
+
+def blpapi_Socks5Config_destroy(socks5Config):
+    return _internals.blpapi_Socks5Config_destroy(socks5Config)
+
 def blpapi_SessionOptions_create():
     return _internals.blpapi_SessionOptions_create()
 
@@ -933,6 +942,9 @@ def blpapi_SessionOptions_setServerPort(parameters, serverPort):
 
 def blpapi_SessionOptions_setServerAddress(parameters, serverHost, serverPort, index):
     return _internals.blpapi_SessionOptions_setServerAddress(parameters, serverHost, serverPort, index)
+
+def blpapi_SessionOptions_setServerAddressWithProxy(parameters, serverHost, serverPort, socks5Config, index):
+    return _internals.blpapi_SessionOptions_setServerAddressWithProxy(parameters, serverHost, serverPort, socks5Config, index)
 
 def blpapi_SessionOptions_removeServerAddress(parameters, index):
     return _internals.blpapi_SessionOptions_removeServerAddress(parameters, index)
@@ -1015,8 +1027,8 @@ def blpapi_SessionOptions_serverPort(parameters):
 def blpapi_SessionOptions_numServerAddresses(parameters):
     return _internals.blpapi_SessionOptions_numServerAddresses(parameters)
 
-def blpapi_SessionOptions_getServerAddress(parameters, index):
-    return _internals.blpapi_SessionOptions_getServerAddress(parameters, index)
+def blpapi_SessionOptions_getServerAddressWithProxy(parameters, index):
+    return _internals.blpapi_SessionOptions_getServerAddressWithProxy(parameters, index)
 
 def blpapi_SessionOptions_connectTimeout(parameters):
     return _internals.blpapi_SessionOptions_connectTimeout(parameters)
@@ -1081,11 +1093,11 @@ def blpapi_SessionOptions_flushPublishedEventsTimeout(parameters):
 def blpapi_SessionOptions_bandwidthSaveModeDisabled(parameters):
     return _internals.blpapi_SessionOptions_bandwidthSaveModeDisabled(parameters)
 
-def blpapi_SessionOptions_setApplicationIdentityKey(parameters, applicationIdentityKey, size):
-    return _internals.blpapi_SessionOptions_setApplicationIdentityKey(parameters, applicationIdentityKey, size)
+def blpapi_SessionOptions_setApplicationIdentityKey(parameters, applicationIdentityKey):
+    return _internals.blpapi_SessionOptions_setApplicationIdentityKey(parameters, applicationIdentityKey)
 
-def blpapi_SessionOptions_applicationIdentityKey(size, parameters):
-    return _internals.blpapi_SessionOptions_applicationIdentityKey(size, parameters)
+def blpapi_SessionOptions_applicationIdentityKey(parameters):
+    return _internals.blpapi_SessionOptions_applicationIdentityKey(parameters)
 
 def blpapi_TlsOptions_destroy(parameters):
     return _internals.blpapi_TlsOptions_destroy(parameters)

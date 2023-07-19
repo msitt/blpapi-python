@@ -20,6 +20,7 @@ The following snippet shows how to use the SessionOptions when creating a
 
 """
 
+from __future__ import annotations
 from typing import Iterator, Optional, Sequence, Tuple, Union
 from .typehints import BlpapiTlsOptionsHandle
 from .exception import _ExceptionUtil
@@ -30,6 +31,56 @@ from . import utils
 from .utils import get_handle
 from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
+
+
+class Socks5Config(CHandle):
+    """Configuration to be used to specify a SOCKS5 proxy"""
+
+    def __init__(self, hostname: str, port: int) -> None:
+        """
+        Args:
+            hostname: hostname of the SOCKS5 proxy
+            port: port of the SOCKS5 proxy. Must be between 1 and 65535
+
+        Creates an object that defines a SOCKS5 proxy.
+        """
+        SessionOptions._validatePort(port)
+
+        self.__handle = internals.blpapi_Socks5Config_create(
+            hostname, len(hostname), port
+        )
+        super(Socks5Config, self).__init__(
+            self.__handle, internals.blpapi_Socks5Config_destroy
+        )
+
+    def __str__(self) -> str:
+        """x.__str__() <==> str(x)
+
+        Returns a string representation of this :class:`Socks5Config`. Calling
+        'str(socks5Config)' is equivalent to calling 'socks5Config.toString()'
+        with default parameters.
+
+        """
+        return self.toString()
+
+    def toString(self, level: int = 0, spacesPerLevel: int = 4) -> str:
+        """Formats this :class:`Socks5Config` to the string.
+
+        Args:
+            level: Indentation level
+            spacesPerLevel: Number of spaces per indentation level for
+                this and all nested objects
+
+        Returns:
+            This object formatted as a string
+
+        If ``level`` is negative, suppresses indentation of the first line. If
+        ``spacesPerLevel`` is negative, formats the entire output on one line,
+        suppressing all but the initial indentation (as governed by ``level``).
+        """
+        return internals.blpapi_Socks5Config_printHelper(
+            self.__handle, level, spacesPerLevel
+        )
 
 
 # pylint: disable=too-many-public-methods
@@ -91,11 +142,12 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """Set the port to connect to when using the server API.
 
         Args:
-            serverPort: Server port
+            serverPort: Server port. Must be between 1 and 65535
 
         Set the port to connect to when using the server API to the specified
         ``serverPort``. The default is ``8194``.
         """
+        SessionOptions._validatePort(serverPort)
 
         _ExceptionUtil.raiseOnError(
             internals.blpapi_SessionOptions_setServerPort(
@@ -104,22 +156,32 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         )
 
     def setServerAddress(
-        self, serverHost: str, serverPort: int, index: int
+        self,
+        serverHost: str,
+        serverPort: int,
+        index: int,
+        socks5Config: Optional[Socks5Config] = None,
     ) -> None:
         """Set the server address at the specified ``index``.
 
         Args:
             serverHost: Server host
-            serverPort: Server port
+            serverPort: Server port. Must be between 1 and 65535
             index: Index to set the address at
+            socks5Config: Optional. SOCKS5 proxy configuration
 
         Set the server address at the specified ``index`` using the specified
         ``serverHost`` and ``serverPort``.
         """
+        SessionOptions._validatePort(serverPort)
 
         _ExceptionUtil.raiseOnError(
-            internals.blpapi_SessionOptions_setServerAddress(
-                self.__handle, serverHost, serverPort, index
+            internals.blpapi_SessionOptions_setServerAddressWithProxy(
+                self.__handle,
+                serverHost,
+                serverPort,
+                get_handle(socks5Config),
+                index,
             )
         )
 
@@ -545,7 +607,7 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         )
         _ExceptionUtil.raiseOnError(err)
 
-    def setTlsOptions(self, tlsOptions: "TlsOptions") -> None:
+    def setTlsOptions(self, tlsOptions: TlsOptions) -> None:
         """Set the TLS options
 
         Args:
@@ -566,6 +628,37 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
                 self.__handle, isDisabled
             )
         )
+
+    def setApplicationIdentityKey(self, applicationIdentityKey: str) -> None:
+        """Sets the application identity key (AIK) which uniquely identifies
+           this application for this session.
+
+        Args:
+            applicationIdentityKey: The application identity key to set.
+        """
+
+        _ExceptionUtil.raiseOnError(
+            internals.blpapi_SessionOptions_setApplicationIdentityKey(
+                self.__handle, applicationIdentityKey
+            )
+        )
+
+    def applicationIdentityKey(self) -> str:
+        """
+        Returns:
+            The application identity key (AIK) which uniquely identifies
+            this application for this session.
+        """
+
+        (
+            result,
+            aik,
+        ) = internals.blpapi_SessionOptions_applicationIdentityKey(
+            self.__handle
+        )
+
+        _ExceptionUtil.raiseOnError(result)
+        return aik
 
     def serverHost(self) -> str:
         """
@@ -593,23 +686,32 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             self.__handle
         )
 
-    def getServerAddress(self, index: int) -> Tuple[str, int]:
+    def getServerAddress(
+        self, index: int
+    ) -> Tuple[str, int, Optional[Socks5Config]]:
         """
         Returns:
-           Server name and port indexed by ``index``.
+           Server name, port and optional SOCKS5 proxy configuration indexed
+           by ``index``.
         """
 
         (
             errorCode,
             host,
             port,
-        ) = internals.blpapi_SessionOptions_getServerAddress(
+            socks5Host,
+            socks5Port,
+        ) = internals.blpapi_SessionOptions_getServerAddressWithProxy(
             self.__handle, index
         )
 
         _ExceptionUtil.raiseOnError(errorCode)
 
-        return host, port
+        return (
+            host,
+            port,
+            Socks5Config(socks5Host, socks5Port) if socks5Host else None,
+        )
 
     def serverAddresses(self) -> Iterator:
         """
@@ -850,6 +952,13 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             self.__handle, level, spacesPerLevel
         )
 
+    @staticmethod
+    def _validatePort(port: int) -> None:
+        if port < 1 or port > 65535:
+            raise ValueError(
+                f"port out of range:{port}. Must be beetween 1 and 65535"
+            )
+
 
 class TlsOptions(CHandle):
     """SSL configuration options
@@ -903,7 +1012,7 @@ class TlsOptions(CHandle):
         clientCredentialsFilename: str,
         clientCredentialsPassword: str,
         trustedCertificatesFilename: str,
-    ) -> "TlsOptions":
+    ) -> TlsOptions:
         """
         Args:
             clientCredentialsFilename: Path to the file with the client
@@ -928,7 +1037,7 @@ class TlsOptions(CHandle):
         clientCredentials: Union[bytes, bytearray],
         clientCredentialsPassword: str,
         trustedCertificates: Union[bytes, bytearray],
-    ) -> "TlsOptions":
+    ) -> TlsOptions:
         """
         Args:
             clientCredentials: Blob with the client

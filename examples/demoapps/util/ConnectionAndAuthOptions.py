@@ -1,5 +1,6 @@
 from blpapi_import_helper import blpapi
 from argparse import Action
+from collections import namedtuple
 
 
 _SESSION_IDENTITY_AUTH_OPTIONS = "sessionIdentityAuthOptions"
@@ -69,16 +70,38 @@ class AppAuthAction(Action):
         setattr(args, _SESSION_IDENTITY_AUTH_OPTIONS, authOptions)
 
 
+HostPort = namedtuple("HostPort", ["host", "port"])
+ServerAddress = namedtuple("ServerAddress", ["endpoint", "socks5"])
+
+
 class HostAction(Action):
     """The action that parses host options from user input"""
 
-    def __call__(self, parser, args, values, option_string=None):
-        vals = values.split(":", 1)
+    @staticmethod
+    def _parseHostPort(parser, value):
+        vals = value.split(":", 1)
         if len(vals) != 2:
+            parser.error(f"Invalid host option '{value}'")
+
+        maxPortValue = 65535
+        if int(vals[1]) <= 0 or int(vals[1]) > maxPortValue:
+            parser.error(
+                f"Invalid port '{value}', value must be 1 through {maxPortValue}"
+            )
+        return HostPort(vals[0], vals[1])
+
+    def __call__(self, parser, args, values, option_string=None):
+        endpointSocks5 = values.split("/", 1)
+        if len(endpointSocks5) == 0 or len(endpointSocks5) > 2:
             parser.error(f"Invalid host option '{values}'")
 
+        endpoint = HostAction._parseHostPort(parser, endpointSocks5[0])
+        socks5 = None
+        if len(endpointSocks5) == 2:
+            socks5 = HostAction._parseHostPort(parser, endpointSocks5[1])
+
         hosts = getattr(args, self.dest)
-        hosts.append((vals[0], int(vals[1])))
+        hosts.append(ServerAddress(endpoint, socks5))
 
 
 class UserIdIpAction(Action):
@@ -106,8 +129,9 @@ def addConnectionAndAuthOptions(parser, forClientServerSetup=False):
         "-H",
         "--host",
         dest="hosts",
-        help="server name or IP (default: 127.0.0.1:8194). Can be specified multiple times.",
-        metavar="host:port",
+        help="Endpoint host:port and optional SOCKS5 host:port to use to connect"
+        " (default: localhost:8194). Can be specified multiple times.",
+        metavar="host:port[/socks5Host:socks5Port]",
         action=HostAction,
         default=[],
     )
@@ -291,8 +315,20 @@ def createSessionOptions(options):
         )
     else:
         sessionOptions = blpapi.SessionOptions()
-        for idx, host in enumerate(options.hosts):
-            sessionOptions.setServerAddress(host[0], host[1], idx)
+        for idx, serverAddress in enumerate(options.hosts):
+            socks5Config = (
+                blpapi.Socks5Config(
+                    serverAddress.socks5.host, int(serverAddress.socks5.port)
+                )
+                if serverAddress.socks5
+                else None
+            )
+            sessionOptions.setServerAddress(
+                serverAddress.endpoint.host,
+                int(serverAddress.endpoint.port),
+                idx,
+                socks5Config,
+            )
 
         if tlsOptions:
             sessionOptions.setTlsOptions(tlsOptions)
@@ -300,9 +336,16 @@ def createSessionOptions(options):
     sessionOptions.setSessionIdentityOptions(
         options.sessionIdentityAuthOptions
     )
+
+    def serverAddressToString(server: ServerAddress):
+        tostr = ":".join(server.endpoint)
+        if server.socks5:
+            tostr = f"{tostr}/{':'.join(server.socks5)}"
+        return tostr
+
     print(
         f"Connecting to "
-        f"{', '.join([h[0] + ':' + str(h[1]) for h in sessionOptions.serverAddresses()])}"
+        f"{', '.join([serverAddressToString(h) for h in options.hosts])}"
     )
 
     return sessionOptions

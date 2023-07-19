@@ -8,6 +8,7 @@ import blpapi
 
 TOKEN = blpapi.Name("token")
 
+
 # pylint: disable=too-few-public-methods, too-many-branches
 class Authorizer:
     """Helper for authorization."""

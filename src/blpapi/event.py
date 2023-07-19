@@ -32,6 +32,7 @@ Synchronously read the response 'event' and parse over messages using 'token'
         raise Exception("Failed to get token")
 
 """
+from __future__ import annotations
 from typing import Iterator as IteratorType, Optional, Set
 from collections.abc import Iterator as IteratorABC
 from .message import Message
@@ -51,7 +52,7 @@ class MessageIterator(CHandle, IteratorABC):
     :class:`Event` and :class:`Message` objects.
     """
 
-    def __init__(self, event: "Event") -> None:
+    def __init__(self, event: Event) -> None:
         selfhandle = internals.blpapi_MessageIterator_create(get_handle(event))
         super(MessageIterator, self).__init__(
             selfhandle, internals.blpapi_MessageIterator_destroy

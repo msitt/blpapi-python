@@ -2,6 +2,7 @@
 
 import blpapi
 
+
 # pylint: disable=too-few-public-methods,too-many-arguments
 class Subscriber:
     """Custom Subscriber implementation for demonstration purposes."""

@@ -6,6 +6,7 @@ TOKEN_FAILURE = blpapi.Name("TokenFailure")
 TOKEN = blpapi.Name("token")
 LAST_PRICE = blpapi.Name("LAST_PRICE")
 
+
 # pylint: disable=too-few-public-methods
 class EventProcessor:
     """Custom EventHandler implementation for demonstration purposes."""

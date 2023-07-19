@@ -36,7 +36,6 @@ def parseCmdLine():
 
 
 def processEvent(event, session):
-
     print("Server received an event")
 
     if event.eventType() == blpapi.Event.REQUEST:

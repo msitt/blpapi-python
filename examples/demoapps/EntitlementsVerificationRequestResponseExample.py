@@ -77,7 +77,6 @@ class EntitlementsVerificationRequestResponseExample:
         self._stop(session)
 
     def _handleSessionStarted(self, session, _1, _2):
-
         # Add the authorization message handlers after the session
         # started to only react to the authorization messages of users,
         # i.e., avoid those of the session identity.
@@ -217,7 +216,6 @@ class EntitlementsVerificationRequestResponseExample:
             self._distributeResponse(event, userIdentifier, identity)
 
     def _distributeResponse(self, event, userIdentifier, identity):
-
         for msg in event:
             if msg.hasElement(RESPONSE_ERROR, excludeNullElements=True):
                 continue

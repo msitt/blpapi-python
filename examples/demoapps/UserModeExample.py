@@ -77,7 +77,6 @@ class UserModeExample:
         _event: blpapi.Event,
         _msg: blpapi.Message,
     ):
-
         # Add the authorization messages handlers after the session
         # started to only react to the authorization messages of users,
         # i.e., avoid those of the session identity.

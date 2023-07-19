@@ -11,7 +11,6 @@ def printEvent(event: blpapi.Event):
 
 
 class SessionRouter:
-
     EventHandler = Callable[[blpapi.AbstractSession, blpapi.Event], None]
     MessageHandler = Callable[
         [blpapi.AbstractSession, blpapi.Event, blpapi.Message], None
