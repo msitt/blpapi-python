@@ -84,6 +84,7 @@ src/blpapi/message.py
 src/blpapi/name.py
 src/blpapi/names.py
 src/blpapi/providersession.py
+src/blpapi/py.typed
 src/blpapi/request.py
 src/blpapi/requesttemplate.py
 src/blpapi/resolutionlist.py

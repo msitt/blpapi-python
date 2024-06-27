@@ -1,12 +1,10 @@
 Metadata-Version: 2.1
 Name: blpapi
-Version: 3.24.2
+Version: 3.24.4
 Summary: Python SDK for Bloomberg BLPAPI
 Home-page: http://www.bloomberglabs.com/api/
 Author: Bloomberg L.P.
 Author-email: open-tech@bloomberg.net
-License: UNKNOWN
-Platform: UNKNOWN
 Classifier: Development Status :: 5 - Production/Stable
 Classifier: Intended Audience :: Developers
 Classifier: Intended Audience :: Financial and Insurance Industry
@@ -14,6 +12,3 @@ Classifier: License :: Other/Proprietary License
 Classifier: Topic :: Office/Business :: Financial
 Requires-Python: >=3.8
 License-File: License.txt
-
-UNKNOWN
-
