@@ -62,26 +62,23 @@ class SubscriptionEventHandler(object):
                     + "when SlowConsumerWarning message was delivered, "
                     + "it is now safe to continue as normal.\n"
                 )
-            elif msg.messageType() == blpapi.Names.DATA_LOSS:
-                print(msg)
-                topic = msg.correlationId().value()
-                print(
-                    f"{blpapi.Names.DATA_LOSS} - The application is too slow to "
-                    + "process events and the event queue is overflowing. "
-                    + f"Data is lost for topic {topic}.\n"
-                )
-            elif event.eventType() == blpapi.Event.SESSION_STATUS:
-                # SESSION_STATUS events can happen at any time and
-                # should be handled as the session can be terminated,
-                # e.g. session identity can be revoked at a later
-                # time, which terminates the session.
-                if msg.messageType() == blpapi.Names.SESSION_TERMINATED:
-                    print("Session terminated")
-                    return
-                else:
-                    print(msg)
             else:
                 print(msg)
+                if msg.messageType() == blpapi.Names.DATA_LOSS:
+                    topic = msg.correlationId().value()
+                    print(
+                        f"{blpapi.Names.DATA_LOSS} - The application is too slow to "
+                        + "process events and the event queue is overflowing. "
+                        + f"Data is lost for topic {topic}.\n"
+                    )
+                elif event.eventType() == blpapi.Event.SESSION_STATUS:
+                    # SESSION_STATUS events can happen at any time and
+                    # should be handled as the session can be terminated,
+                    # e.g. session identity can be revoked at a later
+                    # time, which terminates the session.
+                    if msg.messageType() == blpapi.Names.SESSION_TERMINATED:
+                        print("Session terminated")
+                        return
 
     def processEvent(self, event, _session):
         try:

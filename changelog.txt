@@ -1,3 +1,7 @@
+Version 3.23.1:
+===============
+- Stability and performance improvements
+
 Version 3.23.0:
 ===============
 - Stability and performance improvements
