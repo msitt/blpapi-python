@@ -4,8 +4,8 @@
 
 from . import versionhelper
 
-__version__ = "3.20.1"
-__expected_cpp_sdk_version__ = "3.20.2"
+__version__ = "3.21.0"
+__expected_cpp_sdk_version__ = "3.21"
 
 
 def print_version() -> None:

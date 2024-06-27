@@ -177,7 +177,6 @@ def conv2str(s: Union[bytes, str]) -> str:
         return s.decode()
     if isinstance(s, str):
         return s
-    return None
 
 
 def isstr(s: Any) -> bool:

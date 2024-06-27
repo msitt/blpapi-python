@@ -8,7 +8,7 @@ Session.
 """
 
 import weakref
-from typing import Any, Mapping, Set
+from typing import Any, Mapping, Optional, Set
 from .typehints import BlpapiRequestHandle
 from .element import Element
 from .exception import _ExceptionUtil
@@ -43,7 +43,7 @@ class Request(CHandle):
         super(Request, self).__init__(handle, internals.blpapi_Request_destroy)
         self.__handle = handle
         self.__sessions = sessions
-        self.__element = None
+        self.__element: Optional[weakref.ReferenceType] = None
 
     def __str__(self) -> str:
         """x.__str__() <==> str(x)
@@ -128,7 +128,7 @@ class Request(CHandle):
             el = Element(
                 internals.blpapi_Request_elements(self.__handle), self
             )
-            self.__element = weakref.ref(el)  # type: ignore
+            self.__element = weakref.ref(el)
         return el
 
     def getElement(self, name: "typehints.Name") -> Element:

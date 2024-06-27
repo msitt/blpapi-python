@@ -1,9 +1,7 @@
 License.txt
 MANIFEST.in
-NOTES
 README.md
 changelog.txt
-pyproject.toml
 setup.cfg
 setup.py
 examples/demoapps/ApiFieldsExample.py

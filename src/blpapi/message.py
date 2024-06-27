@@ -98,7 +98,7 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
         else:
             self.__sessions = event._sessions()
 
-        self.__element = None
+        self.__element: Optional[weakref.ReferenceType] = None
 
     def __str__(self) -> str:
         """x.__str__() <==> str(x)
@@ -372,7 +372,7 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
             el = Element(
                 internals.blpapi_Message_elements(self.__handle), self
             )
-            self.__element = weakref.ref(el)  # type: ignore
+            self.__element = weakref.ref(el)
         return el
 
     def toString(self, level: int = 0, spacesPerLevel: int = 4) -> str:

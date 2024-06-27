@@ -102,18 +102,56 @@ versionhelper_wrap = Extension(
     extra_link_args=extraLinkArgs,
 )
 
+extensions = [blpapi_wrap, versionhelper_wrap]
+packages = ["blpapi", "blpapi.test"]
+
+# INTERNAL ONLY START
+# see automation/prepare_release.py
+internal_build = os.environ.get("BLPAPI_PY_INTERNAL_BUILD", False)
+if internal_build:
+    internalutils_path = "src/blpapi/internalutils"
+    if not (
+        os.path.exists(internalutils_path)
+        and os.path.isdir(internalutils_path)
+    ):
+        error_msg = """Tried to build the internal Bloomberg build of the
+BLPAPI Python SDK, but failed to find the internalutils subdirectory.
+
+If you are not a Bloomberg developer, this will not work, and you should unset
+the BLPAPI_PY_INTERNAL_BUILD environment variable to continue. internalutils
+provide some default configurations for use only within Bloomberg networks.
+
+If you are a Bloomberg developer, either unset the BLPAPI_PY_INTERNAL_BUILD
+environment variable to build the public release, or ensure the internalutils
+subdirectory is present.
+"""
+        raise ImportError(error_msg)
+
+    internalutils_wrap = Extension(
+        "blpapi.internalutils._bindings",
+        sources=["src/blpapi/internalutils/bindings_wrap.c"],
+        include_dirs=[blpapiIncludes],
+        library_dirs=[blpapiLibraryPath],
+        libraries=[blpapiLibraryName],
+        extra_compile_args=extraCompileArgs,
+        extra_link_args=extraLinkArgs,
+    )
+    extensions.append(internalutils_wrap)
+    packages.append("blpapi.internalutils")
+# INTERNAL ONLY END
+
 setup(
     name="blpapi",
     version=find_version_number(),
     author="Bloomberg L.P.",
     author_email="open-tech@bloomberg.net",
     description="Python SDK for Bloomberg BLPAPI",
-    ext_modules=[blpapi_wrap, versionhelper_wrap],
+    ext_modules=extensions,
     url="http://www.bloomberglabs.com/api/",
-    packages=["blpapi", "blpapi.test"],
+    packages=packages,
     package_dir={"": "src"},
     package_data=package_data,
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",

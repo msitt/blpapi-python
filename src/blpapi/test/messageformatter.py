@@ -26,6 +26,7 @@ from blpapi.utils import (
     MIN_64BIT_INT,
     MAX_64BIT_INT,
 )
+from blpapi.chandle import CHandle
 
 
 def _singledispatchmethod(arg_index: int) -> Callable:
@@ -59,7 +60,7 @@ def _singledispatchmethod(arg_index: int) -> Callable:
     return _singleDispatchMethodImpl
 
 
-class MessageFormatter:
+class MessageFormatter(CHandle):
     """:class:`MessageFormatter` is used to populate/format a message. It
     supports writing only once to each field. Attempting to set an already set
     element will fail.
@@ -87,6 +88,9 @@ class MessageFormatter:
 
     def __init__(self, handle: BlpapiMessageFormatterHandle) -> None:
         """For internal use only."""
+        super(MessageFormatter, self).__init__(
+            handle, internals.blpapi_MessageFormatter_destroy
+        )
         self.__handle = handle
 
     def _handle(self) -> BlpapiMessageFormatterHandle:
@@ -114,6 +118,10 @@ class MessageFormatter:
             once and then reused** as each :class:`blpapi.Name` instance refers to an
             entry in a global static table which grows in an unbounded manner.
         """
+
+        # Although the function type hint is `name: Name` because we want to encourage using Names,
+        # clients may actually pass a string, so we check and convert if needed
+        # mypy complains that conv2str doesn't take Name, which we can ignore after isstr check
         if isstr(name):
             name = Name(conv2str(name))  # type: ignore
         self._setElement(name, value)
@@ -257,6 +265,10 @@ class MessageFormatter:
             once and then reused** as each :class:`blpapi.Name` instance refers to an
             entry in a global static table which grows in an unbounded manner.
         """
+
+        # Although the function type hint is `name: Name` because we want to encourage using Names,
+        # clients may actually pass a string, so we check and convert if needed
+        # mypy complains that conv2str doesn't take Name, which we can ignore after isstr check
         if isstr(name):
             name = Name(conv2str(name))  # type: ignore
         _ExceptionUtil.raiseOnError(

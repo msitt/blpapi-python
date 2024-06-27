@@ -149,10 +149,11 @@ def getAdminMessageDefinition(
         once and then reused** as each :class:`blpapi.Name` instance refers to an
         entry in a global static table which grows in an unbounded manner.
     """
+
+    # Although the function type hint is `name: Name` because we want to encourage using Names,
+    # clients may actually pass a string, so we check and convert if needed
+    # mypy complains that conv2str doesn't take Name, which we can ignore after isstr check
     if isstr(messageName):
-        # although we hint that messageName should be a Name
-        # it may actually be a string, if users ignore this typehint
-        # in this case, we need to convert it
         messageName = Name(conv2str(messageName))  # type: ignore
     (
         rc,

@@ -99,6 +99,11 @@ path to the library is added to 'add_dll_directory', i.e.:
 If the C++ SDK is already installed, please ensure that the path to the library
 was added to {_linker_env()} before entering the interpreter.
 
+If you are trying to build and install from source, you may instead find it
+easier to simply install the wheel directly from pip, which will come bundled
+with a compatible version of the C++ SDK. Simply run:
+`pip install blpapi --index-url=https://bcms.bloomberg.com/pip/simple`
+
 """
     return msg
 
@@ -126,6 +131,11 @@ Download and install the latest C++ SDK from:
 
 If a recent version of the C++ SDK is already installed, please ensure that the
 path to the library is added to {_linker_env()} before entering the interpreter.
+
+If you are trying to build and install from source, you may instead find it
+easier to simply install the wheel directly from pip, which will come bundled
+with a compatible version of the C++ SDK. Simply run:
+`pip install blpapi --index-url=https://bcms.bloomberg.com/pip/simple`
 
 """
     return msg

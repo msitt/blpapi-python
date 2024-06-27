@@ -3121,8 +3121,9 @@ void loggerCallbackWrapper(blpapi_UInt64_t   threadId,
     result = PyObject_CallFunction(loggerCallback, "KiOss", threadId, severity,
                                    datetime_obj, category, message);
 
-    PyGILState_Release(gilstate);
     Py_XDECREF(result);
+    Py_CLEAR(datetime_obj);
+    PyGILState_Release(gilstate);
 }
 
 int setLoggerCallbackWrapper(PyObject *cb, int severity)
@@ -4617,6 +4618,7 @@ void blpapi_SubscriptionPreprocess_handleErrorPy(
         description);
 
     Py_XDECREF(result);
+    Py_CLEAR(cidPyObject);
 
     SWIG_PYTHON_THREAD_END_BLOCK;
 }
@@ -10916,7 +10918,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_subscribeEx_helper(PyObject *SWIGUNUSE
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  PyObject *asAscii4 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  size_t size4 = 0 ;
+  int alloc4 = 0 ;
   PyObject *swig_obj[5] ;
   int result;
   
@@ -10936,23 +10941,12 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_subscribeEx_helper(PyObject *SWIGUNUSE
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_Session_subscribeEx_helper" "', argument " "3"" of type '" "blpapi_Identity_t const *""'"); 
   }
   arg3 = (blpapi_Identity_t *)(argp3);
-  {
-    if (swig_obj[3] == Py_None) {
-      arg4 = 0;
-      arg5 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[3])) {
-        asAscii4 = PyUnicode_AsASCIIString(swig_obj[3]);
-        arg4 = PyString_AsString(asAscii4);
-        arg5 = PyString_Size(asAscii4);
-      }
-      else {
-        arg4 = PyString_AsString(swig_obj[3]);
-        arg5 = PyString_Size(swig_obj[3]);
-      }
-    }
-  }
+  res4 = SWIG_AsCharPtrAndSize(swig_obj[3], &buf4, &size4, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "blpapi_Session_subscribeEx_helper" "', argument " "4"" of type '" "char const *""'");
+  }  
+  arg4 = (char *)(buf4);
+  arg5 = (int)(size4 - 1);
   {
     arg6 = swig_obj[4];
   }
@@ -10962,18 +10956,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_subscribeEx_helper(PyObject *SWIGUNUSE
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  {
-    if(asAscii4) {
-      Py_DECREF(asAscii4);
-    }
-  }
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
   return resultobj;
 fail:
-  {
-    if(asAscii4) {
-      Py_DECREF(asAscii4);
-    }
-  }
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
   return NULL;
 }
 
@@ -10989,7 +10975,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribeEx_helper(PyObject *SWIGUNU
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
-  PyObject *asAscii3 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  size_t size3 = 0 ;
+  int alloc3 = 0 ;
   PyObject *swig_obj[4] ;
   int result;
   
@@ -11004,23 +10993,12 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribeEx_helper(PyObject *SWIGUNU
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_Session_resubscribeEx_helper" "', argument " "2"" of type '" "blpapi_SubscriptionList_t const *""'"); 
   }
   arg2 = (blpapi_SubscriptionList_t *)(argp2);
-  {
-    if (swig_obj[2] == Py_None) {
-      arg3 = 0;
-      arg4 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[2])) {
-        asAscii3 = PyUnicode_AsASCIIString(swig_obj[2]);
-        arg3 = PyString_AsString(asAscii3);
-        arg4 = PyString_Size(asAscii3);
-      }
-      else {
-        arg3 = PyString_AsString(swig_obj[2]);
-        arg4 = PyString_Size(swig_obj[2]);
-      }
-    }
-  }
+  res3 = SWIG_AsCharPtrAndSize(swig_obj[2], &buf3, &size3, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_Session_resubscribeEx_helper" "', argument " "3"" of type '" "char const *""'");
+  }  
+  arg3 = (char *)(buf3);
+  arg4 = (int)(size3 - 1);
   {
     arg5 = swig_obj[3];
   }
@@ -11030,18 +11008,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribeEx_helper(PyObject *SWIGUNU
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  {
-    if(asAscii3) {
-      Py_DECREF(asAscii3);
-    }
-  }
+  if (alloc3 == SWIG_NEWOBJ) free((char*)buf3);
   return resultobj;
 fail:
-  {
-    if(asAscii3) {
-      Py_DECREF(asAscii3);
-    }
-  }
+  if (alloc3 == SWIG_NEWOBJ) free((char*)buf3);
   return NULL;
 }
 
@@ -11060,7 +11030,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribeWithIdEx_helper(PyObject *S
   int res2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
-  PyObject *asAscii4 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  size_t size4 = 0 ;
+  int alloc4 = 0 ;
   PyObject *swig_obj[5] ;
   int result;
   
@@ -11080,23 +11053,12 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribeWithIdEx_helper(PyObject *S
     SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "blpapi_Session_resubscribeWithIdEx_helper" "', argument " "3"" of type '" "int""'");
   } 
   arg3 = (int)(val3);
-  {
-    if (swig_obj[3] == Py_None) {
-      arg4 = 0;
-      arg5 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[3])) {
-        asAscii4 = PyUnicode_AsASCIIString(swig_obj[3]);
-        arg4 = PyString_AsString(asAscii4);
-        arg5 = PyString_Size(asAscii4);
-      }
-      else {
-        arg4 = PyString_AsString(swig_obj[3]);
-        arg5 = PyString_Size(swig_obj[3]);
-      }
-    }
-  }
+  res4 = SWIG_AsCharPtrAndSize(swig_obj[3], &buf4, &size4, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "blpapi_Session_resubscribeWithIdEx_helper" "', argument " "4"" of type '" "char const *""'");
+  }  
+  arg4 = (char *)(buf4);
+  arg5 = (int)(size4 - 1);
   {
     arg6 = swig_obj[4];
   }
@@ -11106,18 +11068,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribeWithIdEx_helper(PyObject *S
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  {
-    if(asAscii4) {
-      Py_DECREF(asAscii4);
-    }
-  }
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
   return resultobj;
 fail:
-  {
-    if(asAscii4) {
-      Py_DECREF(asAscii4);
-    }
-  }
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
   return NULL;
 }
 
@@ -13662,7 +13616,10 @@ SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_setApplicationIdentityKey(PyObj
   size_t arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  PyObject *asAscii2 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  size_t size2 = 0 ;
+  int alloc2 = 0 ;
   PyObject *swig_obj[2] ;
   int result;
   
@@ -13672,31 +13629,22 @@ SWIGINTERN PyObject *_wrap_blpapi_SessionOptions_setApplicationIdentityKey(PyObj
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_SessionOptions_setApplicationIdentityKey" "', argument " "1"" of type '" "blpapi_SessionOptions_t *""'"); 
   }
   arg1 = (blpapi_SessionOptions_t *)(argp1);
-  {
-    if (swig_obj[1] == Py_None) {
-      arg2 = 0;
-      arg3 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[1])) {
-        asAscii2 = PyUnicode_AsASCIIString(swig_obj[1]);
-        arg2 = PyString_AsString(asAscii2);
-        arg3 = PyString_Size(asAscii2);
-      }
-      else {
-        arg2 = PyString_AsString(swig_obj[1]);
-        arg3 = PyString_Size(swig_obj[1]);
-      }
-    }
-  }
+  res2 = SWIG_AsCharPtrAndSize(swig_obj[1], &buf2, &size2, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_SessionOptions_setApplicationIdentityKey" "', argument " "2"" of type '" "char const *""'");
+  }  
+  arg2 = (char *)(buf2);
+  arg3 = (size_t)(size2 - 1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     result = (int)blpapi_SessionOptions_setApplicationIdentityKey(arg1,(char const *)arg2,arg3);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
   return resultobj;
 fail:
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
   return NULL;
 }
 
@@ -18299,7 +18247,10 @@ SWIGINTERN PyObject *_wrap_blpapi_AbstractSession_cancel(PyObject *SWIGUNUSEDPAR
   int arg5 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  PyObject *asAscii4 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  size_t size4 = 0 ;
+  int alloc4 = 0 ;
   PyObject *swig_obj[3] ;
   int result;
   
@@ -18333,23 +18284,12 @@ SWIGINTERN PyObject *_wrap_blpapi_AbstractSession_cancel(PyObject *SWIGUNUSEDPAR
       }
     }
   }
-  {
-    if (swig_obj[2] == Py_None) {
-      arg4 = 0;
-      arg5 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[2])) {
-        asAscii4 = PyUnicode_AsASCIIString(swig_obj[2]);
-        arg4 = PyString_AsString(asAscii4);
-        arg5 = PyString_Size(asAscii4);
-      }
-      else {
-        arg4 = PyString_AsString(swig_obj[2]);
-        arg5 = PyString_Size(swig_obj[2]);
-      }
-    }
-  }
+  res4 = SWIG_AsCharPtrAndSize(swig_obj[2], &buf4, &size4, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "blpapi_AbstractSession_cancel" "', argument " "4"" of type '" "char const *""'");
+  }  
+  arg4 = (char *)(buf4);
+  arg5 = (int)(size4 - 1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     result = (int)blpapi_AbstractSession_cancel(arg1,(struct blpapi_CorrelationId_t_ const *)arg2,arg3,(char const *)arg4,arg5);
@@ -18359,21 +18299,13 @@ SWIGINTERN PyObject *_wrap_blpapi_AbstractSession_cancel(PyObject *SWIGUNUSEDPAR
   {
     if(arg2) free(arg2);
   }
-  {
-    if(asAscii4) {
-      Py_DECREF(asAscii4);
-    }
-  }
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
   return resultobj;
 fail:
   {
     if(arg2) free(arg2);
   }
-  {
-    if(asAscii4) {
-      Py_DECREF(asAscii4);
-    }
-  }
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
   return NULL;
 }
 
@@ -18397,7 +18329,10 @@ SWIGINTERN PyObject *_wrap_blpapi_AbstractSession_sendAuthorizationRequest(PyObj
   int res4 = 0 ;
   void *argp5 = 0 ;
   int res5 = 0 ;
-  PyObject *asAscii6 = 0 ;
+  int res6 ;
+  char *buf6 = 0 ;
+  size_t size6 = 0 ;
+  int alloc6 = 0 ;
   PyObject *swig_obj[6] ;
   int result;
   
@@ -18427,41 +18362,22 @@ SWIGINTERN PyObject *_wrap_blpapi_AbstractSession_sendAuthorizationRequest(PyObj
     SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "blpapi_AbstractSession_sendAuthorizationRequest" "', argument " "5"" of type '" "blpapi_EventQueue_t *""'"); 
   }
   arg5 = (blpapi_EventQueue_t *)(argp5);
-  {
-    if (swig_obj[5] == Py_None) {
-      arg6 = 0;
-      arg7 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[5])) {
-        asAscii6 = PyUnicode_AsASCIIString(swig_obj[5]);
-        arg6 = PyString_AsString(asAscii6);
-        arg7 = PyString_Size(asAscii6);
-      }
-      else {
-        arg6 = PyString_AsString(swig_obj[5]);
-        arg7 = PyString_Size(swig_obj[5]);
-      }
-    }
-  }
+  res6 = SWIG_AsCharPtrAndSize(swig_obj[5], &buf6, &size6, &alloc6);
+  if (!SWIG_IsOK(res6)) {
+    SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "blpapi_AbstractSession_sendAuthorizationRequest" "', argument " "6"" of type '" "char const *""'");
+  }  
+  arg6 = (char *)(buf6);
+  arg7 = (int)(size6 - 1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     result = (int)blpapi_AbstractSession_sendAuthorizationRequest(arg1,(struct blpapi_Request const *)arg2,arg3,arg4,arg5,(char const *)arg6,arg7);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  {
-    if(asAscii6) {
-      Py_DECREF(asAscii6);
-    }
-  }
+  if (alloc6 == SWIG_NEWOBJ) free((char*)buf6);
   return resultobj;
 fail:
-  {
-    if(asAscii6) {
-      Py_DECREF(asAscii6);
-    }
-  }
+  if (alloc6 == SWIG_NEWOBJ) free((char*)buf6);
   return NULL;
 }
 
@@ -18992,7 +18908,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_subscribe(PyObject *SWIGUNUSEDPARM(sel
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  PyObject *asAscii4 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  size_t size4 = 0 ;
+  int alloc4 = 0 ;
   PyObject *swig_obj[4] ;
   int result;
   
@@ -19012,41 +18931,22 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_subscribe(PyObject *SWIGUNUSEDPARM(sel
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_Session_subscribe" "', argument " "3"" of type '" "blpapi_Identity_t const *""'"); 
   }
   arg3 = (blpapi_Identity_t *)(argp3);
-  {
-    if (swig_obj[3] == Py_None) {
-      arg4 = 0;
-      arg5 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[3])) {
-        asAscii4 = PyUnicode_AsASCIIString(swig_obj[3]);
-        arg4 = PyString_AsString(asAscii4);
-        arg5 = PyString_Size(asAscii4);
-      }
-      else {
-        arg4 = PyString_AsString(swig_obj[3]);
-        arg5 = PyString_Size(swig_obj[3]);
-      }
-    }
-  }
+  res4 = SWIG_AsCharPtrAndSize(swig_obj[3], &buf4, &size4, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "blpapi_Session_subscribe" "', argument " "4"" of type '" "char const *""'");
+  }  
+  arg4 = (char *)(buf4);
+  arg5 = (int)(size4 - 1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     result = (int)blpapi_Session_subscribe(arg1,(struct blpapi_SubscriptionList const *)arg2,(struct blpapi_Identity const *)arg3,(char const *)arg4,arg5);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  {
-    if(asAscii4) {
-      Py_DECREF(asAscii4);
-    }
-  }
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
   return resultobj;
 fail:
-  {
-    if(asAscii4) {
-      Py_DECREF(asAscii4);
-    }
-  }
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
   return NULL;
 }
 
@@ -19066,7 +18966,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_subscribeEx(PyObject *SWIGUNUSEDPARM(s
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
-  PyObject *asAscii4 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  size_t size4 = 0 ;
+  int alloc4 = 0 ;
   int res7 ;
   PyObject *swig_obj[6] ;
   int result;
@@ -19087,23 +18990,12 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_subscribeEx(PyObject *SWIGUNUSEDPARM(s
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_Session_subscribeEx" "', argument " "3"" of type '" "blpapi_Identity_t const *""'"); 
   }
   arg3 = (blpapi_Identity_t *)(argp3);
-  {
-    if (swig_obj[3] == Py_None) {
-      arg4 = 0;
-      arg5 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[3])) {
-        asAscii4 = PyUnicode_AsASCIIString(swig_obj[3]);
-        arg4 = PyString_AsString(asAscii4);
-        arg5 = PyString_Size(asAscii4);
-      }
-      else {
-        arg4 = PyString_AsString(swig_obj[3]);
-        arg5 = PyString_Size(swig_obj[3]);
-      }
-    }
-  }
+  res4 = SWIG_AsCharPtrAndSize(swig_obj[3], &buf4, &size4, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "blpapi_Session_subscribeEx" "', argument " "4"" of type '" "char const *""'");
+  }  
+  arg4 = (char *)(buf4);
+  arg5 = (int)(size4 - 1);
   {
     int res = SWIG_ConvertFunctionPtr(swig_obj[4], (void**)(&arg6), SWIGTYPE_p_f_p_q_const__struct_blpapi_CorrelationId_t__p_q_const__char_int_p_q_const__char_p_void__void);
     if (!SWIG_IsOK(res)) {
@@ -19120,18 +19012,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_subscribeEx(PyObject *SWIGUNUSEDPARM(s
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  {
-    if(asAscii4) {
-      Py_DECREF(asAscii4);
-    }
-  }
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
   return resultobj;
 fail:
-  {
-    if(asAscii4) {
-      Py_DECREF(asAscii4);
-    }
-  }
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
   return NULL;
 }
 
@@ -19146,7 +19030,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribe(PyObject *SWIGUNUSEDPARM(s
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
-  PyObject *asAscii3 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  size_t size3 = 0 ;
+  int alloc3 = 0 ;
   PyObject *swig_obj[3] ;
   int result;
   
@@ -19161,41 +19048,22 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribe(PyObject *SWIGUNUSEDPARM(s
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_Session_resubscribe" "', argument " "2"" of type '" "blpapi_SubscriptionList_t const *""'"); 
   }
   arg2 = (blpapi_SubscriptionList_t *)(argp2);
-  {
-    if (swig_obj[2] == Py_None) {
-      arg3 = 0;
-      arg4 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[2])) {
-        asAscii3 = PyUnicode_AsASCIIString(swig_obj[2]);
-        arg3 = PyString_AsString(asAscii3);
-        arg4 = PyString_Size(asAscii3);
-      }
-      else {
-        arg3 = PyString_AsString(swig_obj[2]);
-        arg4 = PyString_Size(swig_obj[2]);
-      }
-    }
-  }
+  res3 = SWIG_AsCharPtrAndSize(swig_obj[2], &buf3, &size3, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_Session_resubscribe" "', argument " "3"" of type '" "char const *""'");
+  }  
+  arg3 = (char *)(buf3);
+  arg4 = (int)(size3 - 1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     result = (int)blpapi_Session_resubscribe(arg1,(struct blpapi_SubscriptionList const *)arg2,(char const *)arg3,arg4);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  {
-    if(asAscii3) {
-      Py_DECREF(asAscii3);
-    }
-  }
+  if (alloc3 == SWIG_NEWOBJ) free((char*)buf3);
   return resultobj;
 fail:
-  {
-    if(asAscii3) {
-      Py_DECREF(asAscii3);
-    }
-  }
+  if (alloc3 == SWIG_NEWOBJ) free((char*)buf3);
   return NULL;
 }
 
@@ -19212,7 +19080,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribeEx(PyObject *SWIGUNUSEDPARM
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
-  PyObject *asAscii3 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  size_t size3 = 0 ;
+  int alloc3 = 0 ;
   int res6 ;
   PyObject *swig_obj[5] ;
   int result;
@@ -19228,23 +19099,12 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribeEx(PyObject *SWIGUNUSEDPARM
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_Session_resubscribeEx" "', argument " "2"" of type '" "blpapi_SubscriptionList_t const *""'"); 
   }
   arg2 = (blpapi_SubscriptionList_t *)(argp2);
-  {
-    if (swig_obj[2] == Py_None) {
-      arg3 = 0;
-      arg4 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[2])) {
-        asAscii3 = PyUnicode_AsASCIIString(swig_obj[2]);
-        arg3 = PyString_AsString(asAscii3);
-        arg4 = PyString_Size(asAscii3);
-      }
-      else {
-        arg3 = PyString_AsString(swig_obj[2]);
-        arg4 = PyString_Size(swig_obj[2]);
-      }
-    }
-  }
+  res3 = SWIG_AsCharPtrAndSize(swig_obj[2], &buf3, &size3, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_Session_resubscribeEx" "', argument " "3"" of type '" "char const *""'");
+  }  
+  arg3 = (char *)(buf3);
+  arg4 = (int)(size3 - 1);
   {
     int res = SWIG_ConvertFunctionPtr(swig_obj[3], (void**)(&arg5), SWIGTYPE_p_f_p_q_const__struct_blpapi_CorrelationId_t__p_q_const__char_int_p_q_const__char_p_void__void);
     if (!SWIG_IsOK(res)) {
@@ -19261,18 +19121,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribeEx(PyObject *SWIGUNUSEDPARM
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  {
-    if(asAscii3) {
-      Py_DECREF(asAscii3);
-    }
-  }
+  if (alloc3 == SWIG_NEWOBJ) free((char*)buf3);
   return resultobj;
 fail:
-  {
-    if(asAscii3) {
-      Py_DECREF(asAscii3);
-    }
-  }
+  if (alloc3 == SWIG_NEWOBJ) free((char*)buf3);
   return NULL;
 }
 
@@ -19290,7 +19142,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribeWithId(PyObject *SWIGUNUSED
   int res2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
-  PyObject *asAscii4 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  size_t size4 = 0 ;
+  int alloc4 = 0 ;
   PyObject *swig_obj[4] ;
   int result;
   
@@ -19310,41 +19165,22 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribeWithId(PyObject *SWIGUNUSED
     SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "blpapi_Session_resubscribeWithId" "', argument " "3"" of type '" "int""'");
   } 
   arg3 = (int)(val3);
-  {
-    if (swig_obj[3] == Py_None) {
-      arg4 = 0;
-      arg5 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[3])) {
-        asAscii4 = PyUnicode_AsASCIIString(swig_obj[3]);
-        arg4 = PyString_AsString(asAscii4);
-        arg5 = PyString_Size(asAscii4);
-      }
-      else {
-        arg4 = PyString_AsString(swig_obj[3]);
-        arg5 = PyString_Size(swig_obj[3]);
-      }
-    }
-  }
+  res4 = SWIG_AsCharPtrAndSize(swig_obj[3], &buf4, &size4, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "blpapi_Session_resubscribeWithId" "', argument " "4"" of type '" "char const *""'");
+  }  
+  arg4 = (char *)(buf4);
+  arg5 = (int)(size4 - 1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     result = (int)blpapi_Session_resubscribeWithId(arg1,(struct blpapi_SubscriptionList const *)arg2,arg3,(char const *)arg4,arg5);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  {
-    if(asAscii4) {
-      Py_DECREF(asAscii4);
-    }
-  }
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
   return resultobj;
 fail:
-  {
-    if(asAscii4) {
-      Py_DECREF(asAscii4);
-    }
-  }
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
   return NULL;
 }
 
@@ -19364,7 +19200,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribeWithIdEx(PyObject *SWIGUNUS
   int res2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
-  PyObject *asAscii4 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  size_t size4 = 0 ;
+  int alloc4 = 0 ;
   int res7 ;
   PyObject *swig_obj[6] ;
   int result;
@@ -19385,23 +19224,12 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribeWithIdEx(PyObject *SWIGUNUS
     SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "blpapi_Session_resubscribeWithIdEx" "', argument " "3"" of type '" "int""'");
   } 
   arg3 = (int)(val3);
-  {
-    if (swig_obj[3] == Py_None) {
-      arg4 = 0;
-      arg5 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[3])) {
-        asAscii4 = PyUnicode_AsASCIIString(swig_obj[3]);
-        arg4 = PyString_AsString(asAscii4);
-        arg5 = PyString_Size(asAscii4);
-      }
-      else {
-        arg4 = PyString_AsString(swig_obj[3]);
-        arg5 = PyString_Size(swig_obj[3]);
-      }
-    }
-  }
+  res4 = SWIG_AsCharPtrAndSize(swig_obj[3], &buf4, &size4, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "blpapi_Session_resubscribeWithIdEx" "', argument " "4"" of type '" "char const *""'");
+  }  
+  arg4 = (char *)(buf4);
+  arg5 = (int)(size4 - 1);
   {
     int res = SWIG_ConvertFunctionPtr(swig_obj[4], (void**)(&arg6), SWIGTYPE_p_f_p_q_const__struct_blpapi_CorrelationId_t__p_q_const__char_int_p_q_const__char_p_void__void);
     if (!SWIG_IsOK(res)) {
@@ -19418,18 +19246,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_resubscribeWithIdEx(PyObject *SWIGUNUS
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  {
-    if(asAscii4) {
-      Py_DECREF(asAscii4);
-    }
-  }
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
   return resultobj;
 fail:
-  {
-    if(asAscii4) {
-      Py_DECREF(asAscii4);
-    }
-  }
+  if (alloc4 == SWIG_NEWOBJ) free((char*)buf4);
   return NULL;
 }
 
@@ -19444,7 +19264,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_unsubscribe(PyObject *SWIGUNUSEDPARM(s
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
-  PyObject *asAscii3 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  size_t size3 = 0 ;
+  int alloc3 = 0 ;
   PyObject *swig_obj[3] ;
   int result;
   
@@ -19459,41 +19282,22 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_unsubscribe(PyObject *SWIGUNUSEDPARM(s
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_Session_unsubscribe" "', argument " "2"" of type '" "blpapi_SubscriptionList_t const *""'"); 
   }
   arg2 = (blpapi_SubscriptionList_t *)(argp2);
-  {
-    if (swig_obj[2] == Py_None) {
-      arg3 = 0;
-      arg4 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[2])) {
-        asAscii3 = PyUnicode_AsASCIIString(swig_obj[2]);
-        arg3 = PyString_AsString(asAscii3);
-        arg4 = PyString_Size(asAscii3);
-      }
-      else {
-        arg3 = PyString_AsString(swig_obj[2]);
-        arg4 = PyString_Size(swig_obj[2]);
-      }
-    }
-  }
+  res3 = SWIG_AsCharPtrAndSize(swig_obj[2], &buf3, &size3, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "blpapi_Session_unsubscribe" "', argument " "3"" of type '" "char const *""'");
+  }  
+  arg3 = (char *)(buf3);
+  arg4 = (int)(size3 - 1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     result = (int)blpapi_Session_unsubscribe(arg1,(struct blpapi_SubscriptionList const *)arg2,(char const *)arg3,arg4);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  {
-    if(asAscii3) {
-      Py_DECREF(asAscii3);
-    }
-  }
+  if (alloc3 == SWIG_NEWOBJ) free((char*)buf3);
   return resultobj;
 fail:
-  {
-    if(asAscii3) {
-      Py_DECREF(asAscii3);
-    }
-  }
+  if (alloc3 == SWIG_NEWOBJ) free((char*)buf3);
   return NULL;
 }
 
@@ -19567,7 +19371,10 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_sendRequest(PyObject *SWIGUNUSEDPARM(s
   int res4 = 0 ;
   void *argp5 = 0 ;
   int res5 = 0 ;
-  PyObject *asAscii6 = 0 ;
+  int res6 ;
+  char *buf6 = 0 ;
+  size_t size6 = 0 ;
+  int alloc6 = 0 ;
   PyObject *swig_obj[6] ;
   int result;
   
@@ -19597,41 +19404,22 @@ SWIGINTERN PyObject *_wrap_blpapi_Session_sendRequest(PyObject *SWIGUNUSEDPARM(s
     SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "blpapi_Session_sendRequest" "', argument " "5"" of type '" "blpapi_EventQueue_t *""'"); 
   }
   arg5 = (blpapi_EventQueue_t *)(argp5);
-  {
-    if (swig_obj[5] == Py_None) {
-      arg6 = 0;
-      arg7 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[5])) {
-        asAscii6 = PyUnicode_AsASCIIString(swig_obj[5]);
-        arg6 = PyString_AsString(asAscii6);
-        arg7 = PyString_Size(asAscii6);
-      }
-      else {
-        arg6 = PyString_AsString(swig_obj[5]);
-        arg7 = PyString_Size(swig_obj[5]);
-      }
-    }
-  }
+  res6 = SWIG_AsCharPtrAndSize(swig_obj[5], &buf6, &size6, &alloc6);
+  if (!SWIG_IsOK(res6)) {
+    SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "blpapi_Session_sendRequest" "', argument " "6"" of type '" "char const *""'");
+  }  
+  arg6 = (char *)(buf6);
+  arg7 = (int)(size6 - 1);
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     result = (int)blpapi_Session_sendRequest(arg1,(struct blpapi_Request const *)arg2,arg3,arg4,arg5,(char const *)arg6,arg7);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_From_int((int)(result));
-  {
-    if(asAscii6) {
-      Py_DECREF(asAscii6);
-    }
-  }
+  if (alloc6 == SWIG_NEWOBJ) free((char*)buf6);
   return resultobj;
 fail:
-  {
-    if(asAscii6) {
-      Py_DECREF(asAscii6);
-    }
-  }
+  if (alloc6 == SWIG_NEWOBJ) free((char*)buf6);
   return NULL;
 }
 
@@ -22738,7 +22526,10 @@ SWIGINTERN PyObject *_wrap_blpapi_ServiceRegistrationOptions_setGroupId(PyObject
   unsigned int arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  PyObject *asAscii2 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  size_t size2 = 0 ;
+  int alloc2 = 0 ;
   PyObject *swig_obj[2] ;
   
   if (!SWIG_Python_UnpackTuple(args, "blpapi_ServiceRegistrationOptions_setGroupId", 2, 2, swig_obj)) SWIG_fail;
@@ -22747,23 +22538,12 @@ SWIGINTERN PyObject *_wrap_blpapi_ServiceRegistrationOptions_setGroupId(PyObject
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "blpapi_ServiceRegistrationOptions_setGroupId" "', argument " "1"" of type '" "blpapi_ServiceRegistrationOptions_t *""'"); 
   }
   arg1 = (blpapi_ServiceRegistrationOptions_t *)(argp1);
-  {
-    if (swig_obj[1] == Py_None) {
-      arg2 = 0;
-      arg3 = 0;
-    }
-    else {
-      if(PyUnicode_Check(swig_obj[1])) {
-        asAscii2 = PyUnicode_AsASCIIString(swig_obj[1]);
-        arg2 = PyString_AsString(asAscii2);
-        arg3 = PyString_Size(asAscii2);
-      }
-      else {
-        arg2 = PyString_AsString(swig_obj[1]);
-        arg3 = PyString_Size(swig_obj[1]);
-      }
-    }
-  }
+  res2 = SWIG_AsCharPtrAndSize(swig_obj[1], &buf2, &size2, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "blpapi_ServiceRegistrationOptions_setGroupId" "', argument " "2"" of type '" "char const *""'");
+  }  
+  arg2 = (char *)(buf2);
+  arg3 = (unsigned int)(size2 - 1);
   {
     if (!arg2) {
       SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
@@ -22775,18 +22555,10 @@ SWIGINTERN PyObject *_wrap_blpapi_ServiceRegistrationOptions_setGroupId(PyObject
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_Py_Void();
-  {
-    if(asAscii2) {
-      Py_DECREF(asAscii2);
-    }
-  }
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
   return resultobj;
 fail:
-  {
-    if(asAscii2) {
-      Py_DECREF(asAscii2);
-    }
-  }
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
   return NULL;
 }
 

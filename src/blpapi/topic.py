@@ -36,11 +36,8 @@ class Topic(CHandle):
         A :class:`Topic` created with ``handle`` set to ``None`` is not a valid
         topic and must be assigned to from a valid topic before it can be used.
         """
-        selfhandle = handle
-        if handle is not None:
-            selfhandle = internals.blpapi_Topic_create(handle)
-        super(Topic, self).__init__(selfhandle, internals.blpapi_Topic_destroy)
-        self.__handle = selfhandle
+        super(Topic, self).__init__(handle, internals.blpapi_Topic_destroy)
+        self.__handle = handle
         self.__sessions = sessions if sessions is not None else set()
 
     def isValid(self) -> bool:

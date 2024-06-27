@@ -118,11 +118,12 @@ class Name(CHandle):
 
     def __eq__(self, other: Any) -> bool:
         """x.__eq__(y) <==> x==y"""
+        if not isstr(other):
+            return self.__handle == get_handle(other)
+
         s = conv2str(other)
-        if s is not None:
-            p = internals.blpapi_Name_equalsStr(self.__handle, s)
-            return p != 0
-        return self.__handle == get_handle(other)
+        p = internals.blpapi_Name_equalsStr(self.__handle, s)
+        return p != 0
 
     def __ne__(self, other: Any) -> bool:
         """x.__ne__(y) <==> x!=y"""
@@ -134,7 +135,7 @@ class Name(CHandle):
 
 
 def getNamePair(
-    name: Name,
+    name: Union[Name, str],
 ) -> Union[Tuple[None, BlpapiNameHandle], Tuple[str, None]]:
     """Create a tuple that contains a name string and blpapi_Name_t*.
 

@@ -145,7 +145,7 @@ class SubscriptionList(CHandle):
 
     def add(
         self,
-        topic: str,
+        topic: Optional[str],
         fields: Union[str, Sequence[str], None] = None,
         options: Union[str, Sequence[str], Mapping, None] = None,
         correlationId: Optional[CorrelationId] = None,

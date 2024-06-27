@@ -156,6 +156,10 @@ class ServiceRegistrationOptions(
         ``MAX_GROUP_ID_SIZE`` (=64) only the first ``MAX_GROUP_ID_SIZE`` chars
         are considered as Group Id.
         """
+
+        if groupId is None:
+            raise ValueError("groupId must not be None")
+
         internals.blpapi_ServiceRegistrationOptions_setGroupId(
             self.__handle, groupId
         )

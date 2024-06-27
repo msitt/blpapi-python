@@ -7,7 +7,7 @@ This component implements a consumer session for getting services.
 
 from __future__ import annotations
 from weakref import ref, ReferenceType  # pylint: disable=unused-import
-from typing import Optional, Callable, List
+from typing import Optional, Callable, Any, List
 import sys
 import traceback
 import os
@@ -198,8 +198,12 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         )
 
         _destroy = internals.Session_destroyHelper
+
         # note: AbstractSession destroy passes AbstractSession handle
-        _dtor = lambda hndl: _destroy(self.__handle, self.__handlerProxy)
+        def _dtor(_: Any) -> None:
+            atexit.unregister(self.stop)
+            _destroy(self.__handle, self.__handlerProxy)
+
         atexit.register(self.stop)  # we must stop session before shutdown
 
         AbstractSession.__init__(
@@ -342,7 +346,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         self,
         subscriptionList: "typehints.SubscriptionList",
         identity: Optional["typehints.Identity"] = None,
-        requestLabel: str = "",
+        requestLabel: Optional[str] = None,
         mode: SubscriptionPreprocessMode = SubscriptionPreprocessMode.FAIL_ON_FIRST_ERROR,
     ) -> Optional[List[SubscriptionPreprocessError]]:
         """Begin subscriptions for each entry in the specified list.
@@ -445,7 +449,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
     def resubscribe(
         self,
         subscriptionList: "typehints.SubscriptionList",
-        requestLabel: str = "",
+        requestLabel: Optional[str] = None,
         resubscriptionId: Optional[int] = None,
         mode: SubscriptionPreprocessMode = SubscriptionPreprocessMode.FAIL_ON_FIRST_ERROR,
     ) -> Optional[List[SubscriptionPreprocessError]]:
@@ -568,7 +572,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         identity: Optional["typehints.Identity"] = None,
         correlationId: Optional[CorrelationId] = None,
         eventQueue: Optional["typehints.EventQueue"] = None,
-        requestLabel: str = "",
+        requestLabel: Optional[str] = None,
     ) -> CorrelationId:
         """Send the specified ``request``.
 
@@ -749,14 +753,16 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         cidArg = correlationId
         identityArg = identity
 
-        # we changed the order of last two arguments
+        # We changed the order of last two arguments, but
         # old clients may have them swapped at call site.
         # This detects the swap and calls the method correctly.
+        # It causes mypy to complain about an unreachable statement
+        # so we add # type: ignore to suppress it
 
         # Note: cid may never be None, only identity is allowed None
         # Hence, in the swapped case identity must be of type CorrelationId
         if isinstance(identity, CorrelationId):
-            cidArg = identity
+            cidArg = identity  # type: ignore
             identityArg = correlationId
 
         rc, template = internals.blpapi_Session_createSnapshotRequestTemplate(

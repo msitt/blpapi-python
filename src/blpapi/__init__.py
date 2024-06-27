@@ -71,6 +71,16 @@ from .version import (
     print_version,
 )
 
+# INTERNAL ONLY START
+# see automation/prepare_release.py
+try:
+    from . import internalutils  # blpapi.internalutils submodule
+except ImportError as error:
+    # internalutils is not available, most likely because this is a public release
+    # simply continue silently
+    pass
+# INTERNAL ONLY END
+
 # blpapi.test module
 from .test import *
 

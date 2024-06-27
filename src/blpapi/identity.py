@@ -59,8 +59,6 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         self.__handle = handle  # pylint: disable=unused-private-member
         self.__sessions = sessions  # pylint: disable=unused-private-member
 
-        internals.blpapi_Identity_addRef(self.__handle)
-
     def hasEntitlements(
         self,
         service: "typehints.Service",
