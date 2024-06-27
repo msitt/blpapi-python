@@ -97,6 +97,7 @@ def processEvent(event, session):
 def main():
     options = parseCmdLine()
     sessionOptions = createSessionOptions(options)
+    sessionOptions.setSessionName("requestserviceprovider")
 
     providerSession = blpapi.ProviderSession(sessionOptions, processEvent)
 

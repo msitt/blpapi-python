@@ -165,6 +165,7 @@ def main():
     options = parseCmdLine()
 
     sessionOptions = createSessionOptions(options)
+    sessionOptions.setSessionName("contributions")
 
     stop = Event()
     myEventHandler = MyEventHandler(stop)

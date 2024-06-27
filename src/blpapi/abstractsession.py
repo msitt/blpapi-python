@@ -426,6 +426,18 @@ class AbstractSession(CHandle):
         _ExceptionUtil.raiseOnError(retcode)
         return Identity(identity_handle, (self,))
 
+    def sessionName(self) -> str:
+        """
+        Returns:
+            The session name.
+        """
+        (result, sessionName) = internals.blpapi_AbstractSession_sessionName(
+            self.__handle
+        )
+
+        _ExceptionUtil.raiseOnError(result)
+        return sessionName
+
 
 __copyright__ = """
 Copyright 2019. Bloomberg Finance L.P.

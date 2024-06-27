@@ -146,6 +146,7 @@ class SnapshotRequestTemplateExample:
 
         sessionOptions = createSessionOptions(options)
         setSubscriptionSessionOptions(sessionOptions, options)
+        sessionOptions.setSessionName("snapshotrequesttemplateexample")
         session = blpapi.Session(sessionOptions, self.processEvent)
 
         try:

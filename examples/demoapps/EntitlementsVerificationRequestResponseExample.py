@@ -64,6 +64,9 @@ class EntitlementsVerificationRequestResponseExample:
         # authorize. This may cause the session to stop and the example
         # to terminate if the identity is revoked.
         sessionOptions = createSessionOptions(self._options)
+        sessionOptions.setSessionName(
+            "entitlementsverificationrequestresponse"
+        )
         session = Session(sessionOptions, self._router.processEvent)
         session.startAsync()
 

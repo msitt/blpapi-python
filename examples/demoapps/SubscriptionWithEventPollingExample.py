@@ -142,6 +142,7 @@ def main():
 
     sessionOptions = createSessionOptions(options)
     setSubscriptionSessionOptions(sessionOptions, options)
+    sessionOptions.setSessionName("subscriptionwitheventpolling")
     session = blpapi.Session(sessionOptions)
 
     try:

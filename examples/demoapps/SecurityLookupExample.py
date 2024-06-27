@@ -156,15 +156,16 @@ def waitForResponse(session, requestType):
             print("Processing Response")
             processResponseEvent(event, requestType)
             done = True
+        elif eventType == blpapi.Event.REQUEST_STATUS:
+            for msg in event:
+                if msg.messageType() == REQUEST_FAILURE:
+                    print(f"Request failed: {msg}")
+                    done = True
         else:
             for msg in event:
-                if eventType == blpapi.Event.REQUEST_STATUS:
-                    if msg.messageType() == REQUEST_FAILURE:
-                        print(f"Request failed: {msg}")
-                        done = True
+                print(msg)
                 if eventType == blpapi.Event.SESSION_STATUS:
                     if msg.messageType() == SESSION_TERMINATED:
-                        print(f"Session terminated: {msg}")
                         done = True
 
 
@@ -183,6 +184,7 @@ def main():
 
     options = parseCmdLine()
     sessionOptions = createSessionOptions(options)
+    sessionOptions.setSessionName("securitylookupexample")
 
     session = blpapi.Session(sessionOptions)
     try:

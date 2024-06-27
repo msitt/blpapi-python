@@ -88,6 +88,10 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
             event: Event that this message belongs to
             sessions: Sessions that this object is associated with
         """
+
+        if handle is None:
+            raise ValueError("Handle should not be None")
+
         internals.blpapi_Message_addRef(handle)
         super(Message, self).__init__(handle, internals.blpapi_Message_release)
         self.__handle = handle

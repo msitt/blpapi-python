@@ -28,6 +28,7 @@ def parseCmdLine():
 def main():
     options = parseCmdLine()
     sessionOptions = createSessionOptions(options)
+    sessionOptions.setSessionName("requestserviceconsumer")
     session = blpapi.Session(sessionOptions)
 
     try:

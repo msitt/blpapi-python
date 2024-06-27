@@ -1099,6 +1099,12 @@ def blpapi_SessionOptions_setApplicationIdentityKey(parameters, applicationIdent
 def blpapi_SessionOptions_applicationIdentityKey(parameters):
     return _internals.blpapi_SessionOptions_applicationIdentityKey(parameters)
 
+def blpapi_SessionOptions_setSessionName(parameters, sessionName):
+    return _internals.blpapi_SessionOptions_setSessionName(parameters, sessionName)
+
+def blpapi_SessionOptions_sessionName(parameters):
+    return _internals.blpapi_SessionOptions_sessionName(parameters)
+
 def blpapi_TlsOptions_destroy(parameters):
     return _internals.blpapi_TlsOptions_destroy(parameters)
 
@@ -1521,6 +1527,9 @@ def blpapi_AbstractSession_generateAuthorizedIdentityAsync(session, authOptions,
 
 def blpapi_AbstractSession_getAuthorizedIdentity(session, cid):
     return _internals.blpapi_AbstractSession_getAuthorizedIdentity(session, cid)
+
+def blpapi_AbstractSession_sessionName(session):
+    return _internals.blpapi_AbstractSession_sessionName(session)
 
 def blpapi_Session_start(session):
     return _internals.blpapi_Session_start(session)

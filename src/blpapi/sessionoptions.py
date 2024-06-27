@@ -660,6 +660,32 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         _ExceptionUtil.raiseOnError(result)
         return aik
 
+    def setSessionName(self, sessionName: str) -> None:
+        """Set the session name which can be used to identify the log
+        lines pertaining to the session.
+
+        Args:
+            sessionName: The session name to set.
+        """
+
+        _ExceptionUtil.raiseOnError(
+            internals.blpapi_SessionOptions_setSessionName(
+                self.__handle, sessionName
+            )
+        )
+
+    def sessionName(self) -> str:
+        """
+        Returns:
+            The session name.
+        """
+        (result, sessionName) = internals.blpapi_SessionOptions_sessionName(
+            self.__handle
+        )
+
+        _ExceptionUtil.raiseOnError(result)
+        return sessionName
+
     def serverHost(self) -> str:
         """
         Returns:

@@ -78,6 +78,10 @@ class SubscriptionEventHandler(object):
                 if msg.messageType() == blpapi.Names.SESSION_TERMINATED:
                     print("Session terminated")
                     return
+                else:
+                    print(msg)
+            else:
+                print(msg)
 
     def processEvent(self, event, _session):
         try:
@@ -123,6 +127,7 @@ def main():
     sessionOptions = createSessionOptions(options)
     setSubscriptionSessionOptions(sessionOptions, options)
     sessionOptions.setMaxEventQueueSize(options.eventQueueSize)
+    sessionOptions.setSessionName("subscription")
     handler = SubscriptionEventHandler()
     session = blpapi.Session(sessionOptions, handler.processEvent)
 

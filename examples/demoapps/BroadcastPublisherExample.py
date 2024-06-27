@@ -153,6 +153,7 @@ def main():
 
     # Create a Session
     sessionOptions = createSessionOptions(options)
+    sessionOptions.setSessionName("broadcastpublisherexample")
     session = blpapi.ProviderSession(
         sessionOptions, myEventHandler.processEvent
     )

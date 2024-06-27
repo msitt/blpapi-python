@@ -4,8 +4,8 @@
 
 from . import versionhelper
 
-__version__ = "3.21.0"
-__expected_cpp_sdk_version__ = "3.21"
+__version__ = "3.23.0"
+__expected_cpp_sdk_version__ = "3.23"
 
 
 def print_version() -> None:
@@ -29,10 +29,6 @@ def cpp_sdk_version() -> str:
         str: BLPAPI C++ SDK dependency version
     """
     version_string = ".".join(map(str, versionhelper.blpapi_getVersionInfo()))
-
-    commit_id = versionhelper.blpapi_getVersionIdentifier()
-    if commit_id != "Unknown":
-        version_string += " (" + commit_id + ")"
     return version_string
 
 

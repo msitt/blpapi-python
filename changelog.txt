@@ -1,3 +1,19 @@
+Version 3.23.0:
+===============
+- Stability and performance improvements
+
+Version 3.22.0:
+===============
+- Added support for a named session
+    Users can now name a session by setting a 'sessionName' in
+    'SessionOptions'. The name can be used to identify the log lines pertaining
+    to a given session and it can be retrieved via 'Session.sessionName()' method.
+- Added names to threads provided by BLPAPI
+    Threads that are created by 'Session' are now named according to the
+    following scheme: blp<sessionID><component>. Component is a brief
+    descriptor of the thread function, for internal use.
+- Stability and performance improvements
+
 Version 3.21.0:
 ===============
 - Horizontal scaling of requests

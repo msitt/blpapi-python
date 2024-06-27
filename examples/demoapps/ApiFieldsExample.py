@@ -76,6 +76,7 @@ def main():
     options = parser.parse_args()
 
     sessionOptions = createSessionOptions(options)
+    sessionOptions.setSessionName("apifields")
 
     session = blpapi.Session(sessionOptions)
 

@@ -370,6 +370,7 @@ def main():
     )
 
     sessionOptions = createSessionOptions(options)
+    sessionOptions.setSessionName("interactivepublisher")
     session = blpapi.ProviderSession(
         sessionOptions, myEventHandler.processEvent
     )

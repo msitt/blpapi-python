@@ -86,6 +86,7 @@ def main():
     sessionOptions.setServerHost(options.host)
     sessionOptions.setServerPort(int(options.port))
     sessionOptions.setAuthenticationOptions(options.authOptions)
+    sessionOptions.setSessionName("generatetoken")
 
     print(f"Connecting to {options.host}:{options.port}")
     session = blpapi.Session(sessionOptions)

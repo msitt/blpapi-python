@@ -19,6 +19,7 @@ def main():
     cliOptions = parser.parse_args()
 
     sessionOptions = createSessionOptions(cliOptions)
+    sessionOptions.setSessionName("multiplerequestsoverride")
     session = blpapi.Session(sessionOptions)
 
     try:

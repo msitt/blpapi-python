@@ -185,6 +185,7 @@ def main():
     options = parseCmdLine()
 
     sessionOptions = createSessionOptions(options)
+    sessionOptions.setSessionName("requestresponse")
     session = blpapi.Session(sessionOptions)
 
     try:
