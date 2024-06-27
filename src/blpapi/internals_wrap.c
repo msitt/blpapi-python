@@ -3083,14 +3083,18 @@ PyObject *blpapi_DiagnosticsUtil_memoryInfo_wrapper()
     PyObject *diagnostics_str;
 
     if (len < 0) {
+        SWIG_PYTHON_THREAD_BEGIN_BLOCK;
         PyErr_SetString(PyExc_RuntimeError, "blpapi_DiagnosticsUtil_memoryInfo error");
+        SWIG_PYTHON_THREAD_END_BLOCK;
         return NULL;
     }
 
     buffer_length = len + 1;
     buffer = (char *) malloc(buffer_length);
     blpapi_DiagnosticsUtil_memoryInfo(buffer, buffer_length);
+    SWIG_PYTHON_THREAD_BEGIN_BLOCK;
     diagnostics_str = PyString_FromString(buffer);
+    SWIG_PYTHON_THREAD_END_BLOCK;
     free(buffer);
 
     return diagnostics_str;

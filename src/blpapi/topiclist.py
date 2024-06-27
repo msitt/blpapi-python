@@ -115,12 +115,12 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         )
 
     def correlationIdAt(self, index: int) -> CorrelationId:
-        """
+        r"""
         Args:
             index: Index of the entry in the list
 
         Returns:
-            Correlation id of the ``index``\ th entry.
+            Correlation id of the ``index``\th entry.
 
         Raises:
             Exception: If ``index >= size()``.
@@ -151,12 +151,12 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         return topic
 
     def topicStringAt(self, index: int) -> str:
-        """
+        r"""
         Args:
             index: Index of the entry
 
         Returns:
-            The full topic string of the ``index``\ th entry in this list.
+            The full topic string of the ``index``\th entry in this list.
 
         Raises:
             Exception: If ``index >= size()``.
@@ -189,12 +189,12 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         return status
 
     def statusAt(self, index: int) -> int:
-        """
+        r"""
         Args:
             index: Index of the entry
 
         Returns:
-            Status of the ``index``\ th entry in this list. This may be
+            Status of the ``index``\th entry in this list. This may be
             :attr:`NOT_CREATED`, :attr:`CREATED` and :attr:`FAILURE`.
 
         Raises:

@@ -33,9 +33,9 @@ from . import internals
 
 
 class Constant:
-    """Represents the value of a schema enumeration constant.
+    r"""Represents the value of a schema enumeration constant.
 
-    Constants can be any of the following :class:`DataType`\ s:
+    Constants can be any of the following :class:`DataType`\s:
     :attr:`~DataType.BOOL`, :attr:`~DataType.CHAR`, :attr:`~DataType.BYTE`,
     :attr:`~DataType.INT32`, :attr:`~DataType.INT64`,
     :attr:`~DataType.FLOAT32`, :attr:`~DataType.FLOAT64`,

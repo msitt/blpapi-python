@@ -29,8 +29,6 @@ class Names:
     SESSION_STARTUP_FAILURE = Name("SessionStartupFailure")
     SESSION_CONNECTION_UP = Name("SessionConnectionUp")
     SESSION_CONNECTION_DOWN = Name("SessionConnectionDown")
-    SESSION_CLUSTER_INFO = Name("SessionClusterInfo")
-    SESSION_CLUSTER_UPDATE = Name("SessionClusterUpdate")
     SERVICE_OPENED = Name("ServiceOpened")
     SERVICE_OPEN_FAILURE = Name("ServiceOpenFailure")
     SERVICE_REGISTERED = Name("ServiceRegistered")

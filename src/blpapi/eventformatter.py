@@ -27,18 +27,18 @@ from typing import Mapping as MappingType
 
 
 class EventFormatter(CHandle):
-    """:class:`EventFormatter` is used to populate :class:`Event`\ s for
+    r""":class:`EventFormatter` is used to populate :class:`Event`\s for
     publishing.
 
     An :class:`EventFormatter` is created from an :class:`Event` obtained from
     :class:`~Service.createPublishEvent()` on :class:`Service`. Once the
-    :class:`Message` or :class:`Message`\ s have been appended to the
+    :class:`Message` or :class:`Message`\s have been appended to the
     :class:`Event` using the :class:`EventFormatter` the :class:`Event` can be
     published using :meth:`~ProviderSession.publish()` on the
     :class:`ProviderSession`.
 
     :class:`EventFormatter` objects cannot be copied to ensure that there is
-    no ambiguity about what happens if two :class:`EventFormatter`\ s are both
+    no ambiguity about what happens if two :class:`EventFormatter`\s are both
     formatting the same :class:`Event`.
 
     The :class:`EventFormatter` supports appending message of the same type
@@ -133,7 +133,7 @@ class EventFormatter(CHandle):
         return EventFormatter.__defaultTraits
 
     def __init__(self, event: "typehints.Event") -> None:
-        """Create an :class:`EventFormatter` to create :class:`Message`\ s in
+        r"""Create an :class:`EventFormatter` to create :class:`Message`\s in
         the specified ``event``.
 
         Args:
@@ -443,8 +443,8 @@ class EventFormatter(CHandle):
         )
 
     def fromPy(self, value: MappingType[Name, Any]) -> None:
-        """
-        Format this :class:`EventFormatter`\ 's underlying :class:`Event` using
+        r"""
+        Format this :class:`EventFormatter`'s underlying :class:`Event` using
         ``value``.
 
         Args:
@@ -462,7 +462,7 @@ class EventFormatter(CHandle):
 
         * a complex type, it is formatted using a
           :py:class:`collections.abc.Mapping` whose keys are the names of its
-          sub-:class:`Element`\ s.
+          sub-:class:`Element`\s.
         * an array, it is formatted using a
           :py:class:`collections.abc.Sequence` of the :class:`Element`'s
           values (see note below for more details).
@@ -475,7 +475,7 @@ class EventFormatter(CHandle):
             :py:class:`memoryview` are sub-types of
             :py:class:`collections.abc.Sequence`, :meth:`fromPy` treats them as
             scalars of type string and will use them to format scalar
-            :class:`Element`\ s. If you wish to format an array
+            :class:`Element`\s. If you wish to format an array
             :class:`Element` with instances of the aforementioned types, put
             them in a different :py:class:`collections.abc.Sequence`, like
             :py:class:`list`.
@@ -486,7 +486,7 @@ class EventFormatter(CHandle):
             scalar of type :py:class:`bytes` and will use it to format scalar
             :class:`Element`. Arrays of :py:class:`bytes` are not supported.
 
-        For null :class:`Element`\ s:
+        For null :class:`Element`\s:
 
         * A null complex :class:`Element` is formatted using an empty
           :py:class:`collections.abc.Mapping`.

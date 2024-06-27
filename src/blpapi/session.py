@@ -47,7 +47,7 @@ class SubscriptionPreprocessMode(Enum):
 
 
 class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
-    """Consumer session for making requests for Bloomberg services.
+    r"""Consumer session for making requests for Bloomberg services.
 
     This class provides a consumer session for making requests for Bloomberg
     services. For information on generic session operations, see the parent
@@ -91,12 +91,12 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
     returned (even though :meth:`startAsync()` itself will not block).
 
     This becomes more significant when Session generated
-    :class:`CorrelationId`\ s are in use. For example, if a call to
+    :class:`CorrelationId`\s are in use. For example, if a call to
     :meth:`subscribe()` which returns a Session generated
-    :class:`CorrelationId` has not completed before the first :class:`Event`\ s
+    :class:`CorrelationId` has not completed before the first :class:`Event`\s
     which contain that :class:`CorrelationId` arrive the application may not be
     able to interpret those events correctly. For this reason, it is preferable
-    to use user generated :class:`CorrelationId`\ s when using asynchronous
+    to use user generated :class:`CorrelationId`\s when using asynchronous
     Sessions. This issue does not arise when using a synchronous Session as
     long as the calls to :meth:`subscribe()` etc. are made on the same thread
     as the calls to :meth:`nextEvent()`.
@@ -308,11 +308,11 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         return Event(event, {self})
 
     def tryNextEvent(self) -> Optional[Event]:
-        """
+        r"""
         Returns:
             Event: Next available event for this session
 
-        If there are :class:`Event`\ s available for the session, return the
+        If there are :class:`Event`\s available for the session, return the
         next :class:`Event` If there is no event available for the
         :class:`Session`, return ``None``. This method never blocks.
         """
@@ -574,7 +574,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         eventQueue: Optional["typehints.EventQueue"] = None,
         requestLabel: Optional[str] = None,
     ) -> CorrelationId:
-        """Send the specified ``request``.
+        r"""Send the specified ``request``.
 
         Args:
             request: Request to send
@@ -602,7 +602,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         this operation.
 
         A successful request will generate zero or more
-        :class:`~Event.PARTIAL_RESPONSE` :class:`Message`\ s followed by
+        :class:`~Event.PARTIAL_RESPONSE` :class:`Message`\s followed by
         exactly one :class:`~Event.RESPONSE` :class:`Message`. Once the final
         :class:`~Event.RESPONSE` :class:`Message` has been received the
         :class:`CorrelationId` associated with this request may be re-used. If

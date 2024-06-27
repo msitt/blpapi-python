@@ -1,4 +1,5 @@
 """Simple class for handling incoming events from a session"""
+
 import blpapi
 
 TOKEN_SUCCESS = blpapi.Name("TokenSuccess")

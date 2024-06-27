@@ -389,7 +389,7 @@ class CorrelationId(object):
         Returns:
             int or long or object: The value of this CorrelationId object.
 
-        The return value depends on this :class:`CorrelationId`\ 's value
+        The return value depends on this :class:`CorrelationId`'s value
         type and could be:
 
         - Integer (``type() == CorrelationId.INT_TYPE``

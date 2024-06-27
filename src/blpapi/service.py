@@ -120,11 +120,11 @@ class Operation:
 
 
 class Service(CHandle):
-    """Defines a service which provides access to API data.
+    r"""Defines a service which provides access to API data.
 
     A :class:`Service` object is obtained from a :class:`Session` and contains
-    the :class:`Operation`\ s (each of which contains its own schema) and the
-    schema for :class:`Event`\ s which this :class:`Service` may produce. A
+    the :class:`Operation`\s (each of which contains its own schema) and the
+    schema for :class:`Event`\s which this :class:`Service` may produce. A
     :class:`Service` object is also used to create :class:`Request` objects
     used with a :class:`Session` to issue requests.
 
@@ -172,12 +172,12 @@ class Service(CHandle):
         )
 
     def createPublishEvent(self) -> Event:
-        """
+        r"""
         Returns:
             :class:`Event` suitable for publishing to this
             :class:`Service`
 
-        Use an :class:`EventFormatter` to add :class:`Message`\ s to the
+        Use an :class:`EventFormatter` to add :class:`Message`\s to the
         :class:`Event` and set fields.
         """
 
@@ -188,12 +188,12 @@ class Service(CHandle):
         return Event(event, self.__sessions)
 
     def createAdminEvent(self) -> Event:
-        """
+        r"""
         Returns:
             An :attr:`~Event.ADMIN` :class:`Event` suitable for
             publishing to this :class:`Service`
 
-        Use an :class:`EventFormatter` to add :class:`Message`\ s to the
+        Use an :class:`EventFormatter` to add :class:`Message`\s to the
         :class:`Event` and set fields.
 
         **DEPRECATED**
@@ -214,7 +214,7 @@ class Service(CHandle):
     def createResponseEvent(
         self, correlationId: "typehints.CorrelationId"
     ) -> Event:
-        """Create a :attr:`~Event.RESPONSE` :class:`Event` to answer the
+        r"""Create a :attr:`~Event.RESPONSE` :class:`Event` to answer the
         request.
 
         Args:
@@ -224,7 +224,7 @@ class Service(CHandle):
         Returns:
             The created response event.
 
-        Use an :class:`EventFormatter` to add :class:`Message`\ s to the
+        Use an :class:`EventFormatter` to add :class:`Message`\s to the
         :class:`Event` and set fields.
         """
 
@@ -296,17 +296,17 @@ class Service(CHandle):
         return Operation(operation, self.__sessions)
 
     def numOperations(self) -> int:
-        """
+        r"""
         Returns:
-            The number of :class:`Operation`\ s defined by this
+            The number of :class:`Operation`\s defined by this
             :class:`Service`.
         """
         return internals.blpapi_Service_numOperations(self.__handle)
 
     def operations(self) -> IteratorType[Operation]:
-        """
+        r"""
         Returns:
-            Iterator over :class:`Operation`\ s defined by this :class:`Service`
+            Iterator over :class:`Operation`\s defined by this :class:`Service`
         """
         return utils.Iterator(
             self, Service.numOperations, Service.getOperation

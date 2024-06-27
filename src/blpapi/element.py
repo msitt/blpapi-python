@@ -40,10 +40,10 @@ from typing import (
 
 # pylint: disable=protected-access,too-many-return-statements,too-many-public-methods
 class ElementIterator(IteratorABC):
-    """An iterator over the objects within an :class:`Element`.
+    r"""An iterator over the objects within an :class:`Element`.
 
     If the :class:`Element` is a sequence or choice, this iterates over its
-    sub-:class:`Element`\ s. Otherwise, iterate over the :class:`Element`\ 's
+    sub-:class:`Element`\s. Otherwise, iterate over the :class:`Element`'s
     value(s).
     """
 
@@ -273,8 +273,8 @@ class Element(CHandle):
         """
         Args:
             nameOrIndex: The :class:`Name` identifying the
-                :class:`Element` to retrieve from this :class:`Element`\ , or
-                the index to retrieve the value from this :class:`Element`\ .
+                :class:`Element` to retrieve from this :class:`Element`, or
+                the index to retrieve the value from this :class:`Element`.
 
         Returns:
             If a :class:`Name` or :py:class:`str` is used, and the
@@ -324,17 +324,17 @@ class Element(CHandle):
         name: Name,
         value: Union[Mapping, Sequence, SupportedElementTypes],
     ) -> None:
-        """
+        r"""
         Args:
             name: The :class:`Name` identifying one of this
-                :class:`Element`\ 's sub-:class:`Element`\ s.
+                :class:`Element`'s sub-:class:`Element`\s.
             value: Used to format the :class:`Element`. See :meth:`fromPy` for
                 more details.
 
         Raises:
             Exception:
-                If ``name`` does not identify one of this :class:`Element`\ 's
-                sub-:class:`Element`\ s.
+                If ``name`` does not identify one of this :class:`Element`'s
+                sub-:class:`Element`\s.
             Exception:
                 If the :class:`Element` identified by ``name`` is has been
                 previously formatted.
@@ -342,15 +342,15 @@ class Element(CHandle):
                 If the :class:`Element` identified by ``name`` cannot be
                 formatted by ``value`` (See :meth:`fromPy` for more details).
 
-        Format this :class:`Element`\ 's sub-:class:`Element` identified by
+        Format this :class:`Element`'s sub-:class:`Element` identified by
         ``name`` with ``value``. See :meth:`fromPy` for more details.
 
         Note:
-            :class:`Element`\ s that have been previously formatted in any way
+            :class:`Element`\s that have been previously formatted in any way
             cannot be formatted further with this method. To further format an
-            :class:`Element`\ , use the get/set/append Element/Value methods.
+            :class:`Element`, use the get/set/append Element/Value methods.
         Note:
-            :class:`Element`\ s cannot be modified by index.
+            :class:`Element`\s cannot be modified by index.
         """
         if isinstance(name, int):
             raise Exception("Elements cannot be formatted by index")
@@ -358,22 +358,22 @@ class Element(CHandle):
         self.getElement(name).fromPy(value)
 
     def __iter__(self) -> IteratorType:
-        """
+        r"""
         Returns:
             An iterator over the contents of this :class:`Element`. If this
             :class:`Element` is a complex type (see :meth:`isComplexType`),
-            return an iterator over the :class:`Element`\ s in this
+            return an iterator over the :class:`Element`\s in this
             :class:`Element`. Otherwise, return an iterator over this
-            :class:`Element`\ 's value(s).
+            :class:`Element`'s value(s).
         """
         return ElementIterator(self)
 
     def __len__(self) -> int:
-        """
+        r"""
         Returns:
             If this :class:`Element` is a complex type
             (see :meth:`isComplexType`), return the number of
-            :class:`Element`\ s in this :class:`Element`. Otherwise, return the
+            :class:`Element`\s in this :class:`Element`. Otherwise, return the
             number of values in this :class:`Element`.
         """
         if self.isComplexType():
@@ -534,7 +534,7 @@ class Element(CHandle):
         return False  # unreachable
 
     def toPy(self) -> Union[Dict, List, SupportedElementTypes]:
-        """
+        r"""
         Returns:
             A :py:class:`dict`, :py:class:`list`, or value representation of
             this :class:`Element`. This is a deep copy containing only native
@@ -544,7 +544,7 @@ class Element(CHandle):
         If an :class:`Element` is
 
         * a complex type, it is converted to a :py:class:`dict` whose keys are
-          the :py:class:`str` names of its sub-:class:`Element`\ s.
+          the :py:class:`str` names of its sub-:class:`Element`\s.
         * an array, it is converted to a :py:class:`list` of the
           :class:`Element`'s values.
         * null, it is converted an empty :py:class:`dict`.
@@ -726,12 +726,12 @@ class Element(CHandle):
         return Element(res[1], self._getDataHolder())
 
     def getValueAsBool(self, index: int = 0) -> bool:
-        """
+        r"""
         Args:
             index: Index of the value in the element
 
         Returns:
-            ``index``\ th entry in the :class:`Element` as a boolean.
+            ``index``\th entry in the :class:`Element` as a boolean.
 
         Raises:
             InvalidConversionException: If the data type of this
@@ -745,12 +745,12 @@ class Element(CHandle):
         return bool(res[1])
 
     def getValueAsString(self, index: int = 0) -> str:
-        """
+        r"""
         Args:
             index: Index of the value in the element
 
         Returns:
-            ``index``\ th entry in the :class:`Element` as a string.
+            ``index``\th entry in the :class:`Element` as a string.
 
         Raises:
             InvalidConversionException: If the data type of this
@@ -764,12 +764,12 @@ class Element(CHandle):
         return res[1]
 
     def getValueAsBytes(self, index: int = 0) -> bytes:
-        """
+        r"""
         Args:
             index: Index of the value in the element
 
         Returns:
-            ``index``\ th entry in the :class:`Element` as bytes.
+            ``index``\th entry in the :class:`Element` as bytes.
 
         Raises:
             InvalidConversionException: If the data type of this
@@ -783,12 +783,12 @@ class Element(CHandle):
         return res[1]
 
     def getValueAsDatetime(self, index: int = 0) -> AnyPythonDatetime:
-        """
+        r"""
         Args:
             index: Index of the value in the element
 
         Returns:
-            datetime.time or datetime.date or datetime.datetime: ``index``\ th
+            datetime.time or datetime.date or datetime.datetime: ``index``\th
             entry in the :class:`Element` as one of the datetime types.
 
         Raises:
@@ -805,12 +805,12 @@ class Element(CHandle):
         return _DatetimeUtil.convertToNative(res[1])
 
     def getValueAsInteger(self, index: int = 0) -> int:
-        """
+        r"""
         Args:
             index: Index of the value in the element
 
         Returns:
-            ``index``\ th entry in the :class:`Element` as a integer
+            ``index``\th entry in the :class:`Element` as a integer
 
         Raises:
             InvalidConversionException: If the data type of this
@@ -824,12 +824,12 @@ class Element(CHandle):
         return res[1]
 
     def getValueAsFloat(self, index: int = 0) -> float:
-        """
+        r"""
         Args:
             index: Index of the value in the element
 
         Returns:
-            ``index``\ th entry in the :class:`Element` as a float.
+            ``index``\th entry in the :class:`Element` as a float.
 
         Raises:
             InvalidConversionException: If the data type of this
@@ -843,12 +843,12 @@ class Element(CHandle):
         return res[1]
 
     def getValueAsName(self, index: int = 0) -> Name:
-        """
+        r"""
         Args:
             index: Index of the value in the element
 
         Returns:
-            ``index``\ th entry in the :class:`Element` as a Name.
+            ``index``\th entry in the :class:`Element` as a Name.
 
         Raises:
             InvalidConversionException: If the data type of this
@@ -862,12 +862,12 @@ class Element(CHandle):
         return Name._createInternally(res[1])
 
     def getValueAsElement(self, index: int = 0) -> Element:
-        """
+        r"""
         Args:
             index: Index of the value in the element
 
         Returns:
-            ``index``\ th entry in the :class:`Element` as a Element.
+            ``index``\th entry in the :class:`Element` as a Element.
 
         Raises:
             InvalidConversionException: If the data type of this
@@ -883,12 +883,12 @@ class Element(CHandle):
     def getValue(
         self, index: int = 0
     ) -> Union[SupportedElementTypes, Element]:
-        """
+        r"""
         Args:
             index: Index of the value in the element
 
         Returns:
-            ``index``\ th entry in the :class:`Element` defined by this
+            ``index``\th entry in the :class:`Element` defined by this
             element's datatype.
 
         Raises:
@@ -1149,7 +1149,7 @@ class Element(CHandle):
         )
 
     def setValue(self, value: SupportedElementTypes, index: int = 0) -> None:
-        """Set the specified ``index``\ th entry in this :class:`Element` to
+        r"""Set the specified ``index``\th entry in this :class:`Element` to
         the ``value``.
 
         Args:
@@ -1157,7 +1157,7 @@ class Element(CHandle):
             value: Value to set the sub-element to
 
         Raises:
-            Exception: If this :class:`Element`\ 's datatype can't be
+            Exception: If this :class:`Element`'s datatype can't be
                 initialized with the type of the specified ``value``, or if
                 ``index >= numValues()``.
 
@@ -1184,14 +1184,14 @@ class Element(CHandle):
         _ExceptionUtil.raiseOnError(traits[1](self.__handle, value, index))
 
     def appendValue(self, value: SupportedElementTypes) -> None:
-        """Append the specified ``value`` to this :class:`Element`\ s entries
+        r"""Append the specified ``value`` to this :class:`Element`\s entries
         at the end.
 
         Args:
             value: Value to append
 
         Raises:
-            Exception: If this :class:`Element`\ 's datatype can't be
+            Exception: If this :class:`Element`'s datatype can't be
                 initialized from the type of the specified ``value``, or if the
                 current size of this :class:`Element` (:meth:`numValues()`) is
                 equal to the maximum defined by
@@ -1217,14 +1217,14 @@ class Element(CHandle):
         self.setValue(value, internals.ELEMENT_INDEX_END)
 
     def appendElement(self) -> Element:
-        """Append a new element to this array :class:`Element`.
+        r"""Append a new element to this array :class:`Element`.
 
         Returns:
             The newly appended element
 
         Raises:
             Exception: If this :class:`Element` is not an array of sequence or
-                choice :class:`Element`\ s.
+                choice :class:`Element`\s.
 
         """
 
@@ -1234,7 +1234,7 @@ class Element(CHandle):
         return Element(res[1], self._getDataHolder())
 
     def setChoice(self, selectionName: Name) -> Element:
-        """Set this :class:`Element`\ 's active element to ``selectionName``.
+        """Set this :class:`Element`'s active element to ``selectionName``.
 
         Args:
             selectionName: Name of the element to set the active choice
@@ -1258,7 +1258,7 @@ class Element(CHandle):
     def fromPy(
         self, value: Union[Mapping, Sequence, SupportedElementTypes]
     ) -> None:
-        """Format this :class:`Element` with the provided native Python value.
+        r"""Format this :class:`Element` with the provided native Python value.
 
         Args:
             value: Used to format this :class:`Element`
@@ -1275,10 +1275,10 @@ class Element(CHandle):
 
         * a complex type, it is formatted using a
           :py:class:`collections.abc.Mapping` (e.g. :py:class:`dict`) whose
-          keys are the :py:class:`str` names of its sub-:class:`Element`\ s.
+          keys are the :py:class:`str` names of its sub-:class:`Element`\s.
         * an array, it is formatted using a
           :py:class:`collections.abc.Sequence` (e.g. :py:class:`list`) of the
-          :class:`Element`\ 's values (see note below for more detais).
+          :class:`Element`'s values (see note below for more detais).
         * null, it is formatted using an empty
           :py:class:`collections.abc.Mapping`.
 
@@ -1290,7 +1290,7 @@ class Element(CHandle):
             :py:class:`memoryview` are sub-types of
             :py:class:`collections.abc.Sequence`, :meth:`fromPy` treats them as
             scalars of type string and will use them to format scalar
-            :class:`Element`\ s. If you wish to format an array
+            :class:`Element`\s. If you wish to format an array
             :class:`Element` with instances of the aforementioned types, put
             them in a different :py:class:`collections.abc.Sequence`, like
             :py:class:`list`.
@@ -1303,7 +1303,7 @@ class Element(CHandle):
 
         Note:
             Using :meth:`fromPy` to format an :class:`Element` or one of its
-            sub-:class:`Element`\ s that has already been formatted is not
+            sub-:class:`Element`\s that has already been formatted is not
             supported. To further format an :class:`Element`, use the
             get/set/append Element/Value methods.
 
@@ -1371,8 +1371,8 @@ class Element(CHandle):
             exampleElement.fromPy(exampleElementAsDict)
 
         :meth:`fromPy` can also be called with
-        :class:`collections.abc.Sequence`\ s and scalar values to format array
-        :class:`Element`\ s and scalar :class:`Element`\ s, respectively.
+        :class:`collections.abc.Sequence`\s and scalar values to format array
+        :class:`Element`\s and scalar :class:`Element`\s, respectively.
 
         .. code-block:: python
 

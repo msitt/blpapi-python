@@ -40,7 +40,7 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
     :class:`Message` objects are obtained by iterating an :class:`Event`. Each
     :class:`Message` is associated with a :class:`Service` and with one or more
     :class:`CorrelationId` values.  The :class:`Message` contents are
-    represented as an :class:`Element` and all :class:`Element`\ 's accessors
+    represented as an :class:`Element` and all :class:`Element`'s accessors
     could be used to access the data.
 
     The possible fragment types are:
@@ -223,7 +223,7 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
         return internals.blpapi_Message_correlationId(self.__handle, 0)
 
     def correlationIds(self) -> List["typehints.CorrelationId"]:
-        """
+        r"""
         Returns:
             Correlation ids associated with this message.
 

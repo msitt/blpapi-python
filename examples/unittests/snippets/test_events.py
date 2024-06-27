@@ -120,46 +120,7 @@ class TestEvents(unittest.TestCase):
             "server": "12.34.56.78:8194",
             "serverId": "ny-hostname",
             "socks5Proxy": "socks5Host:1080",
-        }
-
-        formatter.formatMessageDict(content)
-        for msg in event:
-            self.assertEqual(content, msg.toPy())
-
-    def testSessionClusterInfo(self):
-        """Sample SessionClusterInfo message"""
-        event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
-        schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Names.SESSION_CLUSTER_INFO
-        )
-
-        formatter = blpapi.test.appendMessage(event, schema)
-
-        content = {
-            "name": "clustername",
-            "endpoints": [
-                {"address": "12.34.56.78:8194"},
-                {"address": "98.76.54.32:8194"},
-            ],
-        }
-
-        formatter.formatMessageDict(content)
-        for msg in event:
-            self.assertEqual(content, msg.toPy())
-
-    def testSessionClusterUpdate(self):
-        """Sample SessionClusterUpdate message"""
-        event = blpapi.test.createEvent(blpapi.Event.SESSION_STATUS)
-        schema = blpapi.test.getAdminMessageDefinition(
-            blpapi.Names.SESSION_CLUSTER_UPDATE
-        )
-
-        formatter = blpapi.test.appendMessage(event, schema)
-
-        content = {
-            "name": "clustername",
-            "endpointsAdded": [{"address": "12.34.56.78:8194"}],
-            "endpointsRemoved": [{"address": "98.76.54.32:8194"}],
+            "description": "Connection down description",
         }
 
         formatter.formatMessageDict(content)

@@ -415,9 +415,9 @@ class SchemaTypeDefinition:
         return SchemaElementDefinition(res, self.__sessions)
 
     def elementDefinitions(self) -> IteratorType[SchemaElementDefinition]:
-        """
+        r"""
         Returns:
-            Iterator over :class:`SchemaElementDefinition`\ s defined by this
+            Iterator over :class:`SchemaElementDefinition`\s defined by this
             :class:`SchemaTypeDefinition`.
         """
 

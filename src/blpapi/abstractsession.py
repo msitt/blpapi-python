@@ -31,7 +31,7 @@ from .chandle import CHandle
 
 
 class AbstractSession(CHandle):
-    """A common interface shared between publish and consumer sessions.
+    r"""A common interface shared between publish and consumer sessions.
 
     This class provides an abstract session which defines shared interface
     between publish and consumer requests for Bloomberg.
@@ -74,12 +74,12 @@ class AbstractSession(CHandle):
     (even though ``startAsync()`` itself will not block).
 
     This becomes more significant when Session generated
-    :class:`CorrelationId`\ s are in use. For example, if a call to
+    :class:`CorrelationId`\s are in use. For example, if a call to
     ``subscribe()`` which returns a Session generated :class:`CorrelationId`
-    has not completed before the first :class:`Event`\ s which contain that
+    has not completed before the first :class:`Event`\s which contain that
     :class:`CorrelationId` arrive the application may not be able to interpret
     those events correctly. For this reason, it is preferable to use user
-    generated :class:`CorrelationId`\ s when using asynchronous Sessions. This
+    generated :class:`CorrelationId`\s when using asynchronous Sessions. This
     issue does not arise when using a synchronous Session as long as the calls
     to ``subscribe()`` etc are made on the same thread as the calls to
     ``nextEvent()``.
@@ -105,8 +105,8 @@ class AbstractSession(CHandle):
 
         if self.__class__ is AbstractSession:
             raise NotImplementedError(
-                "Don't instantiate this class directly.\
- Create sessions using one of the concrete subclasses of this class."
+                "Don't instantiate this class directly."
+                "Create sessions using one of the concrete subclasses of this class."
             )
         super(AbstractSession, self).__init__(handle, dtor)  # type: ignore
         self.__handle = handle
@@ -144,7 +144,7 @@ class AbstractSession(CHandle):
     def openServiceAsync(
         self, serviceName: str, correlationId: Optional[CorrelationId] = None
     ) -> CorrelationId:
-        """Begin the process to open the service and return immediately.
+        r"""Begin the process to open the service and return immediately.
 
         Args:
             serviceName: Name of the service
@@ -157,7 +157,7 @@ class AbstractSession(CHandle):
 
         Begin the process to open the service identified by the specified
         ``serviceName`` and return immediately. The optional specified
-        ``correlationId`` is used to track :class:`Event`\ s generated as a
+        ``correlationId`` is used to track :class:`Event`\s generated as a
         result of this call.
 
         The ``serviceName`` must contain a fully qualified service name. That
@@ -183,7 +183,7 @@ class AbstractSession(CHandle):
         correlationId: Optional[CorrelationId] = None,
         eventQueue: Optional["typehints.EventQueue"] = None,
     ) -> CorrelationId:
-        """Send the specified ``authorizationRequest``.
+        r"""Send the specified ``authorizationRequest``.
 
         Args:
             request: Authorization request to send
@@ -201,14 +201,14 @@ class AbstractSession(CHandle):
         ``correlationId`` is supplied, it is used; otherwise create a
         :class:`CorrelationId`. The actual :class:`CorrelationId` used is
         returned. If the optionally specified ``eventQueue`` is supplied all
-        :class:`Event`\ s relating to this :class:`Request` will arrive on that
+        :class:`Event`\s relating to this :class:`Request` will arrive on that
         :class:`EventQueue`.
 
         The underlying user information must remain valid until the
         Request has completed successfully or failed.
 
         A successful request will generate zero or more
-        :attr:`~Event.PARTIAL_RESPONSE` :class:`Message`\ s followed by
+        :attr:`~Event.PARTIAL_RESPONSE` :class:`Message`\s followed by
         exactly one :attr:`~Event.RESPONSE` :class:`Message`. Once the final
         :attr:`~Event.RESPONSE` :class:`Message` has been received the
         specified ``identity`` will have been updated to contain the users

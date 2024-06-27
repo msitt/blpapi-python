@@ -220,12 +220,12 @@ class SubscriptionList(CHandle):
         return internals.blpapi_SubscriptionList_size(self.__handle)
 
     def correlationIdAt(self, index: int) -> CorrelationId:
-        """
+        r"""
         Args:
             index: Index of the entry in the list
 
         Returns:
-            Correlation id of the ``index``\ th entry.
+            Correlation id of the ``index``\th entry.
 
         Raises:
             Exception: If ``index >= size()``.
@@ -290,7 +290,7 @@ class SubscriptionList(CHandle):
             index: Index of the entry in the list
 
         Returns:
-            ``True`` if the ``index``\ th entry in this
+            ``True`` if the ``index``th entry in this
             ``SubscriptionList`` object was created using :meth:`addResolved()`
             and ``False`` if it was created using :meth:`add()`.  An exception
             is thrown if ``index >= size()``.

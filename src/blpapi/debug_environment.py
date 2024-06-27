@@ -2,6 +2,7 @@
 Print various potentially useful information to debug environment setup
 related issues
 """
+
 import platform
 import sys
 import os

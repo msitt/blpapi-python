@@ -1,4 +1,5 @@
 """Sample class for testing purposes."""
+
 from __future__ import print_function
 
 

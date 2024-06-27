@@ -269,17 +269,17 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         return Message(message, sessions=self._sessions())
 
     def messageAt(self, index: int) -> Message:
-        """
+        r"""
         Args:
             index: Index of an entry in this list
 
         Returns:
             Message received during resolution of the topic
-            specified ``index``\ th entry in this :class:`ResolutionList`.
+            specified ``index``\th entry in this :class:`ResolutionList`.
 
         Raises:
             Exception: If ``index >= size()`` or if the status of the
-                ``index``\ th entry is not ``RESOLVED`` an exception is raised.
+                ``index``\th entry is not ``RESOLVED`` an exception is raised.
 
         Note:
             The :class:`Message` returned can be used when creating an instance

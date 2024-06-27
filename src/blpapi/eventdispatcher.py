@@ -55,7 +55,7 @@ class EventDispatcher(CHandle):
         """Stop generating callbacks.
 
         Args:
-            async\_ : Whether to execute this method asynchronously
+            async\\_ : Whether to execute this method asynchronously
 
         Stop generating callbacks for events from sessions associated with this
         :class:`EventDispatcher`. If the specified ``async_`` is ``False`` (the

@@ -288,7 +288,7 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         presented with the same message multiple times when you use the
         ``MessageIterator``, each time with a different :class:`CorrelationId`.
         If you specify ``True`` for this then a :class:`Message` may be
-        presented with multiple :class:`CorrelationId`\ 's.
+        presented with multiple :class:`CorrelationId`'s.
         """
 
         internals.blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg(

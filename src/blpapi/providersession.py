@@ -523,11 +523,11 @@ class ProviderSession(
         return Event(event, {self})
 
     def tryNextEvent(self) -> Optional[Event]:
-        """
+        r"""
         Returns:
             Next available event for this session
 
-        If there are :class:`Event`\ s available for the session, return the
+        If there are :class:`Event`\s available for the session, return the
         next :class:`Event` If there is no event available for the
         :class:`Session`, return ``None``. This method never blocks.
         """
@@ -593,7 +593,7 @@ class ProviderSession(
         correlationId: Optional[CorrelationId] = None,
         options: Optional[ServiceRegistrationOptions] = None,
     ) -> CorrelationId:
-        """Begin the process of registering the service immediately.
+        r"""Begin the process of registering the service immediately.
 
         Args:
             uri: Name of the service
@@ -609,8 +609,8 @@ class ProviderSession(
         specified ``uri`` and return immediately. The optionally specified
         ``identity`` is used to verify permissions to provide the service being
         registered. The optionally specified ``correlationId`` is used to track
-        :class:`Event`\ s generated as a result of this call. The actual ``correlationId``
-        that will identify :class:`Event`\ s generated as a result of this call is
+        :class:`Event`\s generated as a result of this call. The actual ``correlationId``
+        that will identify :class:`Event`\s generated as a result of this call is
         returned. The optionally specified ``options`` is used to specify the
         group ID and service priority of the service being registered.
 
@@ -649,7 +649,7 @@ class ProviderSession(
         resolveMode: int = DONT_REGISTER_SERVICES,
         identity: Optional["typehints.Identity"] = None,
     ) -> None:
-        """Resolve the topics in the specified ``resolutionList``.
+        r"""Resolve the topics in the specified ``resolutionList``.
 
         Args:
             resolutionList: List of topics to resolve
@@ -674,7 +674,7 @@ class ProviderSession(
         :attr:`~Event.RESOLUTION_STATUS` events and, if ``resolveMode`` is
         :attr:`AUTO_REGISTER_SERVICES`, zero or more
         :attr:`~Event.SERVICE_STATUS` events are generated. If this is an
-        asynchronous :class:`ProviderSession` then these :class:`Event`\ s may
+        asynchronous :class:`ProviderSession` then these :class:`Event`\s may
         be processed by the registered ``eventHandler`` before
         :meth:`resolve()` has returned.
 
@@ -811,7 +811,7 @@ class ProviderSession(
         resolveMode: int = DONT_REGISTER_SERVICES,
         identity: Optional["typehints.Identity"] = None,
     ) -> None:
-        """Create the topics in the specified ``topicList``.
+        r"""Create the topics in the specified ``topicList``.
 
         Args:
             topicList: List of topics to create
@@ -828,7 +828,7 @@ class ProviderSession(
         :attr:`~Event.RESOLUTION_STATUS` events, zero or more
         :attr:`~Event.SERVICE_STATUS` events and one or more
         :attr:`~Event.TOPIC_STATUS` events are generated.  If this is an
-        asynchronous :class:`ProviderSession` then these :class:`Event`\ s may
+        asynchronous :class:`ProviderSession` then these :class:`Event`\s may
         be processed by the registered ``eventHandler`` before
         :meth:`createTopics()` has returned.
 
@@ -851,7 +851,7 @@ class ProviderSession(
         resolveMode: int = DONT_REGISTER_SERVICES,
         identity: Optional["typehints.Identity"] = None,
     ) -> None:
-        """Create the topics in the specified ``topicList``.
+        r"""Create the topics in the specified ``topicList``.
 
         Args:
             topicList: List of topics to create
@@ -868,7 +868,7 @@ class ProviderSession(
         :attr:`~Event.RESOLUTION_STATUS` events, zero or more
         :attr:`~Event.SERVICE_STATUS` events and one or more
         :attr:`~Event.TOPIC_STATUS` events are generated.  If this is an
-        asynchronous :class:`ProviderSession` then these :class:`Event`\ s may
+        asynchronous :class:`ProviderSession` then these :class:`Event`\s may
         be processed by the registered ``eventHandler`` before
         :meth:`createTopics()` has returned.
 

@@ -1,3 +1,29 @@
+Version 3.24.2:
+===============
+- Stability and performance improvements
+
+Version 3.24.1:
+================
+- Added 'serverId' in subscription stream messages
+    'serverId', which identifies the endpoint where a subscription is established,
+    has been added to 'SubscriptionStreamsActivated' and 'SubscriptionStreamsDeactivated' messages.
+- Stability and performance improvements
+
+Version 3.23.12:
+================
+- Stability and performance improvements
+
+Version 3.23.11:
+===============
+- Versioning scheme change
+    BLPAPI now uses a versioning scheme that provides information about
+    the year and month the release was made. For example, '3.23.11' is the SDK
+    version 3 released in November of 2023.
+ - Automated cluster management for the public cloud
+    SDK now supports clustered configurations in the public cloud
+    that take advantage of horizontal scaling capabilities
+- Stability and performance improvements
+
 Version 3.23.1:
 ===============
 - Stability and performance improvements
