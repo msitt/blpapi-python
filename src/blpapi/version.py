@@ -4,8 +4,8 @@
 
 from . import internals
 
-__version__ = "3.24.10"
-__expected_cpp_sdk_version__ = "3.24.10"
+__version__ = "3.24.11"
+__expected_cpp_sdk_version__ = "3.24.11"
 
 
 def print_version() -> None:

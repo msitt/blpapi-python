@@ -47,7 +47,7 @@ def getHandleFromPtr(outp: int) -> Optional[c_void_p]:
     return c_void_p(outp) if outp else None
 
 
-def getHandleFromOutput(outp: Any, retCode: int) -> c_void_p:
+def getHandleFromOutput(outp: Any, retCode: int) -> Optional[c_void_p]:
     """Get c_void_p handle
 
     Special case: C layer populates the buffer with NULL.

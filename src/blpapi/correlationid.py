@@ -259,7 +259,7 @@ class CorrelationId:
     def __ne__(self, other: Any) -> bool:
         """x.__ne__(y) <==> x!=y"""
         equal = self.__eq__(other)
-        return NotImplemented if equal is NotImplemented else not equal  # type: ignore
+        return NotImplemented if equal is NotImplemented else not equal
 
 
 pycbhelpers.correlationIdWrapper = CorrelationId.cidFromCPtr

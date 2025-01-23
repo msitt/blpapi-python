@@ -1,3 +1,7 @@
+Version 3.24.11:
+================
+- Stability and performance improvements
+
 Version 3.24.10:
 ================
 - Stability and performance improvements
