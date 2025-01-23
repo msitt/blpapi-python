@@ -15,6 +15,7 @@ def debug_load_error(error: ImportError) -> ImportError:
     """
     # Try to load just the version.py
     version_imported = True
+    import_error = ""
     try:
         from .version import version, cpp_sdk_version, expected_cpp_sdk_version
     except ImportError as version_error:

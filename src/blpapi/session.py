@@ -212,6 +212,12 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             _dtor,
         )
 
+    def _session_handle(self) -> Any:
+        """This is for internal implementation only"""
+        # `_handle()` returns `blpapi_AbstractSession_t *`, but there are times
+        # when we need `blpapi_Session_t *` instead.
+        return self.__handle
+
     def start(self) -> bool:
         """Start this :class:`Session` in synchronous mode.
 

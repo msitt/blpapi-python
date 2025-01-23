@@ -21,6 +21,8 @@ class AuthOptionsAction(Action):
     def __call__(self, parser, args, values, option_string=None):
         vals = values.split("=", 1)
 
+        authOptions = None
+
         if vals[0] == AUTH_OPTION_USER:
             authOptions = AUTH_USER
         elif vals[0] == AUTH_OPTION_APP and len(vals) == 2:

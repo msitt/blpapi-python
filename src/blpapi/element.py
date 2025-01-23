@@ -238,6 +238,17 @@ class Element(CHandle):
             Union[Element, "typehints.Message", "typehints.Request"]
         ],
     ) -> None:
+        """Create an :class:`Element` object.
+
+        Args:
+            handle: Handle to the internal implementation
+            dataHolder: The internal owner of underlying data
+
+        If the specified ``handle`` is ``None``, create an uninitialized
+        :class:`Element`. The only valid operations to perform on an
+        uninitialized :class:`Element` are assignment, :meth:`isValid()`, and
+        destruction.
+        """
         noop = lambda *args: None
         super(Element, self).__init__(handle, noop)
         self.__handle = handle
@@ -450,7 +461,9 @@ class Element(CHandle):
     def isValid(self) -> bool:
         """
         Returns:
-            ``True`` if this :class:`Element` is valid.
+            ``True`` if this :class:`Element` is valid. An :class:`Element`
+            constructed using ``None`` for the ``handle`` is not valid until
+            the :class:`Element` has had a value assigned to it.
         """
         return self.__handle is not None
 

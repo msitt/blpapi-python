@@ -12,6 +12,8 @@ class AuthOptionsAction(Action):
     def __call__(self, parser, args, values, option_string=None):
         vals = values.split("=", 1)
 
+        authOptions = None
+
         auth_type = vals[0]
         if auth_type == "user":
             authUser = blpapi.AuthUser.createWithLogonName()

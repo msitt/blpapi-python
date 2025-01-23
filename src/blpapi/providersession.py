@@ -59,7 +59,7 @@ publishers that do not maintain per-topic state.
 
 from __future__ import annotations
 from weakref import ref, ReferenceType  # pylint: disable=unused-import
-from typing import Optional, Callable, Sequence
+from typing import Optional, Callable, Sequence, Any
 import sys
 import traceback
 import os
@@ -397,6 +397,12 @@ class ProviderSession(
             internals.blpapi_ProviderSession_getAbstractSession(self.__handle),
             _dtor,
         )
+
+    def _session_handle(self) -> Any:
+        """This is for internal implementation only"""
+        # `_handle()` returns `blpapi_AbstractSession_t *`, but there are times
+        # when we need `blpapi_ProviderSession_t *` instead.
+        return self.__handle
 
     def start(self) -> bool:
         """Start this :class:`Session` in synchronous mode.

@@ -104,6 +104,7 @@ def sendRequest(options, session):
     """Sends a request based on the request type."""
     service = session.getService(options.service)
     requestType = options.requestType
+    request = None
     if requestType == INTRADAY_BAR_REQUEST:
         request = IntradayBarRequests.createRequest(service, options)
     elif requestType == INTRADAY_TICK_REQUEST:

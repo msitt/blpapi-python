@@ -111,6 +111,7 @@ def sendRequest(options, session):
     """Sends a request based on the request type."""
     instrumentsService = session.getService(INSTRUMENT_SERVICE)
     requestType = options.requestType
+    request = None
     if requestType == CURVE_LIST_REQUEST:
         request = CurveListRequests.createRequest(
             instrumentsService,
