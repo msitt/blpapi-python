@@ -12,7 +12,7 @@ Users are encouraged to install using `pip` directly, as documented in
 
 This SDK requires the following products:
 
-- CPython version 2.7 or higher
+- CPython version 3.8 or higher
 
 - Bloomberg C++ SDK same major and minor version as the Python SDK
 
@@ -138,8 +138,8 @@ line.
    `u`; a string `s` received from an SDK function can be converted to a
    `unicode` object by calling `s.decode('utf-8')`.
 
-- Python Bloomberg SDK types do not provide support for the Python `copy` or
-  `pickle` modules.
+- Python Bloomberg SDK types do not support directly for the Python `copy` or
+  `pickle` modules. However, `.toPy` method for messages is available.
 
 
 ## Copyright and License

@@ -11,7 +11,7 @@ from .message import Message
 from . import internals
 from . import utils
 from .utils import deprecated, get_handle
-from .internals import CorrelationId
+from .correlationid import CorrelationId
 from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
 
@@ -135,7 +135,7 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             self.__handle, index
         )
         _ExceptionUtil.raiseOnError(errorCode)
-        return cid
+        return CorrelationId(cid)
 
     def topicString(self, correlationId: CorrelationId) -> str:
         """Return the topic of the entry identified by ``correlationId``.

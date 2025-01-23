@@ -70,7 +70,7 @@ from .event import Event
 from . import exception
 from .exception import _ExceptionUtil
 from . import internals
-from .internals import CorrelationId
+from .correlationid import CorrelationId
 from .sessionoptions import SessionOptions
 from .topic import Topic
 from . import utils
@@ -368,7 +368,6 @@ class ProviderSession(
         receives small messages and processes each one very quickly then give
         each one a separate :class:`EventDispatcher`.
         """
-        AbstractSession.__init__(self)
         if (eventHandler is None) and (eventDispatcher is not None):
             raise exception.InvalidArgumentException(
                 "eventDispatcher is specified but eventHandler is None", 0
@@ -381,19 +380,23 @@ class ProviderSession(
             self.__handlerProxy = functools.partial(
                 ProviderSession.__dispatchEvent, ref(self)
             )
+
         self.__handle = internals.ProviderSession_createHelper(
             get_handle(options),
             self.__handlerProxy,
             get_handle(eventDispatcher),
         )
 
-        _destroy = internals.ProviderSession_destroyHelper
-        # note: AbstractSession destroy passes AbstractSession handle
-        _dtor = lambda hndl: _destroy(self.__handle, self.__handlerProxy)
+        def _dtor(handle: Any) -> None:
+            atexit.unregister(self.stop)
+            internals.ProviderSession_destroyHelper(
+                handle, self.__handlerProxy
+            )
 
         atexit.register(self.stop)  # we must stop session before shutdown
         AbstractSession.__init__(
             self,
+            self.__handle,
             internals.blpapi_ProviderSession_getAbstractSession(self.__handle),
             _dtor,
         )
@@ -1009,20 +1012,12 @@ class ProviderSession(
         """
         if not topics:
             return
-        topicsCArraySize = len(topics)
-        topicsCArray = internals.new_topicPtrArray(topicsCArraySize)
-        try:
-            for i, topic in enumerate(topics):
-                internals.topicPtrArray_setitem(
-                    topicsCArray, i, get_handle(topic)
-                )
-            _ExceptionUtil.raiseOnError(
-                internals.blpapi_ProviderSession_terminateSubscriptionsOnTopics(
-                    self.__handle, topicsCArray, topicsCArraySize, message
-                )
+
+        _ExceptionUtil.raiseOnError(
+            internals.blpapi_ProviderSession_terminateSubscriptionsOnTopics(
+                self.__handle, [get_handle(t) for t in topics], message
             )
-        finally:
-            internals.delete_topicPtrArray(topicsCArray)
+        )
 
     def deleteTopic(self, topic: Topic) -> None:
         """Remove one reference from the specified 'topic'.
@@ -1053,20 +1048,12 @@ class ProviderSession(
         See :meth:`deleteTopic()` above for additional details."""
         if not topics:
             return
-        topicsCArraySize = len(topics)
-        topicsCArray = internals.new_topicPtrArray(topicsCArraySize)
-        try:
-            for i, topic in enumerate(topics):
-                internals.topicPtrArray_setitem(
-                    topicsCArray, i, get_handle(topic)
-                )
-            _ExceptionUtil.raiseOnError(
-                internals.blpapi_ProviderSession_deleteTopics(
-                    self.__handle, topicsCArray, topicsCArraySize
-                )
+
+        _ExceptionUtil.raiseOnError(
+            internals.blpapi_ProviderSession_deleteTopics(
+                self.__handle, [get_handle(t) for t in topics]
             )
-        finally:
-            internals.delete_topicPtrArray(topicsCArray)
+        )
 
 
 __copyright__ = """

@@ -251,7 +251,6 @@ class Element(CHandle):
         """
         noop = lambda *args: None
         super(Element, self).__init__(handle, noop)
-        self.__handle = handle
         self.__dataHolder = dataHolder
 
     def _getDataHolder(
@@ -421,7 +420,7 @@ class Element(CHandle):
 
         self.__assertIsValid()
         return Name._createInternally(
-            internals.blpapi_Element_name(self.__handle)
+            internals.blpapi_Element_name(self._handle())
         )
 
     def datatype(self) -> int:
@@ -434,7 +433,7 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        return internals.blpapi_Element_datatype(self.__handle)
+        return internals.blpapi_Element_datatype(self._handle())
 
     def isComplexType(self) -> bool:
         """
@@ -444,7 +443,7 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        return bool(internals.blpapi_Element_isComplexType(self.__handle))
+        return bool(internals.blpapi_Element_isComplexType(self._handle()))
 
     def isArray(self) -> bool:
         """
@@ -456,16 +455,16 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        return bool(internals.blpapi_Element_isArray(self.__handle))
+        return bool(internals.blpapi_Element_isArray(self._handle()))
 
-    def isValid(self) -> bool:
+    def isValid(self) -> bool:  # pylint: disable=useless-parent-delegation
         """
         Returns:
             ``True`` if this :class:`Element` is valid. An :class:`Element`
             constructed using ``None`` for the ``handle`` is not valid until
             the :class:`Element` has had a value assigned to it.
         """
-        return self.__handle is not None
+        return super().isValid()
 
     def isNull(self) -> bool:
         """
@@ -473,7 +472,7 @@ class Element(CHandle):
             ``True`` if this :class:`Element` has a null value.
         """
         self.__assertIsValid()
-        return bool(internals.blpapi_Element_isNull(self.__handle))
+        return bool(internals.blpapi_Element_isNull(self._handle()))
 
     def isReadOnly(self) -> bool:
         """
@@ -481,7 +480,7 @@ class Element(CHandle):
             ``True`` if this :class:`Element` cannot be modified.
         """
         self.__assertIsValid()
-        return bool(internals.blpapi_Element_isReadOnly(self.__handle))
+        return bool(internals.blpapi_Element_isReadOnly(self._handle()))
 
     def elementDefinition(self) -> "typehints.SchemaElementDefinition":
         """
@@ -492,7 +491,7 @@ class Element(CHandle):
         """
         self.__assertIsValid()
         return SchemaElementDefinition(
-            internals.blpapi_Element_definition(self.__handle),
+            internals.blpapi_Element_definition(self._handle()),
             self._sessions(),
         )
 
@@ -509,7 +508,7 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        return internals.blpapi_Element_numValues(self.__handle)
+        return internals.blpapi_Element_numValues(self._handle())
 
     def numElements(self) -> int:
         """
@@ -524,7 +523,7 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        return internals.blpapi_Element_numElements(self.__handle)
+        return internals.blpapi_Element_numElements(self._handle())
 
     def isNullValue(self, position: int = 0) -> bool:
         """
@@ -540,7 +539,7 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        res = internals.blpapi_Element_isNullValue(self.__handle, position)
+        res = internals.blpapi_Element_isNullValue(self._handle(), position)
         if res in (0, 1):
             return bool(res)
         _ExceptionUtil.raiseOnError(res)
@@ -613,7 +612,7 @@ class Element(CHandle):
             }
 
         """
-        return internals.blpapi_Element_toPy(self.__handle)
+        return internals.blpapi_Element_toPy(self._handle())
 
     def toString(self, level: int = 0, spacesPerLevel: int = 4) -> str:
         """Format this :class:`Element` to the string at the specified
@@ -634,7 +633,7 @@ class Element(CHandle):
 
         self.__assertIsValid()
         return internals.blpapi_Element_printHelper(
-            self.__handle, level, spacesPerLevel
+            self._handle(), level, spacesPerLevel
         )
 
     def getElement(self, nameOrIndex: BlpapiNameOrIndex) -> Element:
@@ -661,12 +660,14 @@ class Element(CHandle):
             self.__assertIsValid()
             name = getNamePair(nameOrIndex)
             res = internals.blpapi_Element_getElement(
-                self.__handle, name[0], name[1]
+                self._handle(), name[0], name[1]
             )
             _ExceptionUtil.raiseOnError(res[0])
             return Element(res[1], self._getDataHolder())
         self.__assertIsValid()
-        res = internals.blpapi_Element_getElementAt(self.__handle, nameOrIndex)
+        res = internals.blpapi_Element_getElementAt(
+            self._handle(), nameOrIndex
+        )
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
@@ -716,7 +717,7 @@ class Element(CHandle):
         self.__assertIsValid()
         namepair = getNamePair(name)
         res = internals.blpapi_Element_hasElementEx(
-            self.__handle,
+            self._handle(),
             namepair[0],
             namepair[1],
             1 if excludeNullElements else 0,
@@ -734,7 +735,7 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        res = internals.blpapi_Element_getChoice(self.__handle)
+        res = internals.blpapi_Element_getChoice(self._handle())
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
@@ -753,7 +754,7 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        res = internals.blpapi_Element_getValueAsBool(self.__handle, index)
+        res = internals.blpapi_Element_getValueAsBool(self._handle(), index)
         _ExceptionUtil.raiseOnError(res[0])
         return bool(res[1])
 
@@ -772,7 +773,7 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        res = internals.blpapi_Element_getValueAsString(self.__handle, index)
+        res = internals.blpapi_Element_getValueAsString(self._handle(), index)
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
 
@@ -791,7 +792,7 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        res = internals.blpapi_Element_getValueAsBytes(self.__handle, index)
+        res = internals.blpapi_Element_getValueAsBytes(self._handle(), index)
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
 
@@ -812,9 +813,14 @@ class Element(CHandle):
 
         self.__assertIsValid()
         res = internals.blpapi_Element_getValueAsHighPrecisionDatetime(
-            self.__handle, index
+            self._handle(), index
         )
         _ExceptionUtil.raiseOnError(res[0])
+        # Return `None` when the `datetime` has no parts because our
+        # `convertToNative` function will raise an exception if there are
+        # no parts
+        if not res[1].datetime.parts:
+            return None  # type: ignore
         return _DatetimeUtil.convertToNative(res[1])
 
     def getValueAsInteger(self, index: int = 0) -> int:
@@ -832,7 +838,7 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        res = internals.blpapi_Element_getValueAsInt64(self.__handle, index)
+        res = internals.blpapi_Element_getValueAsInt64(self._handle(), index)
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
 
@@ -851,7 +857,7 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        res = internals.blpapi_Element_getValueAsFloat64(self.__handle, index)
+        res = internals.blpapi_Element_getValueAsFloat64(self._handle(), index)
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
 
@@ -870,7 +876,7 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        res = internals.blpapi_Element_getValueAsName(self.__handle, index)
+        res = internals.blpapi_Element_getValueAsName(self._handle(), index)
         _ExceptionUtil.raiseOnError(res[0])
         return Name._createInternally(res[1])
 
@@ -889,7 +895,7 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        res = internals.blpapi_Element_getValueAsElement(self.__handle, index)
+        res = internals.blpapi_Element_getValueAsElement(self._handle(), index)
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
@@ -1158,7 +1164,7 @@ class Element(CHandle):
         if traits[2] is not None:
             value = traits[2](value)
         _ExceptionUtil.raiseOnError(
-            traits[0](self.__handle, namepair[0], namepair[1], value)
+            traits[0](self._handle(), namepair[0], namepair[1], value)
         )
 
     def setValue(self, value: SupportedElementTypes, index: int = 0) -> None:
@@ -1194,7 +1200,7 @@ class Element(CHandle):
         traits = Element.__getTraits(value)
         if traits[2] is not None:
             value = traits[2](value)
-        _ExceptionUtil.raiseOnError(traits[1](self.__handle, value, index))
+        _ExceptionUtil.raiseOnError(traits[1](self._handle(), value, index))
 
     def appendValue(self, value: SupportedElementTypes) -> None:
         r"""Append the specified ``value`` to this :class:`Element`\s entries
@@ -1242,7 +1248,7 @@ class Element(CHandle):
         """
 
         self.__assertIsValid()
-        res = internals.blpapi_Element_appendElement(self.__handle)
+        res = internals.blpapi_Element_appendElement(self._handle())
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())
 
@@ -1263,7 +1269,7 @@ class Element(CHandle):
         self.__assertIsValid()
         name = getNamePair(selectionName)
         res = internals.blpapi_Element_setChoice(
-            self.__handle, name[0], name[1], 0
+            self._handle(), name[0], name[1], 0
         )
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], self._getDataHolder())

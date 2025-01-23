@@ -98,6 +98,55 @@ class _DatetimeUtil(object):
     """Utility methods that deal with BLPAPI dates and times."""
 
     @staticmethod
+    def toPyTimeFromInts(
+        parts: int,
+        offset: int,
+        year: int,
+        month: int,
+        day: int,
+        hours: int,
+        minutes: int,
+        seconds: int,
+        useconds: int,
+    ) -> AnyPythonDatetime:
+        hasDate = (
+            parts & internals.DATETIME_DATE_PART
+            == internals.DATETIME_DATE_PART
+        )
+        hasTime = parts & internals.DATETIME_TIMEFRACSECONDS_PART != 0
+
+        tzinfo = (
+            FixedOffset(offset)
+            if parts & internals.DATETIME_OFFSET_PART
+            else None
+        )
+
+        if hasDate and hasTime:
+            return _dt.datetime(
+                year,
+                month,
+                day,
+                hours,
+                minutes,
+                seconds,
+                useconds,
+                tzinfo,
+            )
+        elif hasDate:
+            # Skip an offset, because it's not informative if there is a
+            # date without time
+            return _dt.date(year, month, day)
+        elif hasTime:
+            return _dt.time(
+                hours,
+                minutes,
+                seconds,
+                useconds,
+                tzinfo,
+            )
+        return _dt.datetime.now()  # unreachable
+
+    @staticmethod
     def convertToNative(
         blpapiDatetimeObj: BlpapiDatetime,
     ) -> AnyPythonDatetime:

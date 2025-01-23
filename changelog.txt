@@ -1,3 +1,39 @@
+Version 3.24.10:
+================
+- Stability and performance improvements
+
+Version 3.24.9.3a1:
+================
+- Stability and performance improvements
+
+Version 3.24.9.2-alpha:
+================
+- Stability and performance improvements
+
+Version 3.24.9:
+===============
+- Stability and performance improvements
+
+Version 3.24.8.3:
+===============
+- Stability and performance improvements
+
+Version 3.24.8.2:
+===============
+- Stability and performance improvements
+
+Version 3.24.8:
+===============
+- Stability and performance improvements
+
+Version 3.24.7.1:
+===============
+- Stability and performance improvements
+
+Version 3.24.7:
+===============
+- Stability and performance improvements
+
 Version 3.24.6:
 ===============
 - Stability and performance improvements

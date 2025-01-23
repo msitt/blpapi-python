@@ -3,6 +3,7 @@
 """Internal utils."""
 
 from collections.abc import Iterator as IteratorABC, Sequence
+from ctypes import c_void_p
 from typing import Any, Callable, Union, Optional
 from typing import Iterator as IteratorType
 import functools
@@ -99,9 +100,18 @@ class MetaClassForClassesWithEnums(type):
 
 
 def get_handle(thing: Optional[CHandle]) -> Any:
-    """Returns the result of thing._handle() or None if thing is None"""
+    """Returns the result of thing._handle() or None if thing is None or
+    thing._handle() is c_void_p and its value is None.
+    """
     # pylint: disable=protected-access
-    return None if thing is None else thing._handle()
+    if thing is None:
+        return None
+    handle = thing._handle()
+    if handle is None:
+        return None
+    if isinstance(handle, c_void_p) and handle.value is None:
+        return None
+    return handle
 
 
 def invoke_if_valid(cb: Any, value: Any) -> Any:

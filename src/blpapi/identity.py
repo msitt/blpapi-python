@@ -5,6 +5,7 @@
 This component provides an identification of a user and implements the access
 to the entitlements.
 """
+from ctypes import c_int
 from typing import List, Sequence, Tuple, Union
 from .typehints import BlpapiIdentityHandle
 from .element import Element
@@ -35,11 +36,11 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     The class attributes represent the various seat types.
     """
 
-    INVALID_SEAT = internals.SEATTYPE_INVALID_SEAT  # type: ignore
+    INVALID_SEAT = internals.SEATTYPE_INVALID_SEAT
     """Unknown seat type"""
-    BPS = internals.SEATTYPE_BPS  # type: ignore
+    BPS = internals.SEATTYPE_BPS
     """Bloomberg Professional Service"""
-    NONBPS = internals.SEATTYPE_NONBPS  # type: ignore
+    NONBPS = internals.SEATTYPE_NONBPS
     """Non-BPS"""
 
     def __init__(
@@ -90,9 +91,7 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         else:
             # Otherwise, assume entitlements is a list, or tuple, etc
             numberOfEIDs = len(entitlements)
-            carrayOfEIDs = internals.intArray(numberOfEIDs)
-            for i, eid in enumerate(entitlements):
-                carrayOfEIDs[i] = eid
+            carrayOfEIDs = (c_int * numberOfEIDs)(*entitlements)
             res = internals.blpapi_Identity_hasEntitlements(
                 self.__handle,
                 get_handle(service),
@@ -127,9 +126,8 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
         if isinstance(entitlements, Element):
             maxFailedEIDs = entitlements.numValues()
-            failedEIDs = internals.intArray(maxFailedEIDs)
-            failedEIDsSize = internals.intArray(1)
-            failedEIDsSize[0] = maxFailedEIDs
+            failedEIDs = (c_int * maxFailedEIDs)()
+            failedEIDsSize = c_int(maxFailedEIDs)
             res = internals.blpapi_Identity_hasEntitlements(
                 self.__handle,
                 get_handle(service),
@@ -142,13 +140,10 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         else:
             # Otherwise, assume entitlements is a list, or tuple, etc
             numberOfEIDs = len(entitlements)
-            carrayOfEIDs = internals.intArray(numberOfEIDs)
-            for i, eid in enumerate(entitlements):
-                carrayOfEIDs[i] = eid
+            carrayOfEIDs = (c_int * numberOfEIDs)(*entitlements)
             maxFailedEIDs = numberOfEIDs
-            failedEIDs = internals.intArray(maxFailedEIDs)
-            failedEIDsSize = internals.intArray(1)
-            failedEIDsSize[0] = maxFailedEIDs
+            failedEIDs = (c_int * maxFailedEIDs)()
+            failedEIDsSize = c_int(maxFailedEIDs)
             res = internals.blpapi_Identity_hasEntitlements(
                 self.__handle,
                 get_handle(service),
@@ -159,7 +154,7 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
                 failedEIDsSize,
             )
         result = []
-        for i in range(failedEIDsSize[0]):
+        for i in range(failedEIDsSize.value):
             result.append(failedEIDs[i])
         return (True if res else False, result)
 

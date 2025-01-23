@@ -46,9 +46,7 @@ class Socks5Config(CHandle):
         """
         SessionOptions._validatePort(port)
 
-        self.__handle = internals.blpapi_Socks5Config_create(
-            hostname, len(hostname), port
-        )
+        self.__handle = internals.blpapi_Socks5Config_create(hostname, port)
         super(Socks5Config, self).__init__(
             self.__handle, internals.blpapi_Socks5Config_destroy
         )
@@ -371,11 +369,14 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             _ExceptionUtil.raiseOnError(retcode)
             authOptions = AuthOptions(authOptions_handle)
 
-        retcode = internals.blpapi_SessionOptions_setSessionIdentityOptions(
+        (
+            retcode,
+            actualcid,
+        ) = internals.blpapi_SessionOptions_setSessionIdentityOptions(
             self._handle(), get_handle(authOptions), correlationId
         )
         _ExceptionUtil.raiseOnError(retcode)
-        return correlationId
+        return actualcid
 
     def setAuthenticationOptions(self, authOptions: str) -> None:
         """Set the specified ``authOptions`` as the authentication options.
@@ -1076,8 +1077,8 @@ class TlsOptions(CHandle):
         PKCS#12 format and DER encoded trust material in PKCS#7 format from the
         given raw data.
         """
-        credentials = bytearray(clientCredentials)
-        certs = bytearray(trustedCertificates)
+        credentials = bytes(clientCredentials)
+        certs = bytes(trustedCertificates)
         handle = internals.blpapi_TlsOptions_createFromBlobs(
             credentials, clientCredentialsPassword, certs
         )

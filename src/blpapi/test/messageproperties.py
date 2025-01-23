@@ -59,7 +59,7 @@ class MessageProperties:
     def setRecapType(
         self,
         recapType: int,
-        fragmentType: int = blpapi.Message.FRAGMENT_NONE,  # type: ignore
+        fragmentType: int = blpapi.Message.FRAGMENT_NONE,
     ) -> None:
         """
         Set the `recapType` and `fragmentType` properties of the message.

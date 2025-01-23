@@ -35,14 +35,14 @@ from . import internals
 class SchemaStatus(metaclass=utils.MetaClassForClassesWithEnums):
     """The possible deprecation statuses of a schema element or type."""
 
-    ACTIVE = internals.STATUS_ACTIVE  # type: ignore
+    ACTIVE = internals.STATUS_ACTIVE
     """This item is current and may appear in Messages"""
-    DEPRECATED = internals.STATUS_DEPRECATED  # type: ignore
+    DEPRECATED = internals.STATUS_DEPRECATED
     """This item is current and may appear in Messages but will be removed in
     due course"""
-    INACTIVE = internals.STATUS_INACTIVE  # type: ignore
+    INACTIVE = internals.STATUS_INACTIVE
     """This item is not current and will not appear in Messages"""
-    PENDING_DEPRECATION = internals.STATUS_PENDING_DEPRECATION  # type: ignore
+    PENDING_DEPRECATION = internals.STATUS_PENDING_DEPRECATION
     """This item is expected to be deprecated in the future; clients are
     advised to migrate away from use of this item."""
 
@@ -83,7 +83,7 @@ class SchemaElementDefinition(metaclass=utils.MetaClassForClassesWithEnums):
     other blpapi components.
     """
 
-    UNBOUNDED = internals.ELEMENTDEFINITION_UNBOUNDED  # type: ignore
+    UNBOUNDED = internals.ELEMENTDEFINITION_UNBOUNDED
     """Indicates an array has an unbounded number of values."""
 
     def __init__(

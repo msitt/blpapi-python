@@ -16,39 +16,39 @@ class DataType(metaclass=utils.MetaClassForClassesWithEnums):
     :class:`Element`.
     """
 
-    BOOL = internals.DATATYPE_BOOL  # type: ignore
+    BOOL = internals.DATATYPE_BOOL
     """Boolean"""
-    CHAR = internals.DATATYPE_CHAR  # type: ignore
+    CHAR = internals.DATATYPE_CHAR
     """Char"""
-    BYTE = internals.DATATYPE_BYTE  # type: ignore
+    BYTE = internals.DATATYPE_BYTE
     """Unsigned 8 bit value"""
-    INT32 = internals.DATATYPE_INT32  # type: ignore
+    INT32 = internals.DATATYPE_INT32
     """32 bit Integer"""
-    INT64 = internals.DATATYPE_INT64  # type: ignore
+    INT64 = internals.DATATYPE_INT64
     """64 bit Integer"""
-    FLOAT32 = internals.DATATYPE_FLOAT32  # type: ignore
+    FLOAT32 = internals.DATATYPE_FLOAT32
     """32 bit Floating point"""
-    FLOAT64 = internals.DATATYPE_FLOAT64  # type: ignore
+    FLOAT64 = internals.DATATYPE_FLOAT64
     """64 bit Floating point"""
-    STRING = internals.DATATYPE_STRING  # type: ignore
+    STRING = internals.DATATYPE_STRING
     """ASCIIZ string"""
-    BYTEARRAY = internals.DATATYPE_BYTEARRAY  # type: ignore
+    BYTEARRAY = internals.DATATYPE_BYTEARRAY
     """Opaque binary data"""
-    DATE = internals.DATATYPE_DATE  # type: ignore
+    DATE = internals.DATATYPE_DATE
     """Date"""
-    TIME = internals.DATATYPE_TIME  # type: ignore
+    TIME = internals.DATATYPE_TIME
     """Timestamp"""
-    DECIMAL = internals.DATATYPE_DECIMAL  # type: ignore
+    DECIMAL = internals.DATATYPE_DECIMAL
     """Currently Unsupported"""
-    DATETIME = internals.DATATYPE_DATETIME  # type: ignore
+    DATETIME = internals.DATATYPE_DATETIME
     """Date and time"""
-    ENUMERATION = internals.DATATYPE_ENUMERATION  # type: ignore
+    ENUMERATION = internals.DATATYPE_ENUMERATION
     """An opaque enumeration"""
-    SEQUENCE = internals.DATATYPE_SEQUENCE  # type: ignore
+    SEQUENCE = internals.DATATYPE_SEQUENCE
     """Sequence type"""
-    CHOICE = internals.DATATYPE_CHOICE  # type: ignore
+    CHOICE = internals.DATATYPE_CHOICE
     """Choice type"""
-    CORRELATION_ID = internals.DATATYPE_CORRELATION_ID  # type: ignore
+    CORRELATION_ID = internals.DATATYPE_CORRELATION_ID
     """Used for some internal messages"""
 
 

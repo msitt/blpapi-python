@@ -93,33 +93,33 @@ class Event(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     The class attributes represent the possible types of event.
     """
 
-    ADMIN = internals.EVENTTYPE_ADMIN  # type: ignore
+    ADMIN = internals.EVENTTYPE_ADMIN
     """Admin event"""
-    SESSION_STATUS = internals.EVENTTYPE_SESSION_STATUS  # type: ignore
+    SESSION_STATUS = internals.EVENTTYPE_SESSION_STATUS
     """Status updates for a session"""
-    SUBSCRIPTION_STATUS = internals.EVENTTYPE_SUBSCRIPTION_STATUS  # type: ignore
+    SUBSCRIPTION_STATUS = internals.EVENTTYPE_SUBSCRIPTION_STATUS
     """Status updates for a subscription"""
-    REQUEST_STATUS = internals.EVENTTYPE_REQUEST_STATUS  # type: ignore
+    REQUEST_STATUS = internals.EVENTTYPE_REQUEST_STATUS
     """Status updates for a request"""
-    RESPONSE = internals.EVENTTYPE_RESPONSE  # type: ignore
+    RESPONSE = internals.EVENTTYPE_RESPONSE
     """The final (possibly only) response to a request"""
-    PARTIAL_RESPONSE = internals.EVENTTYPE_PARTIAL_RESPONSE  # type: ignore
+    PARTIAL_RESPONSE = internals.EVENTTYPE_PARTIAL_RESPONSE
     """A partial response to a request"""
-    SUBSCRIPTION_DATA = internals.EVENTTYPE_SUBSCRIPTION_DATA  # type: ignore
+    SUBSCRIPTION_DATA = internals.EVENTTYPE_SUBSCRIPTION_DATA
     """Data updates resulting from a subscription"""
-    SERVICE_STATUS = internals.EVENTTYPE_SERVICE_STATUS  # type: ignore
+    SERVICE_STATUS = internals.EVENTTYPE_SERVICE_STATUS
     """Status updates for a service"""
-    TIMEOUT = internals.EVENTTYPE_TIMEOUT  # type: ignore
+    TIMEOUT = internals.EVENTTYPE_TIMEOUT
     """An Event returned from nextEvent() if it timed out"""
-    AUTHORIZATION_STATUS = internals.EVENTTYPE_AUTHORIZATION_STATUS  # type: ignore
+    AUTHORIZATION_STATUS = internals.EVENTTYPE_AUTHORIZATION_STATUS
     """Status updates for user authorization"""
-    RESOLUTION_STATUS = internals.EVENTTYPE_RESOLUTION_STATUS  # type: ignore
+    RESOLUTION_STATUS = internals.EVENTTYPE_RESOLUTION_STATUS
     """Status updates for a resolution operation"""
-    TOPIC_STATUS = internals.EVENTTYPE_TOPIC_STATUS  # type: ignore
+    TOPIC_STATUS = internals.EVENTTYPE_TOPIC_STATUS
     """Status updates about topics for service providers"""
-    TOKEN_STATUS = internals.EVENTTYPE_TOKEN_STATUS  # type: ignore
+    TOKEN_STATUS = internals.EVENTTYPE_TOKEN_STATUS
     """Status updates for a generate token request"""
-    REQUEST = internals.EVENTTYPE_REQUEST  # type: ignore
+    REQUEST = internals.EVENTTYPE_REQUEST
     """Request event"""
     UNKNOWN = -1
     """Unknown event"""

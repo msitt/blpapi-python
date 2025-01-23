@@ -8,9 +8,23 @@ import os
 import platform as plat
 import re
 import codecs
-
 from sys import argv
+from shutil import copyfile
 from setuptools import setup, Extension
+
+
+def override_get_tag():
+    from wheel.bdist_wheel import bdist_wheel
+
+    # bdist_wheel upon seeing an extension module will (wrongly) assume
+    # that not only platform needs to be fixed, but also interpreter.
+    # This makes sure we create no-py-specific wheel
+    class BDistWheel(bdist_wheel):
+        def get_tag(self):
+            return (self.python_tag, "none", self.plat_name.replace("-", "_"))
+
+    return {"bdist_wheel": BDistWheel}
+
 
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 platform = plat.system().lower()
@@ -31,78 +45,22 @@ def find_version_number():
     raise RuntimeError("Unable to find version string.")
 
 
-def lib_in_release():
-    """Returns the right library folder name for each platform"""
-    if platform == "windows":
-        return "lib"
-    if platform == "linux":
-        return "Linux"
-    if platform == "darwin":
-        return "Darwin"
-    raise Exception("Platform '" + platform + "' isn't supported")
-
-
-blpapiRoot = os.environ.get("BLPAPI_ROOT")
-blpapiIncludesVar = os.environ.get("BLPAPI_INCDIR")
-blpapiLibVar = os.environ.get("BLPAPI_LIBDIR")
-
-assert blpapiRoot or (blpapiIncludesVar and blpapiLibVar), (
-    "BLPAPI_ROOT (or BLPAPI_INCDIR/BLPAPI_LIBDIR) "
-    + "environment variable isn't defined"
-)
-
-is64bit = plat.architecture()[0] == "64bit"
-if is64bit:
-    blpapiLibraryName = "blpapi3_64"
-else:
-    blpapiLibraryName = "blpapi3_32"
-
-extraCompileArgs = []
-extraLinkArgs = []
 package_data = {}
-if platform == "linux":
-    extraCompileArgs = ["-Werror=implicit-function-declaration"]
-elif platform == "windows":
-    extraLinkArgs = ["/MANIFEST"]
+cmdclass = {}
+if "bdist_wheel" in argv:
+    libpath = os.getenv("BLPAPI_DEPENDENCY")
+    if libpath:
+        libname = os.path.basename(libpath)
+        assert os.path.exists(
+            libpath
+        ), f"Could not find blpapi library at {libpath}"
+        # copy, as package_data only supports local files
+        copyfile(libpath, f"./src/blpapi/{libname}")
+        package_data = {"blpapi": [libname, "py.typed"]}
+    else:
+        print("BLPAPI_DEPENDENCY environment variable isn't defined")
+    cmdclass = override_get_tag()
 
-    # Handle the very frequent case when user need to use Visual C++ 2010
-    # with Python that wants to use Visual C++ 2008.
-    if plat.python_compiler().startswith("MSC v.1500"):
-        if (not "VS90COMNTOOLS" in os.environ) and (
-            "VS100COMNTOOLS" in os.environ
-        ):
-            os.environ["VS90COMNTOOLS"] = os.environ["VS100COMNTOOLS"]
-
-    if "bdist_wheel" in argv:
-        # get src/blpapi/*.dll
-        package_data = {
-            "blpapi": ["blpapi3_64.dll" if is64bit else "blpapi3_32.dll"]
-        }
-
-blpapiLibraryPath = blpapiLibVar or os.path.join(blpapiRoot, lib_in_release())
-blpapiIncludes = blpapiIncludesVar or os.path.join(blpapiRoot, "include")
-
-blpapi_wrap = Extension(
-    "blpapi._internals",
-    sources=["src/blpapi/internals_wrap.c"],
-    include_dirs=[blpapiIncludes],
-    library_dirs=[blpapiLibraryPath],
-    libraries=[blpapiLibraryName],
-    extra_compile_args=extraCompileArgs,
-    extra_link_args=extraLinkArgs,
-)
-
-versionhelper_wrap = Extension(
-    "blpapi._versionhelper",
-    sources=["src/blpapi/versionhelper_wrap.c"],
-    include_dirs=[blpapiIncludes],
-    library_dirs=[blpapiLibraryPath],
-    libraries=[blpapiLibraryName],
-    extra_compile_args=extraCompileArgs,
-    extra_link_args=extraLinkArgs,
-)
-
-extensions = [blpapi_wrap, versionhelper_wrap]
 packages = ["blpapi", "blpapi.test"]
 
 # INTERNAL ONLY START
@@ -127,24 +85,54 @@ subdirectory is present.
 """
         raise ImportError(error_msg)
 
-    internalutils_wrap = Extension(
-        "blpapi.internalutils._bindings",
-        sources=["src/blpapi/internalutils/bindings_wrap.c"],
-        include_dirs=[blpapiIncludes],
-        library_dirs=[blpapiLibraryPath],
-        libraries=[blpapiLibraryName],
-        extra_compile_args=extraCompileArgs,
-        extra_link_args=extraLinkArgs,
-    )
-    extensions.append(internalutils_wrap)
     packages.append("blpapi.internalutils")
 # INTERNAL ONLY END
+
+
+def lib_in_release():
+    """Returns the right library folder name for each platform"""
+    if platform == "windows":
+        return "lib"
+    if platform == "linux":
+        return "Linux"
+    if platform == "darwin":
+        return "Darwin"
+    raise Exception("Platform '" + platform + "' isn't supported")
+
+
+blpapiRoot = os.environ.get("BLPAPI_ROOT", ".")
+blpapiIncludesVar = os.environ.get("BLPAPI_INCDIR")
+blpapiLibVar = os.environ.get("BLPAPI_LIBDIR")
+
+assert blpapiRoot or (blpapiIncludesVar and blpapiLibVar), (
+    "BLPAPI_ROOT (or BLPAPI_INCDIR/BLPAPI_LIBDIR) "
+    + "environment variable isn't defined"
+)
+blpapiLibraryPath = blpapiLibVar or os.path.join(blpapiRoot, lib_in_release())
+blpapiIncludes = blpapiIncludesVar or os.path.join(blpapiRoot, "include")
+is64bit = plat.architecture()[0] == "64bit"
+if is64bit:
+    blpapiLibraryName = "blpapi3_64"
+else:
+    blpapiLibraryName = "blpapi3_32"
+extraLinkArgs = ["/MANIFEST"] if platform == "windows" else []
+blpapi_wrap = Extension(
+    "blpapi.ffiutils",
+    sources=["src/blpapi/ffi_utils.c"],
+    include_dirs=[blpapiIncludes],
+    library_dirs=[blpapiLibraryPath],
+    libraries=[blpapiLibraryName],
+    extra_compile_args=[],
+    extra_link_args=extraLinkArgs,
+)
+extensions = [blpapi_wrap]
 
 setup(
     name="blpapi",
     version=find_version_number(),
     author="Bloomberg L.P.",
     author_email="open-tech@bloomberg.net",
+    cmdclass=cmdclass,
     description="Python SDK for Bloomberg BLPAPI",
     ext_modules=extensions,
     url="http://www.bloomberglabs.com/api/",

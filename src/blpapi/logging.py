@@ -5,12 +5,13 @@
 @DESCRIPTION: This component provides a function that is used to
  register a callback for logging"""
 
-from typing import Callable, List
+from typing import Callable, List, Optional, Tuple
 from blpapi import internals
 from datetime import datetime
 from . import utils
 from .datetime import _DatetimeUtil
 from .typehints import AnyPythonDatetime
+from inspect import signature
 
 
 class Logger(metaclass=utils.MetaClassForClassesWithEnums):
@@ -18,19 +19,22 @@ class Logger(metaclass=utils.MetaClassForClassesWithEnums):
     logging configuration."""
 
     # Different logging levels
-    SEVERITY_OFF = internals.blpapi_Logging_SEVERITY_OFF  # type: ignore
-    SEVERITY_FATAL = internals.blpapi_Logging_SEVERITY_FATAL  # type: ignore
-    SEVERITY_ERROR = internals.blpapi_Logging_SEVERITY_ERROR  # type: ignore
-    SEVERITY_WARN = internals.blpapi_Logging_SEVERITY_WARN  # type: ignore
-    SEVERITY_INFO = internals.blpapi_Logging_SEVERITY_INFO  # type: ignore
-    SEVERITY_DEBUG = internals.blpapi_Logging_SEVERITY_DEBUG  # type: ignore
-    SEVERITY_TRACE = internals.blpapi_Logging_SEVERITY_TRACE  # type: ignore
+    SEVERITY_OFF = internals.blpapi_Logging_SEVERITY_OFF
+    SEVERITY_FATAL = internals.blpapi_Logging_SEVERITY_FATAL
+    SEVERITY_ERROR = internals.blpapi_Logging_SEVERITY_ERROR
+    SEVERITY_WARN = internals.blpapi_Logging_SEVERITY_WARN
+    SEVERITY_INFO = internals.blpapi_Logging_SEVERITY_INFO
+    SEVERITY_DEBUG = internals.blpapi_Logging_SEVERITY_DEBUG
+    SEVERITY_TRACE = internals.blpapi_Logging_SEVERITY_TRACE
 
-    loggerCallbacksLocal: List[Callable] = []  # needed for temp. ref. holding
+    # needed for temp. ref. holding
+    loggerCallbacksLocal: List[Tuple[Callable, Callable]] = []
 
     @staticmethod
     def registerCallback(
-        callback: Callable[[int, int, AnyPythonDatetime, str, str], None],
+        callback: Optional[
+            Callable[[int, int, AnyPythonDatetime, str, str], None]
+        ],
         thresholdSeverity: int = SEVERITY_INFO,
     ) -> None:
         """Register the specified 'callback' that will be called for all log
@@ -41,32 +45,44 @@ class Logger(metaclass=utils.MetaClassForClassesWithEnums):
         'RuntimeError' will be thrown if 'callback' cannot be registered.
         If callback is None, any existing callback shall be removed."""
 
-        def callbackWrapper(
-            threadId: int,
-            severity: int,
-            ts: datetime,
-            category: str,
-            message: str,
-        ) -> None:
-            dt = _DatetimeUtil.convertToNativeNotHighPrecision(ts)
-            callback(threadId, severity, dt, category, message)
+        callbackRef = None
+        if callback is not None:
+            sign = signature(callback)
+            # we expect 5 named parameters
+            if len(sign.parameters) < 5:
+                raise TypeError("Wrong type of callback for logging")
 
-        callbackRef = None if callback is None else callbackWrapper
-        # we store a reference to callbackWrapper (that binds callback)
-        # for as long as it may be needed, i.e. until gc or re-register
-        Logger.loggerCallbacksLocal.append(callbackRef)
-        err_code = internals.setLoggerCallbackWrapper(
+            def callbackWrapper(
+                threadId: int,
+                severity: int,
+                ts: datetime,
+                category: bytes,
+                message: bytes,
+            ) -> None:
+                dt = _DatetimeUtil.convertToNativeNotHighPrecision(ts)
+                callback(
+                    threadId, severity, dt, category.decode(), message.decode()
+                )
+
+            callbackRef = callbackWrapper
+
+        err_code, proxy = internals.blpapi_Logging_registerCallback(
             callbackRef, thresholdSeverity
         )
-
-        if len(Logger.loggerCallbacksLocal) > 1:
-            # we have a new cb now, let the previous one go
-            Logger.loggerCallbacksLocal.pop(0)
 
         if err_code == -1:
             raise ValueError("parameter must be a function")
         if err_code == -2:
             raise RuntimeError("unable to register callback")
+
+        # we store a reference to callbackWrapper (that binds callback)
+        # for as long as it may be needed, i.e. until gc or re-register
+        if callbackRef is not None:
+            Logger.loggerCallbacksLocal.append((callbackRef, proxy))
+
+        if len(Logger.loggerCallbacksLocal) > 1:
+            # we have a new cb now, let the previous one go
+            Logger.loggerCallbacksLocal.pop(0)
 
     @staticmethod
     def logTestMessage(severity: int) -> None:

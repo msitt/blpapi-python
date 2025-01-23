@@ -109,13 +109,13 @@ class _ExceptionUtil:
     """Internal exception generating class."""
 
     __errorClasses = {
-        internals.INVALIDSTATE_CLASS: InvalidStateException,  # type: ignore
-        internals.INVALIDARG_CLASS: InvalidArgumentException,  # type: ignore
-        internals.CNVERROR_CLASS: InvalidConversionException,  # type: ignore
-        internals.BOUNDSERROR_CLASS: IndexOutOfRangeException,  # type: ignore
-        internals.NOTFOUND_CLASS: NotFoundException,  # type: ignore
-        internals.FLDNOTFOUND_CLASS: FieldNotFoundException,  # type: ignore
-        internals.UNSUPPORTED_CLASS: UnsupportedOperationException,  # type: ignore
+        internals.INVALIDSTATE_CLASS: InvalidStateException,
+        internals.INVALIDARG_CLASS: InvalidArgumentException,
+        internals.CNVERROR_CLASS: InvalidConversionException,
+        internals.BOUNDSERROR_CLASS: IndexOutOfRangeException,
+        internals.NOTFOUND_CLASS: NotFoundException,
+        internals.FLDNOTFOUND_CLASS: FieldNotFoundException,
+        internals.UNSUPPORTED_CLASS: UnsupportedOperationException,
     }
 
     @staticmethod

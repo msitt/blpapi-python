@@ -59,13 +59,13 @@ examples/unittests/snippets/test_events.py
 examples/unittests/snippets/test_refdata.py
 examples/unittests/snippets/resolver/resolverutils.py
 examples/unittests/snippets/resolver/test_resolverutils.py
-src/blpapi/internals_wrap.c
-src/blpapi/versionhelper_wrap.c
 src/blpapi/__init__.py
 src/blpapi/abstractsession.py
 src/blpapi/auth.py
 src/blpapi/chandle.py
 src/blpapi/constant.py
+src/blpapi/correlationid.py
+src/blpapi/ctypesutils.py
 src/blpapi/datatype.py
 src/blpapi/datetime.py
 src/blpapi/debug.py
@@ -76,6 +76,7 @@ src/blpapi/event.py
 src/blpapi/eventdispatcher.py
 src/blpapi/eventformatter.py
 src/blpapi/exception.py
+src/blpapi/ffi_utils.c
 src/blpapi/highresclock.py
 src/blpapi/identity.py
 src/blpapi/internals.py
@@ -84,7 +85,7 @@ src/blpapi/message.py
 src/blpapi/name.py
 src/blpapi/names.py
 src/blpapi/providersession.py
-src/blpapi/py.typed
+src/blpapi/pycbhelpers.py
 src/blpapi/request.py
 src/blpapi/requesttemplate.py
 src/blpapi/resolutionlist.py
@@ -98,7 +99,6 @@ src/blpapi/topiclist.py
 src/blpapi/typehints.py
 src/blpapi/utils.py
 src/blpapi/version.py
-src/blpapi/versionhelper.py
 src/blpapi/zfputil.py
 src/blpapi.egg-info/PKG-INFO
 src/blpapi.egg-info/SOURCES.txt

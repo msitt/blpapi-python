@@ -141,11 +141,14 @@ class Service(CHandle):
         self,
         handle: BlpapiServiceHandle,
         sessions: Set["typehints.AbstractSession"],
+        isRealService: bool = True,
     ) -> None:
         super(Service, self).__init__(handle, internals.blpapi_Service_release)
         self.__handle = handle
         self.__sessions = sessions
-        internals.blpapi_Service_addRef(self.__handle)
+        if isRealService:  # as opposed to deserialized
+            # see blpapi-cpp/src/blpapi_testutil.cpp#L270
+            internals.blpapi_Service_addRef(self.__handle)
 
     def __str__(self) -> str:
         """Convert the service schema to a string."""

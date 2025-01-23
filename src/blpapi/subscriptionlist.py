@@ -86,7 +86,7 @@ from typing import Mapping, Optional, Sequence, Union
 
 from .exception import _ExceptionUtil
 from . import internals
-from .internals import CorrelationId
+from .correlationid import CorrelationId
 from .utils import conv2str, get_handle, isstr
 from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
@@ -174,27 +174,35 @@ class SubscriptionList(CHandle):
         if topic is None:
             topic = ""
 
-        if fields is not None:
+        if fields:
             if isstr(fields):
                 fields = conv2str(fields)  # type: ignore # the isstr() check means fields must be string by this point
             else:
                 fields = ",".join(fields)
+            if fields:
+                topic += "?fields=" + fields
 
-        if options is not None:
+        if options:
             if isstr(options):
-                options = conv2str(options)  # type: ignore # the isstr() check means options must be string by this point
+                options_str = conv2str(options)  # type: ignore # the isstr() check means options must be string by this point
             elif isinstance(options, (list, tuple)):
-                options = "&".join(options)
+                options_str = "&".join(options)
             elif isinstance(options, dict):
-                options = "&".join(
+                options_str = "&".join(
                     [
                         key if val is None else f"{key}={val}"
                         for key, val in options.items()
                     ]
                 )
+            else:
+                options_str = ""
+
+            if options_str:
+                opts_prefix = "&" if fields else "?"
+                topic += opts_prefix + options_str
 
         return internals.blpapi_SubscriptionList_addHelper(
-            self.__handle, topic, correlationId, fields, options
+            self.__handle, topic, correlationId
         )
 
     def append(self, other: "typehints.SubscriptionList") -> int:
@@ -234,7 +242,7 @@ class SubscriptionList(CHandle):
             self.__handle, index
         )
         _ExceptionUtil.raiseOnError(errorCode)
-        return cid
+        return CorrelationId(cid)
 
     def topicStringAt(self, index: int) -> str:
         """
@@ -279,7 +287,7 @@ class SubscriptionList(CHandle):
             subscription.
         """
         if correlationId is None:
-            correlationId = internals.CorrelationId()
+            correlationId = CorrelationId()
         return internals.blpapi_SubscriptionList_addResolved(
             self.__handle, subscriptionString, correlationId
         )

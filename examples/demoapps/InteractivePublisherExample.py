@@ -118,7 +118,7 @@ class MyEventHandler(object):
             elif msgType == blpapi.Names.TOPIC_ACTIVATED:
                 with self.mutex:
                     self.activeTopics.append(topic)
-                    self.condition.notifyAll()
+                    self.condition.notify_all()
 
             elif msgType == blpapi.Names.TOPIC_RECAP:
                 # Here we send a recap in response to a Recap request.

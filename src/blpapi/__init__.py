@@ -4,27 +4,9 @@
 # pylint: disable=raise-missing-from
 
 # pylint: disable=no-member
-import platform
-
-if platform.system().lower() == "windows":
-    import glob
-    import os
-
-    blpapi_dir = os.path.abspath(os.path.dirname(__file__))
-    is_64bit = platform.architecture()[0].startswith("64")
-    dll_glob = "*64.dll" if is_64bit else "*32.dll"
-
-    # Attempt to read dlls at the root of blpapi installation
-    # We do not copy the dlls for the source distribution so they are not
-    # guaranteed to be there.
-    # In that case, the next block is going to be skipped entirely.
-    for filename in glob.glob(os.path.join(blpapi_dir, dll_glob)):
-        from ctypes import CDLL
-
-        CDLL(os.path.abspath(filename))
 
 try:
-    from .internals import CorrelationId
+    from .internals import BDatetime
 except ImportError as error:
     # The most likely reason for a failure here is a failure to locate the
     # shared object for the C++ library. Provide a meaningful error message.
@@ -35,6 +17,7 @@ except ImportError as error:
 from .abstractsession import AbstractSession
 from .auth import AuthOptions, AuthUser
 from .constant import Constant, ConstantList
+from .correlationid import CorrelationId
 from .datatype import DataType
 from .datetime import FixedOffset
 from .element import Element
@@ -69,6 +52,17 @@ from .version import (
     cpp_sdk_version,
     expected_cpp_sdk_version,
     print_version,
+)
+
+from .pycbhelpers import (
+    voidFromPyObject,
+    pyObjectFromVoid,
+)
+from .internals import (
+    libblpapict,
+    charPtrWithSizeFromPyStr,
+    charPtrFromPyStr,
+    getPODFromOutput,
 )
 
 # INTERNAL ONLY START

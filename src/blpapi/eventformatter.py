@@ -442,7 +442,7 @@ class EventFormatter(CHandle):
             internals.blpapi_EventFormatter_appendElement(self.__handle)
         )
 
-    def fromPy(self, value: MappingType[Name, Any]) -> None:
+    def fromPy(self, value: MappingType) -> None:
         r"""
         Format this :class:`EventFormatter`'s underlying :class:`Event` using
         ``value``.

@@ -37,16 +37,15 @@ class Topic(CHandle):
         topic and must be assigned to from a valid topic before it can be used.
         """
         super(Topic, self).__init__(handle, internals.blpapi_Topic_destroy)
-        self.__handle = handle
         self.__sessions = sessions if sessions is not None else set()
 
-    def isValid(self) -> bool:
+    def isValid(self) -> bool:  # pylint: disable=useless-parent-delegation
         """
         Returns:
             ``True`` if this :class:`Topic` is valid and can be used to
             publish a message on.
         """
-        return self.__handle is not None
+        return super().isValid()
 
     def isActive(self) -> bool:
         """
@@ -54,7 +53,7 @@ class Topic(CHandle):
             ``True`` if this topic was elected by the platform to become
             the primary publisher.
         """
-        return bool(internals.blpapi_Topic_isActive(self.__handle))
+        return bool(internals.blpapi_Topic_isActive(self._handle()))
 
     def service(self) -> "typehints.Service":
         """
@@ -62,20 +61,20 @@ class Topic(CHandle):
             Service: The service for which this topic was created.
         """
         return Service(
-            internals.blpapi_Topic_service(self.__handle), self.__sessions
+            internals.blpapi_Topic_service(self._handle()), self.__sessions
         )
 
     def __lt__(self, other: "typehints.Topic") -> bool:
         """2-way comparison of Topic objects."""
         return (
-            internals.blpapi_Topic_compare(self.__handle, get_handle(other))
+            internals.blpapi_Topic_compare(self._handle(), get_handle(other))
             < 0
         )
 
     def __eq__(self, other: Any) -> bool:
         """2-way comparison of Topic objects."""
         return (
-            internals.blpapi_Topic_compare(self.__handle, get_handle(other))
+            internals.blpapi_Topic_compare(self._handle(), get_handle(other))
             == 0
         )
 

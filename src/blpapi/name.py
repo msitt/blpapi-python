@@ -119,7 +119,9 @@ class Name(CHandle):
     def __eq__(self, other: Any) -> bool:
         """x.__eq__(y) <==> x==y"""
         if not isstr(other):
-            return self.__handle == get_handle(other)
+            if other is None:
+                return False
+            return self.__handle.value == get_handle(other).value  # type: ignore
 
         s = conv2str(other)
         p = internals.blpapi_Name_equalsStr(self.__handle, s)
@@ -131,7 +133,7 @@ class Name(CHandle):
 
     def __hash__(self) -> int:
         """x.__hash__() <==> hash(x)"""
-        return int(self.__handle)
+        return int(self.__handle.value)  # type: ignore
 
 
 def getNamePair(

@@ -2,10 +2,10 @@
 
 """Provide BLPAPI SDK versions"""
 
-from . import versionhelper
+from . import internals
 
-__version__ = "3.24.6"
-__expected_cpp_sdk_version__ = "3.24.6"
+__version__ = "3.24.10"
+__expected_cpp_sdk_version__ = "3.24.10"
 
 
 def print_version() -> None:
@@ -28,8 +28,7 @@ def cpp_sdk_version() -> str:
     Returns:
         str: BLPAPI C++ SDK dependency version
     """
-    version_string = ".".join(map(str, versionhelper.blpapi_getVersionInfo()))
-    return version_string
+    return internals.blpapi_getVersionInfo()
 
 
 def expected_cpp_sdk_version() -> str:

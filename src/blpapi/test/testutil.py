@@ -83,7 +83,8 @@ def deserializeService(serviceXMLStr: str) -> Service:
         serviceXMLStr, len(serviceXMLStr)
     )
     _ExceptionUtil.raiseOnError(rc)
-    service = Service(service_handle, set())
+    let_it_leak = True  # for now, we prefer leaks to crashes
+    service = Service(service_handle, set(), let_it_leak)
     return service
 
 

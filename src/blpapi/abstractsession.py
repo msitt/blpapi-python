@@ -19,13 +19,17 @@ identifiers without upper-case characters.  Note that the <namespace> and
 # pylint: disable=protected-access
 from typing import Callable, Union, Sequence, Optional
 from . import typehints  # pylint: disable=unused-import
-from .typehints import BlpapiAbstractSessionHandle
+from .typehints import (
+    BlpapiAbstractSessionHandle,
+    BlpapiSessionHandle,
+    BlpapiProviderSessionHandle,
+)
 from . import exception
 from .exception import _ExceptionUtil
 from .identity import Identity
 from .service import Service
 from . import internals
-from .internals import CorrelationId
+from .correlationid import CorrelationId
 from .utils import get_handle
 from .chandle import CHandle
 
@@ -87,13 +91,15 @@ class AbstractSession(CHandle):
 
     def __init__(
         self,
-        handle: Optional[BlpapiAbstractSessionHandle] = None,
-        dtor: Optional[Callable] = None,
+        sessionHandle: Union[BlpapiSessionHandle, BlpapiProviderSessionHandle],
+        abstractSessionHandle: BlpapiAbstractSessionHandle,
+        dtor: Callable,
     ) -> None:
         """Instantiate an :class:`AbstractSession` with the specified handle.
 
         Args:
-            handle: Handle to the underlying session
+            sessionHandle: Handle to the underlying session
+            abstractSessionHandle: Handle to the underlying abstract session
 
         Raises:
             NotImplementedError: If this class is instantiated directly
@@ -108,8 +114,8 @@ class AbstractSession(CHandle):
                 "Don't instantiate this class directly."
                 "Create sessions using one of the concrete subclasses of this class."
             )
-        super(AbstractSession, self).__init__(handle, dtor)  # type: ignore
-        self.__handle = handle
+        super(AbstractSession, self).__init__(sessionHandle, dtor)
+        self.__handle = abstractSessionHandle
 
     def openService(self, serviceName: str) -> bool:
         """Open the service identified by the specified ``serviceName``.
@@ -239,7 +245,8 @@ class AbstractSession(CHandle):
         return correlationId
 
     def cancel(
-        self, correlationId: Union[CorrelationId, Sequence[CorrelationId]]
+        self,
+        correlationId: Union[CorrelationId, Sequence[CorrelationId], None],
     ) -> None:
         """Cancel request(s) with a single ``correlationId`` or a list.
 
@@ -262,6 +269,8 @@ class AbstractSession(CHandle):
         as this method returns it is preferable not to aggressively re-use
         correlation IDs, particularly with an asynchronous Session.
         """
+        if correlationId is None:
+            return
         if isinstance(correlationId, list):
             cids = correlationId
         else:

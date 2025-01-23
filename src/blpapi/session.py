@@ -19,16 +19,15 @@ from .event import Event
 from . import exception
 from .exception import _ExceptionUtil
 from . import internals
-from .internals import CorrelationId
+from .correlationid import CorrelationId
 from .sessionoptions import SessionOptions
 from .requesttemplate import RequestTemplate
 from .utils import get_handle, MetaClassForClassesWithEnums
 from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiEventHandle
 
+
 # pylint: disable=too-many-arguments,protected-access,bare-except
-
-
 class SubscriptionPreprocessMode(Enum):
     """The modes that can be used for the :meth:`Session.subscribe()` and
     :meth:`Session.resubscribe()` operations."""
@@ -115,9 +114,6 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
     PENDING_CANCELLATION = internals.SUBSCRIPTIONSTATUS_PENDING_CANCELLATION
     """No longer active, terminated by Application."""
 
-    __handle = None  # pylint: disable=unused-private-member
-    __handlerProxy = None  # pylint: disable=unused-private-member
-
     @staticmethod
     def __dispatchEvent(
         sessionRef: "ReferenceType[Session]", eventHandle: BlpapiEventHandle
@@ -185,29 +181,31 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             )
         if options is None:
             options = SessionOptions()
+        self.__handlerProxy = None
         if eventHandler is not None:
             # pylint: disable=unused-private-member
             self.__handler = eventHandler
             self.__handlerProxy = functools.partial(
                 Session.__dispatchEvent, ref(self)
             )
+
+        # Note __handle in Session is not the __handle
+        # in/of AbstractSession base class
         self.__handle = internals.Session_createHelper(
             get_handle(options),
             self.__handlerProxy,
             get_handle(eventDispatcher),
         )
 
-        _destroy = internals.Session_destroyHelper
-
-        # note: AbstractSession destroy passes AbstractSession handle
-        def _dtor(_: Any) -> None:
+        def _dtor(handle: Any) -> None:
             atexit.unregister(self.stop)
-            _destroy(self.__handle, self.__handlerProxy)
+            internals.Session_destroyHelper(handle, self.__handlerProxy)
 
         atexit.register(self.stop)  # we must stop session before shutdown
 
         AbstractSession.__init__(
             self,
+            self.__handle,
             internals.blpapi_Session_getAbstractSession(self.__handle),
             _dtor,
         )
@@ -756,9 +754,6 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         has been authorized.
         """
 
-        cidArg = correlationId
-        identityArg = identity
-
         # We changed the order of last two arguments, but
         # old clients may have them swapped at call site.
         # This detects the swap and calls the method correctly.
@@ -767,13 +762,30 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
 
         # Note: cid may never be None, only identity is allowed None
         # Hence, in the swapped case identity must be of type CorrelationId
-        if isinstance(identity, CorrelationId):
-            cidArg = identity  # type: ignore
-            identityArg = correlationId
-
-        rc, template = internals.blpapi_Session_createSnapshotRequestTemplate(
-            self.__handle, subscriptionString, get_handle(identityArg), cidArg
-        )
+        if isinstance(correlationId, CorrelationId):
+            (
+                rc,
+                template,
+            ) = internals.blpapi_Session_createSnapshotRequestTemplate(
+                self.__handle,
+                subscriptionString,
+                get_handle(identity),
+                correlationId,
+            )
+        elif isinstance(identity, CorrelationId):  # type: ignore
+            (
+                rc,
+                template,
+            ) = internals.blpapi_Session_createSnapshotRequestTemplate(
+                self.__handle,
+                subscriptionString,
+                get_handle(correlationId),
+                identity,
+            )
+        else:
+            raise exception.InvalidArgumentException(
+                "Invalid CorrelationId", 0
+            )
         _ExceptionUtil.raiseOnError(rc)
         reqTemplate = RequestTemplate(template)
         return reqTemplate

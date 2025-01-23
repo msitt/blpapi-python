@@ -6,6 +6,7 @@ This file defines a 'CHandle' class.
 It handles the life of an object with a handle from C layer.
 """
 
+from ctypes import c_void_p
 from typing import Callable, Any
 
 
@@ -14,12 +15,15 @@ class CHandle:
 
     def __init__(self, handle: Any, dtor: Callable) -> None:
         """Set the handle and the dtor"""
+        # None case is for tests
+        assert isinstance(handle, c_void_p) or handle is None
         self.__handle = handle
         self._dtor = dtor
 
     def __del__(self) -> None:
         """Destroy the object"""
         try:
+            # print('destorying chandle', self.__handle, 'using', self._dtor)
             self.destroy()
         except (NameError, AttributeError):
             pass
@@ -34,6 +38,12 @@ class CHandle:
     def _handle(self) -> Any:
         """Return the internal implementation."""
         return self.__handle
+
+    def isValid(self) -> bool:
+        """Returns:
+        ``True`` if this class holds a handle and the handle is not None.
+        """
+        return self.__handle is not None and self.__handle.value is not None
 
 
 __copyright__ = """

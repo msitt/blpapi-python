@@ -12,7 +12,7 @@ from .resolutionlist import ResolutionList
 from . import internals
 from . import utils
 from .utils import get_handle
-from .internals import CorrelationId
+from .correlationid import CorrelationId
 from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
 
@@ -129,7 +129,7 @@ class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             self.__handle, index
         )
         _ExceptionUtil.raiseOnError(errorCode)
-        return cid
+        return CorrelationId(cid)
 
     def topicString(self, correlationId: CorrelationId) -> str:
         """
