@@ -1,0 +1,76 @@
+name: Update repo
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  check-blpapi:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get latest version from GitHub releases
+        id: latest_version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LATEST_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' || echo "")
+          if [ -z "$LATEST_TAG" ]; then
+            LATEST_TAG="v0.0.0"
+          fi
+          echo "LATEST_TAG=${LATEST_TAG}" >> $GITHUB_ENV
+          echo "Latest version: $LATEST_TAG"
+
+      - name: Fetch versions from Bloomberg
+        id: fetch_versions
+        run: |
+          AVAILABLE_VERSIONS=$(curl -s https://blpapi.bloomberg.com/repository/releases/python/simple/blpapi/ | \
+            grep -oP '(?<=blpapi-)[0-9]+\.[0-9]+\.[0-9]+(?:\.[0-9]+)?(?=\.tar\.gz)' | sort -V | uniq)
+
+          echo "Available versions:"
+          echo "$AVAILABLE_VERSIONS"
+
+          echo "AVAILABLE_VERSIONS<<EOF" >> $GITHUB_ENV
+          echo "$AVAILABLE_VERSIONS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Process new versions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LAST_VERSION=${LATEST_TAG#v}
+          echo "Last version: $LAST_VERSION"
+
+          while read -r NEW_VERSION; do
+            if [ "$(printf "%s\n%s" "$LAST_VERSION" "$NEW_VERSION" | sort -V | tail -n1)" != "$LAST_VERSION" ]; then
+              echo "Processing version $NEW_VERSION..."
+
+              # Download and extract the source archive
+              FILE_NAME="blpapi-${NEW_VERSION}.tar.gz"
+              URL="https://blpapi.bloomberg.com/repository/releases/python/${FILE_NAME}"
+              echo "Downloading $URL..."
+              curl -fsSL "$URL" -o "$FILE_NAME"
+              tar -xzf "$FILE_NAME" --strip-components=1
+              rm "$FILE_NAME"
+
+              # Commit changes
+              git config user.name "github-actions"
+              git config user.email "github-actions@github.com"
+              git add .
+              git commit -m "v${NEW_VERSION}"
+              git tag "v${NEW_VERSION}"
+              git push --atomic origin master "v${NEW_VERSION}"
+
+              # Create a GitHub release
+              echo "Creating new release v${NEW_VERSION}"
+              gh release create "v${NEW_VERSION}" --title "v${NEW_VERSION}"
+
+              LAST_VERSION=$NEW_VERSION
+            fi
+          done <<< "$(echo "$AVAILABLE_VERSIONS")"
