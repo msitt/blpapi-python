@@ -1,6 +1,6 @@
 # testutil.py
 
-"""  This module provides a set of utility functions to allow SDK clients to
+"""This module provides a set of utility functions to allow SDK clients to
 create events/messages for unit-testing their applications.
 """
 

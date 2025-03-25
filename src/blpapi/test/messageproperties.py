@@ -1,6 +1,6 @@
 # messageproperties.py
 
-""" Class for defining properties of mock messages. """
+"""Class for defining properties of mock messages."""
 
 from typing import Sequence
 import blpapi

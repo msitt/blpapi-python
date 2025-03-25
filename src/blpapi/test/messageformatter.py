@@ -1,6 +1,6 @@
 # messageformatter.py
 
-""" Class for formatting mock messages. """
+"""Class for formatting mock messages."""
 
 # pylint: disable=function-redefined,ungrouped-imports,no-name-in-module
 

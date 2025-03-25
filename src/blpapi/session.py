@@ -6,15 +6,17 @@ This component implements a consumer session for getting services.
 """
 
 from __future__ import annotations
-from weakref import ref, ReferenceType  # pylint: disable=unused-import
+from weakref import ref, ReferenceType
 from typing import Optional, Callable, Any, List
 import threading
 from .names import Names
+import ctypes
 from enum import Enum
 import logging
 import asyncio
 import os
 import sys
+import time
 import traceback
 from .message import Message
 from .abstractsession import AbstractSession
@@ -105,15 +107,15 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
 
     Events of a synchronous Session can be consumed using `for event in session`
     statement. Note, this is not possible with an asynchronous Session
-    (an exception is raised). The user must not mix calls to `session.nextEvent`
-    and `for event in session` iteration.
+    (an Exception is raised). If the user calls :meth:`nextEvent()` during or
+    after iterating over :class:`Session`, an Exception is raised.
 
     A synchronous Session supports async compatible usage. The Session exposes an
     awaitable function `awaitEvent`, which returns the next event without blocking,
     and the possibility to iterate asynchronously over the Session, using the syntax
     `async for event in session`. This enables iteration over the generated Events
-    without blocking. The user must not mix calls to `session.nextEvent`
-    and `async for event in session` iteration.
+    without blocking. If the user calls :meth:`awaitEvent()` during or after
+    asynchronously iterating over the :class:`Session`, an Exception is raised.
 
     The class attributes represent the states in which a subscription can be.
     """
@@ -188,9 +190,12 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             "Python", version()
         )
 
-        self.consumerThread = None
-        self.stopCondition = threading.Event()
-        self.stopAsyncFlag = False  # Used to close gracefully async Sessions
+        self._consumerThread = None
+        self.__lastEventPopped = threading.Event()
+
+        self.__handler: Optional[Callable[[Event, Session], None]] = None
+        # Used list to be able to share data between threads. With an int that is not possible
+        self.__handler_thread_id: List[int] = []
 
         if (eventHandler is None) and (eventDispatcher is not None):
             raise exception.InvalidArgumentException(
@@ -198,13 +203,6 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             )
         if options is None:
             options = SessionOptions()
-        self.__handler: Optional[Callable[[Event, Session], None]] = None
-        if eventHandler is not None:
-            # pylint: disable=unused-private-member
-            self.__handler = eventHandler
-            self.consumerThread = threading.Thread(
-                target=self._thread_poll, daemon=True
-            )
 
         # Note __handle in Session is not the __handle
         # in/of AbstractSession base class
@@ -212,6 +210,24 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             get_handle(options),
             get_handle(eventDispatcher),
         )
+
+        if eventHandler is not None:
+            # pylint: disable=unused-private-member
+            self.__handler = eventHandler
+            session_weakref = ref(self)
+
+            # Passing the function as static method to avoid creating an extra reference
+            self._consumerThread = threading.Thread(
+                target=Session._thread_poll,
+                args=(
+                    session_weakref,
+                    self.__lastEventPopped,
+                    eventHandler,
+                    self.__handler_thread_id,
+                    self.__handle,
+                ),
+                daemon=True,
+            )
 
         def _dtor(handle: Any) -> None:
             internals.Session_destroyHelper(handle, None)
@@ -223,41 +239,77 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             _dtor,
         )
 
-    def _thread_poll(self) -> None:
+    @staticmethod
+    def _thread_poll(
+        session_weakref: ReferenceType[Session],
+        stopCondition: threading.Event,
+        handler: Callable[[Event, Session], None],
+        thread_ids: List[int],
+        handle: Optional[ctypes.c_void_p],
+    ) -> None:
         r"""Logic for the thread handler.
 
         Gets the next event with a timeout to avoid occupying the CPU
         completely. Then the handler is called with the retrieved event.
         """
-        if self.__handler is None:
-            return
+        thread_ids.append(
+            threading.get_ident()
+        )  # Save the thread ID for converting stop in stopAsync when necessary
 
         try:
-            while not self.stopCondition.is_set():
-                # 5ms timeout provided the best performance when benchmarked.
-                event = self._nextEvent(5)
-                if event.eventType() != Event.TIMEOUT:
-                    self.__handler(event, self)
-                    if (
-                        self.stopAsyncFlag
-                        and event.eventType() == Event.SESSION_STATUS
-                    ):
-                        for message in event:
-                            if (
-                                message.messageType()
-                                == Names.SESSION_TERMINATED
-                            ):
-                                self.stopCondition.set()
+            # we stop either if session is being destroyed -- signal from outside
+            # or after seeing a last event -- signal from _tryNextEvent in this thread
+            while not stopCondition.is_set():
+                if Session._scoped_event_consume(
+                    session_weakref, handler, handle
+                ):
+                    stopCondition.set()
+
         except:
-            # Shutting down gracefully if processing of event fails
-            self.consumerThread = None
-            self.stop()
-            exception_data = sys.exc_info()
-            traceback.print_exc()
-            logging.log(
-                internals.blpapi_Logging_SEVERITY_INFO, f"{exception_data}"
-            )
-            os._exit(1)
+            session = session_weakref()
+            if session is not None:
+                # Shutting down gracefully if processing of event fails
+                # and the session is still alive
+                session._consumerThread = None
+                session.stop()
+                exception_data = sys.exc_info()
+                traceback.print_exc()
+                logging.log(
+                    internals.blpapi_Logging_SEVERITY_INFO, f"{exception_data}"
+                )
+                os._exit(1)
+
+    @staticmethod
+    def _scoped_event_consume(
+        session_weakref: ReferenceType[Session],
+        handler: Callable[[Event, Session], None],
+        handle: Optional[ctypes.c_void_p],
+    ) -> bool:
+        """Try to poll a single event from Session in the Thread.
+
+        We do not want _thread_poll to maintain a strong reference to the session.
+        Session references temporary so that if there are no references to the session outside
+        of the thread_poll, we can expect the destructor to be called. If we maintained a
+        strong session reference in that function, and would result in a situation where the reference
+        count of session would never drop to 0 even if there are no more references
+        to the session in the user code.
+        """
+
+        retCode, event = internals.blpapi_Session_tryNextEvent(handle)
+        if retCode:
+            time.sleep(0.005)  # Avoid high CPU consumption
+            return False
+
+        session = session_weakref()
+        # If we want to dereference a destroyed Session, we get None
+        # as of https://docs.python.org/3/library/weakref.html#weakref.ref
+        if session is not None:
+            event = Event(event, {session})
+            handler(event, session)
+
+            if Session._is_last_event(event):
+                return True
+        return False
 
     def _session_handle(self) -> Any:
         """This is for internal implementation only"""
@@ -277,9 +329,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         :meth:`start()` returns a :attr:`~Event.SESSION_STATUS` :class:`Event`
         is generated. A :class:`Session` may only be started once.
         """
-        if self.consumerThread:
-            self.consumerThread.start()
-        return internals.blpapi_Session_start(self.__handle) == 0
+        return self.__start(False)
 
     def startAsync(self) -> bool:
         """Start this :class:`Session` in asynchronous mode.
@@ -296,9 +346,50 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         before :meth:`startAsync()` has returned. A :class:`Session` may only
         be started once.
         """
-        if self.consumerThread:
-            self.consumerThread.start()
-        return internals.blpapi_Session_startAsync(self.__handle) == 0
+        return self.__start(True)
+
+    def __start(self, is_async: bool) -> bool:
+        """Helper to start Session.
+
+        If the start call fails, we drain the Queue until we get the
+        SESSION_STARTUP_FAILURE message, and elaborate the Event
+        with the eventHandler.
+        """
+        if is_async:
+            started_successfully = (
+                internals.blpapi_Session_startAsync(self.__handle) == 0
+            )
+        else:
+            started_successfully = (
+                internals.blpapi_Session_start(self.__handle) == 0
+            )
+
+        if self._consumerThread and self.__handler is not None:
+            if started_successfully:
+                self._consumerThread.start()
+            else:
+                self.__deliver_events_without_consumerThread()
+
+        return started_successfully
+
+    def __deliver_events_without_consumerThread(self) -> None:
+        """Deliver the events without starting the thread if startup fails.
+
+        If the startup process fails, is better draining the queue without
+        starting the consumer thread to then handle this extra case, but instead
+        manage it in the user thread, initially.
+        """
+        assert self.__handler is not None
+        retrieved_termination_message = False
+        while not retrieved_termination_message:
+            event = self._nextEvent()
+            self.__handler(event, self)
+            if event.eventType() == Event.SESSION_STATUS:
+                message: Message
+                for message in event:
+                    if message.messageType() == Names.SESSION_STARTUP_FAILURE:
+                        retrieved_termination_message = True
+                        break
 
     def stop(self) -> bool:
         """Stop operation of this :class:`Session` and wait until it stops.
@@ -317,10 +408,20 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         deadlock. Once a :class:`Session` has been stopped it can only be
         destroyed.
         """
+        # Check if called from the handler
+        thread_id = threading.get_ident()
+        if (
+            len(self.__handler_thread_id) > 0
+            and thread_id == self.__handler_thread_id[0]
+        ):
+            return self.stopAsync()
+
         res = internals.blpapi_Session_stop(self.__handle) == 0
-        self.stopCondition.set()
-        if self.consumerThread and self.consumerThread.is_alive():
-            self.consumerThread.join()
+        if (
+            self._consumerThread is not None
+            and self._consumerThread.is_alive()
+        ):
+            self._consumerThread.join()
         return res
 
     def stopAsync(self) -> bool:
@@ -336,16 +437,23 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         no further callbacks to ``eventHandlers`` will occur. Once a
         :class:`Session` has been stopped it can only be destroyed.
         """
-        self.stopAsyncFlag = True
         return internals.blpapi_Session_stopAsync(self.__handle) == 0
 
-    def _stop_on_session_terminated(self, event: Optional[Event]) -> None:
+    @staticmethod
+    def _is_last_event(event: Optional[Event]) -> bool:
         if event is not None and event.eventType() == Event.SESSION_STATUS:
             message: Message
             for message in event:
-                if message.messageType() == Names.SESSION_TERMINATED:
-                    self.stopAsyncFlag = True
-                    break
+                if (
+                    message.messageType() == Names.SESSION_TERMINATED
+                    or message.messageType() == Names.SESSION_STARTUP_FAILURE
+                ):
+                    return True
+        return False
+
+    def _stop_on_last_event(self, event: Optional[Event]) -> None:
+        if Session._is_last_event(event):
+            self.__lastEventPopped.set()
 
     async def awaitEvent(self) -> Event:
         r"""
@@ -365,14 +473,15 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             )
 
         event = None
-        while event is None and not self.stopAsyncFlag:
+        while event is None and not self.__lastEventPopped.is_set():
             event = self._tryNextEvent()
-            self._stop_on_session_terminated(event)
             if event is None:
                 await asyncio.sleep(0.005)
 
-        if self.stopAsyncFlag and event is None:
+        if self.__lastEventPopped.is_set() and event is None:
             raise StopAsyncIteration
+
+        assert event is not None
         return event
 
     def _nextEvent(self, timeout: int = 0) -> Event:
@@ -425,7 +534,10 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         retCode, event = internals.blpapi_Session_tryNextEvent(self.__handle)
         if retCode:
             return None
-        return Event(event, {self})
+
+        retEvent = Event(event, {self})
+        self._stop_on_last_event(retEvent)
+        return retEvent
 
     def tryNextEvent(self) -> Optional[Event]:
         r"""
@@ -906,9 +1018,28 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         reqTemplate = RequestTemplate(template)
         return reqTemplate
 
+    def _enable_safe_iteration(self) -> None:
+        r"""Invalidate :class:`Event` getters in :class:`Session`
+        to avoid causing race conditions at runtime
+        """
+
+        def nextEvent_blocker(*_: Any) -> None:
+            raise exception.InvalidStateException(
+                "Cannot get Events after iteration has started",
+                internals.ERROR_ILLEGAL_STATE,
+            )
+
+        async def awaitEvent_blocker(*_: Any) -> None:
+            nextEvent_blocker()
+
+        setattr(self, "nextEvent", nextEvent_blocker)
+        setattr(self, "awaitEvent", awaitEvent_blocker)
+        setattr(self, "tryNextEvent", lambda *_: None)
+
     def __aiter__(self) -> Session:
         r"""Makes :class:`Session` an `AsyncIterable` object,
         allowing user to get event asynchronously"""
+        self._enable_safe_iteration()
         return self
 
     async def __anext__(self) -> Event:
@@ -919,15 +1050,47 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
 
     def __iter__(self) -> Session:
         """Start iterator for :class:`Session`"""
+        self._enable_safe_iteration()
         return self
 
     def __next__(self) -> Optional[Event]:
         """Yield next event for :class:`Session`"""
-        if self.stopAsyncFlag:
+        if self.__lastEventPopped.is_set():
             raise StopIteration
         event = self._tryNextEvent()
-        self._stop_on_session_terminated(event)
         return event
+
+    def __del__(self) -> None:
+        """Manage the deletion of session, making sure that it is stopped"""
+
+        # Stop iteration of polling thread to avoid any other thread getting a strong reference
+        # of the Session while deleting
+        # Users that didn't call stop before session was destroyed
+        # may not be seeing session terminated.
+        # This code will be further modified when tryNextEvent is changed in C++
+        self.__lastEventPopped.set()
+
+        is_async_session_started = (
+            self.__handler is not None
+            and self._consumerThread is not None
+            and self._consumerThread.is_alive()
+        )
+        called_from_polling_thread = (
+            len(self.__handler_thread_id) > 0
+            and threading.get_ident() == self.__handler_thread_id[0]
+        )
+
+        # Check that the thread has completed
+        if (
+            is_async_session_started
+            and not called_from_polling_thread
+            and self._consumerThread is not None
+        ):
+            self._consumerThread.join()
+
+        return (
+            super().__del__()
+        )  # Delete the handle. Calls `stop()` in C++ directly
 
 
 class SubscriptionPreprocessError:

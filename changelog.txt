@@ -1,3 +1,18 @@
+Version 3.25.2.3:
+===============
+- Stability and performance improvements
+
+Version 3.25.2.2:
+===============
+- Stability and performance improvements
+
+Version 3.25.2:
+===============
+- Subscribing with pre-resolved topics is no longer supported
+    Pre-resolved topics are no longer supported. Usage of this should be discontinued.
+
+- Stability and performance improvements
+
 Version 3.25.1:
 ===============
 - Stability and performance improvements

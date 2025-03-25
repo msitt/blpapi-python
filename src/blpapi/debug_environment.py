@@ -36,7 +36,7 @@ def _path_diagnostics(print_to_str: Callable[[str], None]) -> None:
 
 
 def _add_dll_directory_diagnostics(
-    print_to_str: Callable[[str], None]
+    print_to_str: Callable[[str], None],
 ) -> None:
     print_to_str("This Python version does not use PATH to find dlls")
 

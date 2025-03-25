@@ -1,5 +1,5 @@
-""" Sample utility functions for registering a service and handling permission
-requests. """
+"""Sample utility functions for registering a service and handling permission
+requests."""
 
 import blpapi
 

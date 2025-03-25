@@ -127,7 +127,7 @@ def charPtrFromPyStr(val: Union[str, bytes, None]) -> bytes:
 
 
 def charPtrWithSizeFromPyStr(
-    val: Union[str, bytes, bytearray, None]
+    val: Union[str, bytes, bytearray, None],
 ) -> Tuple[Optional[bytes], int]:
     if str == type(val):
         bts = val.encode()

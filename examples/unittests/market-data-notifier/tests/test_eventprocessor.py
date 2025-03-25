@@ -1,4 +1,4 @@
-""" Test suite for EventProcessor. """
+"""Test suite for EventProcessor."""
 
 import unittest
 

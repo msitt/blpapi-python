@@ -1,4 +1,4 @@
-""" Test suite for TokenGenerator. """
+"""Test suite for TokenGenerator."""
 
 import unittest
 

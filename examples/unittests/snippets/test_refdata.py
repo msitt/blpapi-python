@@ -1,4 +1,4 @@
-""" Sample unit test cases. """
+"""Sample unit test cases."""
 
 import unittest
 

@@ -1,4 +1,4 @@
-""" Sample test cases for mocking `blpapi` objects and using the `blpapi.test`
+"""Sample test cases for mocking `blpapi` objects and using the `blpapi.test`
 submodule in the context of resolvers.
 """
 

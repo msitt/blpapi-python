@@ -1,5 +1,5 @@
 # coding: utf-8
-""" Support highres clock"""
+"""Support highres clock"""
 
 from blpapi import internals
 from blpapi.datetime import _DatetimeUtil, UTC

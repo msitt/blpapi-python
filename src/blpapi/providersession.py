@@ -64,6 +64,7 @@ import sys
 import traceback
 import os
 import functools
+import atexit
 from .abstractsession import AbstractSession
 from .event import Event
 from . import exception
@@ -304,6 +305,14 @@ class ProviderSession(
     __handlerProxy = None  # pylint: disable=unused-private-member
 
     @staticmethod
+    def _weakstopper(
+        session_weakref: "ReferenceType[ProviderSession]",
+    ) -> None:
+        session = session_weakref()
+        if session is not None:
+            session.stop()
+
+    @staticmethod
     def __dispatchEvent(
         sessionRef: "ReferenceType[ProviderSession]",
         eventHandle: BlpapiEventHandle,
@@ -401,10 +410,15 @@ class ProviderSession(
         )
 
         def _dtor(handle: Any) -> None:
+            atexit.unregister(ProviderSession._weakstopper)
             internals.ProviderSession_destroyHelper(
                 handle, self.__handlerProxy
             )
 
+        # we must stop session before shutdown
+        atexit.register(
+            ProviderSession._weakstopper, session_weakref=ref(self)
+        )
         AbstractSession.__init__(
             self,
             self.__handle,
@@ -495,6 +509,7 @@ class ProviderSession(
         deadlock. Once a :class:`Session` has been stopped it can only be
         destroyed.
         """
+        atexit.unregister(ProviderSession._weakstopper)
         return internals.blpapi_ProviderSession_stop(self.__handle) == 0
 
     def stopAsync(self) -> bool:

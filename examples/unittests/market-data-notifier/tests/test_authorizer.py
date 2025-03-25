@@ -1,4 +1,4 @@
-""" Test suite for Authorizer. """
+"""Test suite for Authorizer."""
 
 import unittest
 

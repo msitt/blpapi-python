@@ -1,4 +1,4 @@
-""" Test suite for Application. """
+"""Test suite for Application."""
 
 import unittest
 

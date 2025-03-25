@@ -87,7 +87,7 @@ from typing import Mapping, Optional, Sequence, Union
 from .exception import _ExceptionUtil
 from . import internals
 from .correlationid import CorrelationId
-from .utils import conv2str, get_handle, isstr
+from .utils import conv2str, get_handle, isstr, deprecated
 from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
 
@@ -261,12 +261,18 @@ class SubscriptionList(CHandle):
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
+    @deprecated(
+        "Deprecated since 3.25.2. Usage of pre-resolved topics is no longer supported."
+    )
     def addResolved(
         self,
         subscriptionString: str,
         correlationId: Optional[CorrelationId] = None,
     ) -> int:
         """
+        **DEPRECATED**
+        Deprecated since 3.25.2. Usage of pre-resolved topics is no longer supported.
+
         Args:
             subscriptionString: Fully-resolved subscription string
             correlationId: Correlation id to associate with the
@@ -292,8 +298,14 @@ class SubscriptionList(CHandle):
             self.__handle, subscriptionString, correlationId
         )
 
+    @deprecated(
+        "Deprecated since 3.25.2. Usage of pre-resolved topics is no longer supported."
+    )
     def isResolvedTopicAt(self, index: int) -> bool:
         """
+        **DEPRECATED**
+        Deprecated since 3.25.2. Usage of pre-resolved topics is no longer supported.
+
         Args:
             index: Index of the entry in the list
 
