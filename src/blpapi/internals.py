@@ -1600,6 +1600,13 @@ l_blpapi_TopicList_topicStringAt = (
     libblpapict.blpapi_TopicList_topicStringAt
 )  # int
 
+l_blpapi_UserAgentInfo_setUserTaskName = (
+    libblpapict.blpapi_UserAgentInfo_setUserTaskName
+)  # int
+l_blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion = (
+    libblpapict.blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion
+)  # int
+
 l_blpapi_ZfpUtil_getOptionsForLeasedLines = (
     libblpapict.blpapi_ZfpUtil_getOptionsForLeasedLines
 )  # int
@@ -5054,6 +5061,20 @@ def _blpapi_Topic_service(topic):
     return getHandleFromPtr(l_blpapi_Topic_service(topic))
 
 
+# signature: int blpapi_UserAgentInfo_setUserTaskName(const char *userTaskName);
+def _blpapi_UserAgentInfo_setUserTaskName(userTaskName):
+    return l_blpapi_UserAgentInfo_setUserTaskName(
+        charPtrFromPyStr(userTaskName)
+    )
+
+
+# signature: int blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion(const char *language, const char *version);
+def _blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion(language, version):
+    return l_blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion(
+        charPtrFromPyStr(language), charPtrFromPyStr(version)
+    )
+
+
 # signature: int blpapi_ZfpUtil_getOptionsForLeasedLines(blpapi_SessionOptions_t *sessionOptions,const blpapi_TlsOptions_t *tlsOptions,int remote);
 def _blpapi_ZfpUtil_getOptionsForLeasedLines(
     sessionOptions, tlsOptions, remote
@@ -5115,18 +5136,16 @@ def _ProviderSession_destroyHelper(sessionHandle, _eventHandlerFunc):
     l_blpapi_ProviderSession_destroy(sessionHandle)
 
 
-def _Session_createHelper(parameters, eventHandlerFunc, dispatcher):
+def _Session_createHelper(parameters, dispatcher):
     # parameters is a handle to SessionOptions
-    # eventHandlerFunc is python callback
     # dispatcher is a handle to dispatcher, which we honestly hope to be None!
     # returns handle to Session
-    hasHandler = eventHandlerFunc is not None
-    if hasHandler:
-        handlerparam = anySessionEventHandlerWrapper.get()
-        userdata = voidFromPyFunction(eventHandlerFunc)
-    else:
-        handlerparam = c_void_p(0)
-        userdata = c_void_p(0)
+    handlerparam = c_void_p(0)
+    userdata = c_void_p(0)
+
+    # `Session.py` uses now a separated thread to poll event from the queue
+    # so we do not need to pass a handler parameter to C++ anymore.
+    # In the past, C++ used this function to call back into Python (bindings)
 
     handle = l_blpapi_Session_create(
         parameters,
@@ -5884,6 +5903,10 @@ blpapi_Topic_create = _blpapi_Topic_create
 blpapi_Topic_destroy = _blpapi_Topic_destroy
 blpapi_Topic_isActive = _blpapi_Topic_isActive
 blpapi_Topic_service = _blpapi_Topic_service
+blpapi_UserAgentInfo_setUserTaskName = _blpapi_UserAgentInfo_setUserTaskName
+blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion = (
+    _blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion
+)
 blpapi_ZfpUtil_getOptionsForLeasedLines = (
     _blpapi_ZfpUtil_getOptionsForLeasedLines
 )
@@ -8383,6 +8406,14 @@ def _test_function_signatures():
         fnc="blpapi_Topic_service",
         ret="blpapi_Service_t *",
         args=["blpapi_Topic_t*"],
+    )
+    verify_ctypes(
+        fnc="blpapi_UserAgentInfo_setUserTaskName", ret="int", args=["char*"]
+    )
+    verify_ctypes(
+        fnc="blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion",
+        ret="int",
+        args=["char*", "char*"],
     )
     verify_ctypes(
         fnc="blpapi_ZfpUtil_getOptionsForLeasedLines",

@@ -21,11 +21,14 @@ sessionOptions.setAuthenticationOptions( ... )
 session = blpapi.Session(sessionOptions)
 session.start()
 """
+import os
+import sys
 from . import utils
 from . import internals
 from . import typehints  # pylint: disable=unused-import
 from .exception import _ExceptionUtil
 from .sessionoptions import SessionOptions
+from .version import version
 
 
 # pylint: disable=too-few-public-methods
@@ -76,6 +79,19 @@ class ZfpUtil(metaclass=utils.MetaClassForClassesWithEnums):
             This is a costly operation that is preferably called once per
             application.
         """
+        # https://docs.python.org/3/library/sys.html#sys.argv
+        # argv[0] is the script name (it is operating system dependent whether
+        # this is a full pathname or not). If the command was executed using
+        # the -c command line option to the interpreter, argv[0] is set to the
+        # string '-c'. If no script name was passed to the Python interpreter,
+        # argv[0] is the empty string.
+        taskName = os.path.basename(sys.argv[0])
+        if taskName and taskName != "-c":
+            internals.blpapi_UserAgentInfo_setUserTaskName(taskName)
+        internals.blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion(
+            "Python", version()
+        )
+
         sessionOptions = SessionOptions()
         err = internals.blpapi_ZfpUtil_getOptionsForLeasedLines(
             utils.get_handle(sessionOptions),

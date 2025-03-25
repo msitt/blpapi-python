@@ -4,6 +4,7 @@
 
 @DESCRIPTION: This component provides a function that is used to
  register a callback for logging"""
+import atexit
 
 from typing import Callable, List, Optional, Tuple
 from blpapi import internals
@@ -83,6 +84,13 @@ class Logger(metaclass=utils.MetaClassForClassesWithEnums):
         if len(Logger.loggerCallbacksLocal) > 1:
             # we have a new cb now, let the previous one go
             Logger.loggerCallbacksLocal.pop(0)
+
+        def _deregister_last() -> None:
+            Logger.registerCallback(None)
+
+        # we can't possibly keep the python callback alive
+        # when the interpreter is dying
+        atexit.register(_deregister_last)
 
     @staticmethod
     def logTestMessage(severity: int) -> None:

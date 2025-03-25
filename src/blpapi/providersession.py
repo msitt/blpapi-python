@@ -64,7 +64,6 @@ import sys
 import traceback
 import os
 import functools
-import atexit
 from .abstractsession import AbstractSession
 from .event import Event
 from . import exception
@@ -78,6 +77,7 @@ from .utils import get_handle
 from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiEventHandle
+from .version import version
 
 
 # pylint: disable=line-too-long,too-many-lines
@@ -368,6 +368,19 @@ class ProviderSession(
         receives small messages and processes each one very quickly then give
         each one a separate :class:`EventDispatcher`.
         """
+        # https://docs.python.org/3/library/sys.html#sys.argv
+        # argv[0] is the script name (it is operating system dependent whether
+        # this is a full pathname or not). If the command was executed using
+        # the -c command line option to the interpreter, argv[0] is set to the
+        # string '-c'. If no script name was passed to the Python interpreter,
+        # argv[0] is the empty string.
+        taskName = os.path.basename(sys.argv[0])
+        if taskName and taskName != "-c":
+            internals.blpapi_UserAgentInfo_setUserTaskName(taskName)
+        internals.blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion(
+            "Python", version()
+        )
+
         if (eventHandler is None) and (eventDispatcher is not None):
             raise exception.InvalidArgumentException(
                 "eventDispatcher is specified but eventHandler is None", 0
@@ -388,12 +401,10 @@ class ProviderSession(
         )
 
         def _dtor(handle: Any) -> None:
-            atexit.unregister(self.stop)
             internals.ProviderSession_destroyHelper(
                 handle, self.__handlerProxy
             )
 
-        atexit.register(self.stop)  # we must stop session before shutdown
         AbstractSession.__init__(
             self,
             self.__handle,
@@ -484,7 +495,6 @@ class ProviderSession(
         deadlock. Once a :class:`Session` has been stopped it can only be
         destroyed.
         """
-        atexit.unregister(self.stop)
         return internals.blpapi_ProviderSession_stop(self.__handle) == 0
 
     def stopAsync(self) -> bool:

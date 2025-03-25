@@ -1,3 +1,20 @@
+Version 3.25.1:
+===============
+- Stability and performance improvements
+
+Version 3.24.12.2:
+===============
+- Stability and performance improvements
+
+Version 3.24.12:
+================
+- New ways to consume Events of a session
+    1. Consuming asynchronously with `await session.awaitEvent()`.
+    2. Session supports `for event in session` statements for iterating over events.
+    3. Session supports `async for event in session` statements for iterating over events.
+    For details check the documentation of Session.
+- Stability and performance improvements
+
 Version 3.24.11:
 ================
 - Stability and performance improvements
