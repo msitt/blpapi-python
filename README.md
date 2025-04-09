@@ -1,6 +1,4 @@
 # Bloomberg Python API
-[![Devise](https://badges.dev.bloomberg.com/live/devise/verify-status/apisdk/blpapi-py)](https://devise.dx.bloomberg.com/repository/BLPAPIPY)
-
 
 This directory contains an interface for interacting with Bloomberg API
 services using the Python programming language. This package is the source

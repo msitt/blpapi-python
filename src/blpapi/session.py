@@ -293,10 +293,13 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         strong session reference in that function, and would result in a situation where the reference
         count of session would never drop to 0 even if there are no more references
         to the session in the user code.
+        Returns True if tryNextEvent will never produce additional events.
         """
 
         retCode, event = internals.blpapi_Session_tryNextEvent(handle)
         if retCode:
+            if retCode == internals.ERROR_ILLEGAL_STATE:
+                return True
             time.sleep(0.005)  # Avoid high CPU consumption
             return False
 
@@ -307,8 +310,6 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             event = Event(event, {session})
             handler(event, session)
 
-            if Session._is_last_event(event):
-                return True
         return False
 
     def _session_handle(self) -> Any:
@@ -439,33 +440,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         """
         return internals.blpapi_Session_stopAsync(self.__handle) == 0
 
-    @staticmethod
-    def _is_last_event(event: Optional[Event]) -> bool:
-        if event is not None and event.eventType() == Event.SESSION_STATUS:
-            message: Message
-            for message in event:
-                if (
-                    message.messageType() == Names.SESSION_TERMINATED
-                    or message.messageType() == Names.SESSION_STARTUP_FAILURE
-                ):
-                    return True
-        return False
-
-    def _stop_on_last_event(self, event: Optional[Event]) -> None:
-        if Session._is_last_event(event):
-            self.__lastEventPopped.set()
-
-    async def awaitEvent(self) -> Event:
-        r"""
-        Returns:
-            Event: Next available event for this session
-        Raises:
-            InvalidStateException: If invoked on a session created in
-                asynchronous mode
-        Await until there is not an event or the session is closed. This
-        method does not block. If the :class:`Session` is async, then it
-        raises the same error, as synchronous `nextEvent()`
-        """
+    async def _awaitEvent(self) -> Event:
         if self.__handler is not None:
             raise exception.InvalidStateException(
                 "The use of generators is not supported on asynchronous sessions",
@@ -478,11 +453,24 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             if event is None:
                 await asyncio.sleep(0.005)
 
-        if self.__lastEventPopped.is_set() and event is None:
+        if self.__lastEventPopped.is_set():
             raise StopAsyncIteration
 
         assert event is not None
         return event
+
+    async def awaitEvent(self) -> Event:
+        r"""
+        Returns:
+            Event: Next available event for this session
+        Raises:
+            InvalidStateException: If invoked on a session created in
+                asynchronous mode
+        Await until there is not an event or the session is closed. This
+        method does not block. If the :class:`Session` is async, then it
+        raises the same error, as synchronous `nextEvent()`
+        """
+        return await self._awaitEvent()
 
     def _nextEvent(self, timeout: int = 0) -> Event:
         """Call to C++ bindings to get the optional event without waiting if not
@@ -533,10 +521,12 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         """
         retCode, event = internals.blpapi_Session_tryNextEvent(self.__handle)
         if retCode:
+            if retCode == internals.ERROR_ILLEGAL_STATE:
+                self.__lastEventPopped.set()
             return None
 
         retEvent = Event(event, {self})
-        self._stop_on_last_event(retEvent)
+
         return retEvent
 
     def tryNextEvent(self) -> Optional[Event]:
@@ -1046,7 +1036,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         r"""Yield the next event that is available, while allowing other
         coroutines to run if waiting.
         """
-        return await self.awaitEvent()
+        return await self._awaitEvent()
 
     def __iter__(self) -> Session:
         """Start iterator for :class:`Session`"""

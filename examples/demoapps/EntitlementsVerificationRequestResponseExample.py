@@ -32,6 +32,7 @@ class EntitlementsVerificationRequestResponseExample:
         self._identitiesByCorrelationId = {}
         self._responses = []
         self._finalResponseReceived = False
+        self._session = None
 
         self._router.addExceptionHandler(self._handleException)
 
@@ -67,8 +68,8 @@ class EntitlementsVerificationRequestResponseExample:
         sessionOptions.setSessionName(
             "entitlementsverificationrequestresponse"
         )
-        session = Session(sessionOptions, self._router.processEvent)
-        session.startAsync()
+        self._session = Session(sessionOptions, self._router.processEvent)
+        self._session.startAsync()
 
     def _stop(self, session):
         # Cancel all the authorized identities
