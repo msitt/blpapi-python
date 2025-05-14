@@ -1,6 +1,6 @@
-Metadata-Version: 2.2
+Metadata-Version: 2.4
 Name: blpapi
-Version: 3.25.3
+Version: 3.25.4.1
 Summary: Python SDK for Bloomberg BLPAPI
 Home-page: http://www.bloomberglabs.com/api/
 Author: Bloomberg L.P.
@@ -16,5 +16,6 @@ Dynamic: author
 Dynamic: author-email
 Dynamic: classifier
 Dynamic: home-page
+Dynamic: license-file
 Dynamic: requires-python
 Dynamic: summary
