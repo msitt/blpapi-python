@@ -228,7 +228,7 @@ class ServiceRegistrationOptions(
 
         Note:
             The behavior of this function is undefined unless ``0 <= begin <=
-            end < (1 << 24)``, and ``priority`` is non-negative.
+            end < (1 << 31)``, and ``priority`` is non-negative.
         """
         err = internals.blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange(
             self.__handle, begin, end, priority
@@ -384,6 +384,13 @@ class ProviderSession(
         # string '-c'. If no script name was passed to the Python interpreter,
         # argv[0] is the empty string.
         taskName = os.path.basename(sys.argv[0])
+        if taskName == "__main__.py":
+            # Try to get a parent folder name for '__main__.py'.
+            taskNameDir = os.path.basename(
+                os.path.dirname(os.path.abspath(sys.argv[0]))
+            )
+            if taskNameDir:
+                taskName = taskNameDir
         if taskName and taskName != "-c":
             internals.blpapi_UserAgentInfo_setUserTaskName(taskName)
         internals.blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion(
@@ -938,7 +945,7 @@ class ProviderSession(
         Note:
             The behavior of this function is undefined unless ``service`` has
             already been successfully registered, ``0 <= begin <= end < (1 <<
-            24)``, and ``priority`` is non-negative.
+            31)``, and ``priority`` is non-negative.
         """
         err = internals.blpapi_ProviderSession_activateSubServiceCodeRange(
             self.__handle, serviceName, begin, end, priority
@@ -961,7 +968,7 @@ class ProviderSession(
         Note:
             The behavior of this function is undefined unless ``service`` has
             already been successfully registered and ``0 <= begin <= end < (1 <<
-            24)``.
+            31)``.
         """
         err = internals.blpapi_ProviderSession_deactivateSubServiceCodeRange(
             self.__handle, serviceName, begin, end

@@ -11,6 +11,7 @@ from util.ConnectionAndAuthOptions import (
 )
 from util.SubscriptionOptions import (
     addSubscriptionOptions,
+    setSubscriptionSessionOptions,
     createSubscriptionList,
 )
 from util.events.SessionRouter import SessionRouter
@@ -81,6 +82,7 @@ class EntitlementsVerificationSubscriptionExample:
         # This may cause the session to stop and the example to terminate if
         # the identity is revoked.
         sessionOptions = createSessionOptions(self._options)
+        setSubscriptionSessionOptions(sessionOptions, self._options)
         sessionOptions.setSessionName("entitlementsverificationsubscription")
         self._session = Session(sessionOptions, self._router.processEvent)
         self._session.startAsync()

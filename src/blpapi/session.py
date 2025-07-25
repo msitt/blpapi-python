@@ -184,6 +184,13 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         # string '-c'. If no script name was passed to the Python interpreter,
         # argv[0] is the empty string.
         taskName = os.path.basename(sys.argv[0])
+        if taskName == "__main__.py":
+            # Try to get a parent folder name for '__main__.py'.
+            taskNameDir = os.path.basename(
+                os.path.dirname(os.path.abspath(sys.argv[0]))
+            )
+            if taskNameDir:
+                taskName = taskNameDir
         if taskName and taskName != "-c":
             internals.blpapi_UserAgentInfo_setUserTaskName(taskName)
         internals.blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion(

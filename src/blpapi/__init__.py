@@ -62,6 +62,7 @@ from .internals import (
     libblpapict,
     charPtrWithSizeFromPyStr,
     charPtrFromPyStr,
+    getHandleFromPtr,
     getPODFromOutput,
 )
 
