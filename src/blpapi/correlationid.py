@@ -49,8 +49,7 @@ class CorrelationId:
     default :class:`CorrelationId` constructor."""
 
     INT_TYPE = internals.CORRELATION_TYPE_INT
-    """The :class:`CorrelationId` was created from an :class:`int` or
-    :class:`long` supplied by the user."""
+    """The :class:`CorrelationId` was created from an :class:`int` supplied by the user."""
 
     OBJECT_TYPE = internals.CORRELATION_TYPE_POINTER
     """The :class:`CorrelationId` was created from an object supplied by
@@ -83,7 +82,7 @@ class CorrelationId:
         r"""
         ``CorrelationId([value[, classId=0]])`` constructs a :class:`CorrelationId`
         object.
-        If ``value`` is an integer (either :class:`int` or :class:`long`) then the
+        If ``value`` is an :class:`int` then the
         created :class:`CorrelationId` will have type :attr:`INT_TYPE`. Otherwise, it
         will have type :attr:`OBJECT_TYPE`.
         If no arguments are specified, then the type will be :attr:`UNSET_TYPE`.
