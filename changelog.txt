@@ -1,3 +1,13 @@
+Version 3.25.9.1:
+=================
+- Pre-resolved topics no longer supported
+    The usage of pre-resolved topics is no longer supported.
+    Topics specified as already resolved using the
+    `SubscriptionList::addResolved` interface will now
+    follow the normal resolution process.
+
+- Stability and performance improvements
+
 Version 3.25.8.1:
 =================
 - Stability and performance improvements
