@@ -281,7 +281,7 @@ PyObject* blpapi_Element_toPy(blpapi_Element_t *element) {
     }
 }
 
-/* decrefs allow python code to decrement ref. count of objects,
+/* increfs allow python code to increment ref. count of objects,
    even if they are not yet pointed to by blpapi_ManagedPtr_t struct.
 */
 PEXPRT void incref(PyObject *obj);

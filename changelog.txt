@@ -1,3 +1,7 @@
+Version 3.25.10.1:
+==================
+- Stability and performance improvements
+
 Version 3.25.9.1:
 =================
 - Pre-resolved topics no longer supported
