@@ -128,6 +128,11 @@ class CorrelationId:
                 else:  # it is a proper py-object
                     pyobj = CorrelationId._objectFromStruct(argv[0])
                     self.rawvalue = internals.cidValueForObj(pyobj)
+                    # do not copy user data from the original struct received
+                    # from C++, because it is valid only within the C++ scope
+                    # and can be invalidated there while it is held here
+                    assert argv[0].rawvalue.ptrValue.userData[0].ptr
+                    assert not self.rawvalue.ptrValue.userData[0].ptr
         else:  # this is a py-object, including None
             classid = (
                 safePOD(argv[1], c_uint16).value
@@ -136,7 +141,10 @@ class CorrelationId:
             )
 
             self.flags = internals.CidFlags(
-                CorrelationId.STRUCT_SZ, CorrelationId.OBJECT_TYPE, classid, 0
+                CorrelationId.STRUCT_SZ,
+                CorrelationId.OBJECT_TYPE,
+                classid,
+                internals.CORRELATION_INTERNAL_CLASS_FOREIGN_OBJECT,
             )
             self.rawvalue = internals.cidValueForObj(argv[0])
 
@@ -167,6 +175,9 @@ class CorrelationId:
             object
         """
         return self.thestruct.flags.classId
+
+    def _internalClassId(self) -> int:
+        return self.thestruct.flags.internalClassId
 
     def _asInt(self) -> int:
         return self.thestruct.rawvalue.intValue
@@ -224,7 +235,11 @@ class CorrelationId:
         if valueType == CorrelationId.UNSET_TYPE:
             return valueTypeName
         else:
-            return f"({valueTypeName}: {self.value()!r}, ClassId: {self.classId()})"
+            return (
+                f"({valueTypeName}: {self.value()!r}, "
+                f"ClassId: {self.classId()}, "
+                f"InternalClassId: {self._internalClassId()})"
+            )
 
     def __hash__(self) -> int:
         if self.type() == CorrelationId.OBJECT_TYPE:
@@ -232,10 +247,18 @@ class CorrelationId:
                 (
                     self.type(),
                     self.classId(),
+                    self._internalClassId(),
                     self.thestruct.rawvalue.ptrValue.pointer,
                 )
             )
-        return hash((self.type(), self.classId(), self._asInt()))
+        return hash(
+            (
+                self.type(),
+                self.classId(),
+                self._internalClassId(),
+                self._asInt(),
+            )
+        )
 
     def __eq__(self, other: Any) -> bool:
         """x.__eq__(y) <==> x==y"""
@@ -247,6 +270,8 @@ class CorrelationId:
             if self.type() != other.type():
                 return False
             if self.classId() != other.classId():
+                return False
+            if self._internalClassId() != other._internalClassId():
                 return False
             if self.type() == CorrelationId.OBJECT_TYPE:
                 # we care about it being SAME object, not just equal/equivalent

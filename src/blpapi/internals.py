@@ -156,7 +156,7 @@ class CidFlags(Structure):
         ("size", c_uint, 8),
         ("valueType", c_uint, 4),
         ("classId", c_uint, 16),
-        ("reserved", c_uint, 4),
+        ("internalClassId", c_uint, 4),
     ]
 
     def __str__(self) -> str:
@@ -168,6 +168,7 @@ class ManagedPtrData(CUnion):
 
 
 ManagedPtr_ManagerFunction_t = CFUNCTYPE(c_int, c_void_p, c_void_p, c_int)
+blpapi_StreamWriter_t = CFUNCTYPE(c_int, c_char_p, c_int, c_void_p)
 
 
 class ManagedPtr(Structure):
@@ -260,6 +261,7 @@ CORRELATION_TYPE_INT = 1
 CORRELATION_TYPE_POINTER = 2
 CORRELATION_TYPE_AUTOGEN = 3
 CORRELATION_MAX_CLASS_ID = 65535
+CORRELATION_INTERNAL_CLASS_FOREIGN_OBJECT = 1
 
 DATATYPE_BOOL = 1  # Bool
 DATATYPE_CHAR = 2  # Char
@@ -622,6 +624,12 @@ l_blpapi_Element_setValueInt64 = (
 l_blpapi_Element_setValueString = (
     libblpapict.blpapi_Element_setValueString
 )  # int
+l_blpapi_Element_toJson = libblpapict.blpapi_Element_toJson  # int
+l_blpapi_Element_toJson.argtypes = [c_void_p, blpapi_StreamWriter_t, c_void_p]
+l_blpapi_Element_toJson.restype = c_int
+l_blpapi_Element_fromJson = libblpapict.blpapi_Element_fromJson  # int
+l_blpapi_Element_fromJson.argtypes = [c_void_p, c_char_p]
+l_blpapi_Element_fromJson.restype = c_int
 
 l_blpapi_Event_eventType = libblpapict.blpapi_Event_eventType  # int
 l_blpapi_Event_release = libblpapict.blpapi_Event_release  # int
@@ -751,6 +759,9 @@ l_blpapi_EventFormatter_setValueNull = (
 l_blpapi_EventFormatter_setValueString = (
     libblpapict.blpapi_EventFormatter_setValueString
 )  # int
+l_blpapi_EventFormatter_getElement = (
+    libblpapict.blpapi_EventFormatter_getElement
+)  # int
 
 l_blpapi_EventQueue_create = libblpapict.blpapi_EventQueue_create
 l_blpapi_EventQueue_create.restype = c_void_p
@@ -869,6 +880,9 @@ l_blpapi_MessageFormatter_setValueNull = (
 )  # int
 l_blpapi_MessageFormatter_setValueString = (
     libblpapict.blpapi_MessageFormatter_setValueString
+)  # int
+l_blpapi_MessageFormatter_getElement = (
+    libblpapict.blpapi_MessageFormatter_getElement
 )  # int
 
 l_blpapi_MessageIterator_create = libblpapict.blpapi_MessageIterator_create
@@ -2385,6 +2399,29 @@ def _blpapi_Element_setValueString(element, value, index):
     )
 
 
+# signature: int blpapi_Element_toJson(const blpapi_Element_t *element, blpapi_StreamWriter_t streamWriter, void *stream);
+def _blpapi_Element_toJson(element, streamWriter, stream):
+    return l_blpapi_Element_toJson(element, streamWriter, stream)
+
+
+# signature: int blpapi_Element_fromJson(const blpapi_Element_t *element, char const *json);
+def _blpapi_Element_fromJson(element, json):
+    return l_blpapi_Element_fromJson(element, charPtrFromPyStr(json))
+
+
+# signature:
+def _blpapi_Element_toJsonHelper(element):
+    """Convert element to JSON string"""
+    out = StringIO()
+    writer = StreamWrapper()
+    outparam = voidFromPyObject(out)
+    retCode = l_blpapi_Element_toJson(element, writer.get(), outparam)
+    if retCode:
+        return retCode, None
+    out.seek(0)
+    return retCode, out.read()
+
+
 # signature:
 def _blpapi_Element_toPy(element):
     return libffastcalls.blpapi_Element_toPy(element)
@@ -2684,6 +2721,14 @@ def _blpapi_EventFormatter_setValueString(
         typeName,
         charPtrFromPyStr(value),
     )
+
+
+# signature: int blpapi_EventFormatter_getElement(blpapi_EventFormatter_t *formatter, blpapi_Element_t **element);
+def _blpapi_EventFormatter_getElement(formatter):
+    out = c_void_p()
+    outp = pointer(out)
+    retCode = l_blpapi_EventFormatter_getElement(formatter, outp)
+    return retCode, getHandleFromOutput(outp, retCode)
 
 
 # signature: blpapi_EventQueue_t *blpapi_EventQueue_create(void);
@@ -3064,6 +3109,14 @@ def _blpapi_MessageFormatter_setValueString(formatter, typeName, value):
     return l_blpapi_MessageFormatter_setValueString(
         formatter, typeName, charPtrFromPyStr(value)
     )
+
+
+# signature: int blpapi_MessageFormatter_getElement(blpapi_MessageFormatter_t *formatter, blpapi_Element_t **element);
+def _blpapi_MessageFormatter_getElement(formatter):
+    out = c_void_p()
+    outp = pointer(out)
+    retCode = l_blpapi_MessageFormatter_getElement(formatter, outp)
+    return retCode, getHandleFromOutput(outp, retCode)
 
 
 # signature: blpapi_MessageIterator_t *blpapi_MessageIterator_create(const blpapi_Event_t *event);
@@ -5284,6 +5337,9 @@ blpapi_Element_setValueHighPrecisionDatetime = (
 blpapi_Element_setValueInt32 = _blpapi_Element_setValueInt32
 blpapi_Element_setValueInt64 = _blpapi_Element_setValueInt64
 blpapi_Element_setValueString = _blpapi_Element_setValueString
+blpapi_Element_toJson = _blpapi_Element_toJson
+blpapi_Element_toJsonHelper = _blpapi_Element_toJsonHelper
+blpapi_Element_fromJson = _blpapi_Element_fromJson
 blpapi_Element_toPy = _blpapi_Element_toPy
 blpapi_EventDispatcher_create = _blpapi_EventDispatcher_create
 blpapi_EventDispatcher_destroy = _blpapi_EventDispatcher_destroy
@@ -5345,6 +5401,7 @@ blpapi_EventFormatter_setValueInt32 = _blpapi_EventFormatter_setValueInt32
 blpapi_EventFormatter_setValueInt64 = _blpapi_EventFormatter_setValueInt64
 blpapi_EventFormatter_setValueNull = _blpapi_EventFormatter_setValueNull
 blpapi_EventFormatter_setValueString = _blpapi_EventFormatter_setValueString
+blpapi_EventFormatter_getElement = _blpapi_EventFormatter_getElement
 blpapi_EventQueue_create = _blpapi_EventQueue_create
 blpapi_EventQueue_destroy = _blpapi_EventQueue_destroy
 blpapi_EventQueue_nextEvent = _blpapi_EventQueue_nextEvent
@@ -5439,6 +5496,7 @@ blpapi_MessageFormatter_setValueNull = _blpapi_MessageFormatter_setValueNull
 blpapi_MessageFormatter_setValueString = (
     _blpapi_MessageFormatter_setValueString
 )
+blpapi_MessageFormatter_getElement = _blpapi_MessageFormatter_getElement
 blpapi_MessageIterator_create = _blpapi_MessageIterator_create
 blpapi_MessageIterator_destroy = _blpapi_MessageIterator_destroy
 blpapi_MessageIterator_next = _blpapi_MessageIterator_next
@@ -5928,6 +5986,7 @@ def _test_function_signatures():
         "size_t": c_size_t,
         "unsigned int": c_uint,
         "blpapi_CorrelationId_t": CidStruct,
+        "blpapi_StreamWriter_t": blpapi_StreamWriter_t,
     }
 
     def c_type_to_ctypes(ctype: str):
@@ -6494,6 +6553,16 @@ def _test_function_signatures():
         args=["blpapi_Element_t*", "char*", "size_t"],
     )
     verify_ctypes(
+        fnc="blpapi_Element_toJson",
+        ret="int",
+        args=["blpapi_Element_t*", "blpapi_StreamWriter_t", "void*"],
+    )
+    verify_ctypes(
+        fnc="blpapi_Element_fromJson",
+        ret="int",
+        args=["blpapi_Element_t*", "char const *"],
+    )
+    verify_ctypes(
         fnc="blpapi_EventDispatcher_create",
         ret="blpapi_EventDispatcher_t *",
         args=["size_t"],
@@ -6645,6 +6714,11 @@ def _test_function_signatures():
         args=["blpapi_EventFormatter_t*"],
     )
     verify_ctypes(
+        fnc="blpapi_EventFormatter_getElement",
+        ret="int",
+        args=["blpapi_EventFormatter_t*", "blpapi_Element_t**"],
+    )
+    verify_ctypes(
         fnc="blpapi_EventFormatter_pushElement",
         ret="int",
         args=["blpapi_EventFormatter_t*", "char*", "blpapi_Name_t*"],
@@ -6747,6 +6821,11 @@ def _test_function_signatures():
         fnc="blpapi_EventQueue_nextEvent",
         ret="blpapi_Event_t *",
         args=["blpapi_EventQueue_t*", "int"],
+    )
+    verify_ctypes(
+        fnc="blpapi_MessageFormatter_getElement",
+        ret="int",
+        args=["blpapi_MessageFormatter_t*", "blpapi_Element_t**"],
     )
     verify_ctypes(
         fnc="blpapi_EventQueue_purge", ret="int", args=["blpapi_EventQueue_t*"]

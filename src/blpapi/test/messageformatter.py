@@ -10,6 +10,7 @@ from json import dumps
 from typing import Any, Callable
 
 from blpapi import internals, Name
+from blpapi.element import Element
 from blpapi.typehints import (
     AnyPythonDatetime,
     BlpapiMessageFormatterHandle,
@@ -288,6 +289,26 @@ class MessageFormatter(CHandle):
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_popElement(self.__handle)
         )
+
+    def getElement(self) -> Element:
+        """Get the current :class:`blpapi.Element` that this :class:`MessageFormatter`
+        is formatting.
+
+        Returns:
+            The current element being formatted
+
+        Raises:
+            InvalidStateException: If there is no current element being
+                formatted.
+            Exception: For other errors when retrieving the element.
+
+        Note:
+            This method provides access to the underlying element structure
+            for direct operations on the element.
+        """
+        res = internals.blpapi_MessageFormatter_getElement(self.__handle)
+        _ExceptionUtil.raiseOnError(res[0])
+        return Element(res[1], None)
 
     @_singledispatchmethod(1)
     def appendValue(self, value: SupportedElementTypes) -> None:

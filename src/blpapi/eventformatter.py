@@ -13,6 +13,7 @@ from .exception import (
     NotFoundException,
 )
 from .datetime import _DatetimeUtil
+from .element import Element
 from .message import Message
 from .name import Name, getNamePair
 from . import internals
@@ -424,6 +425,22 @@ class EventFormatter(CHandle):
         _ExceptionUtil.raiseOnError(
             internals.blpapi_EventFormatter_popElement(self.__handle)
         )
+
+    def getElement(self) -> Element:
+        """Get the current :class:`Element` that this :class:`EventFormatter`
+        is formatting.
+
+        Returns:
+            The current element being formatted
+
+        Raises:
+            InvalidStateException: If there is no current element being
+                formatted.
+            Exception: For other errors when retrieving the element.
+        """
+        res = internals.blpapi_EventFormatter_getElement(self.__handle)
+        _ExceptionUtil.raiseOnError(res[0])
+        return Element(res[1], None)
 
     def appendValue(self, value: Any) -> None:
         """

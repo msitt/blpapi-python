@@ -636,6 +636,47 @@ class Element(CHandle):
             self._handle(), level, spacesPerLevel
         )
 
+    def toJson(self) -> str:
+        """Convert this :class:`Element` to a JSON formatted string.
+        If the element cannot be converted to JSON, an exception is raised.
+
+        Returns:
+            JSON string representation of this element
+
+        Raises:
+            Exception: If the element cannot be converted to JSON because it is invalid.
+        """
+
+        self.__assertIsValid()
+        res = internals.blpapi_Element_toJsonHelper(self._handle())
+        _ExceptionUtil.raiseOnError(res[0])
+        return res[1]
+
+    def fromJson(self, jsonString: str) -> None:
+        """Populate this :class:`Element` from a JSON formatted string.
+
+        Args:
+            jsonString: JSON string to parse and populate the element with
+
+        Raises:
+            TypeError: If ``jsonString`` is not a string.
+            InvalidArgumentException: If the JSON string is invalid or cannot
+                be parsed.
+            UnsupportedOperationException: If this :class:`Element` is read
+                only and cannot be modified.
+            Exception: For other errors during JSON parsing or element
+                population.
+
+        Note:
+            This method modifies the element in place. If the JSON is invalid,
+            the element may be left in an empty uninitialized state.
+        """
+
+        self.__assertIsValid()
+        _ExceptionUtil.raiseOnError(
+            internals.blpapi_Element_fromJson(self._handle(), jsonString)
+        )
+
     def getElement(self, nameOrIndex: BlpapiNameOrIndex) -> Element:
         """
         Args:
