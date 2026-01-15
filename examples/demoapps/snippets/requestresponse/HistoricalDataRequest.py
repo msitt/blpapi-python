@@ -16,6 +16,7 @@ def createRequest(service, options):
     # NOTE: this function uses `Request.__setitem__` to format a `Request`. See
     # the other `createRequest` functions in this `requestresponse` directory
     # for examples of alternative interfaces for formatting a `Request`.
+    # An alternative using `request.fromJson` is shown in the comments below.
     request = service.createRequest("HistoricalDataRequest")
 
     request[SECURITIES] = options.securities
@@ -28,6 +29,22 @@ def createRequest(service, options):
     request[MAX_DATA_POINTS] = 100
     request[RETURN_EIDS] = True
 
+    # Alternative: Using `Request.fromJson` to format the request
+    # import json
+    # REQUEST_JSON = f"""
+    # {{
+    #     "securities": {json.dumps(options.securities)},
+    #     "fields": {json.dumps(options.fields)},
+    #     "periodicityAdjustment": "ACTUAL",
+    #     "periodicitySelection": "MONTHLY",
+    #     "startDate": "20200101",
+    #     "endDate": "20201231",
+    #     "maxDataPoints": 100,
+    #     "returnEids": true
+    # }}
+    # """
+    # request.fromJson(REQUEST_JSON)
+
     return request
 
 
@@ -35,6 +52,10 @@ def processResponseEvent(event):
     for msg in event:
         print(f"Received response to request {msg.getRequestId()}")
         print(msg)
+
+        # Alternative: Using `Message.toJson` to convert the message to JSON
+        # jsonStr = msg.toJson()
+        # print(jsonStr)
 
 
 __copyright__ = """

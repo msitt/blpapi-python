@@ -459,6 +459,17 @@ class EventFormatter(CHandle):
             internals.blpapi_EventFormatter_appendElement(self.__handle)
         )
 
+    def fromJson(self, jsonString: str) -> None:
+        """Equivalent to :meth:`getElement().fromJson(jsonString)
+        <Element.fromJson>`.
+
+        Args:
+            jsonString: JSON formatted string used to populate the current
+                element.
+        """
+
+        self.getElement().fromJson(jsonString)
+
     def fromPy(self, value: MappingType) -> None:
         r"""
         Format this :class:`EventFormatter`'s underlying :class:`Event` using

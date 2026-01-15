@@ -384,6 +384,15 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
             self.__element = weakref.ref(el)
         return el
 
+    def toJson(self) -> str:
+        """Equivalent to :meth:`asElement().toJson()<Element.toJson>`.
+
+        Returns:
+            JSON string representation of this message.
+        """
+
+        return self.asElement().toJson()
+
     def toString(self, level: int = 0, spacesPerLevel: int = 4) -> str:
         """Format this :class:`Message` to the string at the specified
         indentation level.

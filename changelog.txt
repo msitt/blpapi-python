@@ -1,3 +1,15 @@
+Version 3.25.12.1:
+==================
+- JSON serialization and deserialization support for elements
+    Introduced `toJson()` and `fromJson(JSON)` methods to enable conversion
+    between element objects and JSON.
+    Requests can be constructed using `request.fromJson(REQUEST_JSON)`,
+    events can be populated with `eventFormatter.fromJson(REQUEST_JSON)`,
+    and messages can be converted to JSON using `message.toJson()`. You
+    can also apply `toJson()` and `fromJson(JSON)` to any `Element` objects.
+
+- Stability and performance improvements
+
 Version 3.25.11.1:
 ==================
 - Stability and performance improvements

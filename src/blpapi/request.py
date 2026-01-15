@@ -115,6 +115,16 @@ class Request(CHandle):
         """
         self.asElement().fromPy(requestDict)
 
+    def fromJson(self, jsonString: str) -> None:
+        """Equivalent to :meth:`asElement().fromJson(jsonString)
+        <Element.fromJson>`.
+
+        Args:
+            jsonString: JSON formatted string used to populate this request.
+        """
+
+        self.asElement().fromJson(jsonString)
+
     def asElement(self) -> Element:
         """
         Returns:
