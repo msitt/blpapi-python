@@ -177,7 +177,10 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
 
         This function has been deprecated because messages could contain
         multiple payloads with different correlation ids, and each of these
-        correlation ids may map to different topic strings.
+        correlation ids may map to different topic strings. This can happen
+        when multiple subscriptions are made to the same topic string with
+        different correlation ids if `allowMultipleCorrelatorsPerMsg` was
+        set in the session options.
 
         In such a scenario, it would be incorrect to choose one out of the
         multiple topics (for the various correlation id's in the message) as
@@ -417,15 +420,14 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
         """Equivalent to :meth:`asElement().toPy()<Element.toPy()>`."""
         return self.asElement().toPy()  # type: ignore
 
-    def timeReceived(self, tzinfo: datetime.tzinfo = UTC) -> AnyPythonDatetime:
+    def timeReceived(self, tzinfo: datetime.tzinfo = UTC) -> datetime.datetime:
         """Get the time when the message was received by the SDK.
 
         Args:
             tzinfo: Timezone info
 
         Returns:
-            datetime.datetime or datetime.date or datetime.time: Time when the
-            message was received by the SDK.
+            datetime.datetime: Time when the message was received by the SDK.
 
         Raises:
             ValueError: If this information was not recorded for this message.

@@ -25,7 +25,7 @@ import os
 from typing import Optional, List, Callable, Any
 
 # Note: all functions here assume we are given an opaque handle,
-# not the python wrapper object, even though paramter names don't have "handle" suffix
+# not the python wrapper object, even though parameter names don't have "handle" suffix
 
 from ctypes import (
     CDLL,
@@ -380,10 +380,17 @@ blpapi_Logging_SEVERITY_INFO = 4
 blpapi_Logging_SEVERITY_DEBUG = 5
 blpapi_Logging_SEVERITY_TRACE = 6
 
-##################### Functions
 
-l_blpapi_AbstractSession_cancel = (
-    libblpapict.blpapi_AbstractSession_cancel
+##################### Functions
+def stub(*args):
+    raise RuntimeError(
+        "Function not found in shared object. "
+        "Possibly due to library versions mismatch"
+    )
+
+
+l_blpapi_AbstractSession_cancel = getattr(
+    libblpapict, "blpapi_AbstractSession_cancel", stub
 )  # int
 l_blpapi_AbstractSession_cancel.argtypes = [
     c_void_p,
@@ -392,262 +399,330 @@ l_blpapi_AbstractSession_cancel.argtypes = [
     c_char_p,
     c_int,
 ]
-l_blpapi_AbstractSession_createIdentity = (
-    libblpapict.blpapi_AbstractSession_createIdentity
+l_blpapi_AbstractSession_createIdentity = getattr(
+    libblpapict, "blpapi_AbstractSession_createIdentity", stub
 )
 l_blpapi_AbstractSession_createIdentity.restype = c_void_p
-l_blpapi_AbstractSession_generateAuthorizedIdentityAsync = (
-    libblpapict.blpapi_AbstractSession_generateAuthorizedIdentityAsync
+l_blpapi_AbstractSession_generateAuthorizedIdentityAsync = getattr(
+    libblpapict, "blpapi_AbstractSession_generateAuthorizedIdentityAsync", stub
 )  # int
-l_blpapi_AbstractSession_generateToken = (
-    libblpapict.blpapi_AbstractSession_generateToken
+l_blpapi_AbstractSession_generateToken = getattr(
+    libblpapict, "blpapi_AbstractSession_generateToken", stub
 )  # int
-l_blpapi_AbstractSession_generateManualToken = (
-    libblpapict.blpapi_AbstractSession_generateManualToken
+l_blpapi_AbstractSession_generateManualToken = getattr(
+    libblpapict, "blpapi_AbstractSession_generateManualToken", stub
 )  # int
-l_blpapi_AbstractSession_getAuthorizedIdentity = (
-    libblpapict.blpapi_AbstractSession_getAuthorizedIdentity
+l_blpapi_AbstractSession_getAuthorizedIdentity = getattr(
+    libblpapict, "blpapi_AbstractSession_getAuthorizedIdentity", stub
 )  # int
-l_blpapi_AbstractSession_openService = (
-    libblpapict.blpapi_AbstractSession_openService
+l_blpapi_AbstractSession_openService = getattr(
+    libblpapict, "blpapi_AbstractSession_openService", stub
 )  # int
-l_blpapi_AbstractSession_openServiceAsync = (
-    libblpapict.blpapi_AbstractSession_openServiceAsync
+l_blpapi_AbstractSession_openServiceAsync = getattr(
+    libblpapict, "blpapi_AbstractSession_openServiceAsync", stub
 )  # int
-l_blpapi_AbstractSession_getService = (
-    libblpapict.blpapi_AbstractSession_getService
+l_blpapi_AbstractSession_getService = getattr(
+    libblpapict, "blpapi_AbstractSession_getService", stub
 )  # int
-l_blpapi_AbstractSession_sendAuthorizationRequest = (
-    libblpapict.blpapi_AbstractSession_sendAuthorizationRequest
+l_blpapi_AbstractSession_sendAuthorizationRequest = getattr(
+    libblpapict, "blpapi_AbstractSession_sendAuthorizationRequest", stub
 )  # int
-l_blpapi_AbstractSession_sessionName = (
-    libblpapict.blpapi_AbstractSession_sessionName
+l_blpapi_AbstractSession_sessionName = getattr(
+    libblpapict, "blpapi_AbstractSession_sessionName", stub
 )  # int
 
-l_blpapi_AuthApplication_create = (
-    libblpapict.blpapi_AuthApplication_create
+l_blpapi_AuthApplication_create = getattr(
+    libblpapict, "blpapi_AuthApplication_create", stub
 )  # int
-l_blpapi_AuthApplication_destroy = libblpapict.blpapi_AuthApplication_destroy
+l_blpapi_AuthApplication_destroy = getattr(
+    libblpapict, "blpapi_AuthApplication_destroy", stub
+)
 l_blpapi_AuthApplication_destroy.restype = None
 
-l_blpapi_AuthOptions_create_default = (
-    libblpapict.blpapi_AuthOptions_create_default
+l_blpapi_AuthOptions_create_default = getattr(
+    libblpapict, "blpapi_AuthOptions_create_default", stub
 )  # int
-l_blpapi_AuthOptions_create_forAppMode = (
-    libblpapict.blpapi_AuthOptions_create_forAppMode
+l_blpapi_AuthOptions_create_forAppMode = getattr(
+    libblpapict, "blpapi_AuthOptions_create_forAppMode", stub
 )  # int
-l_blpapi_AuthOptions_create_forToken = (
-    libblpapict.blpapi_AuthOptions_create_forToken
+l_blpapi_AuthOptions_create_forToken = getattr(
+    libblpapict, "blpapi_AuthOptions_create_forToken", stub
 )  # int
-l_blpapi_AuthOptions_create_forUserAndAppMode = (
-    libblpapict.blpapi_AuthOptions_create_forUserAndAppMode
+l_blpapi_AuthOptions_create_forUserAndAppMode = getattr(
+    libblpapict, "blpapi_AuthOptions_create_forUserAndAppMode", stub
 )  # int
-l_blpapi_AuthOptions_create_forUserMode = (
-    libblpapict.blpapi_AuthOptions_create_forUserMode
+l_blpapi_AuthOptions_create_forUserMode = getattr(
+    libblpapict, "blpapi_AuthOptions_create_forUserMode", stub
 )  # int
-l_blpapi_AuthOptions_destroy = libblpapict.blpapi_AuthOptions_destroy
+l_blpapi_AuthOptions_destroy = getattr(
+    libblpapict, "blpapi_AuthOptions_destroy", stub
+)
 l_blpapi_AuthOptions_destroy.restype = None
 
-l_blpapi_AuthToken_create = libblpapict.blpapi_AuthToken_create  # int
-l_blpapi_AuthToken_destroy = libblpapict.blpapi_AuthToken_destroy
+l_blpapi_AuthToken_create = getattr(
+    libblpapict, "blpapi_AuthToken_create", stub
+)  # int
+l_blpapi_AuthToken_destroy = getattr(
+    libblpapict, "blpapi_AuthToken_destroy", stub
+)
 l_blpapi_AuthToken_destroy.restype = None
 
-l_blpapi_AuthUser_createWithActiveDirectoryProperty = (
-    libblpapict.blpapi_AuthUser_createWithActiveDirectoryProperty
+l_blpapi_AuthUser_createWithActiveDirectoryProperty = getattr(
+    libblpapict, "blpapi_AuthUser_createWithActiveDirectoryProperty", stub
 )  # int
-l_blpapi_AuthUser_createWithLogonName = (
-    libblpapict.blpapi_AuthUser_createWithLogonName
+l_blpapi_AuthUser_createWithLogonName = getattr(
+    libblpapict, "blpapi_AuthUser_createWithLogonName", stub
 )  # int
-l_blpapi_AuthUser_createWithManualOptions = (
-    libblpapict.blpapi_AuthUser_createWithManualOptions
+l_blpapi_AuthUser_createWithManualOptions = getattr(
+    libblpapict, "blpapi_AuthUser_createWithManualOptions", stub
 )  # int
-l_blpapi_AuthUser_destroy = libblpapict.blpapi_AuthUser_destroy
+l_blpapi_AuthUser_destroy = getattr(
+    libblpapict, "blpapi_AuthUser_destroy", stub
+)
 l_blpapi_AuthUser_destroy.restype = None
 
-l_blpapi_Constant_datatype = libblpapict.blpapi_Constant_datatype  # int
-l_blpapi_Constant_description = libblpapict.blpapi_Constant_description
+l_blpapi_Constant_datatype = getattr(
+    libblpapict, "blpapi_Constant_datatype", stub
+)  # int
+l_blpapi_Constant_description = getattr(
+    libblpapict, "blpapi_Constant_description", stub
+)
 l_blpapi_Constant_description.restype = c_char_p
-l_blpapi_Constant_getValueAsChar = (
-    libblpapict.blpapi_Constant_getValueAsChar
+l_blpapi_Constant_getValueAsChar = getattr(
+    libblpapict, "blpapi_Constant_getValueAsChar", stub
 )  # int
-l_blpapi_Constant_getValueAsDatetime = (
-    libblpapict.blpapi_Constant_getValueAsDatetime
+l_blpapi_Constant_getValueAsDatetime = getattr(
+    libblpapict, "blpapi_Constant_getValueAsDatetime", stub
 )  # int
-l_blpapi_Constant_getValueAsFloat32 = (
-    libblpapict.blpapi_Constant_getValueAsFloat32
+l_blpapi_Constant_getValueAsFloat32 = getattr(
+    libblpapict, "blpapi_Constant_getValueAsFloat32", stub
 )  # int
-l_blpapi_Constant_getValueAsFloat64 = (
-    libblpapict.blpapi_Constant_getValueAsFloat64
+l_blpapi_Constant_getValueAsFloat64 = getattr(
+    libblpapict, "blpapi_Constant_getValueAsFloat64", stub
 )  # int
-l_blpapi_Constant_getValueAsInt32 = (
-    libblpapict.blpapi_Constant_getValueAsInt32
+l_blpapi_Constant_getValueAsInt32 = getattr(
+    libblpapict, "blpapi_Constant_getValueAsInt32", stub
 )  # int
-l_blpapi_Constant_getValueAsInt64 = (
-    libblpapict.blpapi_Constant_getValueAsInt64
+l_blpapi_Constant_getValueAsInt64 = getattr(
+    libblpapict, "blpapi_Constant_getValueAsInt64", stub
 )  # int
-l_blpapi_Constant_getValueAsString = (
-    libblpapict.blpapi_Constant_getValueAsString
+l_blpapi_Constant_getValueAsString = getattr(
+    libblpapict, "blpapi_Constant_getValueAsString", stub
 )  # int
-l_blpapi_Constant_name = libblpapict.blpapi_Constant_name
+l_blpapi_Constant_name = getattr(libblpapict, "blpapi_Constant_name", stub)
 l_blpapi_Constant_name.restype = c_void_p
-l_blpapi_Constant_status = libblpapict.blpapi_Constant_status  # int
-
-l_blpapi_ConstantList_datatype = (
-    libblpapict.blpapi_ConstantList_datatype
+l_blpapi_Constant_status = getattr(
+    libblpapict, "blpapi_Constant_status", stub
 )  # int
-l_blpapi_ConstantList_description = libblpapict.blpapi_ConstantList_description
+
+l_blpapi_ConstantList_datatype = getattr(
+    libblpapict, "blpapi_ConstantList_datatype", stub
+)  # int
+l_blpapi_ConstantList_description = getattr(
+    libblpapict, "blpapi_ConstantList_description", stub
+)
 l_blpapi_ConstantList_description.restype = c_char_p
-l_blpapi_ConstantList_getConstant = libblpapict.blpapi_ConstantList_getConstant
+l_blpapi_ConstantList_getConstant = getattr(
+    libblpapict, "blpapi_ConstantList_getConstant", stub
+)
 l_blpapi_ConstantList_getConstant.restype = c_void_p
-l_blpapi_ConstantList_getConstantAt = (
-    libblpapict.blpapi_ConstantList_getConstantAt
+l_blpapi_ConstantList_getConstantAt = getattr(
+    libblpapict, "blpapi_ConstantList_getConstantAt", stub
 )
 l_blpapi_ConstantList_getConstantAt.restype = c_void_p
-l_blpapi_ConstantList_name = libblpapict.blpapi_ConstantList_name
+l_blpapi_ConstantList_name = getattr(
+    libblpapict, "blpapi_ConstantList_name", stub
+)
 l_blpapi_ConstantList_name.restype = c_void_p
-l_blpapi_ConstantList_numConstants = (
-    libblpapict.blpapi_ConstantList_numConstants
+l_blpapi_ConstantList_numConstants = getattr(
+    libblpapict, "blpapi_ConstantList_numConstants", stub
 )  # int
-l_blpapi_ConstantList_status = libblpapict.blpapi_ConstantList_status  # int
-
-l_blpapi_DiagnosticsUtil_memoryInfo = (
-    libblpapict.blpapi_DiagnosticsUtil_memoryInfo
+l_blpapi_ConstantList_status = getattr(
+    libblpapict, "blpapi_ConstantList_status", stub
 )  # int
 
-l_blpapi_Element_appendElement = (
-    libblpapict.blpapi_Element_appendElement
+l_blpapi_DiagnosticsUtil_memoryInfo = getattr(
+    libblpapict, "blpapi_DiagnosticsUtil_memoryInfo", stub
 )  # int
-l_blpapi_Element_datatype = libblpapict.blpapi_Element_datatype  # int
-l_blpapi_Element_definition = libblpapict.blpapi_Element_definition
+
+l_blpapi_Element_appendElement = getattr(
+    libblpapict, "blpapi_Element_appendElement", stub
+)  # int
+l_blpapi_Element_datatype = getattr(
+    libblpapict, "blpapi_Element_datatype", stub
+)  # int
+l_blpapi_Element_definition = getattr(
+    libblpapict, "blpapi_Element_definition", stub
+)
 l_blpapi_Element_definition.restype = c_void_p
-l_blpapi_Element_getChoice = libblpapict.blpapi_Element_getChoice  # int
-l_blpapi_Element_getElement = libblpapict.blpapi_Element_getElement  # int
-l_blpapi_Element_getElementAt = libblpapict.blpapi_Element_getElementAt  # int
-l_blpapi_Element_getValueAsBool = (
-    libblpapict.blpapi_Element_getValueAsBool
+l_blpapi_Element_getChoice = getattr(
+    libblpapict, "blpapi_Element_getChoice", stub
 )  # int
-l_blpapi_Element_getValueAsBytes = (
-    libblpapict.blpapi_Element_getValueAsBytes
+l_blpapi_Element_getElement = getattr(
+    libblpapict, "blpapi_Element_getElement", stub
 )  # int
-l_blpapi_Element_getValueAsChar = (
-    libblpapict.blpapi_Element_getValueAsChar
+l_blpapi_Element_getElementAt = getattr(
+    libblpapict, "blpapi_Element_getElementAt", stub
 )  # int
-l_blpapi_Element_getValueAsElement = (
-    libblpapict.blpapi_Element_getValueAsElement
+l_blpapi_Element_getValueAsBool = getattr(
+    libblpapict, "blpapi_Element_getValueAsBool", stub
 )  # int
-l_blpapi_Element_getValueAsFloat32 = (
-    libblpapict.blpapi_Element_getValueAsFloat32
+l_blpapi_Element_getValueAsBytes = getattr(
+    libblpapict, "blpapi_Element_getValueAsBytes", stub
 )  # int
-l_blpapi_Element_getValueAsFloat64 = (
-    libblpapict.blpapi_Element_getValueAsFloat64
+l_blpapi_Element_getValueAsChar = getattr(
+    libblpapict, "blpapi_Element_getValueAsChar", stub
 )  # int
-l_blpapi_Element_getValueAsHighPrecisionDatetime = (
-    libblpapict.blpapi_Element_getValueAsHighPrecisionDatetime
+l_blpapi_Element_getValueAsElement = getattr(
+    libblpapict, "blpapi_Element_getValueAsElement", stub
 )  # int
-l_blpapi_Element_getValueAsInt32 = (
-    libblpapict.blpapi_Element_getValueAsInt32
+l_blpapi_Element_getValueAsFloat32 = getattr(
+    libblpapict, "blpapi_Element_getValueAsFloat32", stub
 )  # int
-l_blpapi_Element_getValueAsInt64 = (
-    libblpapict.blpapi_Element_getValueAsInt64
+l_blpapi_Element_getValueAsFloat64 = getattr(
+    libblpapict, "blpapi_Element_getValueAsFloat64", stub
 )  # int
-l_blpapi_Element_getValueAsName = (
-    libblpapict.blpapi_Element_getValueAsName
+l_blpapi_Element_getValueAsHighPrecisionDatetime = getattr(
+    libblpapict, "blpapi_Element_getValueAsHighPrecisionDatetime", stub
 )  # int
-l_blpapi_Element_getValueAsString = (
-    libblpapict.blpapi_Element_getValueAsString
+l_blpapi_Element_getValueAsInt32 = getattr(
+    libblpapict, "blpapi_Element_getValueAsInt32", stub
 )  # int
-l_blpapi_Element_hasElementEx = libblpapict.blpapi_Element_hasElementEx  # int
-l_blpapi_Element_isArray = libblpapict.blpapi_Element_isArray  # int
-l_blpapi_Element_isComplexType = (
-    libblpapict.blpapi_Element_isComplexType
+l_blpapi_Element_getValueAsInt64 = getattr(
+    libblpapict, "blpapi_Element_getValueAsInt64", stub
 )  # int
-l_blpapi_Element_isNull = libblpapict.blpapi_Element_isNull  # int
-l_blpapi_Element_isNullValue = libblpapict.blpapi_Element_isNullValue  # int
-l_blpapi_Element_isReadOnly = libblpapict.blpapi_Element_isReadOnly  # int
-l_blpapi_Element_name = libblpapict.blpapi_Element_name
+l_blpapi_Element_getValueAsName = getattr(
+    libblpapict, "blpapi_Element_getValueAsName", stub
+)  # int
+l_blpapi_Element_getValueAsString = getattr(
+    libblpapict, "blpapi_Element_getValueAsString", stub
+)  # int
+l_blpapi_Element_hasElementEx = getattr(
+    libblpapict, "blpapi_Element_hasElementEx", stub
+)  # int
+l_blpapi_Element_isArray = getattr(
+    libblpapict, "blpapi_Element_isArray", stub
+)  # int
+l_blpapi_Element_isComplexType = getattr(
+    libblpapict, "blpapi_Element_isComplexType", stub
+)  # int
+l_blpapi_Element_isNull = getattr(
+    libblpapict, "blpapi_Element_isNull", stub
+)  # int
+l_blpapi_Element_isNullValue = getattr(
+    libblpapict, "blpapi_Element_isNullValue", stub
+)  # int
+l_blpapi_Element_isReadOnly = getattr(
+    libblpapict, "blpapi_Element_isReadOnly", stub
+)  # int
+l_blpapi_Element_name = getattr(libblpapict, "blpapi_Element_name", stub)
 l_blpapi_Element_name.restype = c_void_p
-l_blpapi_Element_numElements = libblpapict.blpapi_Element_numElements
+l_blpapi_Element_numElements = getattr(
+    libblpapict, "blpapi_Element_numElements", stub
+)
 l_blpapi_Element_numElements.restype = c_size_t
-l_blpapi_Element_numValues = libblpapict.blpapi_Element_numValues
+l_blpapi_Element_numValues = getattr(
+    libblpapict, "blpapi_Element_numValues", stub
+)
 l_blpapi_Element_numValues.restype = c_size_t
-l_blpapi_Element_print = libblpapict.blpapi_Element_print  # int
-l_blpapi_Element_setChoice = libblpapict.blpapi_Element_setChoice  # int
-l_blpapi_Element_setElementBool = (
-    libblpapict.blpapi_Element_setElementBool
+l_blpapi_Element_print = getattr(
+    libblpapict, "blpapi_Element_print", stub
 )  # int
-l_blpapi_Element_setElementBytes = (
-    libblpapict.blpapi_Element_setElementBytes
+l_blpapi_Element_setChoice = getattr(
+    libblpapict, "blpapi_Element_setChoice", stub
 )  # int
-l_blpapi_Element_setElementFloat32 = (
-    libblpapict.blpapi_Element_setElementFloat32
+l_blpapi_Element_setElementBool = getattr(
+    libblpapict, "blpapi_Element_setElementBool", stub
 )  # int
-l_blpapi_Element_setElementFloat64 = (
-    libblpapict.blpapi_Element_setElementFloat64
+l_blpapi_Element_setElementBytes = getattr(
+    libblpapict, "blpapi_Element_setElementBytes", stub
 )  # int
-l_blpapi_Element_setElementFromName = (
-    libblpapict.blpapi_Element_setElementFromName
+l_blpapi_Element_setElementFloat32 = getattr(
+    libblpapict, "blpapi_Element_setElementFloat32", stub
 )  # int
-l_blpapi_Element_setElementHighPrecisionDatetime = (
-    libblpapict.blpapi_Element_setElementHighPrecisionDatetime
+l_blpapi_Element_setElementFloat64 = getattr(
+    libblpapict, "blpapi_Element_setElementFloat64", stub
 )  # int
-l_blpapi_Element_setElementInt32 = (
-    libblpapict.blpapi_Element_setElementInt32
+l_blpapi_Element_setElementFromName = getattr(
+    libblpapict, "blpapi_Element_setElementFromName", stub
 )  # int
-l_blpapi_Element_setElementInt64 = (
-    libblpapict.blpapi_Element_setElementInt64
+l_blpapi_Element_setElementHighPrecisionDatetime = getattr(
+    libblpapict, "blpapi_Element_setElementHighPrecisionDatetime", stub
 )  # int
-l_blpapi_Element_setElementString = (
-    libblpapict.blpapi_Element_setElementString
+l_blpapi_Element_setElementInt32 = getattr(
+    libblpapict, "blpapi_Element_setElementInt32", stub
 )  # int
-l_blpapi_Element_setValueBool = libblpapict.blpapi_Element_setValueBool  # int
-l_blpapi_Element_setValueBytes = (
-    libblpapict.blpapi_Element_setValueBytes
+l_blpapi_Element_setElementInt64 = getattr(
+    libblpapict, "blpapi_Element_setElementInt64", stub
 )  # int
-l_blpapi_Element_setValueFloat32 = (
-    libblpapict.blpapi_Element_setValueFloat32
+l_blpapi_Element_setElementString = getattr(
+    libblpapict, "blpapi_Element_setElementString", stub
 )  # int
-l_blpapi_Element_setValueFloat64 = (
-    libblpapict.blpapi_Element_setValueFloat64
+l_blpapi_Element_setValueBool = getattr(
+    libblpapict, "blpapi_Element_setValueBool", stub
 )  # int
-l_blpapi_Element_setValueFromName = (
-    libblpapict.blpapi_Element_setValueFromName
+l_blpapi_Element_setValueBytes = getattr(
+    libblpapict, "blpapi_Element_setValueBytes", stub
 )  # int
-l_blpapi_Element_setValueHighPrecisionDatetime = (
-    libblpapict.blpapi_Element_setValueHighPrecisionDatetime
+l_blpapi_Element_setValueFloat32 = getattr(
+    libblpapict, "blpapi_Element_setValueFloat32", stub
 )  # int
-l_blpapi_Element_setValueInt32 = (
-    libblpapict.blpapi_Element_setValueInt32
+l_blpapi_Element_setValueFloat64 = getattr(
+    libblpapict, "blpapi_Element_setValueFloat64", stub
 )  # int
-l_blpapi_Element_setValueInt64 = (
-    libblpapict.blpapi_Element_setValueInt64
+l_blpapi_Element_setValueFromName = getattr(
+    libblpapict, "blpapi_Element_setValueFromName", stub
 )  # int
-l_blpapi_Element_setValueString = (
-    libblpapict.blpapi_Element_setValueString
+l_blpapi_Element_setValueHighPrecisionDatetime = getattr(
+    libblpapict, "blpapi_Element_setValueHighPrecisionDatetime", stub
 )  # int
-l_blpapi_Element_toJson = libblpapict.blpapi_Element_toJson  # int
+l_blpapi_Element_setValueInt32 = getattr(
+    libblpapict, "blpapi_Element_setValueInt32", stub
+)  # int
+l_blpapi_Element_setValueInt64 = getattr(
+    libblpapict, "blpapi_Element_setValueInt64", stub
+)  # int
+l_blpapi_Element_setValueString = getattr(
+    libblpapict, "blpapi_Element_setValueString", stub
+)  # int
+l_blpapi_Element_toJson = getattr(
+    libblpapict, "blpapi_Element_toJson", stub
+)  # int
 l_blpapi_Element_toJson.argtypes = [c_void_p, blpapi_StreamWriter_t, c_void_p]
 l_blpapi_Element_toJson.restype = c_int
-l_blpapi_Element_fromJson = libblpapict.blpapi_Element_fromJson  # int
+l_blpapi_Element_fromJson = getattr(
+    libblpapict, "blpapi_Element_fromJson", stub
+)  # int
 l_blpapi_Element_fromJson.argtypes = [c_void_p, c_char_p]
 l_blpapi_Element_fromJson.restype = c_int
 
-l_blpapi_Event_eventType = libblpapict.blpapi_Event_eventType  # int
-l_blpapi_Event_release = libblpapict.blpapi_Event_release  # int
+l_blpapi_Event_eventType = getattr(
+    libblpapict, "blpapi_Event_eventType", stub
+)  # int
+l_blpapi_Event_release = getattr(
+    libblpapict, "blpapi_Event_release", stub
+)  # int
 
-l_blpapi_EventDispatcher_create = libblpapict.blpapi_EventDispatcher_create
+l_blpapi_EventDispatcher_create = getattr(
+    libblpapict, "blpapi_EventDispatcher_create", stub
+)
 l_blpapi_EventDispatcher_create.restype = c_void_p
-l_blpapi_EventDispatcher_destroy = libblpapict.blpapi_EventDispatcher_destroy
+l_blpapi_EventDispatcher_destroy = getattr(
+    libblpapict, "blpapi_EventDispatcher_destroy", stub
+)
 l_blpapi_EventDispatcher_destroy.restype = None
-l_blpapi_EventDispatcher_start = (
-    libblpapict.blpapi_EventDispatcher_start
+l_blpapi_EventDispatcher_start = getattr(
+    libblpapict, "blpapi_EventDispatcher_start", stub
 )  # int
-l_blpapi_EventDispatcher_stop = libblpapict.blpapi_EventDispatcher_stop  # int
+l_blpapi_EventDispatcher_stop = getattr(
+    libblpapict, "blpapi_EventDispatcher_stop", stub
+)  # int
 
-l_blpapi_EventFormatter_appendElement = (
-    libblpapict.blpapi_EventFormatter_appendElement
+l_blpapi_EventFormatter_appendElement = getattr(
+    libblpapict, "blpapi_EventFormatter_appendElement", stub
 )  # int
-l_blpapi_EventFormatter_appendFragmentedRecapMessage = (
-    libblpapict.blpapi_EventFormatter_appendFragmentedRecapMessage
+l_blpapi_EventFormatter_appendFragmentedRecapMessage = getattr(
+    libblpapict, "blpapi_EventFormatter_appendFragmentedRecapMessage", stub
 )  # int
 l_blpapi_EventFormatter_appendFragmentedRecapMessage.argtypes = [
     c_void_p,
@@ -657,8 +732,8 @@ l_blpapi_EventFormatter_appendFragmentedRecapMessage.argtypes = [
     c_void_p,
     c_int,
 ]
-l_blpapi_EventFormatter_appendFragmentedRecapMessageSeq = (
-    libblpapict.blpapi_EventFormatter_appendFragmentedRecapMessageSeq
+l_blpapi_EventFormatter_appendFragmentedRecapMessageSeq = getattr(
+    libblpapict, "blpapi_EventFormatter_appendFragmentedRecapMessageSeq", stub
 )  # int
 l_blpapi_EventFormatter_appendFragmentedRecapMessageSeq.argtypes = [
     c_void_p,
@@ -668,664 +743,747 @@ l_blpapi_EventFormatter_appendFragmentedRecapMessageSeq.argtypes = [
     c_int,
     c_uint,
 ]
-l_blpapi_EventFormatter_appendMessage = (
-    libblpapict.blpapi_EventFormatter_appendMessage
+l_blpapi_EventFormatter_appendMessage = getattr(
+    libblpapict, "blpapi_EventFormatter_appendMessage", stub
 )  # int
-l_blpapi_EventFormatter_appendMessageSeq = (
-    libblpapict.blpapi_EventFormatter_appendMessageSeq
+l_blpapi_EventFormatter_appendMessageSeq = getattr(
+    libblpapict, "blpapi_EventFormatter_appendMessageSeq", stub
 )  # int
-l_blpapi_EventFormatter_appendRecapMessage = (
-    libblpapict.blpapi_EventFormatter_appendRecapMessage
+l_blpapi_EventFormatter_appendRecapMessage = getattr(
+    libblpapict, "blpapi_EventFormatter_appendRecapMessage", stub
 )  # int
-l_blpapi_EventFormatter_appendRecapMessageSeq = (
-    libblpapict.blpapi_EventFormatter_appendRecapMessageSeq
+l_blpapi_EventFormatter_appendRecapMessageSeq = getattr(
+    libblpapict, "blpapi_EventFormatter_appendRecapMessageSeq", stub
 )  # int
-l_blpapi_EventFormatter_appendResponse = (
-    libblpapict.blpapi_EventFormatter_appendResponse
+l_blpapi_EventFormatter_appendResponse = getattr(
+    libblpapict, "blpapi_EventFormatter_appendResponse", stub
 )  # int
-l_blpapi_EventFormatter_appendValueBool = (
-    libblpapict.blpapi_EventFormatter_appendValueBool
+l_blpapi_EventFormatter_appendValueBool = getattr(
+    libblpapict, "blpapi_EventFormatter_appendValueBool", stub
 )  # int
-l_blpapi_EventFormatter_appendValueChar = (
-    libblpapict.blpapi_EventFormatter_appendValueChar
+l_blpapi_EventFormatter_appendValueChar = getattr(
+    libblpapict, "blpapi_EventFormatter_appendValueChar", stub
 )  # int
-l_blpapi_EventFormatter_appendValueDatetime = (
-    libblpapict.blpapi_EventFormatter_appendValueDatetime
+l_blpapi_EventFormatter_appendValueDatetime = getattr(
+    libblpapict, "blpapi_EventFormatter_appendValueDatetime", stub
 )  # int
-l_blpapi_EventFormatter_appendValueFloat32 = (
-    libblpapict.blpapi_EventFormatter_appendValueFloat32
+l_blpapi_EventFormatter_appendValueFloat32 = getattr(
+    libblpapict, "blpapi_EventFormatter_appendValueFloat32", stub
 )  # int
-l_blpapi_EventFormatter_appendValueFloat64 = (
-    libblpapict.blpapi_EventFormatter_appendValueFloat64
+l_blpapi_EventFormatter_appendValueFloat64 = getattr(
+    libblpapict, "blpapi_EventFormatter_appendValueFloat64", stub
 )  # int
-l_blpapi_EventFormatter_appendValueFromName = (
-    libblpapict.blpapi_EventFormatter_appendValueFromName
+l_blpapi_EventFormatter_appendValueFromName = getattr(
+    libblpapict, "blpapi_EventFormatter_appendValueFromName", stub
 )  # int
-l_blpapi_EventFormatter_appendValueInt32 = (
-    libblpapict.blpapi_EventFormatter_appendValueInt32
+l_blpapi_EventFormatter_appendValueInt32 = getattr(
+    libblpapict, "blpapi_EventFormatter_appendValueInt32", stub
 )  # int
-l_blpapi_EventFormatter_appendValueInt64 = (
-    libblpapict.blpapi_EventFormatter_appendValueInt64
+l_blpapi_EventFormatter_appendValueInt64 = getattr(
+    libblpapict, "blpapi_EventFormatter_appendValueInt64", stub
 )  # int
-l_blpapi_EventFormatter_appendValueString = (
-    libblpapict.blpapi_EventFormatter_appendValueString
+l_blpapi_EventFormatter_appendValueString = getattr(
+    libblpapict, "blpapi_EventFormatter_appendValueString", stub
 )  # int
-l_blpapi_EventFormatter_create = libblpapict.blpapi_EventFormatter_create
+l_blpapi_EventFormatter_create = getattr(
+    libblpapict, "blpapi_EventFormatter_create", stub
+)
 l_blpapi_EventFormatter_create.restype = c_void_p
-l_blpapi_EventFormatter_destroy = libblpapict.blpapi_EventFormatter_destroy
+l_blpapi_EventFormatter_destroy = getattr(
+    libblpapict, "blpapi_EventFormatter_destroy", stub
+)
 l_blpapi_EventFormatter_destroy.restype = None
-l_blpapi_EventFormatter_popElement = (
-    libblpapict.blpapi_EventFormatter_popElement
+l_blpapi_EventFormatter_popElement = getattr(
+    libblpapict, "blpapi_EventFormatter_popElement", stub
 )  # int
-l_blpapi_EventFormatter_pushElement = (
-    libblpapict.blpapi_EventFormatter_pushElement
+l_blpapi_EventFormatter_pushElement = getattr(
+    libblpapict, "blpapi_EventFormatter_pushElement", stub
 )  # int
-l_blpapi_EventFormatter_setValueBool = (
-    libblpapict.blpapi_EventFormatter_setValueBool
+l_blpapi_EventFormatter_setValueBool = getattr(
+    libblpapict, "blpapi_EventFormatter_setValueBool", stub
 )  # int
-l_blpapi_EventFormatter_setValueBytes = (
-    libblpapict.blpapi_EventFormatter_setValueBytes
+l_blpapi_EventFormatter_setValueBytes = getattr(
+    libblpapict, "blpapi_EventFormatter_setValueBytes", stub
 )  # int
-l_blpapi_EventFormatter_setValueChar = (
-    libblpapict.blpapi_EventFormatter_setValueChar
+l_blpapi_EventFormatter_setValueChar = getattr(
+    libblpapict, "blpapi_EventFormatter_setValueChar", stub
 )  # int
-l_blpapi_EventFormatter_setValueDatetime = (
-    libblpapict.blpapi_EventFormatter_setValueDatetime
+l_blpapi_EventFormatter_setValueDatetime = getattr(
+    libblpapict, "blpapi_EventFormatter_setValueDatetime", stub
 )  # int
-l_blpapi_EventFormatter_setValueFloat32 = (
-    libblpapict.blpapi_EventFormatter_setValueFloat32
+l_blpapi_EventFormatter_setValueFloat32 = getattr(
+    libblpapict, "blpapi_EventFormatter_setValueFloat32", stub
 )  # int
-l_blpapi_EventFormatter_setValueFloat64 = (
-    libblpapict.blpapi_EventFormatter_setValueFloat64
+l_blpapi_EventFormatter_setValueFloat64 = getattr(
+    libblpapict, "blpapi_EventFormatter_setValueFloat64", stub
 )  # int
-l_blpapi_EventFormatter_setValueFromName = (
-    libblpapict.blpapi_EventFormatter_setValueFromName
+l_blpapi_EventFormatter_setValueFromName = getattr(
+    libblpapict, "blpapi_EventFormatter_setValueFromName", stub
 )  # int
-l_blpapi_EventFormatter_setValueHighPrecisionDatetime = (
-    libblpapict.blpapi_EventFormatter_setValueHighPrecisionDatetime
+l_blpapi_EventFormatter_setValueHighPrecisionDatetime = getattr(
+    libblpapict, "blpapi_EventFormatter_setValueHighPrecisionDatetime", stub
 )  # int
-l_blpapi_EventFormatter_appendValueHighPrecisionDatetime = (
-    libblpapict.blpapi_EventFormatter_appendValueHighPrecisionDatetime
+l_blpapi_EventFormatter_appendValueHighPrecisionDatetime = getattr(
+    libblpapict, "blpapi_EventFormatter_appendValueHighPrecisionDatetime", stub
 )  # int
-l_blpapi_EventFormatter_setValueInt32 = (
-    libblpapict.blpapi_EventFormatter_setValueInt32
+l_blpapi_EventFormatter_setValueInt32 = getattr(
+    libblpapict, "blpapi_EventFormatter_setValueInt32", stub
 )  # int
-l_blpapi_EventFormatter_setValueInt64 = (
-    libblpapict.blpapi_EventFormatter_setValueInt64
+l_blpapi_EventFormatter_setValueInt64 = getattr(
+    libblpapict, "blpapi_EventFormatter_setValueInt64", stub
 )  # int
-l_blpapi_EventFormatter_setValueNull = (
-    libblpapict.blpapi_EventFormatter_setValueNull
+l_blpapi_EventFormatter_setValueNull = getattr(
+    libblpapict, "blpapi_EventFormatter_setValueNull", stub
 )  # int
-l_blpapi_EventFormatter_setValueString = (
-    libblpapict.blpapi_EventFormatter_setValueString
+l_blpapi_EventFormatter_setValueString = getattr(
+    libblpapict, "blpapi_EventFormatter_setValueString", stub
 )  # int
-l_blpapi_EventFormatter_getElement = (
-    libblpapict.blpapi_EventFormatter_getElement
+l_blpapi_EventFormatter_getElement = getattr(
+    libblpapict, "blpapi_EventFormatter_getElement", stub
 )  # int
 
-l_blpapi_EventQueue_create = libblpapict.blpapi_EventQueue_create
+l_blpapi_EventQueue_create = getattr(
+    libblpapict, "blpapi_EventQueue_create", stub
+)
 l_blpapi_EventQueue_create.restype = c_void_p
-l_blpapi_EventQueue_destroy = libblpapict.blpapi_EventQueue_destroy  # int
-l_blpapi_EventQueue_nextEvent = libblpapict.blpapi_EventQueue_nextEvent
+l_blpapi_EventQueue_destroy = getattr(
+    libblpapict, "blpapi_EventQueue_destroy", stub
+)  # int
+l_blpapi_EventQueue_nextEvent = getattr(
+    libblpapict, "blpapi_EventQueue_nextEvent", stub
+)
 l_blpapi_EventQueue_nextEvent.restype = c_void_p
-l_blpapi_EventQueue_purge = libblpapict.blpapi_EventQueue_purge  # int
-l_blpapi_EventQueue_tryNextEvent = (
-    libblpapict.blpapi_EventQueue_tryNextEvent
+l_blpapi_EventQueue_purge = getattr(
+    libblpapict, "blpapi_EventQueue_purge", stub
+)  # int
+l_blpapi_EventQueue_tryNextEvent = getattr(
+    libblpapict, "blpapi_EventQueue_tryNextEvent", stub
 )  # int
 
-l_blpapi_HighPrecisionDatetime_fromTimePoint = (
-    libblpapict.blpapi_HighPrecisionDatetime_fromTimePoint
+l_blpapi_HighPrecisionDatetime_fromTimePoint = getattr(
+    libblpapict, "blpapi_HighPrecisionDatetime_fromTimePoint", stub
 )  # int
 
-l_blpapi_HighResolutionClock_now = (
-    libblpapict.blpapi_HighResolutionClock_now
+l_blpapi_HighResolutionClock_now = getattr(
+    libblpapict, "blpapi_HighResolutionClock_now", stub
 )  # int
 
-l_blpapi_Identity_getSeatType = libblpapict.blpapi_Identity_getSeatType  # int
-l_blpapi_Identity_hasEntitlements = (
-    libblpapict.blpapi_Identity_hasEntitlements
+l_blpapi_Identity_getSeatType = getattr(
+    libblpapict, "blpapi_Identity_getSeatType", stub
 )  # int
-l_blpapi_Identity_isAuthorized = (
-    libblpapict.blpapi_Identity_isAuthorized
+l_blpapi_Identity_hasEntitlements = getattr(
+    libblpapict, "blpapi_Identity_hasEntitlements", stub
 )  # int
-l_blpapi_Identity_release = libblpapict.blpapi_Identity_release
+l_blpapi_Identity_isAuthorized = getattr(
+    libblpapict, "blpapi_Identity_isAuthorized", stub
+)  # int
+l_blpapi_Identity_release = getattr(
+    libblpapict, "blpapi_Identity_release", stub
+)
 l_blpapi_Identity_release.restype = None
 
-l_blpapi_Logging_logTestMessage = libblpapict.blpapi_Logging_logTestMessage
+l_blpapi_Logging_logTestMessage = getattr(
+    libblpapict, "blpapi_Logging_logTestMessage", stub
+)
 l_blpapi_Logging_logTestMessage.restype = None
-l_blpapi_Logging_registerCallback = (
-    libblpapict.blpapi_Logging_registerCallback
+l_blpapi_Logging_registerCallback = getattr(
+    libblpapict, "blpapi_Logging_registerCallback", stub
 )  # int
 
-l_blpapi_MessageFormatter_FormatMessageJson = (
-    libblpapict.blpapi_MessageFormatter_FormatMessageJson
+l_blpapi_MessageFormatter_FormatMessageJson = getattr(
+    libblpapict, "blpapi_MessageFormatter_FormatMessageJson", stub
 )  # int
-l_blpapi_MessageFormatter_FormatMessageXml = (
-    libblpapict.blpapi_MessageFormatter_FormatMessageXml
+l_blpapi_MessageFormatter_FormatMessageXml = getattr(
+    libblpapict, "blpapi_MessageFormatter_FormatMessageXml", stub
 )  # int
-l_blpapi_MessageFormatter_appendElement = (
-    libblpapict.blpapi_MessageFormatter_appendElement
+l_blpapi_MessageFormatter_appendElement = getattr(
+    libblpapict, "blpapi_MessageFormatter_appendElement", stub
 )  # int
-l_blpapi_MessageFormatter_appendValueBool = (
-    libblpapict.blpapi_MessageFormatter_appendValueBool
+l_blpapi_MessageFormatter_appendValueBool = getattr(
+    libblpapict, "blpapi_MessageFormatter_appendValueBool", stub
 )  # int
-l_blpapi_MessageFormatter_appendValueChar = (
-    libblpapict.blpapi_MessageFormatter_appendValueChar
+l_blpapi_MessageFormatter_appendValueChar = getattr(
+    libblpapict, "blpapi_MessageFormatter_appendValueChar", stub
 )  # int
-l_blpapi_MessageFormatter_appendValueDatetime = (
-    libblpapict.blpapi_MessageFormatter_appendValueDatetime
+l_blpapi_MessageFormatter_appendValueDatetime = getattr(
+    libblpapict, "blpapi_MessageFormatter_appendValueDatetime", stub
 )  # int
-l_blpapi_MessageFormatter_appendValueFloat32 = (
-    libblpapict.blpapi_MessageFormatter_appendValueFloat32
+l_blpapi_MessageFormatter_appendValueFloat32 = getattr(
+    libblpapict, "blpapi_MessageFormatter_appendValueFloat32", stub
 )  # int
-l_blpapi_MessageFormatter_appendValueFloat64 = (
-    libblpapict.blpapi_MessageFormatter_appendValueFloat64
+l_blpapi_MessageFormatter_appendValueFloat64 = getattr(
+    libblpapict, "blpapi_MessageFormatter_appendValueFloat64", stub
 )  # int
-l_blpapi_MessageFormatter_appendValueFromName = (
-    libblpapict.blpapi_MessageFormatter_appendValueFromName
+l_blpapi_MessageFormatter_appendValueFromName = getattr(
+    libblpapict, "blpapi_MessageFormatter_appendValueFromName", stub
 )  # int
-l_blpapi_MessageFormatter_appendValueHighPrecisionDatetime = (
-    libblpapict.blpapi_MessageFormatter_appendValueHighPrecisionDatetime
+l_blpapi_MessageFormatter_appendValueHighPrecisionDatetime = getattr(
+    libblpapict,
+    "blpapi_MessageFormatter_appendValueHighPrecisionDatetime",
+    stub,
 )  # int
-l_blpapi_MessageFormatter_appendValueInt32 = (
-    libblpapict.blpapi_MessageFormatter_appendValueInt32
+l_blpapi_MessageFormatter_appendValueInt32 = getattr(
+    libblpapict, "blpapi_MessageFormatter_appendValueInt32", stub
 )  # int
-l_blpapi_MessageFormatter_appendValueInt64 = (
-    libblpapict.blpapi_MessageFormatter_appendValueInt64
+l_blpapi_MessageFormatter_appendValueInt64 = getattr(
+    libblpapict, "blpapi_MessageFormatter_appendValueInt64", stub
 )  # int
-l_blpapi_MessageFormatter_appendValueString = (
-    libblpapict.blpapi_MessageFormatter_appendValueString
+l_blpapi_MessageFormatter_appendValueString = getattr(
+    libblpapict, "blpapi_MessageFormatter_appendValueString", stub
 )  # int
-l_blpapi_MessageFormatter_destroy = (
-    libblpapict.blpapi_MessageFormatter_destroy
+l_blpapi_MessageFormatter_destroy = getattr(
+    libblpapict, "blpapi_MessageFormatter_destroy", stub
 )  # int
-l_blpapi_MessageFormatter_popElement = (
-    libblpapict.blpapi_MessageFormatter_popElement
+l_blpapi_MessageFormatter_popElement = getattr(
+    libblpapict, "blpapi_MessageFormatter_popElement", stub
 )  # int
-l_blpapi_MessageFormatter_pushElement = (
-    libblpapict.blpapi_MessageFormatter_pushElement
+l_blpapi_MessageFormatter_pushElement = getattr(
+    libblpapict, "blpapi_MessageFormatter_pushElement", stub
 )  # int
-l_blpapi_MessageFormatter_setValueBool = (
-    libblpapict.blpapi_MessageFormatter_setValueBool
+l_blpapi_MessageFormatter_setValueBool = getattr(
+    libblpapict, "blpapi_MessageFormatter_setValueBool", stub
 )  # int
-l_blpapi_MessageFormatter_setValueBytes = (
-    libblpapict.blpapi_MessageFormatter_setValueBytes
+l_blpapi_MessageFormatter_setValueBytes = getattr(
+    libblpapict, "blpapi_MessageFormatter_setValueBytes", stub
 )  # int
-l_blpapi_MessageFormatter_setValueChar = (
-    libblpapict.blpapi_MessageFormatter_setValueBool
+l_blpapi_MessageFormatter_setValueChar = getattr(
+    libblpapict, "blpapi_MessageFormatter_setValueBool", stub
 )  # int
-l_blpapi_MessageFormatter_setValueDatetime = (
-    libblpapict.blpapi_MessageFormatter_setValueDatetime
+l_blpapi_MessageFormatter_setValueDatetime = getattr(
+    libblpapict, "blpapi_MessageFormatter_setValueDatetime", stub
 )  # int
-l_blpapi_MessageFormatter_setValueFloat32 = (
-    libblpapict.blpapi_MessageFormatter_setValueFloat32
+l_blpapi_MessageFormatter_setValueFloat32 = getattr(
+    libblpapict, "blpapi_MessageFormatter_setValueFloat32", stub
 )  # int
-l_blpapi_MessageFormatter_setValueFloat64 = (
-    libblpapict.blpapi_MessageFormatter_setValueFloat64
+l_blpapi_MessageFormatter_setValueFloat64 = getattr(
+    libblpapict, "blpapi_MessageFormatter_setValueFloat64", stub
 )  # int
-l_blpapi_MessageFormatter_setValueFromName = (
-    libblpapict.blpapi_MessageFormatter_setValueFromName
+l_blpapi_MessageFormatter_setValueFromName = getattr(
+    libblpapict, "blpapi_MessageFormatter_setValueFromName", stub
 )  # int
-l_blpapi_MessageFormatter_setValueHighPrecisionDatetime = (
-    libblpapict.blpapi_MessageFormatter_setValueHighPrecisionDatetime
+l_blpapi_MessageFormatter_setValueHighPrecisionDatetime = getattr(
+    libblpapict, "blpapi_MessageFormatter_setValueHighPrecisionDatetime", stub
 )  # int
-l_blpapi_MessageFormatter_setValueInt32 = (
-    libblpapict.blpapi_MessageFormatter_setValueInt32
+l_blpapi_MessageFormatter_setValueInt32 = getattr(
+    libblpapict, "blpapi_MessageFormatter_setValueInt32", stub
 )  # int
-l_blpapi_MessageFormatter_setValueInt64 = (
-    libblpapict.blpapi_MessageFormatter_setValueInt64
+l_blpapi_MessageFormatter_setValueInt64 = getattr(
+    libblpapict, "blpapi_MessageFormatter_setValueInt64", stub
 )  # int
-l_blpapi_MessageFormatter_setValueNull = (
-    libblpapict.blpapi_MessageFormatter_setValueNull
+l_blpapi_MessageFormatter_setValueNull = getattr(
+    libblpapict, "blpapi_MessageFormatter_setValueNull", stub
 )  # int
-l_blpapi_MessageFormatter_setValueString = (
-    libblpapict.blpapi_MessageFormatter_setValueString
+l_blpapi_MessageFormatter_setValueString = getattr(
+    libblpapict, "blpapi_MessageFormatter_setValueString", stub
 )  # int
-l_blpapi_MessageFormatter_getElement = (
-    libblpapict.blpapi_MessageFormatter_getElement
+l_blpapi_MessageFormatter_getElement = getattr(
+    libblpapict, "blpapi_MessageFormatter_getElement", stub
 )  # int
 
-l_blpapi_MessageIterator_create = libblpapict.blpapi_MessageIterator_create
+l_blpapi_MessageIterator_create = getattr(
+    libblpapict, "blpapi_MessageIterator_create", stub
+)
 l_blpapi_MessageIterator_create.restype = c_void_p
-l_blpapi_MessageIterator_destroy = libblpapict.blpapi_MessageIterator_destroy
+l_blpapi_MessageIterator_destroy = getattr(
+    libblpapict, "blpapi_MessageIterator_destroy", stub
+)
 l_blpapi_MessageIterator_destroy.restype = None
-l_blpapi_MessageIterator_next = libblpapict.blpapi_MessageIterator_next  # int
+l_blpapi_MessageIterator_next = getattr(
+    libblpapict, "blpapi_MessageIterator_next", stub
+)  # int
 
-l_blpapi_Message_addRef = libblpapict.blpapi_Message_addRef  # int
-l_blpapi_Message_correlationId = libblpapict.blpapi_Message_correlationId
+l_blpapi_Message_addRef = getattr(
+    libblpapict, "blpapi_Message_addRef", stub
+)  # int
+l_blpapi_Message_correlationId = getattr(
+    libblpapict, "blpapi_Message_correlationId", stub
+)
 l_blpapi_Message_correlationId.restype = CidStruct
-l_blpapi_Message_elements = libblpapict.blpapi_Message_elements
+l_blpapi_Message_elements = getattr(
+    libblpapict, "blpapi_Message_elements", stub
+)
 l_blpapi_Message_elements.restype = c_void_p
-l_blpapi_Message_fragmentType = libblpapict.blpapi_Message_fragmentType  # int
-l_blpapi_Message_getRequestId = libblpapict.blpapi_Message_getRequestId  # int
-l_blpapi_Message_messageType = libblpapict.blpapi_Message_messageType
+l_blpapi_Message_fragmentType = getattr(
+    libblpapict, "blpapi_Message_fragmentType", stub
+)  # int
+l_blpapi_Message_getRequestId = getattr(
+    libblpapict, "blpapi_Message_getRequestId", stub
+)  # int
+l_blpapi_Message_messageType = getattr(
+    libblpapict, "blpapi_Message_messageType", stub
+)
 l_blpapi_Message_messageType.restype = c_void_p
-l_blpapi_Message_numCorrelationIds = (
-    libblpapict.blpapi_Message_numCorrelationIds
+l_blpapi_Message_numCorrelationIds = getattr(
+    libblpapict, "blpapi_Message_numCorrelationIds", stub
 )  # int
-l_blpapi_Message_print = libblpapict.blpapi_Message_print  # int
-l_blpapi_Message_recapType = libblpapict.blpapi_Message_recapType  # int
-l_blpapi_Message_release = libblpapict.blpapi_Message_release  # int
-l_blpapi_Message_service = libblpapict.blpapi_Message_service
+l_blpapi_Message_print = getattr(
+    libblpapict, "blpapi_Message_print", stub
+)  # int
+l_blpapi_Message_recapType = getattr(
+    libblpapict, "blpapi_Message_recapType", stub
+)  # int
+l_blpapi_Message_release = getattr(
+    libblpapict, "blpapi_Message_release", stub
+)  # int
+l_blpapi_Message_service = getattr(libblpapict, "blpapi_Message_service", stub)
 l_blpapi_Message_service.restype = c_void_p
-l_blpapi_Message_timeReceived = libblpapict.blpapi_Message_timeReceived  # int
-
-l_blpapi_MessageProperties_create = (
-    libblpapict.blpapi_MessageProperties_create
+l_blpapi_Message_timeReceived = getattr(
+    libblpapict, "blpapi_Message_timeReceived", stub
 )  # int
-l_blpapi_MessageProperties_destroy = (
-    libblpapict.blpapi_MessageProperties_destroy
+
+l_blpapi_MessageProperties_create = getattr(
+    libblpapict, "blpapi_MessageProperties_create", stub
+)  # int
+l_blpapi_MessageProperties_destroy = getattr(
+    libblpapict, "blpapi_MessageProperties_destroy", stub
 )
 l_blpapi_MessageProperties_destroy.restype = None
-l_blpapi_MessageProperties_setCorrelationIds = (
-    libblpapict.blpapi_MessageProperties_setCorrelationIds
+l_blpapi_MessageProperties_setCorrelationIds = getattr(
+    libblpapict, "blpapi_MessageProperties_setCorrelationIds", stub
 )  # int
-l_blpapi_MessageProperties_setRecapType = (
-    libblpapict.blpapi_MessageProperties_setRecapType
+l_blpapi_MessageProperties_setRecapType = getattr(
+    libblpapict, "blpapi_MessageProperties_setRecapType", stub
 )  # int
-l_blpapi_MessageProperties_setRequestId = (
-    libblpapict.blpapi_MessageProperties_setRequestId
+l_blpapi_MessageProperties_setRequestId = getattr(
+    libblpapict, "blpapi_MessageProperties_setRequestId", stub
 )  # int
-l_blpapi_MessageProperties_setService = (
-    libblpapict.blpapi_MessageProperties_setService
+l_blpapi_MessageProperties_setService = getattr(
+    libblpapict, "blpapi_MessageProperties_setService", stub
 )  # int
-l_blpapi_MessageProperties_setTimeReceived = (
-    libblpapict.blpapi_MessageProperties_setTimeReceived
+l_blpapi_MessageProperties_setTimeReceived = getattr(
+    libblpapict, "blpapi_MessageProperties_setTimeReceived", stub
 )  # int
 
-l_blpapi_Name_create = libblpapict.blpapi_Name_create
+l_blpapi_Name_create = getattr(libblpapict, "blpapi_Name_create", stub)
 l_blpapi_Name_create.restype = c_void_p
-l_blpapi_Name_destroy = libblpapict.blpapi_Name_destroy
+l_blpapi_Name_destroy = getattr(libblpapict, "blpapi_Name_destroy", stub)
 l_blpapi_Name_destroy.restype = None
-l_blpapi_Name_equalsStr = libblpapict.blpapi_Name_equalsStr  # int
-l_blpapi_Name_findName = libblpapict.blpapi_Name_findName
+l_blpapi_Name_equalsStr = getattr(
+    libblpapict, "blpapi_Name_equalsStr", stub
+)  # int
+l_blpapi_Name_findName = getattr(libblpapict, "blpapi_Name_findName", stub)
 l_blpapi_Name_findName.restype = c_void_p
-l_blpapi_Name_length = libblpapict.blpapi_Name_length
+l_blpapi_Name_length = getattr(libblpapict, "blpapi_Name_length", stub)
 l_blpapi_Name_length.restype = c_size_t
-l_blpapi_Name_string = libblpapict.blpapi_Name_string
+l_blpapi_Name_string = getattr(libblpapict, "blpapi_Name_string", stub)
 l_blpapi_Name_string.restype = c_char_p
 
-l_blpapi_Operation_description = libblpapict.blpapi_Operation_description
+l_blpapi_Operation_description = getattr(
+    libblpapict, "blpapi_Operation_description", stub
+)
 l_blpapi_Operation_description.restype = c_char_p
-l_blpapi_Operation_name = libblpapict.blpapi_Operation_name
+l_blpapi_Operation_name = getattr(libblpapict, "blpapi_Operation_name", stub)
 l_blpapi_Operation_name.restype = c_char_p
-l_blpapi_Operation_numResponseDefinitions = (
-    libblpapict.blpapi_Operation_numResponseDefinitions
+l_blpapi_Operation_numResponseDefinitions = getattr(
+    libblpapict, "blpapi_Operation_numResponseDefinitions", stub
 )  # int
-l_blpapi_Operation_requestDefinition = (
-    libblpapict.blpapi_Operation_requestDefinition
+l_blpapi_Operation_requestDefinition = getattr(
+    libblpapict, "blpapi_Operation_requestDefinition", stub
 )  # int
-l_blpapi_Operation_responseDefinition = (
-    libblpapict.blpapi_Operation_responseDefinition
+l_blpapi_Operation_responseDefinition = getattr(
+    libblpapict, "blpapi_Operation_responseDefinition", stub
 )  # int
 
-l_blpapi_ProviderSession_activateSubServiceCodeRange = (
-    libblpapict.blpapi_ProviderSession_activateSubServiceCodeRange
+l_blpapi_ProviderSession_activateSubServiceCodeRange = getattr(
+    libblpapict, "blpapi_ProviderSession_activateSubServiceCodeRange", stub
 )  # int
-l_blpapi_ProviderSession_create = libblpapict.blpapi_ProviderSession_create
+l_blpapi_ProviderSession_create = getattr(
+    libblpapict, "blpapi_ProviderSession_create", stub
+)
 l_blpapi_ProviderSession_create.restype = c_void_p
-l_blpapi_ProviderSession_createTopics = (
-    libblpapict.blpapi_ProviderSession_createTopics
+l_blpapi_ProviderSession_createTopics = getattr(
+    libblpapict, "blpapi_ProviderSession_createTopics", stub
 )  # int
-l_blpapi_ProviderSession_createTopicsAsync = (
-    libblpapict.blpapi_ProviderSession_createTopicsAsync
+l_blpapi_ProviderSession_createTopicsAsync = getattr(
+    libblpapict, "blpapi_ProviderSession_createTopicsAsync", stub
 )  # int
-l_blpapi_ProviderSession_createServiceStatusTopic = (
-    libblpapict.blpapi_ProviderSession_createServiceStatusTopic
+l_blpapi_ProviderSession_createServiceStatusTopic = getattr(
+    libblpapict, "blpapi_ProviderSession_createServiceStatusTopic", stub
 )  # int
-l_blpapi_ProviderSession_deactivateSubServiceCodeRange = (
-    libblpapict.blpapi_ProviderSession_deactivateSubServiceCodeRange
+l_blpapi_ProviderSession_deactivateSubServiceCodeRange = getattr(
+    libblpapict, "blpapi_ProviderSession_deactivateSubServiceCodeRange", stub
 )  # int
-l_blpapi_ProviderSession_deleteTopics = (
-    libblpapict.blpapi_ProviderSession_deleteTopics
+l_blpapi_ProviderSession_deleteTopics = getattr(
+    libblpapict, "blpapi_ProviderSession_deleteTopics", stub
 )  # int
-l_blpapi_ProviderSession_deregisterService = (
-    libblpapict.blpapi_ProviderSession_deregisterService
+l_blpapi_ProviderSession_deregisterService = getattr(
+    libblpapict, "blpapi_ProviderSession_deregisterService", stub
 )  # int
-l_blpapi_ProviderSession_destroy = libblpapict.blpapi_ProviderSession_destroy
+l_blpapi_ProviderSession_destroy = getattr(
+    libblpapict, "blpapi_ProviderSession_destroy", stub
+)
 l_blpapi_ProviderSession_destroy.restype = None
-l_blpapi_ProviderSession_flushPublishedEvents = (
-    libblpapict.blpapi_ProviderSession_flushPublishedEvents
+l_blpapi_ProviderSession_flushPublishedEvents = getattr(
+    libblpapict, "blpapi_ProviderSession_flushPublishedEvents", stub
 )  # int
-l_blpapi_ProviderSession_getAbstractSession = (
-    libblpapict.blpapi_ProviderSession_getAbstractSession
+l_blpapi_ProviderSession_getAbstractSession = getattr(
+    libblpapict, "blpapi_ProviderSession_getAbstractSession", stub
 )
 l_blpapi_ProviderSession_getAbstractSession.restype = c_void_p
-l_blpapi_ProviderSession_getTopic = (
-    libblpapict.blpapi_ProviderSession_getTopic
+l_blpapi_ProviderSession_getTopic = getattr(
+    libblpapict, "blpapi_ProviderSession_getTopic", stub
 )  # int
-l_blpapi_ProviderSession_nextEvent = (
-    libblpapict.blpapi_ProviderSession_nextEvent
+l_blpapi_ProviderSession_nextEvent = getattr(
+    libblpapict, "blpapi_ProviderSession_nextEvent", stub
 )  # int
-l_blpapi_ProviderSession_publish = (
-    libblpapict.blpapi_ProviderSession_publish
+l_blpapi_ProviderSession_publish = getattr(
+    libblpapict, "blpapi_ProviderSession_publish", stub
 )  # int
-l_blpapi_ProviderSession_registerService = (
-    libblpapict.blpapi_ProviderSession_registerService
+l_blpapi_ProviderSession_registerService = getattr(
+    libblpapict, "blpapi_ProviderSession_registerService", stub
 )  # int
-l_blpapi_ProviderSession_registerServiceAsync = (
-    libblpapict.blpapi_ProviderSession_registerServiceAsync
+l_blpapi_ProviderSession_registerServiceAsync = getattr(
+    libblpapict, "blpapi_ProviderSession_registerServiceAsync", stub
 )  # int
-l_blpapi_ProviderSession_resolve = (
-    libblpapict.blpapi_ProviderSession_resolve
+l_blpapi_ProviderSession_resolve = getattr(
+    libblpapict, "blpapi_ProviderSession_resolve", stub
 )  # int
-l_blpapi_ProviderSession_resolveAsync = (
-    libblpapict.blpapi_ProviderSession_resolveAsync
+l_blpapi_ProviderSession_resolveAsync = getattr(
+    libblpapict, "blpapi_ProviderSession_resolveAsync", stub
 )  # int
-l_blpapi_ProviderSession_sendResponse = (
-    libblpapict.blpapi_ProviderSession_sendResponse
+l_blpapi_ProviderSession_sendResponse = getattr(
+    libblpapict, "blpapi_ProviderSession_sendResponse", stub
 )  # int
-l_blpapi_ProviderSession_start = (
-    libblpapict.blpapi_ProviderSession_start
+l_blpapi_ProviderSession_start = getattr(
+    libblpapict, "blpapi_ProviderSession_start", stub
 )  # int
-l_blpapi_ProviderSession_startAsync = (
-    libblpapict.blpapi_ProviderSession_startAsync
+l_blpapi_ProviderSession_startAsync = getattr(
+    libblpapict, "blpapi_ProviderSession_startAsync", stub
 )  # int
-l_blpapi_ProviderSession_stop = libblpapict.blpapi_ProviderSession_stop  # int
-l_blpapi_ProviderSession_stopAsync = (
-    libblpapict.blpapi_ProviderSession_stopAsync
+l_blpapi_ProviderSession_stop = getattr(
+    libblpapict, "blpapi_ProviderSession_stop", stub
 )  # int
-l_blpapi_ProviderSession_terminateSubscriptionsOnTopics = (
-    libblpapict.blpapi_ProviderSession_terminateSubscriptionsOnTopics
+l_blpapi_ProviderSession_stopAsync = getattr(
+    libblpapict, "blpapi_ProviderSession_stopAsync", stub
 )  # int
-l_blpapi_ProviderSession_tryNextEvent = (
-    libblpapict.blpapi_ProviderSession_tryNextEvent
+l_blpapi_ProviderSession_terminateSubscriptionsOnTopics = getattr(
+    libblpapict, "blpapi_ProviderSession_terminateSubscriptionsOnTopics", stub
 )  # int
-
-l_blpapi_RequestTemplate_release = (
-    libblpapict.blpapi_RequestTemplate_release
+l_blpapi_ProviderSession_tryNextEvent = getattr(
+    libblpapict, "blpapi_ProviderSession_tryNextEvent", stub
 )  # int
 
-l_blpapi_Request_destroy = libblpapict.blpapi_Request_destroy
+l_blpapi_RequestTemplate_release = getattr(
+    libblpapict, "blpapi_RequestTemplate_release", stub
+)  # int
+
+l_blpapi_Request_destroy = getattr(libblpapict, "blpapi_Request_destroy", stub)
 l_blpapi_Request_destroy.restype = None
-l_blpapi_Request_elements = libblpapict.blpapi_Request_elements
+l_blpapi_Request_elements = getattr(
+    libblpapict, "blpapi_Request_elements", stub
+)
 l_blpapi_Request_elements.restype = c_void_p
-l_blpapi_Request_getRequestId = libblpapict.blpapi_Request_getRequestId  # int
+l_blpapi_Request_getRequestId = getattr(
+    libblpapict, "blpapi_Request_getRequestId", stub
+)  # int
 
-l_blpapi_ResolutionList_extractAttributeFromResolutionSuccess = (
-    libblpapict.blpapi_ResolutionList_extractAttributeFromResolutionSuccess
+l_blpapi_ResolutionList_extractAttributeFromResolutionSuccess = getattr(
+    libblpapict,
+    "blpapi_ResolutionList_extractAttributeFromResolutionSuccess",
+    stub,
 )
 l_blpapi_ResolutionList_extractAttributeFromResolutionSuccess.restype = (
     c_void_p
 )
 
-l_blpapi_ResolutionList_create = libblpapict.blpapi_ResolutionList_create
+l_blpapi_ResolutionList_create = getattr(
+    libblpapict, "blpapi_ResolutionList_create", stub
+)
 l_blpapi_ResolutionList_create.restype = c_void_p
 
-l_blpapi_ResolutionList_destroy = libblpapict.blpapi_ResolutionList_destroy
+l_blpapi_ResolutionList_destroy = getattr(
+    libblpapict, "blpapi_ResolutionList_destroy", stub
+)
 l_blpapi_ResolutionList_destroy.restype = None
-l_blpapi_ResolutionList_add = libblpapict.blpapi_ResolutionList_add  # int
-l_blpapi_ResolutionList_addFromMessage = (
-    libblpapict.blpapi_ResolutionList_addFromMessage
+l_blpapi_ResolutionList_add = getattr(
+    libblpapict, "blpapi_ResolutionList_add", stub
 )  # int
-l_blpapi_ResolutionList_addAttribute = (
-    libblpapict.blpapi_ResolutionList_addAttribute
+l_blpapi_ResolutionList_addFromMessage = getattr(
+    libblpapict, "blpapi_ResolutionList_addFromMessage", stub
 )  # int
-l_blpapi_ResolutionList_correlationIdAt = (
-    libblpapict.blpapi_ResolutionList_correlationIdAt
+l_blpapi_ResolutionList_addAttribute = getattr(
+    libblpapict, "blpapi_ResolutionList_addAttribute", stub
 )  # int
-l_blpapi_ResolutionList_topicString = (
-    libblpapict.blpapi_ResolutionList_topicString
+l_blpapi_ResolutionList_correlationIdAt = getattr(
+    libblpapict, "blpapi_ResolutionList_correlationIdAt", stub
 )  # int
-l_blpapi_ResolutionList_topicStringAt = (
-    libblpapict.blpapi_ResolutionList_topicStringAt
+l_blpapi_ResolutionList_topicString = getattr(
+    libblpapict, "blpapi_ResolutionList_topicString", stub
 )  # int
-l_blpapi_ResolutionList_status = (
-    libblpapict.blpapi_ResolutionList_status
+l_blpapi_ResolutionList_topicStringAt = getattr(
+    libblpapict, "blpapi_ResolutionList_topicStringAt", stub
 )  # int
-l_blpapi_ResolutionList_statusAt = (
-    libblpapict.blpapi_ResolutionList_statusAt
+l_blpapi_ResolutionList_status = getattr(
+    libblpapict, "blpapi_ResolutionList_status", stub
 )  # int
-l_blpapi_ResolutionList_attribute = (
-    libblpapict.blpapi_ResolutionList_attribute
+l_blpapi_ResolutionList_statusAt = getattr(
+    libblpapict, "blpapi_ResolutionList_statusAt", stub
 )  # int
-l_blpapi_ResolutionList_attributeAt = (
-    libblpapict.blpapi_ResolutionList_attributeAt
+l_blpapi_ResolutionList_attribute = getattr(
+    libblpapict, "blpapi_ResolutionList_attribute", stub
 )  # int
-l_blpapi_ResolutionList_message = (
-    libblpapict.blpapi_ResolutionList_message
+l_blpapi_ResolutionList_attributeAt = getattr(
+    libblpapict, "blpapi_ResolutionList_attributeAt", stub
 )  # int
-l_blpapi_ResolutionList_messageAt = (
-    libblpapict.blpapi_ResolutionList_messageAt
+l_blpapi_ResolutionList_message = getattr(
+    libblpapict, "blpapi_ResolutionList_message", stub
 )  # int
-l_blpapi_ResolutionList_size = libblpapict.blpapi_ResolutionList_size  # int
+l_blpapi_ResolutionList_messageAt = getattr(
+    libblpapict, "blpapi_ResolutionList_messageAt", stub
+)  # int
+l_blpapi_ResolutionList_size = getattr(
+    libblpapict, "blpapi_ResolutionList_size", stub
+)  # int
 
-l_blpapi_SchemaElementDefinition_description = (
-    libblpapict.blpapi_SchemaElementDefinition_description
+l_blpapi_SchemaElementDefinition_description = getattr(
+    libblpapict, "blpapi_SchemaElementDefinition_description", stub
 )
 l_blpapi_SchemaElementDefinition_description.restype = c_char_p
-l_blpapi_SchemaElementDefinition_getAlternateName = (
-    libblpapict.blpapi_SchemaElementDefinition_getAlternateName
+l_blpapi_SchemaElementDefinition_getAlternateName = getattr(
+    libblpapict, "blpapi_SchemaElementDefinition_getAlternateName", stub
 )
 l_blpapi_SchemaElementDefinition_getAlternateName.restype = c_void_p
-l_blpapi_SchemaElementDefinition_name = (
-    libblpapict.blpapi_SchemaElementDefinition_name
+l_blpapi_SchemaElementDefinition_name = getattr(
+    libblpapict, "blpapi_SchemaElementDefinition_name", stub
 )
 l_blpapi_SchemaElementDefinition_name.restype = c_void_p
-l_blpapi_SchemaElementDefinition_print = (
-    libblpapict.blpapi_SchemaElementDefinition_print
+l_blpapi_SchemaElementDefinition_print = getattr(
+    libblpapict, "blpapi_SchemaElementDefinition_print", stub
+)
+l_blpapi_SchemaElementDefinition_status = getattr(
+    libblpapict, "blpapi_SchemaElementDefinition_status", stub
 )  # int
-l_blpapi_SchemaElementDefinition_status = (
-    libblpapict.blpapi_SchemaElementDefinition_status
-)  # int
-l_blpapi_SchemaElementDefinition_type = (
-    libblpapict.blpapi_SchemaElementDefinition_type
+l_blpapi_SchemaElementDefinition_type = getattr(
+    libblpapict, "blpapi_SchemaElementDefinition_type", stub
 )
 l_blpapi_SchemaElementDefinition_type.restype = c_void_p
 
-l_blpapi_SchemaTypeDefinition_datatype = (
-    libblpapict.blpapi_SchemaTypeDefinition_datatype
-)  # int
-l_blpapi_SchemaTypeDefinition_description = (
-    libblpapict.blpapi_SchemaTypeDefinition_description
+l_blpapi_SchemaTypeDefinition_datatype = getattr(
+    libblpapict, "blpapi_SchemaTypeDefinition_datatype", stub
+)
+l_blpapi_SchemaTypeDefinition_description = getattr(
+    libblpapict, "blpapi_SchemaTypeDefinition_description", stub
 )
 l_blpapi_SchemaTypeDefinition_description.restype = c_char_p
-l_blpapi_SchemaTypeDefinition_isComplexType = (
-    libblpapict.blpapi_SchemaTypeDefinition_isComplexType
+l_blpapi_SchemaTypeDefinition_isComplexType = getattr(
+    libblpapict, "blpapi_SchemaTypeDefinition_isComplexType", stub
 )
-l_blpapi_SchemaTypeDefinition_enumeration = (
-    libblpapict.blpapi_SchemaTypeDefinition_enumeration
+l_blpapi_SchemaTypeDefinition_enumeration = getattr(
+    libblpapict, "blpapi_SchemaTypeDefinition_enumeration", stub
 )
 l_blpapi_SchemaTypeDefinition_enumeration.restype = c_void_p
-l_blpapi_SchemaTypeDefinition_getElementDefinition = (
-    libblpapict.blpapi_SchemaTypeDefinition_getElementDefinition
+l_blpapi_SchemaTypeDefinition_getElementDefinition = getattr(
+    libblpapict, "blpapi_SchemaTypeDefinition_getElementDefinition", stub
 )
 l_blpapi_SchemaTypeDefinition_getElementDefinition.restype = c_void_p
-l_blpapi_SchemaTypeDefinition_getElementDefinitionAt = (
-    libblpapict.blpapi_SchemaTypeDefinition_getElementDefinitionAt
+l_blpapi_SchemaTypeDefinition_getElementDefinitionAt = getattr(
+    libblpapict, "blpapi_SchemaTypeDefinition_getElementDefinitionAt", stub
 )
 l_blpapi_SchemaTypeDefinition_getElementDefinitionAt.restype = c_void_p
-l_blpapi_SchemaTypeDefinition_isComplexType = (
-    libblpapict.blpapi_SchemaTypeDefinition_isComplexType
+l_blpapi_SchemaTypeDefinition_isComplexType = getattr(
+    libblpapict, "blpapi_SchemaTypeDefinition_isComplexType", stub
+)
+l_blpapi_SchemaTypeDefinition_isEnumerationType = getattr(
+    libblpapict, "blpapi_SchemaTypeDefinition_isEnumerationType", stub
 )  # int
-l_blpapi_SchemaTypeDefinition_isEnumerationType = (
-    libblpapict.blpapi_SchemaTypeDefinition_isEnumerationType
+l_blpapi_SchemaTypeDefinition_isSimpleType = getattr(
+    libblpapict, "blpapi_SchemaTypeDefinition_isSimpleType", stub
 )  # int
-l_blpapi_SchemaTypeDefinition_isSimpleType = (
-    libblpapict.blpapi_SchemaTypeDefinition_isSimpleType
-)  # int
-l_blpapi_SchemaElementDefinition_maxValues = (
-    libblpapict.blpapi_SchemaElementDefinition_maxValues
+l_blpapi_SchemaElementDefinition_maxValues = getattr(
+    libblpapict, "blpapi_SchemaElementDefinition_maxValues", stub
 )
 l_blpapi_SchemaElementDefinition_maxValues.restype = c_size_t
-l_blpapi_SchemaElementDefinition_minValues = (
-    libblpapict.blpapi_SchemaElementDefinition_minValues
+l_blpapi_SchemaElementDefinition_minValues = getattr(
+    libblpapict, "blpapi_SchemaElementDefinition_minValues", stub
 )
 l_blpapi_SchemaElementDefinition_minValues.restype = c_size_t
-l_blpapi_SchemaElementDefinition_numAlternateNames = (
-    libblpapict.blpapi_SchemaElementDefinition_numAlternateNames
+l_blpapi_SchemaElementDefinition_numAlternateNames = getattr(
+    libblpapict, "blpapi_SchemaElementDefinition_numAlternateNames", stub
 )
 l_blpapi_SchemaElementDefinition_numAlternateNames.restype = c_size_t
-l_blpapi_SchemaTypeDefinition_name = (
-    libblpapict.blpapi_SchemaTypeDefinition_name
+l_blpapi_SchemaTypeDefinition_name = getattr(
+    libblpapict, "blpapi_SchemaTypeDefinition_name", stub
 )
 l_blpapi_SchemaTypeDefinition_name.restype = c_void_p
-l_blpapi_SchemaTypeDefinition_numElementDefinitions = (
-    libblpapict.blpapi_SchemaTypeDefinition_numElementDefinitions
+l_blpapi_SchemaTypeDefinition_numElementDefinitions = getattr(
+    libblpapict, "blpapi_SchemaTypeDefinition_numElementDefinitions", stub
 )
 l_blpapi_SchemaTypeDefinition_numElementDefinitions.restype = c_size_t
-l_blpapi_SchemaTypeDefinition_print = (
-    libblpapict.blpapi_SchemaTypeDefinition_print
+l_blpapi_SchemaTypeDefinition_print = getattr(
+    libblpapict, "blpapi_SchemaTypeDefinition_print", stub
 )  # int
-l_blpapi_SchemaTypeDefinition_status = (
-    libblpapict.blpapi_SchemaTypeDefinition_status
+l_blpapi_SchemaTypeDefinition_status = getattr(
+    libblpapict, "blpapi_SchemaTypeDefinition_status", stub
 )  # int
 
-l_blpapi_Service_addRef = libblpapict.blpapi_Service_addRef  # int
-l_blpapi_Service_authorizationServiceName = (
-    libblpapict.blpapi_Service_authorizationServiceName
+l_blpapi_Service_addRef = getattr(
+    libblpapict, "blpapi_Service_addRef", stub
+)  # int
+l_blpapi_Service_authorizationServiceName = getattr(
+    libblpapict, "blpapi_Service_authorizationServiceName", stub
 )
 l_blpapi_Service_authorizationServiceName.restype = c_char_p
-l_blpapi_Service_createAdminEvent = (
-    libblpapict.blpapi_Service_createAdminEvent
+l_blpapi_Service_createAdminEvent = getattr(
+    libblpapict, "blpapi_Service_createAdminEvent", stub
 )  # int
-l_blpapi_Service_createAuthorizationRequest = (
-    libblpapict.blpapi_Service_createAuthorizationRequest
+l_blpapi_Service_createAuthorizationRequest = getattr(
+    libblpapict, "blpapi_Service_createAuthorizationRequest", stub
 )  # int
-l_blpapi_Service_createPublishEvent = (
-    libblpapict.blpapi_Service_createPublishEvent
+l_blpapi_Service_createPublishEvent = getattr(
+    libblpapict, "blpapi_Service_createPublishEvent", stub
 )  # int
-l_blpapi_Service_createRequest = (
-    libblpapict.blpapi_Service_createRequest
+l_blpapi_Service_createRequest = getattr(
+    libblpapict, "blpapi_Service_createRequest", stub
 )  # int
-l_blpapi_Service_createResponseEvent = (
-    libblpapict.blpapi_Service_createResponseEvent
+l_blpapi_Service_createResponseEvent = getattr(
+    libblpapict, "blpapi_Service_createResponseEvent", stub
 )  # int
-l_blpapi_Service_description = libblpapict.blpapi_Service_description
+l_blpapi_Service_description = getattr(
+    libblpapict, "blpapi_Service_description", stub
+)
 l_blpapi_Service_description.restype = c_char_p
-l_blpapi_Service_getEventDefinition = (
-    libblpapict.blpapi_Service_getEventDefinition
+l_blpapi_Service_getEventDefinition = getattr(
+    libblpapict, "blpapi_Service_getEventDefinition", stub
 )  # int
-l_blpapi_Service_getEventDefinitionAt = (
-    libblpapict.blpapi_Service_getEventDefinitionAt
+l_blpapi_Service_getEventDefinitionAt = getattr(
+    libblpapict, "blpapi_Service_getEventDefinitionAt", stub
 )  # int
-l_blpapi_Service_getOperation = libblpapict.blpapi_Service_getOperation  # int
-l_blpapi_Service_getOperationAt = (
-    libblpapict.blpapi_Service_getOperationAt
+l_blpapi_Service_getOperation = getattr(
+    libblpapict, "blpapi_Service_getOperation", stub
 )  # int
-l_blpapi_Service_name = libblpapict.blpapi_Service_name
+l_blpapi_Service_getOperationAt = getattr(
+    libblpapict, "blpapi_Service_getOperationAt", stub
+)  # int
+l_blpapi_Service_name = getattr(libblpapict, "blpapi_Service_name", stub)
 l_blpapi_Service_name.restype = c_char_p
-l_blpapi_Service_numEventDefinitions = (
-    libblpapict.blpapi_Service_numEventDefinitions
+l_blpapi_Service_numEventDefinitions = getattr(
+    libblpapict, "blpapi_Service_numEventDefinitions", stub
 )  # int
-l_blpapi_Service_numOperations = (
-    libblpapict.blpapi_Service_numOperations
+l_blpapi_Service_numOperations = getattr(
+    libblpapict, "blpapi_Service_numOperations", stub
 )  # int
-l_blpapi_Service_print = libblpapict.blpapi_Service_print  # int
-l_blpapi_Service_release = libblpapict.blpapi_Service_release
+l_blpapi_Service_print = getattr(
+    libblpapict, "blpapi_Service_print", stub
+)  # int
+l_blpapi_Service_release = getattr(libblpapict, "blpapi_Service_release", stub)
 l_blpapi_Service_release.restype = None
 
-l_blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange = (
-    libblpapict.blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange
-)  # int
-l_blpapi_ServiceRegistrationOptions_create = (
-    libblpapict.blpapi_ServiceRegistrationOptions_create
+l_blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange = getattr(
+    libblpapict,
+    "blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange",
+    stub,
+)
+l_blpapi_ServiceRegistrationOptions_create = getattr(
+    libblpapict, "blpapi_ServiceRegistrationOptions_create", stub
 )
 l_blpapi_ServiceRegistrationOptions_create.restype = c_void_p
-l_blpapi_ServiceRegistrationOptions_destroy = (
-    libblpapict.blpapi_ServiceRegistrationOptions_destroy
+l_blpapi_ServiceRegistrationOptions_destroy = getattr(
+    libblpapict, "blpapi_ServiceRegistrationOptions_destroy", stub
 )
 l_blpapi_ServiceRegistrationOptions_destroy.restype = None
-l_blpapi_ServiceRegistrationOptions_getGroupId = (
-    libblpapict.blpapi_ServiceRegistrationOptions_getGroupId
+l_blpapi_ServiceRegistrationOptions_getGroupId = getattr(
+    libblpapict, "blpapi_ServiceRegistrationOptions_getGroupId", stub
+)
+l_blpapi_ServiceRegistrationOptions_getServicePriority = getattr(
+    libblpapict, "blpapi_ServiceRegistrationOptions_getServicePriority", stub
 )  # int
-l_blpapi_ServiceRegistrationOptions_getGroupId.argtypes = [
-    c_void_p,
-    c_char_p,
-    POINTER(c_int),
-]
-l_blpapi_ServiceRegistrationOptions_getServicePriority = (
-    libblpapict.blpapi_ServiceRegistrationOptions_getServicePriority
-)  # int
-l_blpapi_ServiceRegistrationOptions_setGroupId = (
-    libblpapict.blpapi_ServiceRegistrationOptions_setGroupId
+l_blpapi_ServiceRegistrationOptions_setGroupId = getattr(
+    libblpapict, "blpapi_ServiceRegistrationOptions_setGroupId", stub
 )
 l_blpapi_ServiceRegistrationOptions_setGroupId.restype = None
-l_blpapi_ServiceRegistrationOptions_getPartsToRegister = (
-    libblpapict.blpapi_ServiceRegistrationOptions_getPartsToRegister
-)  # int
-l_blpapi_ServiceRegistrationOptions_setPartsToRegister = (
-    libblpapict.blpapi_ServiceRegistrationOptions_setPartsToRegister
+l_blpapi_ServiceRegistrationOptions_getPartsToRegister = getattr(
+    libblpapict, "blpapi_ServiceRegistrationOptions_getPartsToRegister", stub
+)
+l_blpapi_ServiceRegistrationOptions_setPartsToRegister = getattr(
+    libblpapict, "blpapi_ServiceRegistrationOptions_setPartsToRegister", stub
 )
 l_blpapi_ServiceRegistrationOptions_setPartsToRegister.restype = None
-l_blpapi_ServiceRegistrationOptions_setServicePriority = (
-    libblpapict.blpapi_ServiceRegistrationOptions_setServicePriority
-)  # int
-l_blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges = (
-    libblpapict.blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges
+l_blpapi_ServiceRegistrationOptions_setServicePriority = getattr(
+    libblpapict, "blpapi_ServiceRegistrationOptions_setServicePriority", stub
+)
+l_blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges = getattr(
+    libblpapict,
+    "blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges",
+    stub,
 )
 l_blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges.restype = (
     None
 )
 
-l_blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg = (
-    libblpapict.blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg
+l_blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg = getattr(
+    libblpapict, "blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg", stub
+)
+l_blpapi_SessionOptions_applicationIdentityKey = getattr(
+    libblpapict, "blpapi_SessionOptions_applicationIdentityKey", stub
 )  # int
-l_blpapi_SessionOptions_applicationIdentityKey = (
-    libblpapict.blpapi_SessionOptions_applicationIdentityKey
-)  # int
-l_blpapi_SessionOptions_authenticationOptions = (
-    libblpapict.blpapi_SessionOptions_authenticationOptions
+l_blpapi_SessionOptions_authenticationOptions = getattr(
+    libblpapict, "blpapi_SessionOptions_authenticationOptions", stub
 )
 l_blpapi_SessionOptions_authenticationOptions.restype = c_char_p
-l_blpapi_SessionOptions_autoRestartOnDisconnection = (
-    libblpapict.blpapi_SessionOptions_autoRestartOnDisconnection
+l_blpapi_SessionOptions_autoRestartOnDisconnection = getattr(
+    libblpapict, "blpapi_SessionOptions_autoRestartOnDisconnection", stub
+)
+l_blpapi_SessionOptions_bandwidthSaveModeDisabled = getattr(
+    libblpapict, "blpapi_SessionOptions_bandwidthSaveModeDisabled", stub
 )  # int
-l_blpapi_SessionOptions_bandwidthSaveModeDisabled = (
-    libblpapict.blpapi_SessionOptions_bandwidthSaveModeDisabled
+l_blpapi_SessionOptions_clientMode = getattr(
+    libblpapict, "blpapi_SessionOptions_clientMode", stub
 )  # int
-l_blpapi_SessionOptions_clientMode = (
-    libblpapict.blpapi_SessionOptions_clientMode
-)  # int
-l_blpapi_SessionOptions_connectTimeout = (
-    libblpapict.blpapi_SessionOptions_connectTimeout
+l_blpapi_SessionOptions_connectTimeout = getattr(
+    libblpapict, "blpapi_SessionOptions_connectTimeout", stub
 )
 l_blpapi_SessionOptions_connectTimeout.restype = c_uint32
-l_blpapi_SessionOptions_create = libblpapict.blpapi_SessionOptions_create
+l_blpapi_SessionOptions_create = getattr(
+    libblpapict, "blpapi_SessionOptions_create", stub
+)
 l_blpapi_SessionOptions_create.restype = c_void_p
-l_blpapi_SessionOptions_defaultKeepAliveInactivityTime = (
-    libblpapict.blpapi_SessionOptions_defaultKeepAliveInactivityTime
+l_blpapi_SessionOptions_defaultKeepAliveInactivityTime = getattr(
+    libblpapict, "blpapi_SessionOptions_defaultKeepAliveInactivityTime", stub
+)
+l_blpapi_SessionOptions_defaultKeepAliveResponseTimeout = getattr(
+    libblpapict, "blpapi_SessionOptions_defaultKeepAliveResponseTimeout", stub
 )  # int
-l_blpapi_SessionOptions_defaultKeepAliveResponseTimeout = (
-    libblpapict.blpapi_SessionOptions_defaultKeepAliveResponseTimeout
-)  # int
-l_blpapi_SessionOptions_defaultServices = (
-    libblpapict.blpapi_SessionOptions_defaultServices
+l_blpapi_SessionOptions_defaultServices = getattr(
+    libblpapict, "blpapi_SessionOptions_defaultServices", stub
 )
 l_blpapi_SessionOptions_defaultServices.restype = c_char_p
-l_blpapi_SessionOptions_defaultSubscriptionService = (
-    libblpapict.blpapi_SessionOptions_defaultSubscriptionService
+l_blpapi_SessionOptions_defaultSubscriptionService = getattr(
+    libblpapict, "blpapi_SessionOptions_defaultSubscriptionService", stub
 )
 l_blpapi_SessionOptions_defaultSubscriptionService.restype = c_char_p
-l_blpapi_SessionOptions_defaultTopicPrefix = (
-    libblpapict.blpapi_SessionOptions_defaultTopicPrefix
+l_blpapi_SessionOptions_defaultTopicPrefix = getattr(
+    libblpapict, "blpapi_SessionOptions_defaultTopicPrefix", stub
 )
 l_blpapi_SessionOptions_defaultTopicPrefix.restype = c_char_p
-l_blpapi_SessionOptions_destroy = libblpapict.blpapi_SessionOptions_destroy
+l_blpapi_SessionOptions_destroy = getattr(
+    libblpapict, "blpapi_SessionOptions_destroy", stub
+)
 l_blpapi_SessionOptions_destroy.restype = None
-l_blpapi_SessionOptions_flushPublishedEventsTimeout = (
-    libblpapict.blpapi_SessionOptions_flushPublishedEventsTimeout
+l_blpapi_SessionOptions_flushPublishedEventsTimeout = getattr(
+    libblpapict, "blpapi_SessionOptions_flushPublishedEventsTimeout", stub
+)
+l_blpapi_SessionOptions_getServerAddressWithProxy = getattr(
+    libblpapict, "blpapi_SessionOptions_getServerAddressWithProxy", stub
 )  # int
-l_blpapi_SessionOptions_getServerAddressWithProxy = (
-    libblpapict.blpapi_SessionOptions_getServerAddressWithProxy
+l_blpapi_SessionOptions_keepAliveEnabled = getattr(
+    libblpapict, "blpapi_SessionOptions_keepAliveEnabled", stub
 )  # int
-l_blpapi_SessionOptions_keepAliveEnabled = (
-    libblpapict.blpapi_SessionOptions_keepAliveEnabled
-)  # int
-l_blpapi_SessionOptions_maxEventQueueSize = (
-    libblpapict.blpapi_SessionOptions_maxEventQueueSize
+l_blpapi_SessionOptions_maxEventQueueSize = getattr(
+    libblpapict, "blpapi_SessionOptions_maxEventQueueSize", stub
 )
 l_blpapi_SessionOptions_maxEventQueueSize.restype = c_size_t
-l_blpapi_SessionOptions_maxPendingRequests = (
-    libblpapict.blpapi_SessionOptions_maxPendingRequests
+l_blpapi_SessionOptions_maxPendingRequests = getattr(
+    libblpapict, "blpapi_SessionOptions_maxPendingRequests", stub
 )  # int
-l_blpapi_SessionOptions_numServerAddresses = (
-    libblpapict.blpapi_SessionOptions_numServerAddresses
+l_blpapi_SessionOptions_numServerAddresses = getattr(
+    libblpapict, "blpapi_SessionOptions_numServerAddresses", stub
 )  # int
-l_blpapi_SessionOptions_numStartAttempts = (
-    libblpapict.blpapi_SessionOptions_numStartAttempts
+l_blpapi_SessionOptions_numStartAttempts = getattr(
+    libblpapict, "blpapi_SessionOptions_numStartAttempts", stub
 )  # int
-l_blpapi_SessionOptions_print = libblpapict.blpapi_SessionOptions_print  # int
+l_blpapi_SessionOptions_print = getattr(
+    libblpapict, "blpapi_SessionOptions_print", stub
+)  # int
 l_blpapi_SessionOptions_print.argtypes = [
     c_void_p,
     c_void_p,
@@ -1333,139 +1491,153 @@ l_blpapi_SessionOptions_print.argtypes = [
     c_int,
     c_int,
 ]
-l_blpapi_SessionOptions_recordSubscriptionDataReceiveTimes = (
-    libblpapict.blpapi_SessionOptions_recordSubscriptionDataReceiveTimes
+l_blpapi_SessionOptions_recordSubscriptionDataReceiveTimes = getattr(
+    libblpapict,
+    "blpapi_SessionOptions_recordSubscriptionDataReceiveTimes",
+    stub,
+)
+l_blpapi_SessionOptions_removeServerAddress = getattr(
+    libblpapict, "blpapi_SessionOptions_removeServerAddress", stub
 )  # int
-l_blpapi_SessionOptions_removeServerAddress = (
-    libblpapict.blpapi_SessionOptions_removeServerAddress
-)  # int
-l_blpapi_SessionOptions_serverHost = (
-    libblpapict.blpapi_SessionOptions_serverHost
+l_blpapi_SessionOptions_serverHost = getattr(
+    libblpapict, "blpapi_SessionOptions_serverHost", stub
 )
 l_blpapi_SessionOptions_serverHost.restype = c_char_p
-l_blpapi_SessionOptions_serverPort = (
-    libblpapict.blpapi_SessionOptions_serverPort
+l_blpapi_SessionOptions_serverPort = getattr(
+    libblpapict, "blpapi_SessionOptions_serverPort", stub
 )
 l_blpapi_SessionOptions_serverPort.restype = c_uint32
-l_blpapi_SessionOptions_serviceCheckTimeout = (
-    libblpapict.blpapi_SessionOptions_serviceCheckTimeout
+l_blpapi_SessionOptions_serviceCheckTimeout = getattr(
+    libblpapict, "blpapi_SessionOptions_serviceCheckTimeout", stub
+)
+l_blpapi_SessionOptions_serviceDownloadTimeout = getattr(
+    libblpapict, "blpapi_SessionOptions_serviceDownloadTimeout", stub
 )  # int
-l_blpapi_SessionOptions_serviceDownloadTimeout = (
-    libblpapict.blpapi_SessionOptions_serviceDownloadTimeout
+l_blpapi_SessionOptions_sessionName = getattr(
+    libblpapict, "blpapi_SessionOptions_sessionName", stub
 )  # int
-l_blpapi_SessionOptions_sessionName = (
-    libblpapict.blpapi_SessionOptions_sessionName
-)  # int
-l_blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg = (
-    libblpapict.blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg
+l_blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg = getattr(
+    libblpapict,
+    "blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg",
+    stub,
 )
 l_blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg.restype = None
-l_blpapi_SessionOptions_setApplicationIdentityKey = (
-    libblpapict.blpapi_SessionOptions_setApplicationIdentityKey
-)  # int
-l_blpapi_SessionOptions_setAuthenticationOptions = (
-    libblpapict.blpapi_SessionOptions_setAuthenticationOptions
+l_blpapi_SessionOptions_setApplicationIdentityKey = getattr(
+    libblpapict, "blpapi_SessionOptions_setApplicationIdentityKey", stub
+)
+l_blpapi_SessionOptions_setAuthenticationOptions = getattr(
+    libblpapict, "blpapi_SessionOptions_setAuthenticationOptions", stub
 )
 l_blpapi_SessionOptions_setAuthenticationOptions.restype = None
-l_blpapi_SessionOptions_setAutoRestartOnDisconnection = (
-    libblpapict.blpapi_SessionOptions_setAutoRestartOnDisconnection
+l_blpapi_SessionOptions_setAutoRestartOnDisconnection = getattr(
+    libblpapict, "blpapi_SessionOptions_setAutoRestartOnDisconnection", stub
 )
 l_blpapi_SessionOptions_setAutoRestartOnDisconnection.restype = None
-l_blpapi_SessionOptions_setBandwidthSaveModeDisabled = (
-    libblpapict.blpapi_SessionOptions_setBandwidthSaveModeDisabled
-)  # int
-l_blpapi_SessionOptions_setClientMode = (
-    libblpapict.blpapi_SessionOptions_setClientMode
+l_blpapi_SessionOptions_setBandwidthSaveModeDisabled = getattr(
+    libblpapict, "blpapi_SessionOptions_setBandwidthSaveModeDisabled", stub
+)
+l_blpapi_SessionOptions_setClientMode = getattr(
+    libblpapict, "blpapi_SessionOptions_setClientMode", stub
 )
 l_blpapi_SessionOptions_setClientMode.restype = None
-l_blpapi_SessionOptions_setConnectTimeout = (
-    libblpapict.blpapi_SessionOptions_setConnectTimeout
+l_blpapi_SessionOptions_setConnectTimeout = getattr(
+    libblpapict, "blpapi_SessionOptions_setConnectTimeout", stub
+)
+l_blpapi_SessionOptions_setDefaultKeepAliveInactivityTime = getattr(
+    libblpapict,
+    "blpapi_SessionOptions_setDefaultKeepAliveInactivityTime",
+    stub,
 )  # int
-l_blpapi_SessionOptions_setDefaultKeepAliveInactivityTime = (
-    libblpapict.blpapi_SessionOptions_setDefaultKeepAliveInactivityTime
+l_blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout = getattr(
+    libblpapict,
+    "blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout",
+    stub,
 )  # int
-l_blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout = (
-    libblpapict.blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout
+l_blpapi_SessionOptions_setDefaultServices = getattr(
+    libblpapict, "blpapi_SessionOptions_setDefaultServices", stub
 )  # int
-l_blpapi_SessionOptions_setDefaultServices = (
-    libblpapict.blpapi_SessionOptions_setDefaultServices
+l_blpapi_SessionOptions_setDefaultSubscriptionService = getattr(
+    libblpapict, "blpapi_SessionOptions_setDefaultSubscriptionService", stub
 )  # int
-l_blpapi_SessionOptions_setDefaultSubscriptionService = (
-    libblpapict.blpapi_SessionOptions_setDefaultSubscriptionService
-)  # int
-l_blpapi_SessionOptions_setDefaultTopicPrefix = (
-    libblpapict.blpapi_SessionOptions_setDefaultTopicPrefix
+l_blpapi_SessionOptions_setDefaultTopicPrefix = getattr(
+    libblpapict, "blpapi_SessionOptions_setDefaultTopicPrefix", stub
 )
 l_blpapi_SessionOptions_setDefaultTopicPrefix.restype = None
-l_blpapi_SessionOptions_setFlushPublishedEventsTimeout = (
-    libblpapict.blpapi_SessionOptions_setFlushPublishedEventsTimeout
+l_blpapi_SessionOptions_setFlushPublishedEventsTimeout = getattr(
+    libblpapict, "blpapi_SessionOptions_setFlushPublishedEventsTimeout", stub
+)
+l_blpapi_SessionOptions_setKeepAliveEnabled = getattr(
+    libblpapict, "blpapi_SessionOptions_setKeepAliveEnabled", stub
 )  # int
-l_blpapi_SessionOptions_setKeepAliveEnabled = (
-    libblpapict.blpapi_SessionOptions_setKeepAliveEnabled
-)  # int
-l_blpapi_SessionOptions_setMaxEventQueueSize = (
-    libblpapict.blpapi_SessionOptions_setMaxEventQueueSize
+l_blpapi_SessionOptions_setMaxEventQueueSize = getattr(
+    libblpapict, "blpapi_SessionOptions_setMaxEventQueueSize", stub
 )
 l_blpapi_SessionOptions_setMaxEventQueueSize.restype = None
-l_blpapi_SessionOptions_setMaxPendingRequests = (
-    libblpapict.blpapi_SessionOptions_setMaxPendingRequests
+l_blpapi_SessionOptions_setMaxPendingRequests = getattr(
+    libblpapict, "blpapi_SessionOptions_setMaxPendingRequests", stub
 )
 l_blpapi_SessionOptions_setMaxPendingRequests.restype = None
-l_blpapi_SessionOptions_setNumStartAttempts = (
-    libblpapict.blpapi_SessionOptions_setNumStartAttempts
+l_blpapi_SessionOptions_setNumStartAttempts = getattr(
+    libblpapict, "blpapi_SessionOptions_setNumStartAttempts", stub
 )
 l_blpapi_SessionOptions_setNumStartAttempts.restype = None
-l_blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes = (
-    libblpapict.blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes
+l_blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes = getattr(
+    libblpapict,
+    "blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes",
+    stub,
 )
 l_blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes.restype = None
-l_blpapi_SessionOptions_setServerAddress = (
-    libblpapict.blpapi_SessionOptions_setServerAddress
+l_blpapi_SessionOptions_setServerAddress = getattr(
+    libblpapict, "blpapi_SessionOptions_setServerAddress", stub
+)
+l_blpapi_SessionOptions_setServerAddressWithProxy = getattr(
+    libblpapict, "blpapi_SessionOptions_setServerAddressWithProxy", stub
 )  # int
-l_blpapi_SessionOptions_setServerAddressWithProxy = (
-    libblpapict.blpapi_SessionOptions_setServerAddressWithProxy
+l_blpapi_SessionOptions_setServerHost = getattr(
+    libblpapict, "blpapi_SessionOptions_setServerHost", stub
 )  # int
-l_blpapi_SessionOptions_setServerHost = (
-    libblpapict.blpapi_SessionOptions_setServerHost
+l_blpapi_SessionOptions_setServerPort = getattr(
+    libblpapict, "blpapi_SessionOptions_setServerPort", stub
 )  # int
-l_blpapi_SessionOptions_setServerPort = (
-    libblpapict.blpapi_SessionOptions_setServerPort
+l_blpapi_SessionOptions_setServiceCheckTimeout = getattr(
+    libblpapict, "blpapi_SessionOptions_setServiceCheckTimeout", stub
 )  # int
-l_blpapi_SessionOptions_setServiceCheckTimeout = (
-    libblpapict.blpapi_SessionOptions_setServiceCheckTimeout
+l_blpapi_SessionOptions_setServiceDownloadTimeout = getattr(
+    libblpapict, "blpapi_SessionOptions_setServiceDownloadTimeout", stub
 )  # int
-l_blpapi_SessionOptions_setServiceDownloadTimeout = (
-    libblpapict.blpapi_SessionOptions_setServiceDownloadTimeout
+l_blpapi_SessionOptions_setSessionIdentityOptions = getattr(
+    libblpapict, "blpapi_SessionOptions_setSessionIdentityOptions", stub
 )  # int
-l_blpapi_SessionOptions_setSessionIdentityOptions = (
-    libblpapict.blpapi_SessionOptions_setSessionIdentityOptions
+l_blpapi_SessionOptions_setSessionName = getattr(
+    libblpapict, "blpapi_SessionOptions_setSessionName", stub
 )  # int
-l_blpapi_SessionOptions_setSessionName = (
-    libblpapict.blpapi_SessionOptions_setSessionName
+l_blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark = getattr(
+    libblpapict,
+    "blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark",
+    stub,
 )  # int
-l_blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark = (
-    libblpapict.blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark
+l_blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark = getattr(
+    libblpapict,
+    "blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark",
+    stub,
 )  # int
-l_blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark = (
-    libblpapict.blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark
-)  # int
-l_blpapi_SessionOptions_setTlsOptions = (
-    libblpapict.blpapi_SessionOptions_setTlsOptions
+l_blpapi_SessionOptions_setTlsOptions = getattr(
+    libblpapict, "blpapi_SessionOptions_setTlsOptions", stub
 )
 l_blpapi_SessionOptions_setTlsOptions.restype = None
-l_blpapi_SessionOptions_slowConsumerWarningHiWaterMark = (
-    libblpapict.blpapi_SessionOptions_slowConsumerWarningHiWaterMark
+l_blpapi_SessionOptions_slowConsumerWarningHiWaterMark = getattr(
+    libblpapict, "blpapi_SessionOptions_slowConsumerWarningHiWaterMark", stub
 )
 l_blpapi_SessionOptions_slowConsumerWarningHiWaterMark.restype = c_float
-l_blpapi_SessionOptions_slowConsumerWarningLoWaterMark = (
-    libblpapict.blpapi_SessionOptions_slowConsumerWarningLoWaterMark
+l_blpapi_SessionOptions_slowConsumerWarningLoWaterMark = getattr(
+    libblpapict, "blpapi_SessionOptions_slowConsumerWarningLoWaterMark", stub
 )
 l_blpapi_SessionOptions_slowConsumerWarningLoWaterMark.restype = c_float
 
-l_blpapi_Session_create = libblpapict.blpapi_Session_create
+l_blpapi_Session_create = getattr(libblpapict, "blpapi_Session_create", stub)
 l_blpapi_Session_create.restype = c_void_p
-l_blpapi_Session_createSnapshotRequestTemplate = (
-    libblpapict.blpapi_Session_createSnapshotRequestTemplate
+l_blpapi_Session_createSnapshotRequestTemplate = getattr(
+    libblpapict, "blpapi_Session_createSnapshotRequestTemplate", stub
 )  # int
 l_blpapi_Session_createSnapshotRequestTemplate.argtypes = [
     c_void_p,
@@ -1474,46 +1646,76 @@ l_blpapi_Session_createSnapshotRequestTemplate.argtypes = [
     c_void_p,
     c_void_p,
 ]
-l_blpapi_Session_destroy = libblpapict.blpapi_Session_destroy
+l_blpapi_Session_destroy = getattr(libblpapict, "blpapi_Session_destroy", stub)
 l_blpapi_Session_destroy.restype = None
-l_blpapi_Session_getAbstractSession = (
-    libblpapict.blpapi_Session_getAbstractSession
+l_blpapi_Session_getAbstractSession = getattr(
+    libblpapict, "blpapi_Session_getAbstractSession", stub
 )
 l_blpapi_Session_getAbstractSession.restype = c_void_p
-l_blpapi_Session_nextEvent = libblpapict.blpapi_Session_nextEvent  # int
-l_blpapi_Session_resubscribe = libblpapict.blpapi_Session_resubscribe  # int
-l_blpapi_Session_resubscribeEx = (
-    libblpapict.blpapi_Session_resubscribeEx
+l_blpapi_Session_nextEvent = getattr(
+    libblpapict, "blpapi_Session_nextEvent", stub
 )  # int
-l_blpapi_Session_resubscribeWithId = (
-    libblpapict.blpapi_Session_resubscribeWithId
+l_blpapi_Session_resubscribe = getattr(
+    libblpapict, "blpapi_Session_resubscribe", stub
 )  # int
-l_blpapi_Session_resubscribeWithIdEx = (
-    libblpapict.blpapi_Session_resubscribeWithIdEx
+l_blpapi_Session_resubscribeEx = getattr(
+    libblpapict, "blpapi_Session_resubscribeEx", stub
 )  # int
-l_blpapi_Session_sendRequest = libblpapict.blpapi_Session_sendRequest  # int
-l_blpapi_Session_sendRequestTemplate = (
-    libblpapict.blpapi_Session_sendRequestTemplate
+l_blpapi_Session_resubscribeWithId = getattr(
+    libblpapict, "blpapi_Session_resubscribeWithId", stub
 )  # int
-l_blpapi_Session_setStatusCorrelationId = (
-    libblpapict.blpapi_Session_setStatusCorrelationId
+l_blpapi_Session_resubscribeWithIdEx = getattr(
+    libblpapict, "blpapi_Session_resubscribeWithIdEx", stub
 )  # int
-l_blpapi_Session_start = libblpapict.blpapi_Session_start  # int
-l_blpapi_Session_startAsync = libblpapict.blpapi_Session_startAsync  # int
-l_blpapi_Session_stop = libblpapict.blpapi_Session_stop  # int
-l_blpapi_Session_stopAsync = libblpapict.blpapi_Session_stopAsync  # int
-l_blpapi_Session_subscribe = libblpapict.blpapi_Session_subscribe  # int
-l_blpapi_Session_subscribeEx = libblpapict.blpapi_Session_subscribeEx  # int
-l_blpapi_Session_tryNextEvent = libblpapict.blpapi_Session_tryNextEvent  # int
-l_blpapi_Session_unsubscribe = libblpapict.blpapi_Session_unsubscribe  # int
+l_blpapi_Session_sendRequest = getattr(
+    libblpapict, "blpapi_Session_sendRequest", stub
+)  # int
+l_blpapi_Session_sendRequestTemplate = getattr(
+    libblpapict, "blpapi_Session_sendRequestTemplate", stub
+)  # int
+l_blpapi_Session_setStatusCorrelationId = getattr(
+    libblpapict, "blpapi_Session_setStatusCorrelationId", stub
+)  # int
+l_blpapi_Session_start = getattr(
+    libblpapict, "blpapi_Session_start", stub
+)  # int
+l_blpapi_Session_startAsync = getattr(
+    libblpapict, "blpapi_Session_startAsync", stub
+)  # int
+l_blpapi_Session_stop = getattr(
+    libblpapict, "blpapi_Session_stop", stub
+)  # int
+l_blpapi_Session_stopAsync = getattr(
+    libblpapict, "blpapi_Session_stopAsync", stub
+)  # int
+l_blpapi_Session_subscribe = getattr(
+    libblpapict, "blpapi_Session_subscribe", stub
+)  # int
+l_blpapi_Session_subscribeEx = getattr(
+    libblpapict, "blpapi_Session_subscribeEx", stub
+)  # int
+l_blpapi_Session_tryNextEvent = getattr(
+    libblpapict, "blpapi_Session_tryNextEvent", stub
+)  # int
+l_blpapi_Session_unsubscribe = getattr(
+    libblpapict, "blpapi_Session_unsubscribe", stub
+)  # int
 
-l_blpapi_Socks5Config_create = libblpapict.blpapi_Socks5Config_create
+l_blpapi_Socks5Config_create = getattr(
+    libblpapict, "blpapi_Socks5Config_create", stub
+)
 l_blpapi_Socks5Config_create.restype = c_void_p
-l_blpapi_Socks5Config_destroy = libblpapict.blpapi_Socks5Config_destroy
+l_blpapi_Socks5Config_destroy = getattr(
+    libblpapict, "blpapi_Socks5Config_destroy", stub
+)
 l_blpapi_Socks5Config_destroy.restype = None
-l_blpapi_Socks5Config_print = libblpapict.blpapi_Socks5Config_print  # int
+l_blpapi_Socks5Config_print = getattr(
+    libblpapict, "blpapi_Socks5Config_print", stub
+)  # int
 
-l_blpapi_SubscriptionList_add = libblpapict.blpapi_SubscriptionList_add  # int
+l_blpapi_SubscriptionList_add = getattr(
+    libblpapict, "blpapi_SubscriptionList_add", stub
+)  # int
 l_blpapi_SubscriptionList_add.argtypes = [
     c_void_p,
     c_char_p,
@@ -1523,112 +1725,143 @@ l_blpapi_SubscriptionList_add.argtypes = [
     c_size_t,
     c_size_t,
 ]
-l_blpapi_SubscriptionList_addResolved = (
-    libblpapict.blpapi_SubscriptionList_addResolved
+l_blpapi_SubscriptionList_addResolved = getattr(
+    libblpapict, "blpapi_SubscriptionList_addResolved", stub
 )  # int
-l_blpapi_SubscriptionList_append = (
-    libblpapict.blpapi_SubscriptionList_append
+l_blpapi_SubscriptionList_append = getattr(
+    libblpapict, "blpapi_SubscriptionList_append", stub
 )  # int
-l_blpapi_SubscriptionList_clear = (
-    libblpapict.blpapi_SubscriptionList_clear
+l_blpapi_SubscriptionList_clear = getattr(
+    libblpapict, "blpapi_SubscriptionList_clear", stub
 )  # int
-l_blpapi_SubscriptionList_correlationIdAt = (
-    libblpapict.blpapi_SubscriptionList_correlationIdAt
+l_blpapi_SubscriptionList_correlationIdAt = getattr(
+    libblpapict, "blpapi_SubscriptionList_correlationIdAt", stub
 )  # int
-l_blpapi_SubscriptionList_create = libblpapict.blpapi_SubscriptionList_create
+l_blpapi_SubscriptionList_create = getattr(
+    libblpapict, "blpapi_SubscriptionList_create", stub
+)
 l_blpapi_SubscriptionList_create.restype = c_void_p
-l_blpapi_SubscriptionList_destroy = libblpapict.blpapi_SubscriptionList_destroy
+l_blpapi_SubscriptionList_destroy = getattr(
+    libblpapict, "blpapi_SubscriptionList_destroy", stub
+)
 l_blpapi_SubscriptionList_destroy.restype = None
-l_blpapi_SubscriptionList_isResolvedAt = (
-    libblpapict.blpapi_SubscriptionList_isResolvedAt
+l_blpapi_SubscriptionList_isResolvedAt = getattr(
+    libblpapict, "blpapi_SubscriptionList_isResolvedAt", stub
 )  # int
-l_blpapi_SubscriptionList_size = (
-    libblpapict.blpapi_SubscriptionList_size
+l_blpapi_SubscriptionList_size = getattr(
+    libblpapict, "blpapi_SubscriptionList_size", stub
 )  # int
-l_blpapi_SubscriptionList_topicStringAt = (
-    libblpapict.blpapi_SubscriptionList_topicStringAt
-)  # int
-
-l_blpapi_TestUtil_appendMessage = (
-    libblpapict.blpapi_TestUtil_appendMessage
-)  # int
-l_blpapi_TestUtil_createEvent = libblpapict.blpapi_TestUtil_createEvent  # int
-l_blpapi_TestUtil_createTopic = libblpapict.blpapi_TestUtil_createTopic  # int
-l_blpapi_TestUtil_deserializeService = (
-    libblpapict.blpapi_TestUtil_deserializeService
-)  # int
-l_blpapi_TestUtil_getAdminMessageDefinition = (
-    libblpapict.blpapi_TestUtil_getAdminMessageDefinition
-)  # int
-l_blpapi_TestUtil_serializeService = (
-    libblpapict.blpapi_TestUtil_serializeService
+l_blpapi_SubscriptionList_topicStringAt = getattr(
+    libblpapict, "blpapi_SubscriptionList_topicStringAt", stub
 )  # int
 
-l_blpapi_TlsOptions_createFromBlobs = (
-    libblpapict.blpapi_TlsOptions_createFromBlobs
+l_blpapi_TestUtil_appendMessage = getattr(
+    libblpapict, "blpapi_TestUtil_appendMessage", stub
+)  # int
+l_blpapi_TestUtil_createEvent = getattr(
+    libblpapict, "blpapi_TestUtil_createEvent", stub
+)  # int
+l_blpapi_TestUtil_createTopic = getattr(
+    libblpapict, "blpapi_TestUtil_createTopic", stub
+)  # int
+l_blpapi_TestUtil_deserializeService = getattr(
+    libblpapict, "blpapi_TestUtil_deserializeService", stub
+)
+l_blpapi_TestUtil_getAdminMessageDefinition = getattr(
+    libblpapict, "blpapi_TestUtil_getAdminMessageDefinition", stub
+)  # int
+l_blpapi_TestUtil_serializeService = getattr(
+    libblpapict, "blpapi_TestUtil_serializeService", stub
+)  # int
+l_blpapi_TlsOptions_createFromBlobs = getattr(
+    libblpapict, "blpapi_TlsOptions_createFromBlobs", stub
 )
 l_blpapi_TlsOptions_createFromBlobs.restype = c_void_p
-l_blpapi_TlsOptions_createFromFiles = (
-    libblpapict.blpapi_TlsOptions_createFromFiles
+l_blpapi_TlsOptions_createFromFiles = getattr(
+    libblpapict, "blpapi_TlsOptions_createFromFiles", stub
 )
 l_blpapi_TlsOptions_createFromFiles.restype = c_void_p
-l_blpapi_TlsOptions_destroy = libblpapict.blpapi_TlsOptions_destroy
+l_blpapi_TlsOptions_destroy = getattr(
+    libblpapict, "blpapi_TlsOptions_destroy", stub
+)
 l_blpapi_TlsOptions_destroy.restype = None
-l_blpapi_TlsOptions_setCrlFetchTimeoutMs = (
-    libblpapict.blpapi_TlsOptions_setCrlFetchTimeoutMs
+l_blpapi_TlsOptions_setCrlFetchTimeoutMs = getattr(
+    libblpapict, "blpapi_TlsOptions_setCrlFetchTimeoutMs", stub
 )
 l_blpapi_TlsOptions_setCrlFetchTimeoutMs.restype = None
-l_blpapi_TlsOptions_setTlsHandshakeTimeoutMs = (
-    libblpapict.blpapi_TlsOptions_setTlsHandshakeTimeoutMs
+l_blpapi_TlsOptions_setTlsHandshakeTimeoutMs = getattr(
+    libblpapict, "blpapi_TlsOptions_setTlsHandshakeTimeoutMs", stub
 )
 l_blpapi_TlsOptions_setTlsHandshakeTimeoutMs.restype = None
 
-l_blpapi_Topic_compare = libblpapict.blpapi_Topic_compare  # int
-l_blpapi_Topic_destroy = libblpapict.blpapi_Topic_destroy
+l_blpapi_Topic_compare = getattr(
+    libblpapict, "blpapi_Topic_compare", stub
+)  # int
+l_blpapi_Topic_destroy = getattr(libblpapict, "blpapi_Topic_destroy", stub)
 l_blpapi_Topic_destroy.restype = None
-l_blpapi_Topic_isActive = libblpapict.blpapi_Topic_isActive  # int
-l_blpapi_Topic_service = libblpapict.blpapi_Topic_service
+l_blpapi_Topic_isActive = getattr(
+    libblpapict, "blpapi_Topic_isActive", stub
+)  # int
+l_blpapi_Topic_service = getattr(libblpapict, "blpapi_Topic_service", stub)
 l_blpapi_Topic_service.restype = c_void_p
 
-l_blpapi_TopicList_add = libblpapict.blpapi_TopicList_add  # int
-l_blpapi_TopicList_addFromMessage = (
-    libblpapict.blpapi_TopicList_addFromMessage
+l_blpapi_TopicList_add = getattr(
+    libblpapict, "blpapi_TopicList_add", stub
 )  # int
-l_blpapi_TopicList_correlationIdAt = (
-    libblpapict.blpapi_TopicList_correlationIdAt
+l_blpapi_TopicList_addFromMessage = getattr(
+    libblpapict, "blpapi_TopicList_addFromMessage", stub
+)  # int
+l_blpapi_TopicList_correlationIdAt = getattr(
+    libblpapict, "blpapi_TopicList_correlationIdAt", stub
 )  # int
 l_blpapi_TopicList_correlationIdAt.argtypes = [c_void_p, c_void_p, c_size_t]
-l_blpapi_TopicList_create = libblpapict.blpapi_TopicList_create
+l_blpapi_TopicList_create = getattr(
+    libblpapict, "blpapi_TopicList_create", stub
+)
 l_blpapi_TopicList_create.restype = c_void_p
-l_blpapi_TopicList_destroy = libblpapict.blpapi_TopicList_destroy
+l_blpapi_TopicList_destroy = getattr(
+    libblpapict, "blpapi_TopicList_destroy", stub
+)
 l_blpapi_TopicList_destroy.restype = None
-l_blpapi_TopicList_message = libblpapict.blpapi_TopicList_message  # int
-l_blpapi_TopicList_messageAt = libblpapict.blpapi_TopicList_messageAt  # int
-l_blpapi_TopicList_size = libblpapict.blpapi_TopicList_size  # int
-l_blpapi_TopicList_status = libblpapict.blpapi_TopicList_status  # int
-l_blpapi_TopicList_statusAt = libblpapict.blpapi_TopicList_statusAt  # int
-l_blpapi_TopicList_topicString = (
-    libblpapict.blpapi_TopicList_topicString
+l_blpapi_TopicList_message = getattr(
+    libblpapict, "blpapi_TopicList_message", stub
 )  # int
-l_blpapi_TopicList_topicStringAt = (
-    libblpapict.blpapi_TopicList_topicStringAt
+l_blpapi_TopicList_messageAt = getattr(
+    libblpapict, "blpapi_TopicList_messageAt", stub
+)  # int
+l_blpapi_TopicList_size = getattr(
+    libblpapict, "blpapi_TopicList_size", stub
+)  # int
+l_blpapi_TopicList_status = getattr(
+    libblpapict, "blpapi_TopicList_status", stub
+)  # int
+l_blpapi_TopicList_statusAt = getattr(
+    libblpapict, "blpapi_TopicList_statusAt", stub
+)  # int
+l_blpapi_TopicList_topicString = getattr(
+    libblpapict, "blpapi_TopicList_topicString", stub
+)  # int
+l_blpapi_TopicList_topicStringAt = getattr(
+    libblpapict, "blpapi_TopicList_topicStringAt", stub
 )  # int
 
-l_blpapi_UserAgentInfo_setUserTaskName = (
-    libblpapict.blpapi_UserAgentInfo_setUserTaskName
+l_blpapi_UserAgentInfo_setUserTaskName = getattr(
+    libblpapict, "blpapi_UserAgentInfo_setUserTaskName", stub
 )  # int
-l_blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion = (
-    libblpapict.blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion
-)  # int
-
-l_blpapi_ZfpUtil_getOptionsForLeasedLines = (
-    libblpapict.blpapi_ZfpUtil_getOptionsForLeasedLines
+l_blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion = getattr(
+    libblpapict, "blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion", stub
 )  # int
 
-l_blpapi_getLastErrorDescription = libblpapict.blpapi_getLastErrorDescription
+l_blpapi_ZfpUtil_getOptionsForLeasedLines = getattr(
+    libblpapict, "blpapi_ZfpUtil_getOptionsForLeasedLines", stub
+)  # int
+
+l_blpapi_getLastErrorDescription = getattr(
+    libblpapict, "blpapi_getLastErrorDescription", stub
+)
 l_blpapi_getLastErrorDescription.restype = c_char_p
 
-l_blpapi_getVersionInfo = libblpapict.blpapi_getVersionInfo
+l_blpapi_getVersionInfo = getattr(libblpapict, "blpapi_getVersionInfo", stub)
 l_blpapi_getVersionInfo.restype = None
 l_blpapi_getVersionInfo.argtypes = [
     POINTER(c_int),

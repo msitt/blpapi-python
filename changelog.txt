@@ -1,3 +1,7 @@
+Version 3.26.1.1:
+=================
+- Stability and performance improvements
+
 Version 3.25.12.1:
 ==================
 - JSON serialization and deserialization support for elements
