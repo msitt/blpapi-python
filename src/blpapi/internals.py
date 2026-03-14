@@ -886,6 +886,12 @@ l_blpapi_Logging_logTestMessage = getattr(
     libblpapict, "blpapi_Logging_logTestMessage", stub
 )
 l_blpapi_Logging_logTestMessage.restype = None
+
+l_blpapi_Logging_userMessage = getattr(
+    libblpapict, "blpapi_Logging_userMessage", stub
+)
+l_blpapi_Logging_userMessage.restype = None
+
 l_blpapi_Logging_registerCallback = getattr(
     libblpapict, "blpapi_Logging_registerCallback", stub
 )  # int
@@ -3093,6 +3099,11 @@ def _blpapi_Identity_release(handle):
 # signature: void blpapi_Logging_logTestMessage(blpapi_Logging_Severity_t severity);
 def _blpapi_Logging_logTestMessage(severity):
     l_blpapi_Logging_logTestMessage(severity)
+
+
+# signature: void blpapi_Logging_userMessage(blpapi_Logging_Severity_t severity, const char *message);
+def _blpapi_Logging_userMessage(severity, message):
+    l_blpapi_Logging_userMessage(severity, message)
 
 
 class LoggingCallbackWrapper:
@@ -5658,6 +5669,7 @@ blpapi_Identity_hasEntitlements = _blpapi_Identity_hasEntitlements
 blpapi_Identity_isAuthorized = _blpapi_Identity_isAuthorized
 blpapi_Identity_release = _blpapi_Identity_release
 blpapi_Logging_logTestMessage = _blpapi_Logging_logTestMessage
+blpapi_Logging_userMessage = _blpapi_Logging_userMessage
 blpapi_Logging_registerCallback = _blpapi_Logging_registerCallback
 blpapi_MessageFormatter_FormatMessageJson = (
     _blpapi_MessageFormatter_FormatMessageJson
@@ -7140,6 +7152,11 @@ def _test_function_signatures():
         fnc="blpapi_Logging_logTestMessage",
         ret="void",
         args=["blpapi_Logging_Severity_t"],
+    )
+    verify_ctypes(
+        fnc="blpapi_Logging_userMessage",
+        ret="void",
+        args=["blpapi_Logging_Severity_t", "char*"],
     )
     verify_ctypes(
         fnc="blpapi_Logging_registerCallback",

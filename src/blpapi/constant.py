@@ -10,8 +10,7 @@ This component provides a representation of a schema enumeration constant, and
 a representation for lists of such constants
 """
 
-
-from typing import Any, Iterator as IteratorType, Optional, Set
+from typing import Any, Iterator as IteratorType, Optional
 from .exception import (
     _ExceptionUtil,
     NotFoundException,
@@ -28,11 +27,12 @@ from .typehints import (
 )
 from . import utils
 from . import internals
+from .chandle import CHandle
 
 # pylint: disable=protected-access
 
 
-class Constant:
+class Constant(CHandle):
     r"""Represents the value of a schema enumeration constant.
 
     Constants can be any of the following :class:`DataType`\s:
@@ -54,15 +54,14 @@ class Constant:
     def __init__(
         self,
         handle: BlpapiConstantHandle,
-        sessions: Optional[Set["typehints.AbstractSession"]],
+        parentSession: Optional[CHandle] = None,
     ) -> None:
         """
         Args:
             handle: Handle to the internal implementation
             sessions: Sessions to which this object is related to
         """
-        self.__handle = handle
-        self.__sessions = sessions
+        super(Constant, self).__init__(handle, None, parentSession)
 
     def name(self) -> Name:
         """
@@ -70,7 +69,7 @@ class Constant:
             The symbolic name of this :class:`Constant`.
         """
         return Name._createInternally(
-            internals.blpapi_Constant_name(self.__handle)
+            internals.blpapi_Constant_name(self._handle())
         )
 
     def description(self) -> str:
@@ -78,7 +77,7 @@ class Constant:
         Returns:
             Human readable description of this :class:`Constant`.
         """
-        return internals.blpapi_Constant_description(self.__handle)
+        return internals.blpapi_Constant_description(self._handle())
 
     def status(self) -> int:
         """
@@ -87,7 +86,7 @@ class Constant:
 
         The possible return values are enumerated in :class:`SchemaStatus`.
         """
-        return internals.blpapi_Constant_status(self.__handle)
+        return internals.blpapi_Constant_status(self._handle())
 
     def datatype(self) -> int:
         """
@@ -96,7 +95,7 @@ class Constant:
 
         The possible return values are enumerated in :class:`DataType`.
         """
-        return internals.blpapi_Constant_datatype(self.__handle)
+        return internals.blpapi_Constant_datatype(self._handle())
 
     def getValueAsInteger(self) -> int:
         """
@@ -109,11 +108,11 @@ class Constant:
         """
         if self.datatype() == DataType.INT32:
             errCode, value = internals.blpapi_Constant_getValueAsInt32(
-                self.__handle
+                self._handle()
             )
         else:
             errCode, value = internals.blpapi_Constant_getValueAsInt64(
-                self.__handle
+                self._handle()
             )
         _ExceptionUtil.raiseOnError(errCode)
         return value
@@ -129,11 +128,11 @@ class Constant:
         """
         if self.datatype() == DataType.FLOAT32:
             errCode, value = internals.blpapi_Constant_getValueAsFloat32(
-                self.__handle
+                self._handle()
             )
         else:
             errCode, value = internals.blpapi_Constant_getValueAsFloat64(
-                self.__handle
+                self._handle()
             )
         _ExceptionUtil.raiseOnError(errCode)
         return value
@@ -148,7 +147,7 @@ class Constant:
                 one of the datetime types.
         """
         errCode, value = internals.blpapi_Constant_getValueAsDatetime(
-            self.__handle
+            self._handle()
         )
         _ExceptionUtil.raiseOnError(errCode)
         return _DatetimeUtil.convertToNativeNotHighPrecision(value)
@@ -164,11 +163,11 @@ class Constant:
         """
         if self.datatype() == DataType.CHAR:
             errCode, value = internals.blpapi_Constant_getValueAsChar(
-                self.__handle
+                self._handle()
             )
         else:
             errCode, value = internals.blpapi_Constant_getValueAsString(
-                self.__handle
+                self._handle()
             )
         _ExceptionUtil.raiseOnError(errCode)
         return value
@@ -184,12 +183,8 @@ class Constant:
         )
         return valueGetter(self)
 
-    def _sessions(self) -> Optional[Set["typehints.AbstractSession"]]:
-        """Return session(s) this object is related to. For internal use."""
-        return self.__sessions
 
-
-class ConstantList:
+class ConstantList(CHandle):
     """Represents a list of schema enumeration constants.
 
     As well as the list of :class:`Constant` objects, this class also provides
@@ -207,15 +202,14 @@ class ConstantList:
     def __init__(
         self,
         handle: BlpapiConstantListHandle,
-        sessions: Optional[Set["typehints.AbstractSession"]],
+        parentSession: Optional[CHandle] = None,
     ) -> None:
         """
         Args:
             handle: Handle to the internal implementation
             sessions: Sessions to which this object is related to
         """
-        self.__handle = handle
-        self.__sessions = sessions
+        super(ConstantList, self).__init__(handle, None, parentSession)
 
     def __iter__(self) -> IteratorType:
         """
@@ -232,7 +226,7 @@ class ConstantList:
             Name: Symbolic name of this :class:`ConstantList`
         """
         return Name._createInternally(
-            internals.blpapi_ConstantList_name(self.__handle)
+            internals.blpapi_ConstantList_name(self._handle())
         )
 
     def description(self) -> str:
@@ -240,7 +234,7 @@ class ConstantList:
         Returns:
             str: Human readable description of this :class:`ConstantList`
         """
-        return internals.blpapi_ConstantList_description(self.__handle)
+        return internals.blpapi_ConstantList_description(self._handle())
 
     def status(self) -> int:
         """
@@ -249,14 +243,14 @@ class ConstantList:
 
         The possible return values are enumerated in :class:`SchemaStatus`
         """
-        return internals.blpapi_ConstantList_status(self.__handle)
+        return internals.blpapi_ConstantList_status(self._handle())
 
     def numConstants(self) -> int:
         """
         Returns:
             int: Number of :class:`Constant` objects in this list
         """
-        return internals.blpapi_ConstantList_numConstants(self.__handle)
+        return internals.blpapi_ConstantList_numConstants(self._handle())
 
     def datatype(self) -> int:
         """
@@ -265,7 +259,7 @@ class ConstantList:
 
         The possible return values are enumerated in :class:`DataType`.
         """
-        return internals.blpapi_ConstantList_datatype(self.__handle)
+        return internals.blpapi_ConstantList_datatype(self._handle())
 
     def hasConstant(self, name: Name) -> bool:
         """
@@ -282,7 +276,7 @@ class ConstantList:
         names = getNamePair(name)
         return bool(
             internals.blpapi_ConstantList_hasConstant(
-                self.__handle, names[0], names[1]
+                self._handle(), names[0], names[1]
             )
         )
 
@@ -300,14 +294,14 @@ class ConstantList:
         """
         names = getNamePair(name)
         res = internals.blpapi_ConstantList_getConstant(
-            self.__handle, names[0], names[1]
+            self._handle(), names[0], names[1]
         )
         if res is None:
             errMessage = (
                 f"Constant '{name!s}' is not found in '{self.name()!s}'."
             )
             raise NotFoundException(errMessage, 0)
-        return Constant(res, self.__sessions)
+        return Constant(res, self._parent())
 
     def getConstantAt(self, position: int) -> Constant:
         """
@@ -322,16 +316,12 @@ class ConstantList:
                 ``0`` to ``numConstants() - 1``.
         """
         res = internals.blpapi_ConstantList_getConstantAt(
-            self.__handle, position
+            self._handle(), position
         )
         if res is None:
             errMessage = f"Index '{position}' out of bounds."
             raise IndexOutOfRangeException(errMessage, 0)
-        return Constant(res, self.__sessions)
-
-    def _sessions(self) -> Optional[Set["typehints.AbstractSession"]]:
-        """Return session(s) this object is related to. For internal use."""
-        return self.__sessions
+        return Constant(res, self._parent())
 
 
 _CONSTANT_VALUE_GETTER = {

@@ -4,7 +4,8 @@
 
 This component implements a list of topics that require resolution.
 """
-from typing import Optional, Set, Union
+
+from typing import Optional, Union
 
 from .exception import _ExceptionUtil
 from .message import Message
@@ -13,6 +14,7 @@ from . import utils
 from .utils import deprecated, get_handle
 from .correlationid import CorrelationId
 from .chandle import CHandle
+from .exception import InvalidArgumentException
 from . import typehints  # pylint: disable=unused-import
 
 
@@ -62,8 +64,6 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         super(ResolutionList, self).__init__(
             selfhandle, internals.blpapi_ResolutionList_destroy
         )
-        self.__handle = selfhandle
-        self.__sessions: Set["typehints.AbstractSession"] = set()
 
     def add(
         self,
@@ -83,6 +83,8 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         Raises:
             TypeError: If ``correlationId`` is not an instance of
                 :class:`CorrelationId`
+            InvalidArgumentException: If adding :class:`Message`\s received
+                from multiple sessions.
 
         If ``topicOrMessage`` is of string type, add the specified
         ``topicOrMessage`` to this list, optionally specifying a
@@ -101,11 +103,13 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
                 "correlationId should be an instance of 'CorrelationId'"
             )
         if isinstance(topicOrMessage, Message):
+            # pylint: disable=protected-access
+            self._addSession(topicOrMessage._parent())
             return internals.blpapi_ResolutionList_addFromMessage(
-                self.__handle, get_handle(topicOrMessage), correlationId
+                self._handle(), get_handle(topicOrMessage), correlationId
             )
         return internals.blpapi_ResolutionList_add(
-            self.__handle, topicOrMessage, correlationId
+            self._handle(), topicOrMessage, correlationId
         )
 
     @deprecated("attributes are no longer supported.")
@@ -132,7 +136,7 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             IndexOutOfRangeException: If ``index >= size()``.
         """
         errorCode, cid = internals.blpapi_ResolutionList_correlationIdAt(
-            self.__handle, index
+            self._handle(), index
         )
         _ExceptionUtil.raiseOnError(errorCode)
         return CorrelationId(cid)
@@ -152,7 +156,7 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
                 :class:`ResolutionList`.
         """
         errorCode, topic = internals.blpapi_ResolutionList_topicString(
-            self.__handle, correlationId
+            self._handle(), correlationId
         )
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
@@ -169,7 +173,7 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             IndexOutOfRangeException: If ``index >= size()``.
         """
         errorCode, topic = internals.blpapi_ResolutionList_topicStringAt(
-            self.__handle, index
+            self._handle(), index
         )
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
@@ -191,7 +195,7 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         :class:`ResolutionList`.
         """
         errorCode, status = internals.blpapi_ResolutionList_status(
-            self.__handle, correlationId
+            self._handle(), correlationId
         )
         _ExceptionUtil.raiseOnError(errorCode)
         return status
@@ -211,7 +215,7 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         :class:`ResolutionList`.
         """
         errorCode, status = internals.blpapi_ResolutionList_statusAt(
-            self.__handle, index
+            self._handle(), index
         )
         _ExceptionUtil.raiseOnError(errorCode)
         return status
@@ -263,10 +267,10 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             of :class:`Topic`.
         """
         errorCode, message = internals.blpapi_ResolutionList_message(
-            self.__handle, correlationId
+            self._handle(), correlationId
         )
         _ExceptionUtil.raiseOnError(errorCode)
-        return Message(message, sessions=self._sessions())
+        return Message(message, self._parent())
 
     def messageAt(self, index: int) -> Message:
         r"""
@@ -286,29 +290,29 @@ class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             of :class:`Topic`.
         """
         errorCode, message = internals.blpapi_ResolutionList_messageAt(
-            self.__handle, index
+            self._handle(), index
         )
         _ExceptionUtil.raiseOnError(errorCode)
-        return Message(message, sessions=self._sessions())
+        return Message(message, self._parent())
 
     def size(self) -> int:
         """
         Returns:
             Number of entries in this :class:`ResolutionList`.
         """
-        return internals.blpapi_ResolutionList_size(self.__handle)
+        return internals.blpapi_ResolutionList_size(self._handle())
 
-    def _sessions(self) -> Set["typehints.AbstractSession"]:
-        """Return session(s) that this 'ResolutionList' is related to.
-
-        For internal use."""
-        return self.__sessions
-
-    def _addSession(self, session: "typehints.AbstractSession") -> None:
-        """Add a new session to this 'ResolutionList'.
+    def _addSession(self, session: Optional[CHandle]) -> None:
+        """Update a session held as reference by this 'ResolutionList'.
 
         For internal use."""
-        self.__sessions.add(session)
+        if self._parent() and session and self._parent() != session:
+            raise InvalidArgumentException(
+                "ResolutionList is already associated with a different "
+                "session.",
+                None,
+            )
+        self._updateParent(session)
 
 
 __copyright__ = """

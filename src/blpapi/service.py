@@ -7,8 +7,9 @@ from a Session and contains zero or more 'Operations'. A service can be a
 provider service (can generate API data) or a consumer service.
 
 """
+
 import warnings
-from typing import Optional, Set
+from typing import Optional
 from typing import Iterator as IteratorType
 from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiNameOrIndex
@@ -23,7 +24,7 @@ from . import internals
 from .chandle import CHandle
 
 
-class Operation:
+class Operation(CHandle):
     """Defines an operation which can be performed by a :class:`Service`.
 
     Operation objects are obtained from a :class:`Service` object. They provide
@@ -34,24 +35,23 @@ class Operation:
     def __init__(
         self,
         handle: BlpapiOperationHandle,
-        sessions: Set["typehints.AbstractSession"],
+        parentSession: Optional[CHandle] = None,
     ):
-        self.__handle = handle
-        self.__sessions = sessions
+        super(Operation, self).__init__(handle, None, parentSession)
 
     def name(self) -> str:
         """
         Returns:
             The name of this :class:`Operation`.
         """
-        return internals.blpapi_Operation_name(self.__handle)
+        return internals.blpapi_Operation_name(self._handle())
 
     def description(self) -> str:
         """
         Returns:
             A human readable description of this Operation.
         """
-        return internals.blpapi_Operation_description(self.__handle)
+        return internals.blpapi_Operation_description(self._handle())
 
     def requestDefinition(self) -> Optional[SchemaElementDefinition]:
         """
@@ -60,12 +60,12 @@ class Operation:
         """
 
         errCode, definition = internals.blpapi_Operation_requestDefinition(
-            self.__handle
+            self._handle()
         )
         return (
             None
             if errCode != 0
-            else SchemaElementDefinition(definition, self.__sessions)
+            else SchemaElementDefinition(definition, self._parent())
         )
 
     def numResponseDefinitions(self) -> int:
@@ -76,7 +76,9 @@ class Operation:
 
         """
 
-        return internals.blpapi_Operation_numResponseDefinitions(self.__handle)
+        return internals.blpapi_Operation_numResponseDefinitions(
+            self._handle()
+        )
 
     def getResponseDefinitionAt(
         self, position: int
@@ -94,10 +96,10 @@ class Operation:
         """
 
         errCode, definition = internals.blpapi_Operation_responseDefinition(
-            self.__handle, position
+            self._handle(), position
         )
         _ExceptionUtil.raiseOnError(errCode)
-        return SchemaElementDefinition(definition, self.__sessions)
+        return SchemaElementDefinition(definition, self._parent())
 
     def responseDefinitions(self) -> IteratorType[SchemaElementDefinition]:
         """
@@ -113,10 +115,6 @@ class Operation:
             Operation.numResponseDefinitions,
             Operation.getResponseDefinitionAt,
         )
-
-    def _sessions(self) -> Set["typehints.AbstractSession"]:
-        """Return session(s) this object is related to. For internal use."""
-        return self.__sessions
 
 
 class Service(CHandle):
@@ -140,15 +138,15 @@ class Service(CHandle):
     def __init__(
         self,
         handle: BlpapiServiceHandle,
-        sessions: Set["typehints.AbstractSession"],
+        parentSession: Optional[CHandle],
         isRealService: bool = True,
     ) -> None:
-        super(Service, self).__init__(handle, internals.blpapi_Service_release)
-        self.__handle = handle
-        self.__sessions = sessions
+        super(Service, self).__init__(
+            handle, internals.blpapi_Service_release, parentSession
+        )
         if isRealService:  # as opposed to deserialized
             # see blpapi-cpp/src/blpapi_testutil.cpp#L270
-            internals.blpapi_Service_addRef(self.__handle)
+            internals.blpapi_Service_addRef(handle)
 
     def __str__(self) -> str:
         """Convert the service schema to a string."""
@@ -171,7 +169,7 @@ class Service(CHandle):
         """
 
         return internals.blpapi_Service_printHelper(
-            self.__handle, level, spacesPerLevel
+            self._handle(), level, spacesPerLevel
         )
 
     def createPublishEvent(self) -> Event:
@@ -185,10 +183,10 @@ class Service(CHandle):
         """
 
         errCode, event = internals.blpapi_Service_createPublishEvent(
-            self.__handle
+            self._handle()
         )
         _ExceptionUtil.raiseOnError(errCode)
-        return Event(event, self.__sessions)
+        return Event(event, self._parent())
 
     def createAdminEvent(self) -> Event:
         r"""
@@ -209,10 +207,10 @@ class Service(CHandle):
             DeprecationWarning,
         )
         errCode, event = internals.blpapi_Service_createAdminEvent(
-            self.__handle
+            self._handle()
         )
         _ExceptionUtil.raiseOnError(errCode)
-        return Event(event, self.__sessions)
+        return Event(event, self._parent())
 
     def createResponseEvent(
         self, correlationId: "typehints.CorrelationId"
@@ -232,24 +230,24 @@ class Service(CHandle):
         """
 
         errCode, event = internals.blpapi_Service_createResponseEvent(
-            self.__handle, correlationId
+            self._handle(), correlationId
         )
         _ExceptionUtil.raiseOnError(errCode)
-        return Event(event, self.__sessions)
+        return Event(event, self._parent())
 
     def name(self) -> str:
         """
         Returns:
             Name of this service.
         """
-        return internals.blpapi_Service_name(self.__handle)
+        return internals.blpapi_Service_name(self._handle())
 
     def description(self) -> str:
         """
         Returns:
            str: Human-readable description of this service.
         """
-        return internals.blpapi_Service_description(self.__handle)
+        return internals.blpapi_Service_description(self._handle())
 
     def hasOperation(self, name: "typehints.Name") -> bool:
         """
@@ -261,7 +259,7 @@ class Service(CHandle):
         names = getNamePair(name)
         return bool(
             internals.blpapi_Service_hasOperation(
-                self.__handle, names[0], names[1]
+                self._handle(), names[0], names[1]
             )
         )
 
@@ -288,15 +286,15 @@ class Service(CHandle):
         if not isinstance(nameOrIndex, int):
             names = getNamePair(nameOrIndex)
             errCode, operation = internals.blpapi_Service_getOperation(
-                self.__handle, names[0], names[1]
+                self._handle(), names[0], names[1]
             )
             _ExceptionUtil.raiseOnError(errCode)
-            return Operation(operation, self.__sessions)
+            return Operation(operation, self._parent())
         errCode, operation = internals.blpapi_Service_getOperationAt(
-            self.__handle, nameOrIndex
+            self._handle(), nameOrIndex
         )
         _ExceptionUtil.raiseOnError(errCode)
-        return Operation(operation, self.__sessions)
+        return Operation(operation, self._parent())
 
     def numOperations(self) -> int:
         r"""
@@ -304,7 +302,7 @@ class Service(CHandle):
             The number of :class:`Operation`\s defined by this
             :class:`Service`.
         """
-        return internals.blpapi_Service_numOperations(self.__handle)
+        return internals.blpapi_Service_numOperations(self._handle())
 
     def operations(self) -> IteratorType[Operation]:
         r"""
@@ -336,7 +334,7 @@ class Service(CHandle):
         names = getNamePair(name)
         return bool(
             internals.blpapi_Service_hasEventDefinition(
-                self.__handle, names[0], names[1]
+                self._handle(), names[0], names[1]
             )
         )
 
@@ -367,22 +365,22 @@ class Service(CHandle):
         if not isinstance(nameOrIndex, int):
             names = getNamePair(nameOrIndex)
             errCode, definition = internals.blpapi_Service_getEventDefinition(
-                self.__handle, names[0], names[1]
+                self._handle(), names[0], names[1]
             )
             _ExceptionUtil.raiseOnError(errCode)
-            return SchemaElementDefinition(definition, self.__sessions)
+            return SchemaElementDefinition(definition, self._parent())
         errCode, definition = internals.blpapi_Service_getEventDefinitionAt(
-            self.__handle, nameOrIndex
+            self._handle(), nameOrIndex
         )
         _ExceptionUtil.raiseOnError(errCode)
-        return SchemaElementDefinition(definition, self.__sessions)
+        return SchemaElementDefinition(definition, self._parent())
 
     def numEventDefinitions(self) -> int:
         """
         Returns:
             The number of unsolicited events defined by this :class:`Service`.
         """
-        return internals.blpapi_Service_numEventDefinitions(self.__handle)
+        return internals.blpapi_Service_numEventDefinitions(self._handle())
 
     def eventDefinitions(self) -> IteratorType[SchemaElementDefinition]:
         """
@@ -406,7 +404,9 @@ class Service(CHandle):
 
         Authorization services never require authorization to use.
         """
-        return internals.blpapi_Service_authorizationServiceName(self.__handle)
+        return internals.blpapi_Service_authorizationServiceName(
+            self._handle()
+        )
 
     def createRequest(self, operation: str) -> Request:
         """Create an empty Request object for the specified ``operation``.
@@ -426,10 +426,10 @@ class Service(CHandle):
         """
 
         errCode, request = internals.blpapi_Service_createRequest(
-            self.__handle, operation
+            self._handle(), operation
         )
         _ExceptionUtil.raiseOnError(errCode)
-        return Request(request, self.__sessions)
+        return Request(request, self._parent())
 
     def createAuthorizationRequest(
         self, authorizationOperation: Optional[str] = None
@@ -452,14 +452,10 @@ class Service(CHandle):
         """
 
         errCode, request = internals.blpapi_Service_createAuthorizationRequest(
-            self.__handle, authorizationOperation
+            self._handle(), authorizationOperation
         )
         _ExceptionUtil.raiseOnError(errCode)
-        return Request(request, self.__sessions)
-
-    def _sessions(self) -> Set["typehints.AbstractSession"]:
-        """Return session(s) this object is related to. For internal use."""
-        return self.__sessions
+        return Request(request, self._parent())
 
 
 __copyright__ = """

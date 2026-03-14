@@ -32,8 +32,9 @@ Synchronously read the response 'event' and parse over messages using 'token'
         raise Exception("Failed to get token")
 
 """
+
 from __future__ import annotations
-from typing import Iterator as IteratorType, Optional, Set
+from typing import Iterator as IteratorType, Optional
 from collections.abc import Iterator as IteratorABC
 from .message import Message
 from . import internals
@@ -42,6 +43,7 @@ from .utils import get_handle
 from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiEventHandle
+from .exception import InvalidArgumentException
 
 
 class MessageIterator(CHandle, IteratorABC):
@@ -55,20 +57,22 @@ class MessageIterator(CHandle, IteratorABC):
     def __init__(self, event: Event) -> None:
         selfhandle = internals.blpapi_MessageIterator_create(get_handle(event))
         super(MessageIterator, self).__init__(
-            selfhandle, internals.blpapi_MessageIterator_destroy
+            selfhandle,
+            internals.blpapi_MessageIterator_destroy,
+            event._oldestParent() or event,
         )
-        self.__handle = selfhandle
-        self.__event = event
 
     def __iter__(self) -> IteratorType:
         return self
 
     def __next__(self) -> Message:
-        retCode, message = internals.blpapi_MessageIterator_next(self.__handle)
+        retCode, message = internals.blpapi_MessageIterator_next(
+            self._handle()
+        )
         if retCode:
             raise StopIteration()
         else:
-            return Message(message, self.__event)
+            return Message(message, self._parent())
 
 
 class Event(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
@@ -127,18 +131,18 @@ class Event(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     def __init__(
         self,
         handle: BlpapiEventHandle,
-        sessions: Optional[Set["typehints.AbstractSession"]] = None,
+        parentSession: Optional[CHandle] = None,
     ):
-        super(Event, self).__init__(handle, internals.blpapi_Event_release)
-        self.__handle = handle
-        self.__sessions = sessions if sessions is not None else set()
+        super(Event, self).__init__(
+            handle, internals.blpapi_Event_release, parentSession
+        )
 
     def eventType(self) -> int:
         """
         Returns:
             Type of messages contained by this :class:`Event`.
         """
-        return internals.blpapi_Event_eventType(self.__handle)
+        return internals.blpapi_Event_eventType(self._handle())
 
     def __iter__(self) -> IteratorType:
         """
@@ -146,12 +150,6 @@ class Event(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             Iterator over messages contained in this :class:`Event`.
         """
         return MessageIterator(self)
-
-    def _sessions(self) -> Set["typehints.AbstractSession"]:
-        """Return session(s) that this 'Event' is related to.
-
-        For internal use."""
-        return self.__sessions
 
     # Protect enumeration constant(s) defined in this class and in classes
     # derived from this class from changes:
@@ -165,6 +163,9 @@ class EventQueue(CHandle):
     responses for a given request or requests synchronously. The
     :class:`EventQueue` will only deliver responses to the request(s) it is
     associated with.
+
+    Note: An instance of :class:`EventQueue` can not be reused across multiple
+    sessions. Attempting to do so will raise an :class:`InvalidArgumentException`.
     """
 
     def __init__(self) -> None:
@@ -177,8 +178,6 @@ class EventQueue(CHandle):
         super(EventQueue, self).__init__(
             selfhandle, internals.blpapi_EventQueue_destroy
         )
-        self.__handle = selfhandle
-        self.__sessions: Set["typehints.AbstractSession"] = set()
 
     def nextEvent(self, timeout: int = 0) -> Event:
         """
@@ -194,8 +193,8 @@ class EventQueue(CHandle):
         :class:`Event` is available within the specified ``timeout`` an
         :class:`Event` with type of :attr:`~Event.TIMEOUT` will be returned.
         """
-        res = internals.blpapi_EventQueue_nextEvent(self.__handle, timeout)
-        return Event(res, self._getSessions())
+        res = internals.blpapi_EventQueue_nextEvent(self._handle(), timeout)
+        return Event(res, self._parent())
 
     def tryNextEvent(self) -> Optional[Event]:
         """
@@ -203,10 +202,10 @@ class EventQueue(CHandle):
             If the :class:`EventQueue` is non-empty, the next
             :class:`Event` available, otherwise ``None``.
         """
-        res = internals.blpapi_EventQueue_tryNextEvent(self.__handle)
+        res = internals.blpapi_EventQueue_tryNextEvent(self._handle())
         if res[0]:
             return None
-        return Event(res[1], self._getSessions())
+        return Event(res[1], self._parent())
 
     def purge(self) -> None:
         """Purge any :class:`Event` objects in this :class:`EventQueue`.
@@ -216,19 +215,23 @@ class EventQueue(CHandle):
         :class:`EventQueue`.  The :class:`EventQueue` can subsequently be
         re-used for a subsequent request.
         """
-        internals.blpapi_EventQueue_purge(self.__handle)
-        self.__sessions.clear()
+        internals.blpapi_EventQueue_purge(self._handle())
+        self._updateParent(None)
 
-    def _registerSession(self, session: "typehints.AbstractSession") -> None:
-        """Add a new session to this 'EventQueue'. For internal use."""
-        self.__sessions.add(session)
+    def _throwOnParentMismatch(self, session: Optional[CHandle]) -> None:
+        """Raises an exception if the specified session does not match the
+        current parent session of this 'EventQueue'. For internal use."""
+        if self._parent() and session and self._parent() != session:
+            raise InvalidArgumentException(
+                "EventQueue is already associated with a different "
+                "session.",
+                None,
+            )
 
-    def _getSessions(self) -> Set["typehints.AbstractSession"]:
-        """Get a set of sessions this EventQueue related to.
-
-        For internal use.
-        """
-        return self.__sessions
+    def _registerSession(self, session: Optional[CHandle]) -> None:
+        """Changes the session this 'EventQueue' points to. For internal use."""
+        self._throwOnParentMismatch(session)
+        self._updateParent(session)
 
 
 __copyright__ = """

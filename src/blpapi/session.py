@@ -20,6 +20,8 @@ import time
 import traceback
 from .message import Message
 from .abstractsession import AbstractSession
+from .abstractsessionhandle import AbstractSessionHandle
+from .chandle import CHandle
 from .event import Event
 from . import exception
 from .exception import _ExceptionUtil
@@ -27,7 +29,7 @@ from . import internals
 from .correlationid import CorrelationId
 from .sessionoptions import SessionOptions
 from .requesttemplate import RequestTemplate
-from .utils import get_handle, MetaClassForClassesWithEnums
+from .utils import get_handle, MetaClassForClassesWithEnums, delegateInterface
 from . import typehints  # pylint: disable=unused-import
 from .version import version
 
@@ -50,8 +52,13 @@ class SubscriptionPreprocessMode(Enum):
     valid subscriptions will move forward."""
 
 
-class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
-    r"""Consumer session for making requests for Bloomberg services.
+# pylint: disable=abstract-method
+class Session(
+    CHandle, AbstractSession, metaclass=MetaClassForClassesWithEnums
+):
+    r"""Bases: :class:`AbstractSession`
+
+    Consumer session for making requests for Bloomberg services.
 
     This class provides a consumer session for making requests for Bloomberg
     services. For information on generic session operations, see the parent
@@ -211,12 +218,20 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         if options is None:
             options = SessionOptions()
 
-        # Note __handle in Session is not the __handle
-        # in/of AbstractSession base class
-        self.__handle = internals.Session_createHelper(
+        selfhandle = internals.Session_createHelper(
             get_handle(options),
             get_handle(eventDispatcher),
         )
+
+        self.__abstractSessionHandle = AbstractSessionHandle(
+            internals.blpapi_Session_getAbstractSession(selfhandle), self
+        )
+        delegateInterface(self, AbstractSession, self.__abstractSessionHandle)
+
+        def _dtor(handle: Any) -> None:
+            internals.Session_destroyHelper(handle, None)
+
+        super(Session, self).__init__(selfhandle, _dtor)
 
         if eventHandler is not None:
             # pylint: disable=unused-private-member
@@ -231,20 +246,10 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
                     self.__lastEventPopped,
                     eventHandler,
                     self.__handler_thread_id,
-                    self.__handle,
+                    self._handle(),
                 ),
                 daemon=True,
             )
-
-        def _dtor(handle: Any) -> None:
-            internals.Session_destroyHelper(handle, None)
-
-        AbstractSession.__init__(
-            self,
-            self.__handle,
-            internals.blpapi_Session_getAbstractSession(self.__handle),
-            _dtor,
-        )
 
     @staticmethod
     def _thread_poll(
@@ -314,16 +319,10 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         # If we want to dereference a destroyed Session, we get None
         # as of https://docs.python.org/3/library/weakref.html#weakref.ref
         if session is not None:
-            event = Event(event, {session})
+            event = Event(event, session)
             handler(event, session)
 
         return False
-
-    def _session_handle(self) -> Any:
-        """This is for internal implementation only"""
-        # `_handle()` returns `blpapi_AbstractSession_t *`, but there are times
-        # when we need `blpapi_Session_t *` instead.
-        return self.__handle
 
     def start(self) -> bool:
         """Start this :class:`Session` in synchronous mode.
@@ -365,14 +364,14 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         """
         if is_async:
             started_successfully = (
-                internals.blpapi_Session_startAsync(self.__handle) == 0
+                internals.blpapi_Session_startAsync(self._handle()) == 0
             )
         else:
             started_successfully = (
-                internals.blpapi_Session_start(self.__handle) == 0
+                internals.blpapi_Session_start(self._handle()) == 0
             )
 
-        if self._consumerThread and self.__handler is not None:
+        if self._consumerThread and self._handle() is not None:
             if started_successfully:
                 self._consumerThread.start()
             else:
@@ -424,7 +423,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         ):
             return self.stopAsync()
 
-        res = internals.blpapi_Session_stop(self.__handle) == 0
+        res = internals.blpapi_Session_stop(self._handle()) == 0
         if (
             self._consumerThread is not None
             and self._consumerThread.is_alive()
@@ -445,7 +444,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         no further callbacks to ``eventHandlers`` will occur. Once a
         :class:`Session` has been stopped it can only be destroyed.
         """
-        return internals.blpapi_Session_stopAsync(self.__handle) == 0
+        return internals.blpapi_Session_stopAsync(self._handle()) == 0
 
     async def _awaitEvent(self) -> Event:
         if self.__handler is not None:
@@ -485,12 +484,12 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         check the type of the :class:`Session`, to see if the user could use the method
         """
         retCode, event = internals.blpapi_Session_nextEvent(
-            self.__handle, timeout
+            self._handle(), timeout
         )
 
         _ExceptionUtil.raiseOnError(retCode)
 
-        return Event(event, {self})
+        return Event(event, self)
 
     def nextEvent(self, timeout: int = 0) -> Event:
         """
@@ -526,13 +525,13 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         present. This function was created to encapsulate this logic and be able to
         check the type of the :class:`Session`, to see if the user could use the method
         """
-        retCode, event = internals.blpapi_Session_tryNextEvent(self.__handle)
+        retCode, event = internals.blpapi_Session_tryNextEvent(self._handle())
         if retCode:
             if retCode == internals.ERROR_ILLEGAL_STATE:
                 self.__lastEventPopped.set()
             return None
 
-        retEvent = Event(event, {self})
+        retEvent = Event(event, self)
 
         return retEvent
 
@@ -615,7 +614,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         if subMode == SubscriptionPreprocessMode.FAIL_ON_FIRST_ERROR:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_Session_subscribe(
-                    self.__handle,
+                    self._handle(),
                     get_handle(subscriptionList),
                     get_handle(identity),
                     requestLabel,
@@ -626,7 +625,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             errorAppender = Session._createErrorAppender(errorList)
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_Session_subscribeEx_helper(
-                    self.__handle,
+                    self._handle(),
                     get_handle(subscriptionList),
                     get_handle(identity),
                     requestLabel,
@@ -671,7 +670,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_Session_unsubscribe(
-                self.__handle, get_handle(subscriptionList), None
+                self._handle(), get_handle(subscriptionList), None
             )
         )
 
@@ -722,7 +721,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             if resubscriptionId is None:
                 _ExceptionUtil.raiseOnError(
                     internals.blpapi_Session_resubscribe(
-                        self.__handle,
+                        self._handle(),
                         get_handle(subscriptionList),
                         requestLabel,
                     )
@@ -730,7 +729,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             else:
                 _ExceptionUtil.raiseOnError(
                     internals.blpapi_Session_resubscribeWithId(
-                        self.__handle,
+                        self._handle(),
                         get_handle(subscriptionList),
                         resubscriptionId,  # an int, not a cid
                         requestLabel,
@@ -743,7 +742,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             if resubscriptionId is None:
                 _ExceptionUtil.raiseOnError(
                     internals.blpapi_Session_resubscribeEx_helper(
-                        self.__handle,
+                        self._handle(),
                         get_handle(subscriptionList),
                         requestLabel,
                         errorAppender,
@@ -752,7 +751,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             else:
                 _ExceptionUtil.raiseOnError(
                     internals.blpapi_Session_resubscribeWithIdEx_helper(
-                        self.__handle,
+                        self._handle(),
                         get_handle(subscriptionList),
                         resubscriptionId,  # an int, not a cid
                         requestLabel,
@@ -788,7 +787,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_Session_setStatusCorrelationId(
-                self.__handle,
+                self._handle(),
                 get_handle(service),
                 get_handle(identity),
                 correlationId,
@@ -819,6 +818,10 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
             CorrelationId: The actual correlation id associated with the
             request
 
+        Raises:
+            InvalidArgumentException: If ``eventQueue`` has already been used
+                with a different session.
+
         Send the specified ``request`` using the optionally specified
         ``identity`` for authorization. If ``identity`` is not provided, then
         the request will be sent using the session identity. If the optionally
@@ -844,8 +847,11 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         """
         if correlationId is None:
             correlationId = CorrelationId()
+        if eventQueue is not None:
+            eventQueue._throwOnParentMismatch(self)
+
         res = internals.blpapi_Session_sendRequest(
-            self.__handle,
+            self._handle(),
             get_handle(request),
             correlationId,
             get_handle(identity),
@@ -889,7 +895,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
         if correlationId is None:
             correlationId = CorrelationId()
         res = internals.blpapi_Session_sendRequestTemplate(
-            self.__handle, get_handle(requestTemplate), correlationId
+            self._handle(), get_handle(requestTemplate), correlationId
         )
         _ExceptionUtil.raiseOnError(res)
         return correlationId
@@ -992,7 +998,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
                 rc,
                 template,
             ) = internals.blpapi_Session_createSnapshotRequestTemplate(
-                self.__handle,
+                self._handle(),
                 subscriptionString,
                 get_handle(identity),
                 correlationId,
@@ -1002,7 +1008,7 @@ class Session(AbstractSession, metaclass=MetaClassForClassesWithEnums):
                 rc,
                 template,
             ) = internals.blpapi_Session_createSnapshotRequestTemplate(
-                self.__handle,
+                self._handle(),
                 subscriptionString,
                 get_handle(correlationId),
                 identity,

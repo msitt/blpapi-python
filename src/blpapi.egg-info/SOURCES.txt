@@ -61,6 +61,7 @@ examples/unittests/snippets/resolver/resolverutils.py
 examples/unittests/snippets/resolver/test_resolverutils.py
 src/blpapi/__init__.py
 src/blpapi/abstractsession.py
+src/blpapi/abstractsessionhandle.py
 src/blpapi/auth.py
 src/blpapi/chandle.py
 src/blpapi/constant.py

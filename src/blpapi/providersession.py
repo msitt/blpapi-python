@@ -66,6 +66,7 @@ import os
 import functools
 import atexit
 from .abstractsession import AbstractSession
+from .abstractsessionhandle import AbstractSessionHandle
 from .event import Event
 from . import exception
 from .exception import _ExceptionUtil
@@ -74,7 +75,7 @@ from .correlationid import CorrelationId
 from .sessionoptions import SessionOptions
 from .topic import Topic
 from . import utils
-from .utils import get_handle
+from .utils import get_handle, delegateInterface
 from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiEventHandle
@@ -144,7 +145,6 @@ class ServiceRegistrationOptions(
         super(ServiceRegistrationOptions, self).__init__(
             selfhandle, internals.blpapi_ServiceRegistrationOptions_destroy
         )
-        self.__handle = selfhandle
 
     def setGroupId(self, groupId: str) -> None:
         """Set the Group ID for the service to be registered.
@@ -162,7 +162,7 @@ class ServiceRegistrationOptions(
             raise ValueError("groupId must not be None")
 
         internals.blpapi_ServiceRegistrationOptions_setGroupId(
-            self.__handle, groupId
+            self._handle(), groupId
         )
 
     def setServicePriority(self, priority: int) -> int:
@@ -185,7 +185,7 @@ class ServiceRegistrationOptions(
         Note this has no effect for resolution services.
         """
         return internals.blpapi_ServiceRegistrationOptions_setServicePriority(
-            self.__handle, priority
+            self._handle(), priority
         )
 
     def getGroupId(self) -> str:
@@ -193,9 +193,11 @@ class ServiceRegistrationOptions(
         Returns:
             The value of the service Group Id in this instance.
         """
-        _, groupId = internals.blpapi_ServiceRegistrationOptions_getGroupId(
-            self.__handle
+        retvals = internals.blpapi_ServiceRegistrationOptions_getGroupId(
+            self._handle()
         )
+        assert retvals is not None
+        _, groupId = retvals
         return groupId
 
     def getServicePriority(self) -> int:
@@ -206,7 +208,7 @@ class ServiceRegistrationOptions(
         """
         priority = (
             internals.blpapi_ServiceRegistrationOptions_getServicePriority(
-                self.__handle
+                self._handle()
             )
         )
         return priority
@@ -231,14 +233,14 @@ class ServiceRegistrationOptions(
             end < (1 << 31)``, and ``priority`` is non-negative.
         """
         err = internals.blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange(
-            self.__handle, begin, end, priority
+            self._handle(), begin, end, priority
         )
         _ExceptionUtil.raiseOnError(err)
 
     def removeAllActiveSubServiceCodeRanges(self) -> None:
         """Remove all previously added sub-service code ranges."""
         internals.blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges(
-            self.__handle
+            self._handle()
         )
 
     def setPartsToRegister(self, parts: int) -> None:
@@ -253,7 +255,7 @@ class ServiceRegistrationOptions(
         option defaults to :attr:`PART_DEFAULT`.
         """
         internals.blpapi_ServiceRegistrationOptions_setPartsToRegister(
-            self.__handle, parts
+            self._handle(), parts
         )
 
     def getPartsToRegister(self) -> int:
@@ -264,14 +266,17 @@ class ServiceRegistrationOptions(
         Registration parts are enumerated in the class docstring.
         """
         return internals.blpapi_ServiceRegistrationOptions_getPartsToRegister(
-            self.__handle
+            self._handle()
         )
 
 
+# pylint: disable=abstract-method
 class ProviderSession(
-    AbstractSession, metaclass=utils.MetaClassForClassesWithEnums
+    CHandle, AbstractSession, metaclass=utils.MetaClassForClassesWithEnums
 ):
-    """This class provides a session that can be used for providing services.
+    """Bases: :class:`AbstractSession`
+
+    This class provides a session that can be used for providing services.
 
     It inherits from :class:`AbstractSession`. In addition to the
     :class:`AbstractSession` functionality a :class:`ProviderSession` provides
@@ -301,7 +306,6 @@ class ProviderSession(
 
     DONT_REGISTER_SERVICES = internals.RESOLVEMODE_DONT_REGISTER_SERVICES
 
-    __handle = None  # pylint: disable=unused-private-member
     __handlerProxy = None  # pylint: disable=unused-private-member
 
     @staticmethod
@@ -321,7 +325,7 @@ class ProviderSession(
         try:
             session = sessionRef()
             if session is not None:
-                event = Event(eventHandle, {session})
+                event = Event(eventHandle, session)
                 session.__handler(event, session)
         except:
             print("Exception in event handler:", file=sys.stderr)
@@ -410,11 +414,17 @@ class ProviderSession(
                 ProviderSession.__dispatchEvent, ref(self)
             )
 
-        self.__handle = internals.ProviderSession_createHelper(
+        selfhandle = internals.ProviderSession_createHelper(
             get_handle(options),
             self.__handlerProxy,
             get_handle(eventDispatcher),
         )
+
+        self.__abstractSessionHandle = AbstractSessionHandle(
+            internals.blpapi_ProviderSession_getAbstractSession(selfhandle),
+            self,
+        )
+        delegateInterface(self, AbstractSession, self.__abstractSessionHandle)
 
         def _dtor(handle: Any) -> None:
             atexit.unregister(ProviderSession._weakstopper)
@@ -426,18 +436,10 @@ class ProviderSession(
         atexit.register(
             ProviderSession._weakstopper, session_weakref=ref(self)
         )
-        AbstractSession.__init__(
-            self,
-            self.__handle,
-            internals.blpapi_ProviderSession_getAbstractSession(self.__handle),
+        super(ProviderSession, self).__init__(
+            selfhandle,
             _dtor,
         )
-
-    def _session_handle(self) -> Any:
-        """This is for internal implementation only"""
-        # `_handle()` returns `blpapi_AbstractSession_t *`, but there are times
-        # when we need `blpapi_ProviderSession_t *` instead.
-        return self.__handle
 
     def start(self) -> bool:
         """Start this :class:`Session` in synchronous mode.
@@ -451,7 +453,7 @@ class ProviderSession(
         :meth:`start()` returns a :attr:`~Event.SESSION_STATUS` :class:`Event`
         is generated. A :class:`Session` may only be started once.
         """
-        return internals.blpapi_ProviderSession_start(self.__handle) == 0
+        return internals.blpapi_ProviderSession_start(self._handle()) == 0
 
     def startAsync(self) -> bool:
         """Start this :class:`Session` in asynchronous mode.
@@ -468,7 +470,7 @@ class ProviderSession(
         before :meth:`startAsync()` has returned. A :class:`Session` may only
         be started once.
         """
-        return internals.blpapi_ProviderSession_startAsync(self.__handle) == 0
+        return internals.blpapi_ProviderSession_startAsync(self._handle()) == 0
 
     def flushPublishedEvents(self, timeoutMsecs: int) -> bool:
         """Wait at most ``timeoutMsecs`` milliseconds for all the published
@@ -492,7 +494,7 @@ class ProviderSession(
             err_code,
             allFlushed,
         ) = internals.blpapi_ProviderSession_flushPublishedEvents(
-            self.__handle, timeoutMsecs
+            self._handle(), timeoutMsecs
         )
         if err_code != 0:
             raise RuntimeError("Flush published events failed")
@@ -517,7 +519,7 @@ class ProviderSession(
         destroyed.
         """
         atexit.unregister(ProviderSession._weakstopper)
-        return internals.blpapi_ProviderSession_stop(self.__handle) == 0
+        return internals.blpapi_ProviderSession_stop(self._handle()) == 0
 
     def stopAsync(self) -> bool:
         """Begin the process to stop this Session and return immediately.
@@ -532,7 +534,7 @@ class ProviderSession(
         no further callbacks to ``eventHandlers`` will occur. Once a
         :class:`Session` has been stopped it can only be destroyed.
         """
-        return internals.blpapi_ProviderSession_stopAsync(self.__handle) == 0
+        return internals.blpapi_ProviderSession_stopAsync(self._handle()) == 0
 
     def nextEvent(self, timeout: int = 0) -> Event:
         """
@@ -556,12 +558,12 @@ class ProviderSession(
         of type :attr:`~Event.TIMEOUT`.
         """
         retCode, event = internals.blpapi_ProviderSession_nextEvent(
-            self.__handle, timeout
+            self._handle(), timeout
         )
 
         _ExceptionUtil.raiseOnError(retCode)
 
-        return Event(event, {self})
+        return Event(event, self)
 
     def tryNextEvent(self) -> Optional[Event]:
         r"""
@@ -573,11 +575,11 @@ class ProviderSession(
         :class:`Session`, return ``None``. This method never blocks.
         """
         retCode, event = internals.blpapi_ProviderSession_tryNextEvent(
-            self.__handle
+            self._handle()
         )
         if retCode:
             return None
-        return Event(event, {self})
+        return Event(event, self)
 
     def registerService(
         self,
@@ -620,7 +622,7 @@ class ProviderSession(
             options = ServiceRegistrationOptions()
         if (
             internals.blpapi_ProviderSession_registerService(
-                self.__handle, uri, get_handle(identity), get_handle(options)
+                self._handle(), uri, get_handle(identity), get_handle(options)
             )
             == 0
         ):
@@ -674,7 +676,7 @@ class ProviderSession(
 
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_registerServiceAsync(
-                self.__handle,
+                self._handle(),
                 uri,
                 get_handle(identity),
                 correlationId,
@@ -696,6 +698,10 @@ class ProviderSession(
             resolutionList: List of topics to resolve
             resolveMode: Mode to resolve in
             identity: Identity used for authorization
+
+        Raises:
+            InvalidArgumentException: If ``resolutionList`` has already been used
+                with a different session.
 
         Resolve the topics in the specified ``resolutionList``, which must be
         an object of type :class:`ResolutionList`, and update the
@@ -725,7 +731,7 @@ class ProviderSession(
         resolutionList._addSession(self)
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_resolve(
-                self.__handle,
+                self._handle(),
                 get_handle(resolutionList),
                 resolveMode,
                 get_handle(identity),
@@ -744,6 +750,10 @@ class ProviderSession(
             resolutionList: List of topics to resolve
             resolveMode: Mode to resolve in
             identity: Identity used for authorization
+
+        Raises:
+            InvalidArgumentException: If ``resolutionList`` has already been used
+                with a different session.
 
         Begin the resolution of the topics in the specified ``resolutionList``,
         which must be an object of type :class:`ResolutionList`. If the
@@ -769,7 +779,7 @@ class ProviderSession(
         resolutionList._addSession(self)
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_resolveAsync(
-                self.__handle,
+                self._handle(),
                 get_handle(resolutionList),
                 resolveMode,
                 get_handle(identity),
@@ -792,10 +802,10 @@ class ProviderSession(
         will return ``False``.
         """
         errorCode, topicHandle = internals.blpapi_ProviderSession_getTopic(
-            self.__handle, get_handle(message)
+            self._handle(), get_handle(message)
         )
         _ExceptionUtil.raiseOnError(errorCode)
-        return Topic(topicHandle, {self})
+        return Topic(topicHandle, self)
 
     def createServiceStatusTopic(self, service: "typehints.Service") -> Topic:
         """Create a :class:`Service` Status :class:`Topic` which is to be used
@@ -814,10 +824,10 @@ class ProviderSession(
             errorCode,
             topicHandle,
         ) = internals.blpapi_ProviderSession_createServiceStatusTopic(
-            self.__handle, get_handle(service)
+            self._handle(), get_handle(service)
         )
         _ExceptionUtil.raiseOnError(errorCode)
-        return Topic(topicHandle, {self})
+        return Topic(topicHandle, self)
 
     def publish(self, event: Event) -> None:
         """Publish the specified ``event``.
@@ -827,7 +837,7 @@ class ProviderSession(
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_publish(
-                self.__handle, get_handle(event)
+                self._handle(), get_handle(event)
             )
         )
 
@@ -842,7 +852,7 @@ class ProviderSession(
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_sendResponse(
-                self.__handle, get_handle(event), isPartialResponse
+                self._handle(), get_handle(event), isPartialResponse
             )
         )
 
@@ -858,6 +868,10 @@ class ProviderSession(
             topicList: List of topics to create
             resolveMode: Mode to use for topic resolution
             identity: Identity to use for authorization
+
+        Raises:
+            InvalidArgumentException: If ``topicList`` has already been used
+                with a different session.
 
         Create the topics in the specified ``topicList``, which must be an object
         of type :class:`TopicList`, and update ``topicList`` with the results of the
@@ -879,7 +893,7 @@ class ProviderSession(
         topicList._addSession(self)
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_createTopics(
-                self.__handle,
+                self._handle(),
                 get_handle(topicList),
                 resolveMode,
                 get_handle(identity),
@@ -898,6 +912,10 @@ class ProviderSession(
             topicList: List of topics to create
             resolveMode: Mode to use for topic resolution
             identity: Identity to use for authorization
+
+        Raises:
+            InvalidArgumentException: If ``topicList`` has already been used
+                with a different session.
 
         Create the topics in the specified ``topicList``, which must be an object
         of type :class:`TopicList`, and update ``topicList`` with the results of the
@@ -919,7 +937,7 @@ class ProviderSession(
         topicList._addSession(self)
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_createTopicsAsync(
-                self.__handle,
+                self._handle(),
                 get_handle(topicList),
                 resolveMode,
                 get_handle(identity),
@@ -948,7 +966,7 @@ class ProviderSession(
             31)``, and ``priority`` is non-negative.
         """
         err = internals.blpapi_ProviderSession_activateSubServiceCodeRange(
-            self.__handle, serviceName, begin, end, priority
+            self._handle(), serviceName, begin, end, priority
         )
         _ExceptionUtil.raiseOnError(err)
 
@@ -971,7 +989,7 @@ class ProviderSession(
             31)``.
         """
         err = internals.blpapi_ProviderSession_deactivateSubServiceCodeRange(
-            self.__handle, serviceName, begin, end
+            self._handle(), serviceName, begin, end
         )
         _ExceptionUtil.raiseOnError(err)
 
@@ -999,7 +1017,7 @@ class ProviderSession(
         on this service will be ignored after this method returns.
         """
         res = internals.blpapi_ProviderSession_deregisterService(
-            self.__handle, serviceName
+            self._handle(), serviceName
         )
         return res == 0
 
@@ -1024,7 +1042,7 @@ class ProviderSession(
             return
         _ExceptionUtil.raiseOnError(
             internals.ProviderSession_terminateSubscriptionsOnTopic(
-                self.__handle, get_handle(topic), message
+                self._handle(), get_handle(topic), message
             )
         )
 
@@ -1047,7 +1065,7 @@ class ProviderSession(
 
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_terminateSubscriptionsOnTopics(
-                self.__handle, [get_handle(t) for t in topics], message
+                self._handle(), [get_handle(t) for t in topics], message
             )
         )
 
@@ -1083,7 +1101,7 @@ class ProviderSession(
 
         _ExceptionUtil.raiseOnError(
             internals.blpapi_ProviderSession_deleteTopics(
-                self.__handle, [get_handle(t) for t in topics]
+                self._handle(), [get_handle(t) for t in topics]
             )
         )
 

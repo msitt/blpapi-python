@@ -6,6 +6,7 @@ This file defines a class 'Name' which represents a string in a
 form for efficient string comparison.
 
 """
+
 from __future__ import annotations
 from typing import Any, Optional, Tuple, Union
 from . import internals
@@ -91,12 +92,11 @@ class Name(CHandle):
         if selfhandle is None:
             selfhandle = internals.blpapi_Name_create(nameString)
         super(Name, self).__init__(selfhandle, internals.blpapi_Name_destroy)
-        self.__handle = selfhandle
 
     def __len__(self) -> int:
         """Return the length of the string that this Name represents."""
 
-        return internals.blpapi_Name_length(self.__handle)
+        return internals.blpapi_Name_length(self._handle())
 
     def __str__(self) -> str:
         """x.__str__() <==> str(x)
@@ -105,7 +105,7 @@ class Name(CHandle):
 
         """
 
-        return internals.blpapi_Name_string(self.__handle)
+        return internals.blpapi_Name_string(self._handle())
 
     def __repr__(self) -> str:
         """
@@ -121,10 +121,10 @@ class Name(CHandle):
         if not isstr(other):
             if other is None:
                 return False
-            return self.__handle.value == get_handle(other).value  # type: ignore
+            return self._handle().value == get_handle(other).value
 
         s = conv2str(other)
-        p = internals.blpapi_Name_equalsStr(self.__handle, s)
+        p = internals.blpapi_Name_equalsStr(self._handle(), s)
         return p != 0
 
     def __ne__(self, other: Any) -> bool:
@@ -133,7 +133,7 @@ class Name(CHandle):
 
     def __hash__(self) -> int:
         """x.__hash__() <==> hash(x)"""
-        return int(self.__handle.value)  # type: ignore
+        return int(self._handle().value)
 
 
 def getNamePair(

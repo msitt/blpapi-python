@@ -22,8 +22,6 @@ class EventDispatcher(CHandle):
     callbacks from one or more internal threads for one or more sessions.
     """
 
-    __handle = None  # pylint: disable=unused-private-member
-
     def __init__(self, numDispatcherThreads: int = 1) -> None:
         """Construct an :class:`EventDispatcher`.
 
@@ -42,14 +40,13 @@ class EventDispatcher(CHandle):
         super(EventDispatcher, self).__init__(
             selfhandle, internals.blpapi_EventDispatcher_destroy
         )
-        self.__handle = selfhandle
 
     def start(self) -> int:
         """Start generating callbacks for events from sessions associated with
         this :class:`EventDispatcher`.
         """
 
-        return internals.blpapi_EventDispatcher_start(self.__handle)
+        return internals.blpapi_EventDispatcher_start(self._handle())
 
     def stop(self, async_: bool = False, **kwargs: bool) -> int:
         """Stop generating callbacks.
@@ -84,7 +81,7 @@ class EventDispatcher(CHandle):
                 "compatibility."
             )
 
-        return internals.blpapi_EventDispatcher_stop(self.__handle, async_)
+        return internals.blpapi_EventDispatcher_stop(self._handle(), async_)
 
 
 __copyright__ = """

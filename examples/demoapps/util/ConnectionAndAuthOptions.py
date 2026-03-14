@@ -2,7 +2,6 @@ from blpapi_import_helper import blpapi
 from argparse import Action
 from collections import namedtuple
 
-
 _SESSION_IDENTITY_AUTH_OPTIONS = "sessionIdentityAuthOptions"
 
 

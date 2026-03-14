@@ -5,8 +5,9 @@
 This component provides an identification of a user and implements the access
 to the entitlements.
 """
+
 from ctypes import c_int
-from typing import List, Sequence, Tuple, Union
+from typing import List, Optional, Sequence, Tuple, Union
 from .typehints import BlpapiIdentityHandle
 from .element import Element
 from .exception import _ExceptionUtil
@@ -46,19 +47,17 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     def __init__(
         self,
         handle: BlpapiIdentityHandle,
-        sessions: Sequence["typehints.AbstractSession"],
+        parentSession: Optional[CHandle] = None,
     ):
         """Create an :class:`Identity` associated with the ``sessions``
 
         Args:
             handle: Handle to the internal implementation
-            sessions: Sessions associated with this object
+            parentSession: Session associated with this object
         """
         super(Identity, self).__init__(
-            handle, internals.blpapi_Identity_release
+            handle, internals.blpapi_Identity_release, parentSession
         )
-        self.__handle = handle  # pylint: disable=unused-private-member
-        self.__sessions = sessions  # pylint: disable=unused-private-member
 
     def hasEntitlements(
         self,
@@ -80,7 +79,7 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
         """
         if isinstance(entitlements, Element):
             res = internals.blpapi_Identity_hasEntitlements(
-                self.__handle,
+                self._handle(),
                 get_handle(service),
                 get_handle(entitlements),
                 None,
@@ -93,7 +92,7 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             numberOfEIDs = len(entitlements)
             carrayOfEIDs = (c_int * numberOfEIDs)(*entitlements)
             res = internals.blpapi_Identity_hasEntitlements(
-                self.__handle,
+                self._handle(),
                 get_handle(service),
                 None,
                 carrayOfEIDs,
@@ -129,7 +128,7 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             failedEIDs = (c_int * maxFailedEIDs)()
             failedEIDsSize = c_int(maxFailedEIDs)
             res = internals.blpapi_Identity_hasEntitlements(
-                self.__handle,
+                self._handle(),
                 get_handle(service),
                 get_handle(entitlements),
                 None,
@@ -145,7 +144,7 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             failedEIDs = (c_int * maxFailedEIDs)()
             failedEIDsSize = c_int(maxFailedEIDs)
             res = internals.blpapi_Identity_hasEntitlements(
-                self.__handle,
+                self._handle(),
                 get_handle(service),
                 None,
                 carrayOfEIDs,
@@ -168,7 +167,7 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             specified ``service``, ``False`` otherwise.
         """
         res = internals.blpapi_Identity_isAuthorized(
-            self.__handle, get_handle(service)
+            self._handle(), get_handle(service)
         )
         return True if res else False
 
@@ -179,7 +178,7 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
 
         The class attributes of :class:`Identity` represent the seat types.
         """
-        res = internals.blpapi_Identity_getSeatType(self.__handle)
+        res = internals.blpapi_Identity_getSeatType(self._handle())
         _ExceptionUtil.raiseOnError(res[0])
         return res[1]
 

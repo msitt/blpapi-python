@@ -17,8 +17,9 @@ with a particular type, as well as the number of values of that type that are
 permitted to be associated with that identifier.
 
 """
+
 from __future__ import annotations
-from typing import Sequence, Set, Optional
+from typing import Sequence, Optional
 from typing import Iterator as IteratorType
 from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiNameOrIndex
@@ -27,6 +28,7 @@ from .typehints import BlpapiSchemaTypeDefinitionHandle
 from .exception import NotFoundException, IndexOutOfRangeException
 from .name import Name, getNamePair
 from .constant import ConstantList
+from .chandle import CHandle
 from . import utils
 from . import internals
 
@@ -47,7 +49,9 @@ class SchemaStatus(metaclass=utils.MetaClassForClassesWithEnums):
     advised to migrate away from use of this item."""
 
 
-class SchemaElementDefinition(metaclass=utils.MetaClassForClassesWithEnums):
+class SchemaElementDefinition(
+    CHandle, metaclass=utils.MetaClassForClassesWithEnums
+):
     """The definition of an individual field within a schema type.
 
     This class implements the definition of an individual field within a schema
@@ -89,10 +93,11 @@ class SchemaElementDefinition(metaclass=utils.MetaClassForClassesWithEnums):
     def __init__(
         self,
         handle: BlpapiSchemaElementDefinitionHandle,
-        sessions: Set["typehints.AbstractSession"],
+        parentSession: Optional[CHandle] = None,
     ) -> None:
-        self.__handle = handle
-        self.__sessions = sessions
+        super(SchemaElementDefinition, self).__init__(
+            handle, None, parentSession
+        )
 
     def __str__(self) -> str:
         """x.__str__() <==> str(x)
@@ -112,7 +117,7 @@ class SchemaElementDefinition(metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         return Name._createInternally(
-            internals.blpapi_SchemaElementDefinition_name(self.__handle)
+            internals.blpapi_SchemaElementDefinition_name(self._handle())
         )
 
     def description(self) -> str:
@@ -121,7 +126,7 @@ class SchemaElementDefinition(metaclass=utils.MetaClassForClassesWithEnums):
             Human readable description of this element.
         """
         return internals.blpapi_SchemaElementDefinition_description(
-            self.__handle
+            self._handle()
         )
 
     def status(self) -> int:
@@ -132,7 +137,7 @@ class SchemaElementDefinition(metaclass=utils.MetaClassForClassesWithEnums):
         The possible return values are enumerated in :class:`SchemaStatus`.
         """
 
-        return internals.blpapi_SchemaElementDefinition_status(self.__handle)
+        return internals.blpapi_SchemaElementDefinition_status(self._handle())
 
     def typeDefinition(self) -> SchemaTypeDefinition:
         """
@@ -140,8 +145,8 @@ class SchemaElementDefinition(metaclass=utils.MetaClassForClassesWithEnums):
             The type of values contained in this element.
         """
         return SchemaTypeDefinition(
-            internals.blpapi_SchemaElementDefinition_type(self.__handle),
-            self.__sessions,
+            internals.blpapi_SchemaElementDefinition_type(self._handle()),
+            self._parent(),
         )
 
     def minValues(self) -> int:
@@ -153,7 +158,7 @@ class SchemaElementDefinition(metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         return internals.blpapi_SchemaElementDefinition_minValues(
-            self.__handle
+            self._handle()
         )
 
     def maxValues(self) -> int:
@@ -168,7 +173,7 @@ class SchemaElementDefinition(metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         return internals.blpapi_SchemaElementDefinition_maxValues(
-            self.__handle
+            self._handle()
         )
 
     def alternateNames(self) -> Sequence[Name]:
@@ -180,14 +185,14 @@ class SchemaElementDefinition(metaclass=utils.MetaClassForClassesWithEnums):
         res = []
         numAlternateNames = (
             internals.blpapi_SchemaElementDefinition_numAlternateNames(
-                self.__handle
+                self._handle()
             )
         )
         for i in range(numAlternateNames):
             res.append(
                 Name._createInternally(
                     internals.blpapi_SchemaElementDefinition_getAlternateName(
-                        self.__handle, i
+                        self._handle(), i
                     )
                 )
             )
@@ -209,19 +214,11 @@ class SchemaElementDefinition(metaclass=utils.MetaClassForClassesWithEnums):
         """
 
         return internals.blpapi_SchemaElementDefinition_printHelper(
-            self.__handle, level, spacesPerLevel
+            self._handle(), level, spacesPerLevel
         )
 
-    def _handle(self) -> typehints.BlpapiSchemaElementDefinitionHandle:
-        """Return the internal implementation."""
-        return self.__handle
 
-    def _sessions(self) -> Set["typehints.AbstractSession"]:
-        """Return session(s) this object is related to. For internal use."""
-        return self.__sessions
-
-
-class SchemaTypeDefinition:
+class SchemaTypeDefinition(CHandle):
     """Representation of a "type" that can be used within a schema.
 
     This class implements a representation of a "type" that can be used within
@@ -246,10 +243,9 @@ class SchemaTypeDefinition:
     def __init__(
         self,
         handle: BlpapiSchemaTypeDefinitionHandle,
-        sessions: Set["typehints.AbstractSession"],
+        parentSession: Optional[CHandle] = None,
     ) -> None:
-        self.__handle = handle
-        self.__sessions = sessions
+        super(SchemaTypeDefinition, self).__init__(handle, None, parentSession)
 
     def __str__(self) -> str:
         """x.__str__() <==> str(x)
@@ -269,7 +265,7 @@ class SchemaTypeDefinition:
         The possible return values are enumerated in :class:`DataType`.
         """
 
-        return internals.blpapi_SchemaTypeDefinition_datatype(self.__handle)
+        return internals.blpapi_SchemaTypeDefinition_datatype(self._handle())
 
     def name(self) -> Name:
         """
@@ -277,7 +273,7 @@ class SchemaTypeDefinition:
             The name of this :class:`SchemaTypeDefinition`.
         """
         return Name._createInternally(
-            internals.blpapi_SchemaTypeDefinition_name(self.__handle)
+            internals.blpapi_SchemaTypeDefinition_name(self._handle())
         )
 
     def description(self) -> str:
@@ -285,7 +281,9 @@ class SchemaTypeDefinition:
         Returns:
             Human readable description of this :class:`SchemaTypeDefinition`.
         """
-        return internals.blpapi_SchemaTypeDefinition_description(self.__handle)
+        return internals.blpapi_SchemaTypeDefinition_description(
+            self._handle()
+        )
 
     def status(self) -> int:
         """
@@ -295,7 +293,7 @@ class SchemaTypeDefinition:
         The possible return values are enumerated in :class:`SchemaStatus`.
         """
 
-        return internals.blpapi_SchemaTypeDefinition_status(self.__handle)
+        return internals.blpapi_SchemaTypeDefinition_status(self._handle())
 
     def numElementDefinitions(self) -> int:
         """
@@ -307,7 +305,7 @@ class SchemaTypeDefinition:
         """
 
         return internals.blpapi_SchemaTypeDefinition_numElementDefinitions(
-            self.__handle
+            self._handle()
         )
 
     def isComplexType(self) -> bool:
@@ -318,7 +316,7 @@ class SchemaTypeDefinition:
         """
 
         return bool(
-            internals.blpapi_SchemaTypeDefinition_isComplexType(self.__handle)
+            internals.blpapi_SchemaTypeDefinition_isComplexType(self._handle())
         )
 
     def isSimpleType(self) -> bool:
@@ -329,7 +327,7 @@ class SchemaTypeDefinition:
         """
 
         return bool(
-            internals.blpapi_SchemaTypeDefinition_isSimpleType(self.__handle)
+            internals.blpapi_SchemaTypeDefinition_isSimpleType(self._handle())
         )
 
     def isEnumerationType(self) -> bool:
@@ -341,7 +339,7 @@ class SchemaTypeDefinition:
 
         return bool(
             internals.blpapi_SchemaTypeDefinition_isEnumerationType(
-                self.__handle
+                self._handle()
             )
         )
 
@@ -366,7 +364,7 @@ class SchemaTypeDefinition:
         namepair = getNamePair(name)
         return bool(
             internals.blpapi_SchemaTypeDefinition_hasElementDefinition(
-                self.__handle, namepair[0], namepair[1]
+                self._handle(), namepair[0], namepair[1]
             )
         )
 
@@ -396,7 +394,7 @@ class SchemaTypeDefinition:
             name = nameOrIndex
             names = getNamePair(name)
             res = internals.blpapi_SchemaTypeDefinition_getElementDefinition(
-                self.__handle, names[0], names[1]
+                self._handle(), names[0], names[1]
             )
             if res is None:
                 errMessage = (
@@ -404,15 +402,15 @@ class SchemaTypeDefinition:
                     f" '{self.name()!s}'."
                 )
                 raise NotFoundException(errMessage, 0)
-            return SchemaElementDefinition(res, self.__sessions)
+            return SchemaElementDefinition(res, self._parent())
         position = nameOrIndex
         res = internals.blpapi_SchemaTypeDefinition_getElementDefinitionAt(
-            self.__handle, position
+            self._handle(), position
         )
         if res is None:
             errMessage = f"Index '{position}' out of bounds."
             raise IndexOutOfRangeException(errMessage, 0)
-        return SchemaElementDefinition(res, self.__sessions)
+        return SchemaElementDefinition(res, self._parent())
 
     def elementDefinitions(self) -> IteratorType[SchemaElementDefinition]:
         r"""
@@ -435,8 +433,8 @@ class SchemaTypeDefinition:
             not a enumeration.
         """
 
-        res = internals.blpapi_SchemaTypeDefinition_enumeration(self.__handle)
-        return None if res is None else ConstantList(res, self.__sessions)
+        res = internals.blpapi_SchemaTypeDefinition_enumeration(self._handle())
+        return None if res is None else ConstantList(res, self._parent())
 
     def toString(self, level: int = 0, spacesPerLevel: int = 4) -> str:
         """
@@ -454,12 +452,8 @@ class SchemaTypeDefinition:
         """
 
         return internals.blpapi_SchemaTypeDefinition_printHelper(
-            self.__handle, level, spacesPerLevel
+            self._handle(), level, spacesPerLevel
         )
-
-    def _sessions(self) -> Set["typehints.AbstractSession"]:
-        """Return session(s) this object is related to. For internal use."""
-        return self.__sessions
 
 
 __copyright__ = """

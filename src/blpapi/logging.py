@@ -4,6 +4,7 @@
 
 @DESCRIPTION: This component provides a function that is used to
  register a callback for logging"""
+
 import atexit
 
 from typing import Callable, List, Optional, Tuple

@@ -32,7 +32,6 @@ from typing import (
     List,
     Optional,
     Sequence,
-    Set,
     Tuple,
     Union,
 )
@@ -234,9 +233,7 @@ class Element(CHandle):
     def __init__(
         self,
         handle: "typehints.BlpapiElementHandle",
-        dataHolder: Optional[
-            Union[Element, "typehints.Message", "typehints.Request"]
-        ],
+        dataHolder: Optional[CHandle],
     ) -> None:
         """Create an :class:`Element` object.
 
@@ -249,23 +246,7 @@ class Element(CHandle):
         uninitialized :class:`Element` are assignment, :meth:`isValid()`, and
         destruction.
         """
-        noop = lambda *args: None
-        super(Element, self).__init__(handle, noop)
-        self.__dataHolder = dataHolder
-
-    def _getDataHolder(
-        self,
-    ) -> Optional[Union[Element, "typehints.Message", "typehints.Request"]]:
-        """Return the owner of underlying data. For internal use."""
-        return self if self.__dataHolder is None else self.__dataHolder
-
-    def _sessions(self) -> Set["typehints.AbstractSession"]:
-        """Return session(s) that this 'Element' is related to.
-
-        For internal use."""
-        if self.__dataHolder is None:
-            return set()
-        return self.__dataHolder._sessions()
+        super(Element, self).__init__(handle, None, dataHolder)
 
     def __str__(self) -> str:
         """x.__str__() <==> str(x)
@@ -492,7 +473,7 @@ class Element(CHandle):
         self.__assertIsValid()
         return SchemaElementDefinition(
             internals.blpapi_Element_definition(self._handle()),
-            self._sessions(),
+            self._oldestParent(),
         )
 
     def numValues(self) -> int:
@@ -704,13 +685,13 @@ class Element(CHandle):
                 self._handle(), name[0], name[1]
             )
             _ExceptionUtil.raiseOnError(res[0])
-            return Element(res[1], self._getDataHolder())
+            return Element(res[1], self._parent())
         self.__assertIsValid()
         res = internals.blpapi_Element_getElementAt(
             self._handle(), nameOrIndex
         )
         _ExceptionUtil.raiseOnError(res[0])
-        return Element(res[1], self._getDataHolder())
+        return Element(res[1], self._parent())
 
     def elements(self) -> IteratorType:
         """
@@ -778,7 +759,7 @@ class Element(CHandle):
         self.__assertIsValid()
         res = internals.blpapi_Element_getChoice(self._handle())
         _ExceptionUtil.raiseOnError(res[0])
-        return Element(res[1], self._getDataHolder())
+        return Element(res[1], self._parent())
 
     def getValueAsBool(self, index: int = 0) -> bool:
         r"""
@@ -835,7 +816,7 @@ class Element(CHandle):
         self.__assertIsValid()
         res = internals.blpapi_Element_getValueAsBytes(self._handle(), index)
         _ExceptionUtil.raiseOnError(res[0])
-        return res[1]
+        return res[1] or b""
 
     def getValueAsDatetime(self, index: int = 0) -> AnyPythonDatetime:
         r"""
@@ -938,7 +919,7 @@ class Element(CHandle):
         self.__assertIsValid()
         res = internals.blpapi_Element_getValueAsElement(self._handle(), index)
         _ExceptionUtil.raiseOnError(res[0])
-        return Element(res[1], self._getDataHolder())
+        return Element(res[1], self._parent())
 
     def getValue(
         self, index: int = 0
@@ -1291,7 +1272,7 @@ class Element(CHandle):
         self.__assertIsValid()
         res = internals.blpapi_Element_appendElement(self._handle())
         _ExceptionUtil.raiseOnError(res[0])
-        return Element(res[1], self._getDataHolder())
+        return Element(res[1], self._parent())
 
     def setChoice(self, selectionName: Name) -> Element:
         """Set this :class:`Element`'s active element to ``selectionName``.
@@ -1313,7 +1294,7 @@ class Element(CHandle):
             self._handle(), name[0], name[1], 0
         )
         _ExceptionUtil.raiseOnError(res[0])
-        return Element(res[1], self._getDataHolder())
+        return Element(res[1], self._parent())
 
     def fromPy(
         self, value: Union[Mapping, Sequence, SupportedElementTypes]

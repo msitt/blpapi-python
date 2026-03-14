@@ -4,7 +4,8 @@
 
 This component provides a topic that is used for publishing data on.
 """
-from typing import Any, Set, Optional
+
+from typing import Any, Optional
 from .typehints import BlpapiTopicHandle
 from . import internals
 from . import typehints  # pylint: disable=unused-import
@@ -25,7 +26,7 @@ class Topic(CHandle):
     def __init__(
         self,
         handle: Optional[BlpapiTopicHandle] = None,
-        sessions: Optional[Set["typehints.AbstractSession"]] = None,
+        parentSession: Optional[CHandle] = None,
     ):
         """Create a :class:`Topic` object.
 
@@ -36,8 +37,9 @@ class Topic(CHandle):
         A :class:`Topic` created with ``handle`` set to ``None`` is not a valid
         topic and must be assigned to from a valid topic before it can be used.
         """
-        super(Topic, self).__init__(handle, internals.blpapi_Topic_destroy)
-        self.__sessions = sessions if sessions is not None else set()
+        super(Topic, self).__init__(
+            handle, internals.blpapi_Topic_destroy, parentSession
+        )
 
     def isValid(self) -> bool:  # pylint: disable=useless-parent-delegation
         """
@@ -61,7 +63,7 @@ class Topic(CHandle):
             Service: The service for which this topic was created.
         """
         return Service(
-            internals.blpapi_Topic_service(self._handle()), self.__sessions
+            internals.blpapi_Topic_service(self._handle()), self._parent()
         )
 
     def __lt__(self, other: "typehints.Topic") -> bool:

@@ -92,10 +92,6 @@ class MessageFormatter(CHandle):
         super(MessageFormatter, self).__init__(
             handle, internals.blpapi_MessageFormatter_destroy
         )
-        self.__handle = handle
-
-    def _handle(self) -> BlpapiMessageFormatterHandle:
-        return self.__handle
 
     def setElement(self, name: Name, value: SupportedElementTypes) -> None:
         """Set the element with the specified ``name`` to the specified
@@ -156,7 +152,7 @@ class MessageFormatter(CHandle):
         """Dispatch method for setting `bool` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_setValueBool(
-                self.__handle, get_handle(name), value
+                self._handle(), get_handle(name), value
             )
         )
 
@@ -167,7 +163,7 @@ class MessageFormatter(CHandle):
         """Dispatch method for setting time types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_setValueHighPrecisionDatetime(
-                self.__handle,
+                self._handle(),
                 get_handle(name),
                 _DatetimeUtil.convertToBlpapi(value),
             )
@@ -179,13 +175,13 @@ class MessageFormatter(CHandle):
         if MIN_32BIT_INT <= value <= MAX_32BIT_INT:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_MessageFormatter_setValueInt32(
-                    self.__handle, get_handle(name), value
+                    self._handle(), get_handle(name), value
                 )
             )
         elif MIN_64BIT_INT <= value <= MAX_64BIT_INT:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_MessageFormatter_setValueInt64(
-                    self.__handle, get_handle(name), value
+                    self._handle(), get_handle(name), value
                 )
             )
         else:
@@ -196,7 +192,7 @@ class MessageFormatter(CHandle):
         """Dispatch method for setting `float` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_setValueFloat(
-                self.__handle, get_handle(name), value
+                self._handle(), get_handle(name), value
             )
         )
 
@@ -205,7 +201,7 @@ class MessageFormatter(CHandle):
         """Dispatch method for setting `Name` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_setValueFromName(
-                self.__handle, get_handle(name), get_handle(value)
+                self._handle(), get_handle(name), get_handle(value)
             )
         )
 
@@ -214,7 +210,7 @@ class MessageFormatter(CHandle):
         """Dispatch method for setting `None` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_setValueNull(
-                self.__handle, get_handle(name)
+                self._handle(), get_handle(name)
             )
         )
 
@@ -223,7 +219,7 @@ class MessageFormatter(CHandle):
         """Dispatch method for setting string types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_setValueString(
-                self.__handle, get_handle(name), value
+                self._handle(), get_handle(name), value
             )
         )
 
@@ -232,7 +228,7 @@ class MessageFormatter(CHandle):
         """Dispatch method for setting `bytes` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_setValueBytes(
-                self.__handle, get_handle(name), value
+                self._handle(), get_handle(name), value
             )
         )
 
@@ -274,7 +270,7 @@ class MessageFormatter(CHandle):
             name = Name(conv2str(name))  # type: ignore
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_pushElement(
-                self.__handle, get_handle(name)
+                self._handle(), get_handle(name)
             )
         )
 
@@ -287,7 +283,7 @@ class MessageFormatter(CHandle):
         re-visit the same context.
         """
         _ExceptionUtil.raiseOnError(
-            internals.blpapi_MessageFormatter_popElement(self.__handle)
+            internals.blpapi_MessageFormatter_popElement(self._handle())
         )
 
     def getElement(self) -> Element:
@@ -306,7 +302,7 @@ class MessageFormatter(CHandle):
             This method provides access to the underlying element structure
             for direct operations on the element.
         """
-        res = internals.blpapi_MessageFormatter_getElement(self.__handle)
+        res = internals.blpapi_MessageFormatter_getElement(self._handle())
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], None)
 
@@ -324,7 +320,7 @@ class MessageFormatter(CHandle):
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_appendValueString(
-                self.__handle, value
+                self._handle(), value
             )
         )
 
@@ -333,7 +329,7 @@ class MessageFormatter(CHandle):
         """Dispatch method for appending `bool` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_appendValueBool(
-                self.__handle, value
+                self._handle(), value
             )
         )
 
@@ -344,7 +340,7 @@ class MessageFormatter(CHandle):
         """Dispatch method for appending time types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_appendValueHighPrecisionDatetime(
-                self.__handle, _DatetimeUtil.convertToBlpapi(value)
+                self._handle(), _DatetimeUtil.convertToBlpapi(value)
             )
         )
 
@@ -354,13 +350,13 @@ class MessageFormatter(CHandle):
         if MIN_32BIT_INT <= value <= MAX_32BIT_INT:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_MessageFormatter_appendValueInt32(
-                    self.__handle, value
+                    self._handle(), value
                 )
             )
         elif MIN_64BIT_INT <= value <= MAX_64BIT_INT:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_MessageFormatter_appendValueInt64(
-                    self.__handle, value
+                    self._handle(), value
                 )
             )
         else:
@@ -371,7 +367,7 @@ class MessageFormatter(CHandle):
         """Dispatch method for appending `float` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_appendValueFloat(
-                self.__handle, value
+                self._handle(), value
             )
         )
 
@@ -380,7 +376,7 @@ class MessageFormatter(CHandle):
         """Dispatch method for appending `Name` types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_appendValueFromName(
-                self.__handle, get_handle(value)
+                self._handle(), get_handle(value)
             )
         )
 
@@ -389,7 +385,7 @@ class MessageFormatter(CHandle):
         """Dispatch method for appending string types."""
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_appendValueString(
-                self.__handle, value
+                self._handle(), value
             )
         )
 
@@ -405,7 +401,7 @@ class MessageFormatter(CHandle):
                 sequence or a choice.
         """
         _ExceptionUtil.raiseOnError(
-            internals.blpapi_MessageFormatter_appendElement(self.__handle)
+            internals.blpapi_MessageFormatter_appendElement(self._handle())
         )
 
     def formatMessageJson(self, jsonMessage: str) -> None:
@@ -424,7 +420,7 @@ class MessageFormatter(CHandle):
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_FormatMessageJson(
-                self.__handle, jsonMessage
+                self._handle(), jsonMessage
             )
         )
 
@@ -444,7 +440,7 @@ class MessageFormatter(CHandle):
         """
         _ExceptionUtil.raiseOnError(
             internals.blpapi_MessageFormatter_FormatMessageXml(
-                self.__handle, xmlMessage
+                self._handle(), xmlMessage
             )
         )
 

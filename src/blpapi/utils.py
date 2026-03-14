@@ -6,11 +6,11 @@ from collections.abc import Iterator as IteratorABC, Sequence
 from ctypes import c_void_p
 from typing import Any, Callable, Union, Optional
 from typing import Iterator as IteratorType
+from inspect import getmembers, isfunction
 import functools
 import warnings
 
 from .chandle import CHandle
-
 
 STR_TYPES = (bytes, str)
 
@@ -193,6 +193,14 @@ def isstr(s: Any) -> bool:
     if isinstance(s, STR_TYPES):
         return True
     return False
+
+
+def delegateInterface(
+    delegate: Any, delegatedInterface: type, delegator: Any
+) -> None:
+    """Delegate all methods of `delegatedInterface` from `delegator` to `delegate`."""
+    for method, _ in getmembers(delegatedInterface, predicate=isfunction):
+        setattr(delegate, method, getattr(delegator, method))
 
 
 __copyright__ = """

@@ -16,7 +16,6 @@ from util.SubscriptionOptions import (
 )
 from util.events.SessionRouter import SessionRouter
 
-
 EID = Name("EID")
 ENTITLEMENT_CHANGED = Name("EntitlementChanged")
 SERVICE_NAME = Name("serviceName")

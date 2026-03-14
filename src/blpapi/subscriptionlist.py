@@ -141,7 +141,6 @@ class SubscriptionList(CHandle):
         super(SubscriptionList, self).__init__(
             selfhandle, internals.blpapi_SubscriptionList_destroy
         )
-        self.__handle = selfhandle
 
     def add(
         self,
@@ -202,7 +201,7 @@ class SubscriptionList(CHandle):
                 topic += opts_prefix + options_str
 
         return internals.blpapi_SubscriptionList_addHelper(
-            self.__handle, topic, correlationId
+            self._handle(), topic, correlationId
         )
 
     def append(self, other: "typehints.SubscriptionList") -> int:
@@ -213,19 +212,19 @@ class SubscriptionList(CHandle):
             other: List to append to this one
         """
         return internals.blpapi_SubscriptionList_append(
-            self.__handle, get_handle(other)
+            self._handle(), get_handle(other)
         )
 
     def clear(self) -> int:
         """Remove all entries from this object."""
-        return internals.blpapi_SubscriptionList_clear(self.__handle)
+        return internals.blpapi_SubscriptionList_clear(self._handle())
 
     def size(self) -> int:
         """
         Returns:
             The number of subscriptions in this object.
         """
-        return internals.blpapi_SubscriptionList_size(self.__handle)
+        return internals.blpapi_SubscriptionList_size(self._handle())
 
     def correlationIdAt(self, index: int) -> CorrelationId:
         r"""
@@ -239,7 +238,7 @@ class SubscriptionList(CHandle):
             Exception: If ``index >= size()``.
         """
         errorCode, cid = internals.blpapi_SubscriptionList_correlationIdAt(
-            self.__handle, index
+            self._handle(), index
         )
         _ExceptionUtil.raiseOnError(errorCode)
         return CorrelationId(cid)
@@ -256,7 +255,7 @@ class SubscriptionList(CHandle):
             Exception: If ``index >= size()``.
         """
         errorCode, topic = internals.blpapi_SubscriptionList_topicStringAt(
-            self.__handle, index
+            self._handle(), index
         )
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
@@ -295,7 +294,7 @@ class SubscriptionList(CHandle):
         if correlationId is None:
             correlationId = CorrelationId()
         return internals.blpapi_SubscriptionList_addResolved(
-            self.__handle, subscriptionString, correlationId
+            self._handle(), subscriptionString, correlationId
         )
 
     @deprecated(
@@ -316,7 +315,7 @@ class SubscriptionList(CHandle):
             is thrown if ``index >= size()``.
         """
         err, res = internals.blpapi_SubscriptionList_isResolvedAt(
-            self.__handle, index
+            self._handle(), index
         )
         _ExceptionUtil.raiseOnError(err)
         return res

@@ -18,7 +18,6 @@ from authorizer import Authorizer
 
 import blpapi
 
-
 APIAUTH_SCHEMA = """<?xml version="1.0" encoding="UTF-8" ?>
 <ServiceDefinition name="blp.apiauth" version="1.0.7.2">
     <service name="//blp/apiauth" version="1.0.7.2">

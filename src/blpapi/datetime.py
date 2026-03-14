@@ -271,7 +271,7 @@ class _DatetimeUtil(object):
             res.hours = dtime.hour
             res.minutes = dtime.minute
             res.seconds = dtime.second
-            (res.milliSeconds, highPrecDatetime.picoseconds) = divmod(
+            res.milliSeconds, highPrecDatetime.picoseconds = divmod(
                 dtime.microsecond, 1000
             )
             highPrecDatetime.picoseconds *= 1000 * 1000
@@ -289,16 +289,14 @@ class _DatetimeUtil(object):
             res.hours = dtime.hour
             res.minutes = dtime.minute
             res.seconds = dtime.second
-            (res.milliSeconds, highPrecDatetime.picoseconds) = divmod(
+            res.milliSeconds, highPrecDatetime.picoseconds = divmod(
                 dtime.microsecond, 1000
             )
             highPrecDatetime.picoseconds *= 1000 * 1000
             res.parts = internals.DATETIME_TIMEFRACSECONDS_PART
         else:
-            raise TypeError(
-                "Datetime can be created only from \
-datetime.datetime, datetime.date or datetime.time"
-            )
+            raise TypeError("Datetime can be created only from \
+datetime.datetime, datetime.date or datetime.time")
         if offset is not None:
             offsetInMinutes = int(offset.total_seconds() // 60)
             res.offset = offsetInMinutes

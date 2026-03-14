@@ -149,7 +149,6 @@ class EventFormatter(CHandle):
         super(EventFormatter, self).__init__(
             selfhandle, internals.blpapi_EventFormatter_destroy
         )
-        self.__handle = selfhandle
         self.latestMessageName: Optional[Union[Name, str]] = None
 
     def appendMessage(
@@ -185,13 +184,13 @@ class EventFormatter(CHandle):
         if sequenceNumber is None:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_EventFormatter_appendMessage(
-                    self.__handle, name[0], name[1], get_handle(topic)
+                    self._handle(), name[0], name[1], get_handle(topic)
                 )
             )
         else:
             _ExceptionUtil.raiseOnError(
                 internals.blpapi_EventFormatter_appendMessageSeq(
-                    self.__handle,
+                    self._handle(),
                     name[0],
                     name[1],
                     get_handle(topic),
@@ -231,7 +230,7 @@ class EventFormatter(CHandle):
         name = getNamePair(operationName)
         _ExceptionUtil.raiseOnError(
             internals.blpapi_EventFormatter_appendResponse(
-                self.__handle, name[0], name[1]
+                self._handle(), name[0], name[1]
             )
         )
 
@@ -279,13 +278,13 @@ class EventFormatter(CHandle):
             if fragmentType == Message.FRAGMENT_NONE:
                 _ExceptionUtil.raiseOnError(
                     internals.blpapi_EventFormatter_appendRecapMessage(
-                        self.__handle, get_handle(topic), cIdHandle
+                        self._handle(), get_handle(topic), cIdHandle
                     )
                 )
             else:
                 _ExceptionUtil.raiseOnError(
                     internals.blpapi_EventFormatter_appendFragmentedRecapMessage(
-                        self.__handle,
+                        self._handle(),
                         None,
                         None,
                         get_handle(topic),
@@ -297,7 +296,7 @@ class EventFormatter(CHandle):
             if fragmentType == Message.FRAGMENT_NONE:
                 _ExceptionUtil.raiseOnError(
                     internals.blpapi_EventFormatter_appendRecapMessageSeq(
-                        self.__handle,
+                        self._handle(),
                         get_handle(topic),
                         cIdHandle,
                         sequenceNumber,
@@ -307,7 +306,7 @@ class EventFormatter(CHandle):
             else:
                 _ExceptionUtil.raiseOnError(
                     internals.blpapi_EventFormatter_appendFragmentedRecapMessageSeq(
-                        self.__handle,
+                        self._handle(),
                         None,
                         None,
                         get_handle(topic),
@@ -346,7 +345,7 @@ class EventFormatter(CHandle):
         namepair = getNamePair(name)
         value = invoke_if_valid(traits[2], value)
         _ExceptionUtil.raiseOnError(
-            traits[0](self.__handle, namepair[0], namepair[1], value)
+            traits[0](self._handle(), namepair[0], namepair[1], value)
         )
 
     def setElementNull(self, name: Name) -> None:
@@ -368,7 +367,7 @@ class EventFormatter(CHandle):
         namepair = getNamePair(name)
         _ExceptionUtil.raiseOnError(
             internals.blpapi_EventFormatter_setValueNull(
-                self.__handle, namepair[0], namepair[1]
+                self._handle(), namepair[0], namepair[1]
             )
         )
 
@@ -410,7 +409,7 @@ class EventFormatter(CHandle):
         namepair = getNamePair(name)
         _ExceptionUtil.raiseOnError(
             internals.blpapi_EventFormatter_pushElement(
-                self.__handle, namepair[0], namepair[1]
+                self._handle(), namepair[0], namepair[1]
             )
         )
 
@@ -423,7 +422,7 @@ class EventFormatter(CHandle):
         re-visit the same context.
         """
         _ExceptionUtil.raiseOnError(
-            internals.blpapi_EventFormatter_popElement(self.__handle)
+            internals.blpapi_EventFormatter_popElement(self._handle())
         )
 
     def getElement(self) -> Element:
@@ -438,7 +437,7 @@ class EventFormatter(CHandle):
                 formatted.
             Exception: For other errors when retrieving the element.
         """
-        res = internals.blpapi_EventFormatter_getElement(self.__handle)
+        res = internals.blpapi_EventFormatter_getElement(self._handle())
         _ExceptionUtil.raiseOnError(res[0])
         return Element(res[1], None)
 
@@ -452,11 +451,11 @@ class EventFormatter(CHandle):
         if traits[1] is None:
             raise NotImplementedError("Arrays of bytes are not supported.")
         value = invoke_if_valid(traits[2], value)
-        _ExceptionUtil.raiseOnError(traits[1](self.__handle, value))
+        _ExceptionUtil.raiseOnError(traits[1](self._handle(), value))
 
     def appendElement(self) -> None:
         _ExceptionUtil.raiseOnError(
-            internals.blpapi_EventFormatter_appendElement(self.__handle)
+            internals.blpapi_EventFormatter_appendElement(self._handle())
         )
 
     def fromJson(self, jsonString: str) -> None:

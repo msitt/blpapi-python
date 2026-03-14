@@ -7,12 +7,11 @@ inside an event and containing elements.
 
 """
 
-
 from __future__ import absolute_import
 import sys
 import weakref
 import datetime
-from typing import Set, Optional, Any, List
+from typing import Optional, Any, List
 from blpapi.datetime import _DatetimeUtil, UTC
 from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiNameOrIndex
@@ -80,8 +79,7 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
     def __init__(
         self,
         handle: BlpapiMessageHandle,
-        event: Optional["typehints.Event"] = None,
-        sessions: Optional[Set["typehints.AbstractSession"]] = None,
+        parentHandle: Optional[CHandle] = None,
     ) -> None:
         """
         Args:
@@ -94,15 +92,10 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
             raise ValueError("Handle should not be None")
 
         internals.blpapi_Message_addRef(handle)
-        super(Message, self).__init__(handle, internals.blpapi_Message_release)
-        self.__handle = handle
-        self.__sessions: Set["typehints.AbstractSession"] = set()
-        if event is None:
-            if sessions is not None:
-                self.__sessions = sessions
-        else:
-            self.__sessions = event._sessions()
 
+        super(Message, self).__init__(
+            handle, internals.blpapi_Message_release, parentHandle
+        )
         self.__element: Optional[weakref.ReferenceType] = None
 
     def __str__(self) -> str:
@@ -145,7 +138,7 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
             Type of this message.
         """
         return Name._createInternally(
-            internals.blpapi_Message_messageType(self.__handle)
+            internals.blpapi_Message_messageType(self._handle())
         )
 
     def fragmentType(self) -> int:
@@ -155,7 +148,7 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
 
         Fragment types are listed in the class docstring.
         """
-        return internals.blpapi_Message_fragmentType(self.__handle)
+        return internals.blpapi_Message_fragmentType(self._handle())
 
     def recapType(self) -> int:
         """
@@ -164,7 +157,7 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
 
         Recap types are listed in the class docstring.
         """
-        return internals.blpapi_Message_recapType(self.__handle)
+        return internals.blpapi_Message_recapType(self._handle())
 
     @deprecated
     def topicName(self) -> str:
@@ -191,18 +184,18 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
         their application to help retrieve the topic name associated with the
         cid's present in the delivered message.
         """
-        return internals.blpapi_Message_topicName(self.__handle)
+        return internals.blpapi_Message_topicName(self._handle())
 
     def service(self) -> Optional["typehints.Service"]:
         """
         Returns:
             Service that this :class:`Message` is associated with.
         """
-        svcHandle = internals.blpapi_Message_service(self.__handle)
+        svcHandle = internals.blpapi_Message_service(self._handle())
         return (
             None
             if svcHandle is None
-            else service.Service(svcHandle, self.__sessions)  # type: ignore
+            else service.Service(svcHandle, self._parent())  # type: ignore
         )
 
     def correlationId(self) -> Optional["typehints.CorrelationId"]:
@@ -219,13 +212,13 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
             :meth:`correlationIds` should be used.
         """
         numCorrelations = internals.blpapi_Message_numCorrelationIds(
-            self.__handle
+            self._handle()
         )
         if numCorrelations == 0:
             return None
 
         return CorrelationId(
-            internals.blpapi_Message_correlationId(self.__handle, 0)
+            internals.blpapi_Message_correlationId(self._handle(), 0)
         )
 
     def correlationIds(self) -> List["typehints.CorrelationId"]:
@@ -251,11 +244,11 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
 
         res = []
         for i in range(
-            internals.blpapi_Message_numCorrelationIds(self.__handle)
+            internals.blpapi_Message_numCorrelationIds(self._handle())
         ):
             res.append(
                 CorrelationId(
-                    internals.blpapi_Message_correlationId(self.__handle, i)
+                    internals.blpapi_Message_correlationId(self._handle(), i)
                 )
             )
         return res
@@ -367,7 +360,7 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
         Returns:
             The request id of the message.
         """
-        rc, requestId = internals.blpapi_Message_getRequestId(self.__handle)
+        rc, requestId = internals.blpapi_Message_getRequestId(self._handle())
         _ExceptionUtil.raiseOnError(rc)
         return requestId
 
@@ -382,7 +375,7 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
             el = self.__element()
         if el is None:
             el = Element(
-                internals.blpapi_Message_elements(self.__handle), self
+                internals.blpapi_Message_elements(self._handle()), self
             )
             self.__element = weakref.ref(el)
         return el
@@ -413,7 +406,7 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
         suppressing all but the initial indentation (as governed by ``level``).
         """
         return internals.blpapi_Message_printHelper(
-            self.__handle, level, spacesPerLevel
+            self._handle(), level, spacesPerLevel
         )
 
     def toPy(self) -> dict:
@@ -439,7 +432,7 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
         internal to the SDK.
         """
         err_code, time_point = internals.blpapi_Message_timeReceived(
-            self.__handle
+            self._handle()
         )
         if err_code != 0:
             raise ValueError("Message has no timestamp")
@@ -451,10 +444,6 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
 
         native = _DatetimeUtil.convertToNative(original)
         return native.astimezone(tzinfo)  # type: ignore
-
-    def _sessions(self) -> Set["typehints.AbstractSession"]:
-        """Return session(s) this Message related to. For internal use."""
-        return self.__sessions
 
 
 __copyright__ = """

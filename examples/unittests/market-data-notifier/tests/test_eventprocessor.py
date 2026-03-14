@@ -18,7 +18,6 @@ from event_processor import EventProcessor
 
 import blpapi
 
-
 MKTDATA_SCHEMA = """<?xml version="1.0" encoding="UTF-8" ?>
 <ServiceDefinition name="blp.mktdata" version="1.0.1.0">
    <service name="//blp/mktdata" version="1.0.0.0" authorizationService="//blp/apiauth">

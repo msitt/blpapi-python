@@ -8,7 +8,7 @@ Session.
 """
 
 import weakref
-from typing import Any, Mapping, Optional, Set
+from typing import Any, Mapping, Optional
 from .typehints import BlpapiRequestHandle
 from .element import Element
 from .exception import _ExceptionUtil
@@ -38,11 +38,11 @@ class Request(CHandle):
     def __init__(
         self,
         handle: BlpapiRequestHandle,
-        sessions: Set["typehints.AbstractSession"],
+        parentSession: Optional[CHandle] = None,
     ) -> None:
-        super(Request, self).__init__(handle, internals.blpapi_Request_destroy)
-        self.__handle = handle
-        self.__sessions = sessions
+        super(Request, self).__init__(
+            handle, internals.blpapi_Request_destroy, parentSession
+        )
         self.__element: Optional[weakref.ReferenceType] = None
 
     def __str__(self) -> str:
@@ -136,7 +136,7 @@ class Request(CHandle):
             el = self.__element()
         if el is None:
             el = Element(
-                internals.blpapi_Request_elements(self.__handle), self
+                internals.blpapi_Request_elements(self._handle()), self
             )
             self.__element = weakref.ref(el)
         return el
@@ -165,7 +165,7 @@ class Request(CHandle):
         Returns:
             The request id of the request.
         """
-        rc, requestId = internals.blpapi_Request_getRequestId(self.__handle)
+        rc, requestId = internals.blpapi_Request_getRequestId(self._handle())
         _ExceptionUtil.raiseOnError(rc)
         return requestId
 
@@ -173,10 +173,6 @@ class Request(CHandle):
         """Equivalent to :meth:`asElement().toString(level, spacesPerLevel)
         <Element.toString>`."""
         return self.asElement().toString(level, spacesPerLevel)
-
-    def _sessions(self) -> Set["typehints.AbstractSession"]:
-        """Return session(s) this Request related to. For internal use."""
-        return self.__sessions
 
 
 __copyright__ = """

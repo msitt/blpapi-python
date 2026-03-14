@@ -6,12 +6,13 @@ from typing import Sequence
 import blpapi
 from blpapi import internals
 from blpapi.exception import _ExceptionUtil
+from blpapi.chandle import CHandle
 from blpapi.datetime import _DatetimeUtil
 from blpapi import typehints
 from ..utils import get_handle
 
 
-class MessageProperties:
+class MessageProperties(CHandle):
     """
     This class represents properties of a message that are not part of the
     message contents, such as the correlation ids or timestamp.
@@ -27,20 +28,11 @@ class MessageProperties:
         'Message.FRAGMENT_NONE'.
         Default value for the 'Service' and 'timeReceived' is "unset".
         """
-        rc, self.__handle = internals.blpapi_MessageProperties_create()
+        rc, selfhandle = internals.blpapi_MessageProperties_create()
         _ExceptionUtil.raiseOnError(rc)
-
-    def __del__(self) -> None:
-        try:
-            self.destroy()
-        except (NameError, AttributeError):
-            pass
-
-    def destroy(self) -> None:
-        """Destroy this :class:`MessageProperties`."""
-        if self.__handle:
-            internals.blpapi_MessageProperties_destroy(self.__handle)
-            self.__handle = None
+        super(MessageProperties, self).__init__(
+            selfhandle, internals.blpapi_MessageProperties_destroy
+        )
 
     def setCorrelationIds(
         self, cids: Sequence["typehints.CorrelationId"]
@@ -52,7 +44,7 @@ class MessageProperties:
             cids: list of correlation ids of the message.
         """
         errorCode = internals.blpapi_MessageProperties_setCorrelationIds(
-            self.__handle, list(cids)
+            self._handle(), list(cids)
         )
         _ExceptionUtil.raiseOnError(errorCode)
 
@@ -72,7 +64,7 @@ class MessageProperties:
                 ``blpapi.Message.FRAGMENT_NONE``.
         """
         errorCode = internals.blpapi_MessageProperties_setRecapType(
-            self.__handle, recapType, fragmentType
+            self._handle(), recapType, fragmentType
         )
         _ExceptionUtil.raiseOnError(errorCode)
 
@@ -85,7 +77,7 @@ class MessageProperties:
         """
         ts = _DatetimeUtil.convertToBlpapi(timestamp)
         errorCode = internals.blpapi_MessageProperties_setTimeReceived(
-            self.__handle, ts
+            self._handle(), ts
         )
         _ExceptionUtil.raiseOnError(errorCode)
 
@@ -100,7 +92,7 @@ class MessageProperties:
             requestId (str): RequestId of the message.
         """
         errorCode = internals.blpapi_MessageProperties_setRequestId(
-            self.__handle, requestId
+            self._handle(), requestId
         )
         _ExceptionUtil.raiseOnError(errorCode)
 
@@ -112,13 +104,9 @@ class MessageProperties:
             service (blpapi.Service): Service of the message.
         """
         errorCode = internals.blpapi_MessageProperties_setService(
-            self.__handle, get_handle(service)
+            self._handle(), get_handle(service)
         )
         _ExceptionUtil.raiseOnError(errorCode)
-
-    def _handle(self) -> typehints.BlpapiMessagePropertiesHandle:
-        """For internal use only."""
-        return self.__handle
 
 
 __copyright__ = """

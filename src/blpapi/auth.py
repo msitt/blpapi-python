@@ -28,14 +28,23 @@ class AuthOptions(CHandle):
         **kwargs: Union[BlpapiAuthAppHandle, BlpapiAuthTokenHandle],
     ) -> None:
         """For internal use only."""
-        noop = lambda *args: None
-        super(AuthOptions, self).__init__(handle, noop)
-        self.__handle = handle
-        self.__app_handle = kwargs.get("app_handle")
-        self.__token_handle = kwargs.get("token_handle")
-        self._options_dtor = internals.blpapi_AuthOptions_destroy
-        self._app_dtor = internals.blpapi_AuthApplication_destroy
-        self._token_dtor = internals.blpapi_AuthToken_destroy
+        app_handle = kwargs.get("app_handle")
+        # pylint: disable=unused-private-member
+        self.__app_handle = (
+            CHandle(app_handle, internals.blpapi_AuthApplication_destroy)
+            if app_handle
+            else None
+        )
+        token_handle = kwargs.get("token_handle")
+        # pylint: disable=unused-private-member
+        self.__token_handle = (
+            CHandle(token_handle, internals.blpapi_AuthToken_destroy)
+            if token_handle
+            else None
+        )
+        super(AuthOptions, self).__init__(
+            handle, internals.blpapi_AuthOptions_destroy
+        )
 
     @classmethod
     def createWithUser(cls: Callable, user: AuthUser) -> AuthOptions:
@@ -127,18 +136,6 @@ class AuthOptions(CHandle):
         _ExceptionUtil.raiseOnError(retcode)
         return cls(authOptions_handle, app_handle=app_handle)
 
-    def destroy(self) -> None:
-        """Destroy this :class:`AuthOptions`."""
-        if self.__handle:
-            self._options_dtor(self.__handle)
-            self.__handle = None
-        if self.__app_handle:
-            self._app_dtor(self.__app_handle)
-            self.__app_handle = None
-        if self.__token_handle:
-            self._token_dtor(self.__token_handle)
-            self.__token_handle = None
-
     @staticmethod
     def _create_app_handle(appName: str) -> BlpapiAuthAppHandle:
         """For internal use only."""
@@ -162,7 +159,6 @@ class AuthUser(CHandle):
         super(AuthUser, self).__init__(
             handle, internals.blpapi_AuthUser_destroy
         )
-        self.__handle = handle  # pylint: disable=unused-private-member
 
     @classmethod
     def createWithLogonName(cls: Callable) -> AuthUser:

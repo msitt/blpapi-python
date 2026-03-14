@@ -4,7 +4,6 @@ submodule in the context of resolvers.
 
 import unittest
 
-
 try:
     from unittest.mock import ANY, Mock
 except ImportError:
@@ -16,7 +15,6 @@ from resolverutils import (
     resolutionServiceRegistration,
     handlePermissionRequest,
 )
-
 
 RESULT = blpapi.Name("result")
 REASON = blpapi.Name("reason")

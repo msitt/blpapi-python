@@ -28,7 +28,7 @@ def createEvent(eventType: int) -> Event:
     """
     rc, event_handle = internals.blpapi_TestUtil_createEvent(eventType)
     _ExceptionUtil.raiseOnError(rc)
-    event = Event(event_handle, sessions=None)
+    event = Event(event_handle, parentSession=None)
     return event
 
 
@@ -57,8 +57,8 @@ def appendMessage(
         properties = MessageProperties()
     rc, formatter_handle = internals.blpapi_TestUtil_appendMessage(
         get_handle(event),
-        get_handle(elementDef),  # type: ignore
-        get_handle(properties),  # type: ignore
+        get_handle(elementDef),
+        get_handle(properties),
     )
     _ExceptionUtil.raiseOnError(rc)
     message_formatter = MessageFormatter(formatter_handle)
@@ -84,7 +84,7 @@ def deserializeService(serviceXMLStr: str) -> Service:
     )
     _ExceptionUtil.raiseOnError(rc)
     let_it_leak = True  # for now, we prefer leaks to crashes
-    service = Service(service_handle, set(), let_it_leak)
+    service = Service(service_handle, None, let_it_leak)
     return service
 
 
@@ -125,7 +125,7 @@ def createTopic(service: Service, isActive: bool = True) -> Topic:
         get_handle(service), isActive
     )
     _ExceptionUtil.raiseOnError(rc)
-    topic = Topic(topic_handle, sessions=set())
+    topic = Topic(topic_handle)
     return topic
 
 
@@ -164,7 +164,7 @@ def getAdminMessageDefinition(
     )
     _ExceptionUtil.raiseOnError(rc)
     schema_definition = SchemaElementDefinition(
-        schema_element_definition_handle, set()
+        schema_element_definition_handle, None
     )
     return schema_definition
 

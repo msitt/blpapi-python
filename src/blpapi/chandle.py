@@ -7,18 +7,22 @@ It handles the life of an object with a handle from C layer.
 """
 
 from ctypes import c_void_p
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 
 
 class CHandle:
     """A base class for objects that rely on C handles"""
 
-    def __init__(self, handle: Any, dtor: Callable) -> None:
+    def __init__(
+        self,
+        handle: Optional[c_void_p],
+        dtor: Optional[Callable],
+        parent: Optional["CHandle"] = None,
+    ) -> None:
         """Set the handle and the dtor"""
-        # None case is for tests
-        assert isinstance(handle, c_void_p) or handle is None
         self.__handle = handle
-        self._dtor = dtor
+        self.__dtor = dtor
+        self.__parent = parent
 
     def __del__(self) -> None:
         """Destroy the object"""
@@ -30,20 +34,46 @@ class CHandle:
 
     def destroy(self) -> None:
         """Destroy the handle using stored dtor"""
-        if self.__handle:
-            self._dtor(self.__handle)
-            self._dtor = None  # type: ignore
+        if self.__dtor:
+            self.__dtor(self.__handle)
+            self.__dtor = None
             self.__handle = None
 
     def _handle(self) -> Any:
         """Return the internal implementation."""
         return self.__handle
 
+    def _dtor(self) -> Any:
+        """Return the destructor - for unit tests."""
+        return self.__dtor
+
+    def _set_dtor(self, dtor: Optional[Callable]) -> None:
+        """Set the destructor - for unit tests."""
+        self.__dtor = dtor
+
     def isValid(self) -> bool:
         """Returns:
         ``True`` if this class holds a handle and the handle is not None.
         """
         return self.__handle is not None and self.__handle.value is not None
+
+    def _parent(self) -> Optional["CHandle"]:
+        """Return the parent handle this handle depends on, if any."""
+        return self.__parent
+
+    def _oldestParent(self) -> Optional["CHandle"]:
+        """Get the oldest parent of this CHandle - typically a Session."""
+        parent = self._parent()
+        while True:
+            # pylint: disable=protected-access
+            nextParent = parent and parent._parent()
+            if nextParent is None:
+                return parent
+            parent = nextParent
+
+    def _updateParent(self, parent: Optional["CHandle"]) -> None:
+        """Update the parent handle this handle depends on."""
+        self.__parent = parent
 
 
 __copyright__ = """

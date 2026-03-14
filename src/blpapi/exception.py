@@ -9,7 +9,6 @@ from builtins import Exception as _StandardException
 from typing import Optional, Type
 from . import internals
 
-
 # pylint: disable=redefined-builtin
 
 

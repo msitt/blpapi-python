@@ -21,6 +21,7 @@ sessionOptions.setAuthenticationOptions( ... )
 session = blpapi.Session(sessionOptions)
 session.start()
 """
+
 import os
 import sys
 from . import utils
