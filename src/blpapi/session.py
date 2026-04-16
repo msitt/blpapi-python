@@ -184,13 +184,19 @@ class Session(
             traceback will be printed to ``sys.stderr`` and application will be
             terminated with nonzero exit code.
         """
+        # Check if this is a Jupyter session first.
+        # If this is not a Jupyter session, then use argv[0].
         # https://docs.python.org/3/library/sys.html#sys.argv
         # argv[0] is the script name (it is operating system dependent whether
         # this is a full pathname or not). If the command was executed using
         # the -c command line option to the interpreter, argv[0] is set to the
         # string '-c'. If no script name was passed to the Python interpreter,
         # argv[0] is the empty string.
-        taskName = os.path.basename(sys.argv[0])
+        taskName = os.getenv("JPY_SESSION_NAME")
+        if taskName:
+            taskName = f"jupyter:{os.path.basename(taskName)}"
+        else:
+            taskName = os.path.basename(sys.argv[0])
         if taskName == "__main__.py":
             # Try to get a parent folder name for '__main__.py'.
             taskNameDir = os.path.basename(
