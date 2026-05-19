@@ -5,13 +5,16 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   check-blpapi:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -20,7 +23,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LATEST_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' || echo "")
+          LATEST_TAG=$(gh release list --json tagName --jq '.[].tagName' | sort -V | tail -n1 || echo "")
           if [ -z "$LATEST_TAG" ]; then
             LATEST_TAG="v0.0.0"
           fi
@@ -51,19 +54,28 @@ jobs:
             if [ "$(printf "%s\n%s" "$LAST_VERSION" "$NEW_VERSION" | sort -V | tail -n1)" != "$LAST_VERSION" ]; then
               echo "Processing version $NEW_VERSION..."
 
+              # Clean repo
+              find . -mindepth 1 -maxdepth 1 \
+                ! -name '.git' \
+                ! -name '.github' \
+                -exec rm -rf {} +
+
               # Download and extract the source archive
               FILE_NAME="blpapi-${NEW_VERSION}.tar.gz"
               URL="https://blpapi.bloomberg.com/repository/releases/python/${FILE_NAME}"
               echo "Downloading $URL..."
-              curl -fsSL "$URL" -o "$FILE_NAME"
+              if ! curl -fsSL "$URL" -o "$FILE_NAME"; then
+                echo "::warning::Failed to download $URL — skipping v${NEW_VERSION}"
+                continue
+              fi
               tar -xzf "$FILE_NAME" --strip-components=1
               rm "$FILE_NAME"
 
               # Commit changes
               git config user.name "github-actions"
               git config user.email "github-actions@github.com"
-              git add .
-              git commit -m "v${NEW_VERSION}"
+              git add -A
+              git commit --allow-empty -m "v${NEW_VERSION}"
               git tag "v${NEW_VERSION}"
               git push --atomic origin master "v${NEW_VERSION}"
 
@@ -73,4 +85,4 @@ jobs:
 
               LAST_VERSION=$NEW_VERSION
             fi
-          done <<< "$(echo "$AVAILABLE_VERSIONS")"
+          done <<< "$AVAILABLE_VERSIONS"
