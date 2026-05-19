@@ -64,7 +64,7 @@ class ElementIterator(IteratorABC):
         raise StopIteration()
 
 
-class Element(CHandle):
+class Element(CHandle[internals.blpapi_Element_t_p]):
     """Represents an item in a message.
 
     An :class:`Element` can represent:

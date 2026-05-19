@@ -41,12 +41,15 @@ from . import internals
 from . import utils
 from .utils import get_handle
 from .chandle import CHandle
+from .ctypesutils import blpapi_Event_t_p
 from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiEventHandle
 from .exception import InvalidArgumentException
 
 
-class MessageIterator(CHandle, IteratorABC):
+class MessageIterator(
+    CHandle[internals.blpapi_MessageIterator_t_p], IteratorABC
+):
     """An iterator over the :class:`Message` objects within an :class:`Event`.
 
     Few clients will ever make direct use of :class:`MessageIterator` objects;
@@ -75,7 +78,9 @@ class MessageIterator(CHandle, IteratorABC):
             return Message(message, self._parent())
 
 
-class Event(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
+class Event(
+    CHandle[blpapi_Event_t_p], metaclass=utils.MetaClassForClassesWithEnums
+):
     """A single event resulting from a subscription or a request.
 
     :class:`Event` objects are created by the API and passed to the application
@@ -155,7 +160,7 @@ class Event(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
     # derived from this class from changes:
 
 
-class EventQueue(CHandle):
+class EventQueue(CHandle[internals.blpapi_EventQueue_t_p]):
     """A construct used to handle replies to request synchronously.
 
     When a request is submitted an application can either handle the responses

@@ -12,7 +12,7 @@ from blpapi import typehints
 from ..utils import get_handle
 
 
-class MessageProperties(CHandle):
+class MessageProperties(CHandle[internals.blpapi_MessageProperties_t_p]):
     """
     This class represents properties of a message that are not part of the
     message contents, such as the correlation ids or timestamp.

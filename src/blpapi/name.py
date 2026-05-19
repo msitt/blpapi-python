@@ -12,12 +12,13 @@ from typing import Any, Optional, Tuple, Union
 from . import internals
 from .utils import conv2str, get_handle, isstr
 from .chandle import CHandle
+from .ctypesutils import getRawPtrFromHandle
 from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiNameHandle
 
 
 # pylint: disable=broad-except
-class Name(CHandle):
+class Name(CHandle[internals.blpapi_Name_t_p]):
     """:class:`Name` represents a string in a form which is efficient for hashing and
     comparison, thus providing efficient lookup when used as a key in either
     ordered or hash-based containers.
@@ -64,7 +65,9 @@ class Name(CHandle):
         """
         nameHandle = internals.blpapi_Name_findName(nameString)
         return (
-            None if nameHandle is None else Name._createInternally(nameHandle)
+            None
+            if nameHandle is None or getRawPtrFromHandle(nameHandle) is None
+            else Name._createInternally(nameHandle)
         )
 
     @staticmethod
@@ -121,7 +124,9 @@ class Name(CHandle):
         if not isstr(other):
             if other is None:
                 return False
-            return self._handle().value == get_handle(other).value
+            return getRawPtrFromHandle(self._handle()) == getRawPtrFromHandle(
+                get_handle(other)
+            )
 
         s = conv2str(other)
         p = internals.blpapi_Name_equalsStr(self._handle(), s)
@@ -133,7 +138,7 @@ class Name(CHandle):
 
     def __hash__(self) -> int:
         """x.__hash__() <==> hash(x)"""
-        return int(self._handle().value)
+        return int(getRawPtrFromHandle(self._handle()) or 0)
 
 
 def getNamePair(

@@ -24,7 +24,7 @@ from . import internals
 from .chandle import CHandle
 
 
-class Operation(CHandle):
+class Operation(CHandle[internals.blpapi_Operation_t_p]):
     """Defines an operation which can be performed by a :class:`Service`.
 
     Operation objects are obtained from a :class:`Service` object. They provide
@@ -117,7 +117,7 @@ class Operation(CHandle):
         )
 
 
-class Service(CHandle):
+class Service(CHandle[internals.blpapi_Service_t_p]):
     r"""Defines a service which provides access to API data.
 
     A :class:`Service` object is obtained from a :class:`Session` and contains
@@ -145,7 +145,7 @@ class Service(CHandle):
             handle, internals.blpapi_Service_release, parentSession
         )
         if isRealService:  # as opposed to deserialized
-            # see blpapi-cpp/src/blpapi_testutil.cpp#L270
+            # see blpapi_TestUtil_deserializeService in blpapi-cpp
             internals.blpapi_Service_addRef(handle)
 
     def __str__(self) -> str:

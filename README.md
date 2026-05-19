@@ -12,7 +12,7 @@ Users are encouraged to install using `pip` directly, as documented in
 
 This SDK requires the following products:
 
-- CPython version 3.8 or higher
+- CPython version 3.10 or higher
 
 - Bloomberg C++ SDK same major and minor version as the Python SDK
 

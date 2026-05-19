@@ -22,7 +22,9 @@ from .chandle import CHandle
 from .abstractsession import AbstractSession
 
 
-class AbstractSessionHandle(CHandle, AbstractSession):
+class AbstractSessionHandle(
+    CHandle[internals.blpapi_AbstractSession_t_p], AbstractSession
+):
     r"""An implementation of :class:`AbstractSession` that can be used as
     a delegate.
     """
@@ -36,6 +38,7 @@ class AbstractSessionHandle(CHandle, AbstractSession):
 
         Args:
             abstractSessionHandle: Handle to the underlying abstract session
+            parentHandle: Parent handle to which this object is related
 
         This function is for internal use only. Clients should create sessions
         using one of the concrete subclasses of :class:`AbstractSession`.

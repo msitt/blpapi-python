@@ -34,7 +34,10 @@ if service is None:
 
 
 # pylint: disable=protected-access
-class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
+class Message(
+    CHandle[internals.blpapi_Message_t_p],
+    metaclass=MetaClassForClassesWithEnums,
+):
     """A handle to a single message.
 
     :class:`Message` objects are obtained by iterating an :class:`Event`. Each
@@ -84,8 +87,7 @@ class Message(CHandle, metaclass=MetaClassForClassesWithEnums):
         """
         Args:
             handle: Handle to the internal implementation
-            event: Event that this message belongs to
-            sessions: Sessions that this object is associated with
+            parentHandle: Parent handle to which this object is related
         """
 
         if handle is None:

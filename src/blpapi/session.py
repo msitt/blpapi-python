@@ -54,7 +54,9 @@ class SubscriptionPreprocessMode(Enum):
 
 # pylint: disable=abstract-method
 class Session(
-    CHandle, AbstractSession, metaclass=MetaClassForClassesWithEnums
+    CHandle[internals.blpapi_Session_t_p],
+    AbstractSession,
+    metaclass=MetaClassForClassesWithEnums,
 ):
     r"""Bases: :class:`AbstractSession`
 

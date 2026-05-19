@@ -61,7 +61,7 @@ def _singledispatchmethod(arg_index: int) -> Callable:
     return _singleDispatchMethodImpl
 
 
-class MessageFormatter(CHandle):
+class MessageFormatter(CHandle[internals.blpapi_MessageFormatter_t_p]):
     """:class:`MessageFormatter` is used to populate/format a message. It
     supports writing only once to each field. Attempting to set an already set
     element will fail.

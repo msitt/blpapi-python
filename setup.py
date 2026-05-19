@@ -21,7 +21,11 @@ def override_get_tag():
     # This makes sure we create no-py-specific wheel
     class BDistWheel(bdist_wheel):
         def get_tag(self):
-            return (self.python_tag, "none", self.plat_name.replace("-", "_"))
+            return (
+                self.python_tag,
+                "none",
+                self.plat_name.replace("-", "_").replace(".", "_"),
+            )
 
     return {"bdist_wheel": BDistWheel}
 
@@ -139,7 +143,7 @@ setup(
     packages=packages,
     package_dir={"": "src"},
     package_data=package_data,
-    python_requires=">=3.8",
+    python_requires=">=3.10",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",

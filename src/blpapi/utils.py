@@ -3,7 +3,6 @@
 """Internal utils."""
 
 from collections.abc import Iterator as IteratorABC, Sequence
-from ctypes import c_void_p
 from typing import Any, Callable, Union, Optional
 from typing import Iterator as IteratorType
 from inspect import getmembers, isfunction
@@ -11,6 +10,7 @@ import functools
 import warnings
 
 from .chandle import CHandle
+from .ctypesutils import getRawPtrFromHandle
 
 STR_TYPES = (bytes, str)
 
@@ -101,7 +101,7 @@ class MetaClassForClassesWithEnums(type):
 
 def get_handle(thing: Optional[CHandle]) -> Any:
     """Returns the result of thing._handle() or None if thing is None or
-    thing._handle() is c_void_p and its value is None.
+    thing._handle() is a pointer and its value is None.
     """
     # pylint: disable=protected-access
     if thing is None:
@@ -109,7 +109,7 @@ def get_handle(thing: Optional[CHandle]) -> Any:
     handle = thing._handle()
     if handle is None:
         return None
-    if isinstance(handle, c_void_p) and handle.value is None:
+    if getRawPtrFromHandle(handle) is None:
         return None
     return handle
 

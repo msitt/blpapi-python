@@ -18,7 +18,10 @@ from .utils import get_handle
 from .chandle import CHandle
 
 
-class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
+class Identity(
+    CHandle[internals.blpapi_Identity_t_p],
+    metaclass=utils.MetaClassForClassesWithEnums,
+):
     """Provides access to the entitlements for a specific user.
 
     An unauthorized Identity is created using
@@ -53,7 +56,7 @@ class Identity(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
 
         Args:
             handle: Handle to the internal implementation
-            parentSession: Session associated with this object
+            parentSession: Parent session to which this object is related
         """
         super(Identity, self).__init__(
             handle, internals.blpapi_Identity_release, parentSession

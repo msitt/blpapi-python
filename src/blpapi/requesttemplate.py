@@ -22,7 +22,7 @@ from .chandle import CHandle
 from .typehints import BlpapiRequestTemplateHandle
 
 
-class RequestTemplate(CHandle):
+class RequestTemplate(CHandle[internals.blpapi_RequestTemplate_t_p]):
     """Request templates cache the necessary information to make a request and
     eliminate the need to create new requests for snapshot services.
     """

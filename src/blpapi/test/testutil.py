@@ -4,12 +4,29 @@
 create events/messages for unit-testing their applications.
 """
 
+import atexit
 from typing import Optional
 from blpapi import internals
 from blpapi import Event, Name, SchemaElementDefinition, Service, Topic
 from blpapi.exception import _ExceptionUtil
 from blpapi.utils import conv2str, get_handle, isstr
 from blpapi.test import MessageProperties, MessageFormatter
+
+# This is a testing bag for testutil to hold test services alive for the
+# lifetime of the module. Services are kept alive to prevent premature
+# deallocation of C handles that other objects may depend on.
+testingBag: list[Service] = []
+
+
+@atexit.register
+def _cleanup_testing_bag() -> None:
+    """Cleanup testingBag at module exit to avoid ASAN warnings.
+
+    Decorated with atexit.register to run near program termination, ensuring
+    all Service objects in testingBag are properly destroyed and their C
+    handles released before the C++ library is unloaded.
+    """
+    testingBag.clear()
 
 
 def createEvent(eventType: int) -> Event:
@@ -83,8 +100,8 @@ def deserializeService(serviceXMLStr: str) -> Service:
         serviceXMLStr, len(serviceXMLStr)
     )
     _ExceptionUtil.raiseOnError(rc)
-    let_it_leak = True  # for now, we prefer leaks to crashes
-    service = Service(service_handle, None, let_it_leak)
+    service = Service(service_handle, parentSession=None, isRealService=False)
+    testingBag.append(service)
     return service
 
 

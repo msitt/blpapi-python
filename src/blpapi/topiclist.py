@@ -19,7 +19,10 @@ from .exception import InvalidArgumentException
 from . import typehints  # pylint: disable=unused-import
 
 
-class TopicList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
+class TopicList(
+    CHandle[internals.blpapi_TopicList_t_p],
+    metaclass=utils.MetaClassForClassesWithEnums,
+):
     """A list of topics which require creation.
 
     Contains a list of topics which require creation.

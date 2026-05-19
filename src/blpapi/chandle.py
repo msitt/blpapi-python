@@ -6,18 +6,20 @@ This file defines a 'CHandle' class.
 It handles the life of an object with a handle from C layer.
 """
 
-from ctypes import c_void_p
-from typing import Callable, Any, Optional
+from typing import Callable, Any, Generic, Optional, TypeVar
+from .ctypesutils import getRawPtrFromHandle
+
+_HandleT = TypeVar("_HandleT")
 
 
-class CHandle:
+class CHandle(Generic[_HandleT]):
     """A base class for objects that rely on C handles"""
 
     def __init__(
         self,
-        handle: Optional[c_void_p],
+        handle: Optional[_HandleT],
         dtor: Optional[Callable],
-        parent: Optional["CHandle"] = None,
+        parent: Optional["CHandle[Any]"] = None,
     ) -> None:
         """Set the handle and the dtor"""
         self.__handle = handle
@@ -39,7 +41,7 @@ class CHandle:
             self.__dtor = None
             self.__handle = None
 
-    def _handle(self) -> Any:
+    def _handle(self) -> Optional[_HandleT]:
         """Return the internal implementation."""
         return self.__handle
 
@@ -55,13 +57,16 @@ class CHandle:
         """Returns:
         ``True`` if this class holds a handle and the handle is not None.
         """
-        return self.__handle is not None and self.__handle.value is not None
+        return (
+            self.__handle is not None
+            and getRawPtrFromHandle(self.__handle) is not None
+        )
 
-    def _parent(self) -> Optional["CHandle"]:
+    def _parent(self) -> Optional["CHandle[Any]"]:
         """Return the parent handle this handle depends on, if any."""
         return self.__parent
 
-    def _oldestParent(self) -> Optional["CHandle"]:
+    def _oldestParent(self) -> Optional["CHandle[Any]"]:
         """Get the oldest parent of this CHandle - typically a Session."""
         parent = self._parent()
         while True:
@@ -71,7 +76,7 @@ class CHandle:
                 return parent
             parent = nextParent
 
-    def _updateParent(self, parent: Optional["CHandle"]) -> None:
+    def _updateParent(self, parent: Optional["CHandle[Any]"]) -> None:
         """Update the parent handle this handle depends on."""
         self.__parent = parent
 

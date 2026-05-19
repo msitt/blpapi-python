@@ -18,7 +18,10 @@ from .exception import InvalidArgumentException
 from . import typehints  # pylint: disable=unused-import
 
 
-class ResolutionList(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
+class ResolutionList(
+    CHandle[internals.blpapi_ResolutionList_t_p],
+    metaclass=utils.MetaClassForClassesWithEnums,
+):
     """Contains a list of topics that require resolution.
 
     Created from topic strings or from ``SUBSCRIPTION_STARTED`` messages. This

@@ -92,7 +92,7 @@ from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
 
 
-class SubscriptionList(CHandle):
+class SubscriptionList(CHandle[internals.blpapi_SubscriptionList_t_p]):
     """A list of subscriptions.
 
     Contains a list of subscriptions used when subscribing and unsubscribing.

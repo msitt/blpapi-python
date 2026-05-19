@@ -14,7 +14,7 @@ from .utils import get_handle
 from .chandle import CHandle
 
 
-class Topic(CHandle):
+class Topic(CHandle[internals.blpapi_Topic_t_p]):
     """Used to identify the stream on which a message is published.
 
     Topic objects are obtained from :meth:`~ProviderSession.createTopics()` on
@@ -32,7 +32,7 @@ class Topic(CHandle):
 
         Args:
             handle: Handle to the internal implementation
-            sessions: Sessions associated with this object
+            parentSession: Parent session to which this object is related
 
         A :class:`Topic` created with ``handle`` set to ``None`` is not a valid
         topic and must be assigned to from a valid topic before it can be used.

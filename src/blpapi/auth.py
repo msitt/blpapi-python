@@ -16,7 +16,7 @@ from .exception import _ExceptionUtil
 from .chandle import CHandle
 
 
-class AuthOptions(CHandle):
+class AuthOptions(CHandle[internals.blpapi_AuthOptions_t_p]):
     """Defines the authorization options which the user can set on
     :class:`SessionOptions` as the authorization options for the session
     identity or use to authorize other identities.
@@ -151,7 +151,7 @@ class AuthOptions(CHandle):
         return token_handle
 
 
-class AuthUser(CHandle):
+class AuthUser(CHandle[internals.blpapi_AuthUser_t_p]):
     """Contains user-specific authorization options."""
 
     def __init__(self, handle: BlpapiAuthUserHandle) -> None:

@@ -1,5 +1,6 @@
 from ctypes import (
     CFUNCTYPE,
+    cast,
     c_int,
     c_char_p,
     c_void_p,
@@ -8,7 +9,11 @@ from ctypes import (
 from typing import Any, Callable
 from io import StringIO
 
-from .ctypesutils import pyObjectFromVoid, voidFromPyObject
+from .ctypesutils import (
+    blpapi_Event_t_p,
+    pyObjectFromVoid,
+    voidFromPyObject,
+)
 
 # ============== General disclaimer ==============
 # All python callback wrappers currently use the same approach,
@@ -51,7 +56,7 @@ def any_printer(
 
 def _dispatchEventProxy(event: Any, _session: Any, pycb: Any) -> None:
     pyout = pyObjectFromVoid(pycb)
-    getattr(pyout, "__call__")(c_void_p(event))
+    getattr(pyout, "__call__")(cast(event, blpapi_Event_t_p))
 
 
 class EventHandleWrapper:

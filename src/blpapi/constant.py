@@ -28,11 +28,12 @@ from .typehints import (
 from . import utils
 from . import internals
 from .chandle import CHandle
+from .ctypesutils import getRawPtrFromHandle
 
 # pylint: disable=protected-access
 
 
-class Constant(CHandle):
+class Constant(CHandle[internals.blpapi_Constant_t_p]):
     r"""Represents the value of a schema enumeration constant.
 
     Constants can be any of the following :class:`DataType`\s:
@@ -59,7 +60,7 @@ class Constant(CHandle):
         """
         Args:
             handle: Handle to the internal implementation
-            sessions: Sessions to which this object is related to
+            parentSession: Parent session to which this object is related
         """
         super(Constant, self).__init__(handle, None, parentSession)
 
@@ -184,7 +185,7 @@ class Constant(CHandle):
         return valueGetter(self)
 
 
-class ConstantList(CHandle):
+class ConstantList(CHandle[internals.blpapi_ConstantList_t_p]):
     """Represents a list of schema enumeration constants.
 
     As well as the list of :class:`Constant` objects, this class also provides
@@ -207,7 +208,7 @@ class ConstantList(CHandle):
         """
         Args:
             handle: Handle to the internal implementation
-            sessions: Sessions to which this object is related to
+            parentSession: Parent session to which this object is related
         """
         super(ConstantList, self).__init__(handle, None, parentSession)
 
@@ -296,7 +297,7 @@ class ConstantList(CHandle):
         res = internals.blpapi_ConstantList_getConstant(
             self._handle(), names[0], names[1]
         )
-        if res is None:
+        if res is None or getRawPtrFromHandle(res) is None:
             errMessage = (
                 f"Constant '{name!s}' is not found in '{self.name()!s}'."
             )
@@ -318,7 +319,7 @@ class ConstantList(CHandle):
         res = internals.blpapi_ConstantList_getConstantAt(
             self._handle(), position
         )
-        if res is None:
+        if res is None or getRawPtrFromHandle(res) is None:
             errMessage = f"Index '{position}' out of bounds."
             raise IndexOutOfRangeException(errMessage, 0)
         return Constant(res, self._parent())

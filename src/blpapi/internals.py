@@ -31,7 +31,6 @@ from ctypes import (
     CDLL,
     PyDLL,
     CFUNCTYPE,
-    POINTER,
     Structure,
     byref,
     cast,
@@ -57,10 +56,13 @@ from ctypes import Union as CUnion
 from io import StringIO
 
 from .ctypesutils import (
+    POINTER,
+    blpapi_Event_t_p,
     charPtrWithSizeFromPyStr,
     charPtrFromPyStr,
     getHandleFromPtr,
     getHandleFromOutput,
+    getRawPtrFromHandle,
     getSizedStrFromOutput,
     getStrFromC,
     getStrFromOutput,
@@ -104,17 +106,7 @@ def _loadLibrary() -> Any:
 
 
 libblpapict, libffastcalls = _loadLibrary()
-libffastcalls.blpapi_Element_toPy.restype = py_object
 
-libffastcalls.incref.argtypes = [py_object]
-incref = libffastcalls.incref
-
-libffastcalls.setmptr.argtypes = [c_void_p]
-setmptr = libffastcalls.setmptr
-
-libffastcalls.is_known_obj.restype = c_int
-libffastcalls.is_known_obj.argtypes = [c_void_p]
-is_known_obj = libffastcalls.is_known_obj
 
 from .pycbhelpers import (
     any_printer,
@@ -196,6 +188,222 @@ class CidStruct(Structure):
     _fields_ = [("flags", CidFlags), ("rawvalue", CidValue)]
 
     empty_arr = (ManagedPtrData * 4)()  # empty value
+
+
+# Opaque structures for BLPAPI C types
+# These allow us to distinguish pointers to different C structures
+# instead of using generic c_void_p
+class blpapi_AbstractSession_t(Structure):
+    """Opaque structure representing a BLPAPI AbstractSession."""
+
+
+class blpapi_AuthApplication_t(Structure):
+    """Opaque structure representing a BLPAPI AuthApplication."""
+
+
+class blpapi_AuthOptions_t(Structure):
+    """Opaque structure representing a BLPAPI AuthOptions."""
+
+
+class blpapi_AuthToken_t(Structure):
+    """Opaque structure representing a BLPAPI AuthToken."""
+
+
+class blpapi_AuthUser_t(Structure):
+    """Opaque structure representing a BLPAPI AuthUser."""
+
+
+class blpapi_Constant_t(Structure):
+    """Opaque structure representing a BLPAPI Constant."""
+
+
+class blpapi_ConstantList_t(Structure):
+    """Opaque structure representing a BLPAPI ConstantList."""
+
+
+class blpapi_Element_t(Structure):
+    """Opaque structure representing a BLPAPI Element."""
+
+
+class blpapi_EventDispatcher_t(Structure):
+    """Opaque structure representing a BLPAPI EventDispatcher."""
+
+
+class blpapi_EventFormatter_t(Structure):
+    """Opaque structure representing a BLPAPI EventFormatter."""
+
+
+class blpapi_EventQueue_t(Structure):
+    """Opaque structure representing a BLPAPI EventQueue."""
+
+
+class blpapi_Identity_t(Structure):
+    """Opaque structure representing a BLPAPI Identity."""
+
+
+class blpapi_MessageIterator_t(Structure):
+    """Opaque structure representing a BLPAPI MessageIterator."""
+
+
+class blpapi_MessageFormatter_t(Structure):
+    """Opaque structure representing a BLPAPI MessageFormatter."""
+
+
+class blpapi_Message_t(Structure):
+    """Opaque structure representing a BLPAPI Message."""
+
+
+class blpapi_Name_t(Structure):
+    """Opaque structure representing a BLPAPI Name."""
+
+
+class blpapi_MessageProperties_t(Structure):
+    """Opaque structure representing a BLPAPI MessageProperties."""
+
+
+class blpapi_Operation_t(Structure):
+    """Opaque structure representing a BLPAPI Operation."""
+
+
+class blpapi_ProviderSession_t(Structure):
+    """Opaque structure representing a BLPAPI ProviderSession."""
+
+
+class blpapi_Request_t(Structure):
+    """Opaque structure representing a BLPAPI Request."""
+
+
+class blpapi_RequestTemplate_t(Structure):
+    """Opaque structure representing a BLPAPI RequestTemplate."""
+
+
+class blpapi_ResolutionList_t(Structure):
+    """Opaque structure representing a BLPAPI ResolutionList."""
+
+
+class blpapi_SchemaElementDefinition_t(Structure):
+    """Opaque structure representing a BLPAPI SchemaElementDefinition."""
+
+
+class blpapi_SchemaTypeDefinition_t(Structure):
+    """Opaque structure representing a BLPAPI SchemaTypeDefinition."""
+
+
+class blpapi_Service_t(Structure):
+    """Opaque structure representing a BLPAPI Service."""
+
+
+class blpapi_ServiceRegistrationOptions_t(Structure):
+    """Opaque structure representing a BLPAPI ServiceRegistrationOptions."""
+
+
+class blpapi_Session_t(Structure):
+    """Opaque structure representing a BLPAPI Session."""
+
+
+class blpapi_SessionOptions_t(Structure):
+    """Opaque structure representing a BLPAPI SessionOptions."""
+
+
+class blpapi_Socks5Config_t(Structure):
+    """Opaque structure representing a BLPAPI Socks5Config."""
+
+
+class blpapi_SubscriptionList_t(Structure):
+    """Opaque structure representing a BLPAPI SubscriptionList."""
+
+
+class blpapi_TlsOptions_t(Structure):
+    """Opaque structure representing a BLPAPI TlsOptions."""
+
+
+class blpapi_TopicList_t(Structure):
+    """Opaque structure representing a BLPAPI TopicList."""
+
+
+class blpapi_Topic_t(Structure):
+    """Opaque structure representing a BLPAPI Topic."""
+
+
+# Type aliases for pointers to opaque structures for improved readability
+blpapi_AbstractSession_t_p = POINTER[blpapi_AbstractSession_t]
+blpapi_AuthApplication_t_p = POINTER[blpapi_AuthApplication_t]
+blpapi_AuthOptions_t_p = POINTER[blpapi_AuthOptions_t]
+blpapi_AuthToken_t_p = POINTER[blpapi_AuthToken_t]
+blpapi_AuthUser_t_p = POINTER[blpapi_AuthUser_t]
+blpapi_Constant_t_p = POINTER[blpapi_Constant_t]
+blpapi_ConstantList_t_p = POINTER[blpapi_ConstantList_t]
+blpapi_Element_t_p = POINTER[blpapi_Element_t]
+blpapi_EventDispatcher_t_p = POINTER[blpapi_EventDispatcher_t]
+blpapi_EventFormatter_t_p = POINTER[blpapi_EventFormatter_t]
+blpapi_EventQueue_t_p = POINTER[blpapi_EventQueue_t]
+blpapi_Identity_t_p = POINTER[blpapi_Identity_t]
+blpapi_MessageIterator_t_p = POINTER[blpapi_MessageIterator_t]
+blpapi_MessageFormatter_t_p = POINTER[blpapi_MessageFormatter_t]
+blpapi_Message_t_p = POINTER[blpapi_Message_t]
+blpapi_MessageProperties_t_p = POINTER[blpapi_MessageProperties_t]
+blpapi_Name_t_p = POINTER[blpapi_Name_t]
+blpapi_Operation_t_p = POINTER[blpapi_Operation_t]
+blpapi_ProviderSession_t_p = POINTER[blpapi_ProviderSession_t]
+blpapi_Request_t_p = POINTER[blpapi_Request_t]
+blpapi_RequestTemplate_t_p = POINTER[blpapi_RequestTemplate_t]
+blpapi_ResolutionList_t_p = POINTER[blpapi_ResolutionList_t]
+blpapi_SchemaElementDefinition_t_p = POINTER[blpapi_SchemaElementDefinition_t]
+blpapi_SchemaTypeDefinition_t_p = POINTER[blpapi_SchemaTypeDefinition_t]
+blpapi_Service_t_p = POINTER[blpapi_Service_t]
+blpapi_ServiceRegistrationOptions_t_p = POINTER[
+    blpapi_ServiceRegistrationOptions_t
+]
+blpapi_Session_t_p = POINTER[blpapi_Session_t]
+blpapi_SessionOptions_t_p = POINTER[blpapi_SessionOptions_t]
+blpapi_Socks5Config_t_p = POINTER[blpapi_Socks5Config_t]
+blpapi_SubscriptionList_t_p = POINTER[blpapi_SubscriptionList_t]
+blpapi_TlsOptions_t_p = POINTER[blpapi_TlsOptions_t]
+blpapi_TopicList_t_p = POINTER[blpapi_TopicList_t]
+blpapi_Topic_t_p = POINTER[blpapi_Topic_t]
+
+# Type aliases for concrete structures that are passed as references
+BDatetime_p = POINTER[BDatetime]
+HighPrecisionDatetime_p = POINTER[HighPrecisionDatetime]
+TimePoint_p = POINTER[TimePoint]
+CidStruct_p = POINTER[CidStruct]
+
+# Function pointer type for event handler callback
+# typedef void (*blpapi_EventHandler_t)(
+#         blpapi_Event_t *event, blpapi_Session_t *session, void *userData);
+blpapi_EventHandler_t = CFUNCTYPE(
+    None, blpapi_Event_t_p, blpapi_Session_t_p, c_void_p
+)
+
+# Function pointer type for provider event handler callback
+# typedef void (*blpapi_ProviderEventHandler_t)(blpapi_Event_t *event,
+#         blpapi_ProviderSession_t *session,
+#         void *userData);
+blpapi_ProviderEventHandler_t = CFUNCTYPE(
+    None, blpapi_Event_t_p, blpapi_ProviderSession_t_p, c_void_p
+)
+
+# Function pointer type for subscription preprocess error handler callback
+# typedef void (*blpapi_SubscriptionPreprocessErrorHandler_t)(
+#         const blpapi_CorrelationId_t *correlationId,
+#         const char *subscriptionString,
+#         int errorCode,
+#         const char *errorDescription,
+#         void *userData);
+blpapi_SubscriptionPreprocessErrorHandler_t = CFUNCTYPE(
+    None, CidStruct_p, c_char_p, c_int, c_char_p, c_void_p
+)
+
+# Function pointer type for logging callback
+# typedef void (*blpapi_Logging_Func_t)(
+#         blpapi_UInt64_t threadId,
+#         int severity,
+#         blpapi_Datetime_t timestamp,
+#         const char *category,
+#         const char *message);
+blpapi_Logging_Func_t = CFUNCTYPE(
+    None, c_uint64, c_int, BDatetime, c_char_p, c_char_p
+)
 
 
 def cidValueForObj(pyobj: Optional[Any]) -> CidValue:
@@ -381,6 +589,23 @@ blpapi_Logging_SEVERITY_DEBUG = 5
 blpapi_Logging_SEVERITY_TRACE = 6
 
 
+##################### FFI Untils Functions
+libffastcalls.blpapi_Element_toPy.restype = py_object
+libffastcalls.blpapi_Element_toPy.argtypes = [blpapi_Element_t_p]
+
+libffastcalls.incref.restype = None
+libffastcalls.incref.argtypes = [py_object]
+incref = libffastcalls.incref
+
+libffastcalls.setmptr.restype = None
+libffastcalls.setmptr.argtypes = [c_void_p]
+setmptr = libffastcalls.setmptr
+
+libffastcalls.is_known_obj.restype = c_int
+libffastcalls.is_known_obj.argtypes = [c_void_p]
+is_known_obj = libffastcalls.is_known_obj
+
+
 ##################### Functions
 def stub(*args):
     raise RuntimeError(
@@ -389,1024 +614,2616 @@ def stub(*args):
     )
 
 
+# C signature: int blpapi_AbstractSession_cancel(blpapi_AbstractSession_t *session, const blpapi_CorrelationId_t *correlationIds, size_t numCorrelationIds, const char *requestLabel, int requestLabelLen)
 l_blpapi_AbstractSession_cancel = getattr(
     libblpapict, "blpapi_AbstractSession_cancel", stub
-)  # int
+)
+l_blpapi_AbstractSession_cancel.restype = c_int
 l_blpapi_AbstractSession_cancel.argtypes = [
-    c_void_p,
-    c_void_p,
+    blpapi_AbstractSession_t_p,
+    CidStruct_p,
     c_size_t,
     c_char_p,
     c_int,
 ]
+# C signature: blpapi_Identity_t *blpapi_AbstractSession_createIdentity(blpapi_AbstractSession_t *session)
 l_blpapi_AbstractSession_createIdentity = getattr(
     libblpapict, "blpapi_AbstractSession_createIdentity", stub
 )
-l_blpapi_AbstractSession_createIdentity.restype = c_void_p
+l_blpapi_AbstractSession_createIdentity.restype = blpapi_Identity_t_p
+l_blpapi_AbstractSession_createIdentity.argtypes = [blpapi_AbstractSession_t_p]
+# C signature: int blpapi_AbstractSession_generateAuthorizedIdentityAsync(blpapi_AbstractSession_t *session, const blpapi_AuthOptions_t *authOptions, blpapi_CorrelationId_t *cid)
 l_blpapi_AbstractSession_generateAuthorizedIdentityAsync = getattr(
     libblpapict, "blpapi_AbstractSession_generateAuthorizedIdentityAsync", stub
-)  # int
+)
+l_blpapi_AbstractSession_generateAuthorizedIdentityAsync.restype = c_int
+l_blpapi_AbstractSession_generateAuthorizedIdentityAsync.argtypes = [
+    blpapi_AbstractSession_t_p,
+    blpapi_AuthOptions_t_p,
+    CidStruct_p,
+]
+# C signature: int blpapi_AbstractSession_generateToken(blpapi_AbstractSession_t *session, blpapi_CorrelationId_t *correlationId, blpapi_EventQueue_t *eventQueue)
 l_blpapi_AbstractSession_generateToken = getattr(
     libblpapict, "blpapi_AbstractSession_generateToken", stub
-)  # int
+)
+l_blpapi_AbstractSession_generateToken.restype = c_int
+l_blpapi_AbstractSession_generateToken.argtypes = [
+    blpapi_AbstractSession_t_p,
+    CidStruct_p,
+    blpapi_EventQueue_t_p,
+]
+# C signature: int blpapi_AbstractSession_generateManualToken(blpapi_AbstractSession_t *session, blpapi_CorrelationId_t *correlationId, const char *user, const char *manualIp, blpapi_EventQueue_t *eventQueue)
 l_blpapi_AbstractSession_generateManualToken = getattr(
     libblpapict, "blpapi_AbstractSession_generateManualToken", stub
-)  # int
+)
+l_blpapi_AbstractSession_generateManualToken.restype = c_int
+l_blpapi_AbstractSession_generateManualToken.argtypes = [
+    blpapi_AbstractSession_t_p,
+    CidStruct_p,
+    c_char_p,
+    c_char_p,
+    blpapi_EventQueue_t_p,
+]
+# C signature: int blpapi_AbstractSession_getAuthorizedIdentity(blpapi_AbstractSession_t *session, const blpapi_CorrelationId_t *cid, blpapi_Identity_t **identity)
 l_blpapi_AbstractSession_getAuthorizedIdentity = getattr(
     libblpapict, "blpapi_AbstractSession_getAuthorizedIdentity", stub
-)  # int
+)
+l_blpapi_AbstractSession_getAuthorizedIdentity.restype = c_int
+l_blpapi_AbstractSession_getAuthorizedIdentity.argtypes = [
+    blpapi_AbstractSession_t_p,
+    CidStruct_p,
+    POINTER[blpapi_Identity_t_p],
+]
+# C signature: int blpapi_AbstractSession_openService(blpapi_AbstractSession_t *session, const char *serviceIdentifier)
 l_blpapi_AbstractSession_openService = getattr(
     libblpapict, "blpapi_AbstractSession_openService", stub
-)  # int
+)
+l_blpapi_AbstractSession_openService.restype = c_int
+l_blpapi_AbstractSession_openService.argtypes = [
+    blpapi_AbstractSession_t_p,
+    c_char_p,
+]
+# C signature: int blpapi_AbstractSession_openServiceAsync(blpapi_AbstractSession_t *session, const char *serviceIdentifier, blpapi_CorrelationId_t *correlationId)
 l_blpapi_AbstractSession_openServiceAsync = getattr(
     libblpapict, "blpapi_AbstractSession_openServiceAsync", stub
-)  # int
+)
+l_blpapi_AbstractSession_openServiceAsync.restype = c_int
+l_blpapi_AbstractSession_openServiceAsync.argtypes = [
+    blpapi_AbstractSession_t_p,
+    c_char_p,
+    CidStruct_p,
+]
+# C signature: int blpapi_AbstractSession_getService(blpapi_AbstractSession_t *session, blpapi_Service_t **service, const char *serviceIdentifier)
 l_blpapi_AbstractSession_getService = getattr(
     libblpapict, "blpapi_AbstractSession_getService", stub
-)  # int
+)
+l_blpapi_AbstractSession_getService.restype = c_int
+l_blpapi_AbstractSession_getService.argtypes = [
+    blpapi_AbstractSession_t_p,
+    POINTER[blpapi_Service_t_p],
+    c_char_p,
+]
+# C signature: int blpapi_AbstractSession_sendAuthorizationRequest(blpapi_AbstractSession_t *session, const blpapi_Request_t *request, blpapi_Identity_t *identity, blpapi_CorrelationId_t *correlationId, blpapi_EventQueue_t *eventQueue, const char *requestLabel, int requestLabelLen)
 l_blpapi_AbstractSession_sendAuthorizationRequest = getattr(
     libblpapict, "blpapi_AbstractSession_sendAuthorizationRequest", stub
-)  # int
+)
+l_blpapi_AbstractSession_sendAuthorizationRequest.restype = c_int
+l_blpapi_AbstractSession_sendAuthorizationRequest.argtypes = [
+    blpapi_AbstractSession_t_p,
+    blpapi_Request_t_p,
+    blpapi_Identity_t_p,
+    CidStruct_p,
+    blpapi_EventQueue_t_p,
+    c_char_p,
+    c_int,
+]
+# C signature: int blpapi_AbstractSession_sessionName(blpapi_AbstractSession_t *session, const char **sessionName, size_t *size)
 l_blpapi_AbstractSession_sessionName = getattr(
     libblpapict, "blpapi_AbstractSession_sessionName", stub
-)  # int
+)
+l_blpapi_AbstractSession_sessionName.restype = c_int
+l_blpapi_AbstractSession_sessionName.argtypes = [
+    blpapi_AbstractSession_t_p,
+    POINTER[c_char_p],
+    POINTER[c_size_t],
+]
 
+# C signature: int blpapi_AuthApplication_create(blpapi_AuthApplication_t **app, const char *appName)
 l_blpapi_AuthApplication_create = getattr(
     libblpapict, "blpapi_AuthApplication_create", stub
-)  # int
+)
+l_blpapi_AuthApplication_create.restype = c_int
+l_blpapi_AuthApplication_create.argtypes = [
+    POINTER[blpapi_AuthApplication_t_p],
+    c_char_p,
+]
+# C signature: void blpapi_AuthApplication_destroy(blpapi_AuthApplication_t *app)
 l_blpapi_AuthApplication_destroy = getattr(
     libblpapict, "blpapi_AuthApplication_destroy", stub
 )
 l_blpapi_AuthApplication_destroy.restype = None
+l_blpapi_AuthApplication_destroy.argtypes = [blpapi_AuthApplication_t_p]
 
+# C signature: int blpapi_AuthOptions_create_default(blpapi_AuthOptions_t **options)
 l_blpapi_AuthOptions_create_default = getattr(
     libblpapict, "blpapi_AuthOptions_create_default", stub
-)  # int
+)
+l_blpapi_AuthOptions_create_default.restype = c_int
+l_blpapi_AuthOptions_create_default.argtypes = [
+    POINTER[blpapi_AuthOptions_t_p]
+]
+# C signature: int blpapi_AuthOptions_create_forAppMode(blpapi_AuthOptions_t **options, const blpapi_AuthApplication_t *app)
 l_blpapi_AuthOptions_create_forAppMode = getattr(
     libblpapict, "blpapi_AuthOptions_create_forAppMode", stub
-)  # int
+)
+l_blpapi_AuthOptions_create_forAppMode.restype = c_int
+l_blpapi_AuthOptions_create_forAppMode.argtypes = [
+    POINTER[blpapi_AuthOptions_t_p],
+    blpapi_AuthApplication_t_p,
+]
+# C signature: int blpapi_AuthOptions_create_forToken(blpapi_AuthOptions_t **options, const blpapi_AuthToken_t *token)
 l_blpapi_AuthOptions_create_forToken = getattr(
     libblpapict, "blpapi_AuthOptions_create_forToken", stub
-)  # int
+)
+l_blpapi_AuthOptions_create_forToken.restype = c_int
+l_blpapi_AuthOptions_create_forToken.argtypes = [
+    POINTER[blpapi_AuthOptions_t_p],
+    blpapi_AuthToken_t_p,
+]
+# C signature: int blpapi_AuthOptions_create_forUserAndAppMode(blpapi_AuthOptions_t **options, const blpapi_AuthUser_t *user, const blpapi_AuthApplication_t *app)
 l_blpapi_AuthOptions_create_forUserAndAppMode = getattr(
     libblpapict, "blpapi_AuthOptions_create_forUserAndAppMode", stub
-)  # int
+)
+l_blpapi_AuthOptions_create_forUserAndAppMode.restype = c_int
+l_blpapi_AuthOptions_create_forUserAndAppMode.argtypes = [
+    POINTER[blpapi_AuthOptions_t_p],
+    blpapi_AuthUser_t_p,
+    blpapi_AuthApplication_t_p,
+]
+# C signature: int blpapi_AuthOptions_create_forUserMode(blpapi_AuthOptions_t **options, const blpapi_AuthUser_t *user)
 l_blpapi_AuthOptions_create_forUserMode = getattr(
     libblpapict, "blpapi_AuthOptions_create_forUserMode", stub
-)  # int
+)
+l_blpapi_AuthOptions_create_forUserMode.restype = c_int
+l_blpapi_AuthOptions_create_forUserMode.argtypes = [
+    POINTER[blpapi_AuthOptions_t_p],
+    blpapi_AuthUser_t_p,
+]
+# C signature: void blpapi_AuthOptions_destroy(blpapi_AuthOptions_t *options)
 l_blpapi_AuthOptions_destroy = getattr(
     libblpapict, "blpapi_AuthOptions_destroy", stub
 )
 l_blpapi_AuthOptions_destroy.restype = None
+l_blpapi_AuthOptions_destroy.argtypes = [blpapi_AuthOptions_t_p]
 
+# C signature: int blpapi_AuthToken_create(blpapi_AuthToken_t **token, const char *tokenStr)
 l_blpapi_AuthToken_create = getattr(
     libblpapict, "blpapi_AuthToken_create", stub
-)  # int
+)
+l_blpapi_AuthToken_create.restype = c_int
+l_blpapi_AuthToken_create.argtypes = [POINTER[blpapi_AuthToken_t_p], c_char_p]
+# C signature: void blpapi_AuthToken_destroy(blpapi_AuthToken_t *token)
 l_blpapi_AuthToken_destroy = getattr(
     libblpapict, "blpapi_AuthToken_destroy", stub
 )
 l_blpapi_AuthToken_destroy.restype = None
+l_blpapi_AuthToken_destroy.argtypes = [blpapi_AuthToken_t_p]
 
+# C signature: int blpapi_AuthUser_createWithActiveDirectoryProperty(blpapi_AuthUser_t **user, const char *propertyName)
 l_blpapi_AuthUser_createWithActiveDirectoryProperty = getattr(
     libblpapict, "blpapi_AuthUser_createWithActiveDirectoryProperty", stub
-)  # int
+)
+l_blpapi_AuthUser_createWithActiveDirectoryProperty.restype = c_int
+l_blpapi_AuthUser_createWithActiveDirectoryProperty.argtypes = [
+    POINTER[blpapi_AuthUser_t_p],
+    c_char_p,
+]
+# C signature: int blpapi_AuthUser_createWithLogonName(blpapi_AuthUser_t **user)
 l_blpapi_AuthUser_createWithLogonName = getattr(
     libblpapict, "blpapi_AuthUser_createWithLogonName", stub
-)  # int
+)
+l_blpapi_AuthUser_createWithLogonName.restype = c_int
+l_blpapi_AuthUser_createWithLogonName.argtypes = [POINTER[blpapi_AuthUser_t_p]]
+# C signature: int blpapi_AuthUser_createWithManualOptions(blpapi_AuthUser_t **user, const char *userId, const char *ipAddress)
 l_blpapi_AuthUser_createWithManualOptions = getattr(
     libblpapict, "blpapi_AuthUser_createWithManualOptions", stub
-)  # int
+)
+l_blpapi_AuthUser_createWithManualOptions.restype = c_int
+l_blpapi_AuthUser_createWithManualOptions.argtypes = [
+    POINTER[blpapi_AuthUser_t_p],
+    c_char_p,
+    c_char_p,
+]
+# C signature: void blpapi_AuthUser_destroy(blpapi_AuthUser_t *user)
 l_blpapi_AuthUser_destroy = getattr(
     libblpapict, "blpapi_AuthUser_destroy", stub
 )
 l_blpapi_AuthUser_destroy.restype = None
+l_blpapi_AuthUser_destroy.argtypes = [blpapi_AuthUser_t_p]
 
+# C signature: int blpapi_Constant_datatype(const blpapi_Constant_t *constant)
 l_blpapi_Constant_datatype = getattr(
     libblpapict, "blpapi_Constant_datatype", stub
-)  # int
+)
+l_blpapi_Constant_datatype.restype = c_int
+l_blpapi_Constant_datatype.argtypes = [blpapi_Constant_t_p]
+# C signature: const char *blpapi_Constant_description(const blpapi_Constant_t *constant)
 l_blpapi_Constant_description = getattr(
     libblpapict, "blpapi_Constant_description", stub
 )
 l_blpapi_Constant_description.restype = c_char_p
+l_blpapi_Constant_description.argtypes = [blpapi_Constant_t_p]
+# C signature: int blpapi_Constant_getValueAsChar(const blpapi_Constant_t *constant, blpapi_Char_t *buffer)
 l_blpapi_Constant_getValueAsChar = getattr(
     libblpapict, "blpapi_Constant_getValueAsChar", stub
-)  # int
+)
+l_blpapi_Constant_getValueAsChar.restype = c_int
+l_blpapi_Constant_getValueAsChar.argtypes = [
+    blpapi_Constant_t_p,
+    POINTER[c_char],
+]
+# C signature: int blpapi_Constant_getValueAsDatetime(const blpapi_Constant_t *constant, blpapi_Datetime_t *buffer)
 l_blpapi_Constant_getValueAsDatetime = getattr(
     libblpapict, "blpapi_Constant_getValueAsDatetime", stub
-)  # int
+)
+l_blpapi_Constant_getValueAsDatetime.restype = c_int
+l_blpapi_Constant_getValueAsDatetime.argtypes = [
+    blpapi_Constant_t_p,
+    BDatetime_p,
+]
+# C signature: int blpapi_Constant_getValueAsFloat32(const blpapi_Constant_t *constant, blpapi_Float32_t *buffer)
 l_blpapi_Constant_getValueAsFloat32 = getattr(
     libblpapict, "blpapi_Constant_getValueAsFloat32", stub
-)  # int
+)
+l_blpapi_Constant_getValueAsFloat32.restype = c_int
+l_blpapi_Constant_getValueAsFloat32.argtypes = [
+    blpapi_Constant_t_p,
+    POINTER[c_float],
+]
+# C signature: int blpapi_Constant_getValueAsFloat64(const blpapi_Constant_t *constant, blpapi_Float64_t *buffer)
 l_blpapi_Constant_getValueAsFloat64 = getattr(
     libblpapict, "blpapi_Constant_getValueAsFloat64", stub
-)  # int
+)
+l_blpapi_Constant_getValueAsFloat64.restype = c_int
+l_blpapi_Constant_getValueAsFloat64.argtypes = [
+    blpapi_Constant_t_p,
+    POINTER[c_double],
+]
+# C signature: int blpapi_Constant_getValueAsInt32(const blpapi_Constant_t *constant, blpapi_Int32_t *buffer)
 l_blpapi_Constant_getValueAsInt32 = getattr(
     libblpapict, "blpapi_Constant_getValueAsInt32", stub
-)  # int
+)
+l_blpapi_Constant_getValueAsInt32.restype = c_int
+l_blpapi_Constant_getValueAsInt32.argtypes = [
+    blpapi_Constant_t_p,
+    POINTER[c_int],
+]
+# C signature: int blpapi_Constant_getValueAsInt64(const blpapi_Constant_t *constant, blpapi_Int64_t *buffer)
 l_blpapi_Constant_getValueAsInt64 = getattr(
     libblpapict, "blpapi_Constant_getValueAsInt64", stub
-)  # int
+)
+l_blpapi_Constant_getValueAsInt64.restype = c_int
+l_blpapi_Constant_getValueAsInt64.argtypes = [
+    blpapi_Constant_t_p,
+    POINTER[c_int64],
+]
+# C signature: int blpapi_Constant_getValueAsString(const blpapi_Constant_t *constant, const char **buffer)
 l_blpapi_Constant_getValueAsString = getattr(
     libblpapict, "blpapi_Constant_getValueAsString", stub
-)  # int
+)
+l_blpapi_Constant_getValueAsString.restype = c_int
+l_blpapi_Constant_getValueAsString.argtypes = [
+    blpapi_Constant_t_p,
+    POINTER[c_char_p],
+]
+# C signature: blpapi_Name_t *blpapi_Constant_name(const blpapi_Constant_t *constant)
 l_blpapi_Constant_name = getattr(libblpapict, "blpapi_Constant_name", stub)
-l_blpapi_Constant_name.restype = c_void_p
-l_blpapi_Constant_status = getattr(
-    libblpapict, "blpapi_Constant_status", stub
-)  # int
+l_blpapi_Constant_name.restype = blpapi_Name_t_p
+l_blpapi_Constant_name.argtypes = [blpapi_Constant_t_p]
+# C signature: int blpapi_Constant_status(const blpapi_Constant_t *constant)
+l_blpapi_Constant_status = getattr(libblpapict, "blpapi_Constant_status", stub)
+l_blpapi_Constant_status.restype = c_int
+l_blpapi_Constant_status.argtypes = [blpapi_Constant_t_p]
 
+# C signature: int blpapi_ConstantList_datatype(const blpapi_ConstantList_t *constant)
 l_blpapi_ConstantList_datatype = getattr(
     libblpapict, "blpapi_ConstantList_datatype", stub
-)  # int
+)
+l_blpapi_ConstantList_datatype.restype = c_int
+l_blpapi_ConstantList_datatype.argtypes = [blpapi_ConstantList_t_p]
+# C signature: const char *blpapi_ConstantList_description(const blpapi_ConstantList_t *list)
 l_blpapi_ConstantList_description = getattr(
     libblpapict, "blpapi_ConstantList_description", stub
 )
 l_blpapi_ConstantList_description.restype = c_char_p
+l_blpapi_ConstantList_description.argtypes = [blpapi_ConstantList_t_p]
+# C signature: blpapi_Constant_t *blpapi_ConstantList_getConstant(const blpapi_ConstantList_t *constant, const char *nameString, const blpapi_Name_t *name)
 l_blpapi_ConstantList_getConstant = getattr(
     libblpapict, "blpapi_ConstantList_getConstant", stub
 )
-l_blpapi_ConstantList_getConstant.restype = c_void_p
+l_blpapi_ConstantList_getConstant.restype = blpapi_Constant_t_p
+l_blpapi_ConstantList_getConstant.argtypes = [
+    blpapi_ConstantList_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+]
+# C signature: blpapi_Constant_t *blpapi_ConstantList_getConstantAt(const blpapi_ConstantList_t *constant, size_t index)
 l_blpapi_ConstantList_getConstantAt = getattr(
     libblpapict, "blpapi_ConstantList_getConstantAt", stub
 )
-l_blpapi_ConstantList_getConstantAt.restype = c_void_p
+l_blpapi_ConstantList_getConstantAt.restype = blpapi_Constant_t_p
+l_blpapi_ConstantList_getConstantAt.argtypes = [
+    blpapi_ConstantList_t_p,
+    c_size_t,
+]
+# C signature: blpapi_Name_t *blpapi_ConstantList_name(const blpapi_ConstantList_t *list)
 l_blpapi_ConstantList_name = getattr(
     libblpapict, "blpapi_ConstantList_name", stub
 )
-l_blpapi_ConstantList_name.restype = c_void_p
+l_blpapi_ConstantList_name.restype = blpapi_Name_t_p
+l_blpapi_ConstantList_name.argtypes = [blpapi_ConstantList_t_p]
+# C signature: int blpapi_ConstantList_numConstants(const blpapi_ConstantList_t *list)
 l_blpapi_ConstantList_numConstants = getattr(
     libblpapict, "blpapi_ConstantList_numConstants", stub
-)  # int
+)
+l_blpapi_ConstantList_numConstants.restype = c_int
+l_blpapi_ConstantList_numConstants.argtypes = [blpapi_ConstantList_t_p]
+# C signature: int blpapi_ConstantList_status(const blpapi_ConstantList_t *list)
 l_blpapi_ConstantList_status = getattr(
     libblpapict, "blpapi_ConstantList_status", stub
-)  # int
+)
+l_blpapi_ConstantList_status.restype = c_int
+l_blpapi_ConstantList_status.argtypes = [blpapi_ConstantList_t_p]
 
+# C signature: int blpapi_DiagnosticsUtil_memoryInfo(char *buffer, size_t bufferLength)
 l_blpapi_DiagnosticsUtil_memoryInfo = getattr(
     libblpapict, "blpapi_DiagnosticsUtil_memoryInfo", stub
-)  # int
+)
+l_blpapi_DiagnosticsUtil_memoryInfo.restype = c_int
+l_blpapi_DiagnosticsUtil_memoryInfo.argtypes = [c_char_p, c_size_t]
 
+# C signature: int blpapi_Element_appendElement(blpapi_Element_t *element, blpapi_Element_t **appendedElement)
 l_blpapi_Element_appendElement = getattr(
     libblpapict, "blpapi_Element_appendElement", stub
-)  # int
+)
+l_blpapi_Element_appendElement.restype = c_int
+l_blpapi_Element_appendElement.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[blpapi_Element_t_p],
+]
+# C signature: int blpapi_Element_datatype(const blpapi_Element_t *element)
 l_blpapi_Element_datatype = getattr(
     libblpapict, "blpapi_Element_datatype", stub
-)  # int
+)
+l_blpapi_Element_datatype.restype = c_int
+l_blpapi_Element_datatype.argtypes = [blpapi_Element_t_p]
+# C signature: blpapi_SchemaElementDefinition_t *blpapi_Element_definition(const blpapi_Element_t *element)
 l_blpapi_Element_definition = getattr(
     libblpapict, "blpapi_Element_definition", stub
 )
-l_blpapi_Element_definition.restype = c_void_p
+l_blpapi_Element_definition.restype = blpapi_SchemaElementDefinition_t_p
+l_blpapi_Element_definition.argtypes = [blpapi_Element_t_p]
+# C signature: int blpapi_Element_getChoice(const blpapi_Element_t *element, blpapi_Element_t **result)
 l_blpapi_Element_getChoice = getattr(
     libblpapict, "blpapi_Element_getChoice", stub
-)  # int
+)
+l_blpapi_Element_getChoice.restype = c_int
+l_blpapi_Element_getChoice.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[blpapi_Element_t_p],
+]
+# C signature: int blpapi_Element_getElement(const blpapi_Element_t *element, blpapi_Element_t **result, const char *nameString, const blpapi_Name_t *name)
 l_blpapi_Element_getElement = getattr(
     libblpapict, "blpapi_Element_getElement", stub
-)  # int
+)
+l_blpapi_Element_getElement.restype = c_int
+l_blpapi_Element_getElement.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[blpapi_Element_t_p],
+    c_char_p,
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_Element_getElementAt(const blpapi_Element_t *element, blpapi_Element_t **result, size_t position)
 l_blpapi_Element_getElementAt = getattr(
     libblpapict, "blpapi_Element_getElementAt", stub
-)  # int
+)
+l_blpapi_Element_getElementAt.restype = c_int
+l_blpapi_Element_getElementAt.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[blpapi_Element_t_p],
+    c_size_t,
+]
+# C signature: int blpapi_Element_getValueAsBool(const blpapi_Element_t *element, blpapi_Bool_t *buffer, size_t index)
 l_blpapi_Element_getValueAsBool = getattr(
     libblpapict, "blpapi_Element_getValueAsBool", stub
-)  # int
+)
+l_blpapi_Element_getValueAsBool.restype = c_int
+l_blpapi_Element_getValueAsBool.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[c_int],
+    c_size_t,
+]
+# C signature: int blpapi_Element_getValueAsBytes(const blpapi_Element_t *element, const char **buffer, size_t *length, size_t index)
 l_blpapi_Element_getValueAsBytes = getattr(
     libblpapict, "blpapi_Element_getValueAsBytes", stub
-)  # int
+)
+l_blpapi_Element_getValueAsBytes.restype = c_int
+l_blpapi_Element_getValueAsBytes.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[c_char_p],
+    POINTER[c_size_t],
+    c_size_t,
+]
+# C signature: int blpapi_Element_getValueAsChar(const blpapi_Element_t *element, blpapi_Char_t *buffer, size_t index)
 l_blpapi_Element_getValueAsChar = getattr(
     libblpapict, "blpapi_Element_getValueAsChar", stub
-)  # int
+)
+l_blpapi_Element_getValueAsChar.restype = c_int
+l_blpapi_Element_getValueAsChar.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[c_char],
+    c_size_t,
+]
+# C signature: int blpapi_Element_getValueAsElement(const blpapi_Element_t *element, blpapi_Element_t **buffer, size_t index)
 l_blpapi_Element_getValueAsElement = getattr(
     libblpapict, "blpapi_Element_getValueAsElement", stub
-)  # int
+)
+l_blpapi_Element_getValueAsElement.restype = c_int
+l_blpapi_Element_getValueAsElement.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[blpapi_Element_t_p],
+    c_size_t,
+]
+# C signature: int blpapi_Element_getValueAsFloat32(const blpapi_Element_t *element, blpapi_Float32_t *buffer, size_t index)
 l_blpapi_Element_getValueAsFloat32 = getattr(
     libblpapict, "blpapi_Element_getValueAsFloat32", stub
-)  # int
+)
+l_blpapi_Element_getValueAsFloat32.restype = c_int
+l_blpapi_Element_getValueAsFloat32.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[c_float],
+    c_size_t,
+]
+# C signature: int blpapi_Element_getValueAsFloat64(const blpapi_Element_t *element, blpapi_Float64_t *buffer, size_t index)
 l_blpapi_Element_getValueAsFloat64 = getattr(
     libblpapict, "blpapi_Element_getValueAsFloat64", stub
-)  # int
+)
+l_blpapi_Element_getValueAsFloat64.restype = c_int
+l_blpapi_Element_getValueAsFloat64.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[c_double],
+    c_size_t,
+]
+# C signature: int blpapi_Element_getValueAsHighPrecisionDatetime(const blpapi_Element_t *element, blpapi_HighPrecisionDatetime_t *buffer, size_t index)
 l_blpapi_Element_getValueAsHighPrecisionDatetime = getattr(
     libblpapict, "blpapi_Element_getValueAsHighPrecisionDatetime", stub
-)  # int
+)
+l_blpapi_Element_getValueAsHighPrecisionDatetime.restype = c_int
+l_blpapi_Element_getValueAsHighPrecisionDatetime.argtypes = [
+    blpapi_Element_t_p,
+    HighPrecisionDatetime_p,
+    c_size_t,
+]
+# C signature: int blpapi_Element_getValueAsInt32(const blpapi_Element_t *element, blpapi_Int32_t *buffer, size_t index)
 l_blpapi_Element_getValueAsInt32 = getattr(
     libblpapict, "blpapi_Element_getValueAsInt32", stub
-)  # int
+)
+l_blpapi_Element_getValueAsInt32.restype = c_int
+l_blpapi_Element_getValueAsInt32.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[c_int],
+    c_size_t,
+]
+# C signature: int blpapi_Element_getValueAsInt64(const blpapi_Element_t *element, blpapi_Int64_t *buffer, size_t index)
 l_blpapi_Element_getValueAsInt64 = getattr(
     libblpapict, "blpapi_Element_getValueAsInt64", stub
-)  # int
+)
+l_blpapi_Element_getValueAsInt64.restype = c_int
+l_blpapi_Element_getValueAsInt64.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[c_int64],
+    c_size_t,
+]
+# C signature: int blpapi_Element_getValueAsName(const blpapi_Element_t *element, blpapi_Name_t **buffer, size_t index)
 l_blpapi_Element_getValueAsName = getattr(
     libblpapict, "blpapi_Element_getValueAsName", stub
-)  # int
+)
+l_blpapi_Element_getValueAsName.restype = c_int
+l_blpapi_Element_getValueAsName.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[blpapi_Name_t_p],
+    c_size_t,
+]
+# C signature: int blpapi_Element_getValueAsString(const blpapi_Element_t *element, const char **buffer, size_t index)
 l_blpapi_Element_getValueAsString = getattr(
     libblpapict, "blpapi_Element_getValueAsString", stub
-)  # int
+)
+l_blpapi_Element_getValueAsString.restype = c_int
+l_blpapi_Element_getValueAsString.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[c_char_p],
+    c_size_t,
+]
+# C signature: int blpapi_Element_hasElementEx(const blpapi_Element_t *element, const char *nameString, const blpapi_Name_t *name, int excludeNullElements, int reserved)
 l_blpapi_Element_hasElementEx = getattr(
     libblpapict, "blpapi_Element_hasElementEx", stub
-)  # int
-l_blpapi_Element_isArray = getattr(
-    libblpapict, "blpapi_Element_isArray", stub
-)  # int
+)
+l_blpapi_Element_hasElementEx.restype = c_int
+l_blpapi_Element_hasElementEx.argtypes = [
+    blpapi_Element_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_int,
+    c_int,
+]
+# C signature: int blpapi_Element_isArray(const blpapi_Element_t *element)
+l_blpapi_Element_isArray = getattr(libblpapict, "blpapi_Element_isArray", stub)
+l_blpapi_Element_isArray.restype = c_int
+l_blpapi_Element_isArray.argtypes = [blpapi_Element_t_p]
+# C signature: int blpapi_Element_isComplexType(const blpapi_Element_t *element)
 l_blpapi_Element_isComplexType = getattr(
     libblpapict, "blpapi_Element_isComplexType", stub
-)  # int
-l_blpapi_Element_isNull = getattr(
-    libblpapict, "blpapi_Element_isNull", stub
-)  # int
+)
+l_blpapi_Element_isComplexType.restype = c_int
+l_blpapi_Element_isComplexType.argtypes = [blpapi_Element_t_p]
+# C signature: int blpapi_Element_isNull(const blpapi_Element_t *element)
+l_blpapi_Element_isNull = getattr(libblpapict, "blpapi_Element_isNull", stub)
+l_blpapi_Element_isNull.restype = c_int
+l_blpapi_Element_isNull.argtypes = [blpapi_Element_t_p]
+# C signature: int blpapi_Element_isNullValue(const blpapi_Element_t *element, size_t position)
 l_blpapi_Element_isNullValue = getattr(
     libblpapict, "blpapi_Element_isNullValue", stub
-)  # int
+)
+l_blpapi_Element_isNullValue.restype = c_int
+l_blpapi_Element_isNullValue.argtypes = [blpapi_Element_t_p, c_size_t]
+# C signature: int blpapi_Element_isReadOnly(const blpapi_Element_t *element)
 l_blpapi_Element_isReadOnly = getattr(
     libblpapict, "blpapi_Element_isReadOnly", stub
-)  # int
+)
+l_blpapi_Element_isReadOnly.restype = c_int
+l_blpapi_Element_isReadOnly.argtypes = [blpapi_Element_t_p]
+# C signature: blpapi_Name_t *blpapi_Element_name(const blpapi_Element_t *element)
 l_blpapi_Element_name = getattr(libblpapict, "blpapi_Element_name", stub)
-l_blpapi_Element_name.restype = c_void_p
+l_blpapi_Element_name.restype = blpapi_Name_t_p
+l_blpapi_Element_name.argtypes = [blpapi_Element_t_p]
+# C signature: size_t blpapi_Element_numElements(const blpapi_Element_t *element)
 l_blpapi_Element_numElements = getattr(
     libblpapict, "blpapi_Element_numElements", stub
 )
 l_blpapi_Element_numElements.restype = c_size_t
+l_blpapi_Element_numElements.argtypes = [blpapi_Element_t_p]
+# C signature: size_t blpapi_Element_numValues(const blpapi_Element_t *element)
 l_blpapi_Element_numValues = getattr(
     libblpapict, "blpapi_Element_numValues", stub
 )
 l_blpapi_Element_numValues.restype = c_size_t
-l_blpapi_Element_print = getattr(
-    libblpapict, "blpapi_Element_print", stub
-)  # int
+l_blpapi_Element_numValues.argtypes = [blpapi_Element_t_p]
+# C signature: int blpapi_Element_print(const blpapi_Element_t *element, blpapi_StreamWriter_t streamWriter, void *stream, int level, int spacesPerLevel)
+l_blpapi_Element_print = getattr(libblpapict, "blpapi_Element_print", stub)
+l_blpapi_Element_print.restype = c_int
+l_blpapi_Element_print.argtypes = [
+    blpapi_Element_t_p,
+    c_void_p,
+    c_void_p,
+    c_int,
+    c_int,
+]
+# C signature: int blpapi_Element_setChoice(blpapi_Element_t *element, blpapi_Element_t **resultElement, const char *nameCstr, const blpapi_Name_t *name, size_t index)
 l_blpapi_Element_setChoice = getattr(
     libblpapict, "blpapi_Element_setChoice", stub
-)  # int
+)
+l_blpapi_Element_setChoice.restype = c_int
+l_blpapi_Element_setChoice.argtypes = [
+    blpapi_Element_t_p,
+    POINTER[blpapi_Element_t_p],
+    c_char_p,
+    blpapi_Name_t_p,
+    c_size_t,
+]
+# C signature: int blpapi_Element_setElementBool(blpapi_Element_t *element, const char *nameString, const blpapi_Name_t *name, blpapi_Bool_t value)
 l_blpapi_Element_setElementBool = getattr(
     libblpapict, "blpapi_Element_setElementBool", stub
-)  # int
+)
+l_blpapi_Element_setElementBool.restype = c_int
+l_blpapi_Element_setElementBool.argtypes = [
+    blpapi_Element_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_int,
+]
+# C signature: int blpapi_Element_setElementBytes(blpapi_Element_t *element, const char *nameString, const blpapi_Name_t *name, const char *value, size_t length)
 l_blpapi_Element_setElementBytes = getattr(
     libblpapict, "blpapi_Element_setElementBytes", stub
-)  # int
+)
+l_blpapi_Element_setElementBytes.restype = c_int
+l_blpapi_Element_setElementBytes.argtypes = [
+    blpapi_Element_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_char_p,
+    c_size_t,
+]
+# C signature: int blpapi_Element_setElementFloat32(blpapi_Element_t *element, const char *nameString, const blpapi_Name_t *name, blpapi_Float32_t value)
 l_blpapi_Element_setElementFloat32 = getattr(
     libblpapict, "blpapi_Element_setElementFloat32", stub
-)  # int
+)
+l_blpapi_Element_setElementFloat32.restype = c_int
+l_blpapi_Element_setElementFloat32.argtypes = [
+    blpapi_Element_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_float,
+]
+# C signature: int blpapi_Element_setElementFloat64(blpapi_Element_t *element, const char *nameString, const blpapi_Name_t *name, blpapi_Float64_t value)
 l_blpapi_Element_setElementFloat64 = getattr(
     libblpapict, "blpapi_Element_setElementFloat64", stub
-)  # int
+)
+l_blpapi_Element_setElementFloat64.restype = c_int
+l_blpapi_Element_setElementFloat64.argtypes = [
+    blpapi_Element_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_double,
+]
+# C signature: int blpapi_Element_setElementFromName(blpapi_Element_t *element, const char *elementName, const blpapi_Name_t *name, const blpapi_Name_t *buffer)
 l_blpapi_Element_setElementFromName = getattr(
     libblpapict, "blpapi_Element_setElementFromName", stub
-)  # int
+)
+l_blpapi_Element_setElementFromName.restype = c_int
+l_blpapi_Element_setElementFromName.argtypes = [
+    blpapi_Element_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_Element_setElementHighPrecisionDatetime(blpapi_Element_t *element, const char *nameString, const blpapi_Name_t *name, const blpapi_HighPrecisionDatetime_t *value)
 l_blpapi_Element_setElementHighPrecisionDatetime = getattr(
     libblpapict, "blpapi_Element_setElementHighPrecisionDatetime", stub
-)  # int
+)
+l_blpapi_Element_setElementHighPrecisionDatetime.restype = c_int
+l_blpapi_Element_setElementHighPrecisionDatetime.argtypes = [
+    blpapi_Element_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    HighPrecisionDatetime_p,
+]
+# C signature: int blpapi_Element_setElementInt32(blpapi_Element_t *element, const char *nameString, const blpapi_Name_t *name, blpapi_Int32_t value)
 l_blpapi_Element_setElementInt32 = getattr(
     libblpapict, "blpapi_Element_setElementInt32", stub
-)  # int
+)
+l_blpapi_Element_setElementInt32.restype = c_int
+l_blpapi_Element_setElementInt32.argtypes = [
+    blpapi_Element_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_int,
+]
+# C signature: int blpapi_Element_setElementInt64(blpapi_Element_t *element, const char *nameString, const blpapi_Name_t *name, blpapi_Int64_t value)
 l_blpapi_Element_setElementInt64 = getattr(
     libblpapict, "blpapi_Element_setElementInt64", stub
-)  # int
+)
+l_blpapi_Element_setElementInt64.restype = c_int
+l_blpapi_Element_setElementInt64.argtypes = [
+    blpapi_Element_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_int64,
+]
+# C signature: int blpapi_Element_setElementString(blpapi_Element_t *element, const char *nameString, const blpapi_Name_t *name, const char *value)
 l_blpapi_Element_setElementString = getattr(
     libblpapict, "blpapi_Element_setElementString", stub
-)  # int
+)
+l_blpapi_Element_setElementString.restype = c_int
+l_blpapi_Element_setElementString.argtypes = [
+    blpapi_Element_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_char_p,
+]
+# C signature: int blpapi_Element_setValueBool(blpapi_Element_t *element, blpapi_Bool_t value, size_t index)
 l_blpapi_Element_setValueBool = getattr(
     libblpapict, "blpapi_Element_setValueBool", stub
-)  # int
+)
+l_blpapi_Element_setValueBool.restype = c_int
+l_blpapi_Element_setValueBool.argtypes = [blpapi_Element_t_p, c_int, c_size_t]
+# C signature: int blpapi_Element_setValueBytes(blpapi_Element_t *element, const char *value, size_t length, size_t index)
 l_blpapi_Element_setValueBytes = getattr(
     libblpapict, "blpapi_Element_setValueBytes", stub
-)  # int
+)
+l_blpapi_Element_setValueBytes.restype = c_int
+l_blpapi_Element_setValueBytes.argtypes = [
+    blpapi_Element_t_p,
+    c_char_p,
+    c_size_t,
+    c_size_t,
+]
+# C signature: int blpapi_Element_setValueFloat32(blpapi_Element_t *element, blpapi_Float32_t value, size_t index)
 l_blpapi_Element_setValueFloat32 = getattr(
     libblpapict, "blpapi_Element_setValueFloat32", stub
-)  # int
+)
+l_blpapi_Element_setValueFloat32.restype = c_int
+l_blpapi_Element_setValueFloat32.argtypes = [
+    blpapi_Element_t_p,
+    c_float,
+    c_size_t,
+]
+# C signature: int blpapi_Element_setValueFloat64(blpapi_Element_t *element, blpapi_Float64_t value, size_t index)
 l_blpapi_Element_setValueFloat64 = getattr(
     libblpapict, "blpapi_Element_setValueFloat64", stub
-)  # int
+)
+l_blpapi_Element_setValueFloat64.restype = c_int
+l_blpapi_Element_setValueFloat64.argtypes = [
+    blpapi_Element_t_p,
+    c_double,
+    c_size_t,
+]
+# C signature: int blpapi_Element_setValueFromName(blpapi_Element_t *element, const blpapi_Name_t *value, size_t index)
 l_blpapi_Element_setValueFromName = getattr(
     libblpapict, "blpapi_Element_setValueFromName", stub
-)  # int
+)
+l_blpapi_Element_setValueFromName.restype = c_int
+l_blpapi_Element_setValueFromName.argtypes = [
+    blpapi_Element_t_p,
+    blpapi_Name_t_p,
+    c_size_t,
+]
+# C signature: int blpapi_Element_setValueHighPrecisionDatetime(blpapi_Element_t *element, const blpapi_HighPrecisionDatetime_t *value, size_t index)
 l_blpapi_Element_setValueHighPrecisionDatetime = getattr(
     libblpapict, "blpapi_Element_setValueHighPrecisionDatetime", stub
-)  # int
+)
+l_blpapi_Element_setValueHighPrecisionDatetime.restype = c_int
+l_blpapi_Element_setValueHighPrecisionDatetime.argtypes = [
+    blpapi_Element_t_p,
+    HighPrecisionDatetime_p,
+    c_size_t,
+]
+# C signature: int blpapi_Element_setValueInt32(blpapi_Element_t *element, blpapi_Int32_t value, size_t index)
 l_blpapi_Element_setValueInt32 = getattr(
     libblpapict, "blpapi_Element_setValueInt32", stub
-)  # int
+)
+l_blpapi_Element_setValueInt32.restype = c_int
+l_blpapi_Element_setValueInt32.argtypes = [blpapi_Element_t_p, c_int, c_size_t]
+# C signature: int blpapi_Element_setValueInt64(blpapi_Element_t *element, blpapi_Int64_t value, size_t index)
 l_blpapi_Element_setValueInt64 = getattr(
     libblpapict, "blpapi_Element_setValueInt64", stub
-)  # int
+)
+l_blpapi_Element_setValueInt64.restype = c_int
+l_blpapi_Element_setValueInt64.argtypes = [
+    blpapi_Element_t_p,
+    c_int64,
+    c_size_t,
+]
+# C signature: int blpapi_Element_setValueString(blpapi_Element_t *element, const char *value, size_t index)
 l_blpapi_Element_setValueString = getattr(
     libblpapict, "blpapi_Element_setValueString", stub
-)  # int
-l_blpapi_Element_toJson = getattr(
-    libblpapict, "blpapi_Element_toJson", stub
-)  # int
-l_blpapi_Element_toJson.argtypes = [c_void_p, blpapi_StreamWriter_t, c_void_p]
+)
+l_blpapi_Element_setValueString.restype = c_int
+l_blpapi_Element_setValueString.argtypes = [
+    blpapi_Element_t_p,
+    c_char_p,
+    c_size_t,
+]
+# C signature: int blpapi_Element_toJson(const blpapi_Element_t *element, blpapi_StreamWriter_t streamWriter, void *stream)
+l_blpapi_Element_toJson = getattr(libblpapict, "blpapi_Element_toJson", stub)
 l_blpapi_Element_toJson.restype = c_int
+l_blpapi_Element_toJson.argtypes = [
+    blpapi_Element_t_p,
+    blpapi_StreamWriter_t,
+    c_void_p,
+]
+# C signature: int blpapi_Element_fromJson(const blpapi_Element_t *element, char const *json)
 l_blpapi_Element_fromJson = getattr(
     libblpapict, "blpapi_Element_fromJson", stub
-)  # int
-l_blpapi_Element_fromJson.argtypes = [c_void_p, c_char_p]
+)
 l_blpapi_Element_fromJson.restype = c_int
+l_blpapi_Element_fromJson.argtypes = [blpapi_Element_t_p, c_char_p]
 
-l_blpapi_Event_eventType = getattr(
-    libblpapict, "blpapi_Event_eventType", stub
-)  # int
-l_blpapi_Event_release = getattr(
-    libblpapict, "blpapi_Event_release", stub
-)  # int
+# C signature: int blpapi_Event_eventType(const blpapi_Event_t *event)
+l_blpapi_Event_eventType = getattr(libblpapict, "blpapi_Event_eventType", stub)
+l_blpapi_Event_eventType.restype = c_int
+l_blpapi_Event_eventType.argtypes = [blpapi_Event_t_p]
+# C signature: int blpapi_Event_release(const blpapi_Event_t *event)
+l_blpapi_Event_release = getattr(libblpapict, "blpapi_Event_release", stub)
+l_blpapi_Event_release.restype = c_int
+l_blpapi_Event_release.argtypes = [blpapi_Event_t_p]
 
+# C signature: blpapi_EventDispatcher_t *blpapi_EventDispatcher_create(size_t numDispatcherThreads)
 l_blpapi_EventDispatcher_create = getattr(
     libblpapict, "blpapi_EventDispatcher_create", stub
 )
-l_blpapi_EventDispatcher_create.restype = c_void_p
+l_blpapi_EventDispatcher_create.restype = blpapi_EventDispatcher_t_p
+l_blpapi_EventDispatcher_create.argtypes = [c_size_t]
+# C signature: void blpapi_EventDispatcher_destroy(blpapi_EventDispatcher_t *handle)
 l_blpapi_EventDispatcher_destroy = getattr(
     libblpapict, "blpapi_EventDispatcher_destroy", stub
 )
 l_blpapi_EventDispatcher_destroy.restype = None
+l_blpapi_EventDispatcher_destroy.argtypes = [blpapi_EventDispatcher_t_p]
+# C signature: int blpapi_EventDispatcher_start(blpapi_EventDispatcher_t *handle)
 l_blpapi_EventDispatcher_start = getattr(
     libblpapict, "blpapi_EventDispatcher_start", stub
-)  # int
+)
+l_blpapi_EventDispatcher_start.restype = c_int
+l_blpapi_EventDispatcher_start.argtypes = [blpapi_EventDispatcher_t_p]
+# C signature: int blpapi_EventDispatcher_stop(blpapi_EventDispatcher_t *handle, int async)
 l_blpapi_EventDispatcher_stop = getattr(
     libblpapict, "blpapi_EventDispatcher_stop", stub
-)  # int
+)
+l_blpapi_EventDispatcher_stop.restype = c_int
+l_blpapi_EventDispatcher_stop.argtypes = [blpapi_EventDispatcher_t_p, c_int]
 
+# C signature: int blpapi_EventFormatter_appendElement(blpapi_EventFormatter_t *formatter)
 l_blpapi_EventFormatter_appendElement = getattr(
     libblpapict, "blpapi_EventFormatter_appendElement", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendElement.restype = c_int
+l_blpapi_EventFormatter_appendElement.argtypes = [blpapi_EventFormatter_t_p]
+# C signature: int blpapi_EventFormatter_appendFragmentedRecapMessage(blpapi_EventFormatter_t *formatter, const char *typeString, blpapi_Name_t *typeName, const blpapi_Topic_t *topic, const blpapi_CorrelationId_t *cid, int fragmentType)
 l_blpapi_EventFormatter_appendFragmentedRecapMessage = getattr(
     libblpapict, "blpapi_EventFormatter_appendFragmentedRecapMessage", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendFragmentedRecapMessage.restype = c_int
 l_blpapi_EventFormatter_appendFragmentedRecapMessage.argtypes = [
-    c_void_p,
+    blpapi_EventFormatter_t_p,
     c_char_p,
-    c_void_p,
-    c_void_p,
-    c_void_p,
+    blpapi_Name_t_p,
+    blpapi_Topic_t_p,
+    CidStruct_p,
     c_int,
 ]
+# C signature: int blpapi_EventFormatter_appendFragmentedRecapMessageSeq(blpapi_EventFormatter_t *formatter, const char *typeString, blpapi_Name_t *typeName, const blpapi_Topic_t *topic, int fragmentType, unsigned int sequenceNumber)
 l_blpapi_EventFormatter_appendFragmentedRecapMessageSeq = getattr(
     libblpapict, "blpapi_EventFormatter_appendFragmentedRecapMessageSeq", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendFragmentedRecapMessageSeq.restype = c_int
 l_blpapi_EventFormatter_appendFragmentedRecapMessageSeq.argtypes = [
-    c_void_p,
+    blpapi_EventFormatter_t_p,
     c_char_p,
-    c_void_p,
-    c_void_p,
+    blpapi_Name_t_p,
+    blpapi_Topic_t_p,
     c_int,
     c_uint,
 ]
+# C signature: int blpapi_EventFormatter_appendMessage(blpapi_EventFormatter_t *formatter, const char *typeString, blpapi_Name_t *typeName, const blpapi_Topic_t *topic)
 l_blpapi_EventFormatter_appendMessage = getattr(
     libblpapict, "blpapi_EventFormatter_appendMessage", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendMessage.restype = c_int
+l_blpapi_EventFormatter_appendMessage.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    blpapi_Topic_t_p,
+]
+# C signature: int blpapi_EventFormatter_appendMessageSeq(blpapi_EventFormatter_t *formatter, const char *typeString, blpapi_Name_t *typeName, const blpapi_Topic_t *topic, unsigned int sequenceNumber, unsigned int)
 l_blpapi_EventFormatter_appendMessageSeq = getattr(
     libblpapict, "blpapi_EventFormatter_appendMessageSeq", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendMessageSeq.restype = c_int
+l_blpapi_EventFormatter_appendMessageSeq.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    blpapi_Topic_t_p,
+    c_uint,
+    c_uint,
+]
+# C signature: int blpapi_EventFormatter_appendRecapMessage(blpapi_EventFormatter_t *formatter, const blpapi_Topic_t *topic, const blpapi_CorrelationId_t *cid)
 l_blpapi_EventFormatter_appendRecapMessage = getattr(
     libblpapict, "blpapi_EventFormatter_appendRecapMessage", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendRecapMessage.restype = c_int
+l_blpapi_EventFormatter_appendRecapMessage.argtypes = [
+    blpapi_EventFormatter_t_p,
+    blpapi_Topic_t_p,
+    CidStruct_p,
+]
+# C signature: int blpapi_EventFormatter_appendRecapMessageSeq(blpapi_EventFormatter_t *formatter, const blpapi_Topic_t *topic, const blpapi_CorrelationId_t *cid, unsigned int sequenceNumber, unsigned int)
 l_blpapi_EventFormatter_appendRecapMessageSeq = getattr(
     libblpapict, "blpapi_EventFormatter_appendRecapMessageSeq", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendRecapMessageSeq.restype = c_int
+l_blpapi_EventFormatter_appendRecapMessageSeq.argtypes = [
+    blpapi_EventFormatter_t_p,
+    blpapi_Topic_t_p,
+    CidStruct_p,
+    c_uint,
+    c_uint,
+]
+# C signature: int blpapi_EventFormatter_appendResponse(blpapi_EventFormatter_t *formatter, const char *typeString, blpapi_Name_t *typeName)
 l_blpapi_EventFormatter_appendResponse = getattr(
     libblpapict, "blpapi_EventFormatter_appendResponse", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendResponse.restype = c_int
+l_blpapi_EventFormatter_appendResponse.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_EventFormatter_appendValueBool(blpapi_EventFormatter_t *formatter, blpapi_Bool_t value)
 l_blpapi_EventFormatter_appendValueBool = getattr(
     libblpapict, "blpapi_EventFormatter_appendValueBool", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendValueBool.restype = c_int
+l_blpapi_EventFormatter_appendValueBool.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_int,
+]
+# C signature: int blpapi_EventFormatter_appendValueChar(blpapi_EventFormatter_t *formatter, char value)
 l_blpapi_EventFormatter_appendValueChar = getattr(
     libblpapict, "blpapi_EventFormatter_appendValueChar", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendValueChar.restype = c_int
+l_blpapi_EventFormatter_appendValueChar.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char,
+]
+# C signature: int blpapi_EventFormatter_appendValueDatetime(blpapi_EventFormatter_t *formatter, const blpapi_Datetime_t *value)
 l_blpapi_EventFormatter_appendValueDatetime = getattr(
     libblpapict, "blpapi_EventFormatter_appendValueDatetime", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendValueDatetime.restype = c_int
+l_blpapi_EventFormatter_appendValueDatetime.argtypes = [
+    blpapi_EventFormatter_t_p,
+    BDatetime_p,
+]
+# C signature: int blpapi_EventFormatter_appendValueFloat32(blpapi_EventFormatter_t *formatter, blpapi_Float32_t value)
 l_blpapi_EventFormatter_appendValueFloat32 = getattr(
     libblpapict, "blpapi_EventFormatter_appendValueFloat32", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendValueFloat32.restype = c_int
+l_blpapi_EventFormatter_appendValueFloat32.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_float,
+]
+# C signature: int blpapi_EventFormatter_appendValueFloat64(blpapi_EventFormatter_t *formatter, blpapi_Float64_t value)
 l_blpapi_EventFormatter_appendValueFloat64 = getattr(
     libblpapict, "blpapi_EventFormatter_appendValueFloat64", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendValueFloat64.restype = c_int
+l_blpapi_EventFormatter_appendValueFloat64.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_double,
+]
+# C signature: int blpapi_EventFormatter_appendValueFromName(blpapi_EventFormatter_t *formatter, const blpapi_Name_t *value)
 l_blpapi_EventFormatter_appendValueFromName = getattr(
     libblpapict, "blpapi_EventFormatter_appendValueFromName", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendValueFromName.restype = c_int
+l_blpapi_EventFormatter_appendValueFromName.argtypes = [
+    blpapi_EventFormatter_t_p,
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_EventFormatter_appendValueInt32(blpapi_EventFormatter_t *formatter, blpapi_Int32_t value)
 l_blpapi_EventFormatter_appendValueInt32 = getattr(
     libblpapict, "blpapi_EventFormatter_appendValueInt32", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendValueInt32.restype = c_int
+l_blpapi_EventFormatter_appendValueInt32.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_int,
+]
+# C signature: int blpapi_EventFormatter_appendValueInt64(blpapi_EventFormatter_t *formatter, blpapi_Int64_t value)
 l_blpapi_EventFormatter_appendValueInt64 = getattr(
     libblpapict, "blpapi_EventFormatter_appendValueInt64", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendValueInt64.restype = c_int
+l_blpapi_EventFormatter_appendValueInt64.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_int64,
+]
+# C signature: int blpapi_EventFormatter_appendValueString(blpapi_EventFormatter_t *formatter, const char *value)
 l_blpapi_EventFormatter_appendValueString = getattr(
     libblpapict, "blpapi_EventFormatter_appendValueString", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendValueString.restype = c_int
+l_blpapi_EventFormatter_appendValueString.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+]
+# C signature: blpapi_EventFormatter_t *blpapi_EventFormatter_create(blpapi_Event_t *event)
 l_blpapi_EventFormatter_create = getattr(
     libblpapict, "blpapi_EventFormatter_create", stub
 )
-l_blpapi_EventFormatter_create.restype = c_void_p
+l_blpapi_EventFormatter_create.restype = blpapi_EventFormatter_t_p
+l_blpapi_EventFormatter_create.argtypes = [blpapi_Event_t_p]
+# C signature: void blpapi_EventFormatter_destroy(blpapi_EventFormatter_t *victim)
 l_blpapi_EventFormatter_destroy = getattr(
     libblpapict, "blpapi_EventFormatter_destroy", stub
 )
 l_blpapi_EventFormatter_destroy.restype = None
+l_blpapi_EventFormatter_destroy.argtypes = [blpapi_EventFormatter_t_p]
+# C signature: int blpapi_EventFormatter_popElement(blpapi_EventFormatter_t *formatter)
 l_blpapi_EventFormatter_popElement = getattr(
     libblpapict, "blpapi_EventFormatter_popElement", stub
-)  # int
+)
+l_blpapi_EventFormatter_popElement.restype = c_int
+l_blpapi_EventFormatter_popElement.argtypes = [blpapi_EventFormatter_t_p]
+# C signature: int blpapi_EventFormatter_pushElement(blpapi_EventFormatter_t *formatter, const char *typeString, const blpapi_Name_t *typeName)
 l_blpapi_EventFormatter_pushElement = getattr(
     libblpapict, "blpapi_EventFormatter_pushElement", stub
-)  # int
+)
+l_blpapi_EventFormatter_pushElement.restype = c_int
+l_blpapi_EventFormatter_pushElement.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_EventFormatter_setValueBool(blpapi_EventFormatter_t *formatter, const char *typeString, const blpapi_Name_t *typeName, blpapi_Bool_t value)
 l_blpapi_EventFormatter_setValueBool = getattr(
     libblpapict, "blpapi_EventFormatter_setValueBool", stub
-)  # int
+)
+l_blpapi_EventFormatter_setValueBool.restype = c_int
+l_blpapi_EventFormatter_setValueBool.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_int,
+]
+# C signature: int blpapi_EventFormatter_setValueBytes(blpapi_EventFormatter_t *formatter, const char *typeString, const blpapi_Name_t *typeName, const char *value, size_t length)
 l_blpapi_EventFormatter_setValueBytes = getattr(
     libblpapict, "blpapi_EventFormatter_setValueBytes", stub
-)  # int
+)
+l_blpapi_EventFormatter_setValueBytes.restype = c_int
+l_blpapi_EventFormatter_setValueBytes.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_char_p,
+    c_size_t,
+]
+# C signature: int blpapi_EventFormatter_setValueChar(blpapi_EventFormatter_t *formatter, const char *typeString, const blpapi_Name_t *typeName, char value)
 l_blpapi_EventFormatter_setValueChar = getattr(
     libblpapict, "blpapi_EventFormatter_setValueChar", stub
-)  # int
+)
+l_blpapi_EventFormatter_setValueChar.restype = c_int
+l_blpapi_EventFormatter_setValueChar.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_char,
+]
+# C signature: int blpapi_EventFormatter_setValueDatetime(blpapi_EventFormatter_t *formatter, const char *typeString, const blpapi_Name_t *typeName, const blpapi_Datetime_t *value)
 l_blpapi_EventFormatter_setValueDatetime = getattr(
     libblpapict, "blpapi_EventFormatter_setValueDatetime", stub
-)  # int
+)
+l_blpapi_EventFormatter_setValueDatetime.restype = c_int
+l_blpapi_EventFormatter_setValueDatetime.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    BDatetime_p,
+]
+# C signature: int blpapi_EventFormatter_setValueFloat32(blpapi_EventFormatter_t *formatter, const char *typeString, const blpapi_Name_t *typeName, blpapi_Float32_t value)
 l_blpapi_EventFormatter_setValueFloat32 = getattr(
     libblpapict, "blpapi_EventFormatter_setValueFloat32", stub
-)  # int
+)
+l_blpapi_EventFormatter_setValueFloat32.restype = c_int
+l_blpapi_EventFormatter_setValueFloat32.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_float,
+]
+# C signature: int blpapi_EventFormatter_setValueFloat64(blpapi_EventFormatter_t *formatter, const char *typeString, const blpapi_Name_t *typeName, blpapi_Float64_t value)
 l_blpapi_EventFormatter_setValueFloat64 = getattr(
     libblpapict, "blpapi_EventFormatter_setValueFloat64", stub
-)  # int
+)
+l_blpapi_EventFormatter_setValueFloat64.restype = c_int
+l_blpapi_EventFormatter_setValueFloat64.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_double,
+]
+# C signature: int blpapi_EventFormatter_setValueFromName(blpapi_EventFormatter_t *formatter, const char *typeString, const blpapi_Name_t *typeName, const blpapi_Name_t *value)
 l_blpapi_EventFormatter_setValueFromName = getattr(
     libblpapict, "blpapi_EventFormatter_setValueFromName", stub
-)  # int
+)
+l_blpapi_EventFormatter_setValueFromName.restype = c_int
+l_blpapi_EventFormatter_setValueFromName.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_EventFormatter_setValueHighPrecisionDatetime(blpapi_EventFormatter_t *formatter, const char *typeString, const blpapi_Name_t *typeName, const blpapi_HighPrecisionDatetime_t *value)
 l_blpapi_EventFormatter_setValueHighPrecisionDatetime = getattr(
     libblpapict, "blpapi_EventFormatter_setValueHighPrecisionDatetime", stub
-)  # int
+)
+l_blpapi_EventFormatter_setValueHighPrecisionDatetime.restype = c_int
+l_blpapi_EventFormatter_setValueHighPrecisionDatetime.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    HighPrecisionDatetime_p,
+]
+# C signature: int blpapi_EventFormatter_appendValueHighPrecisionDatetime(blpapi_EventFormatter_t *formatter, const blpapi_HighPrecisionDatetime_t *value)
 l_blpapi_EventFormatter_appendValueHighPrecisionDatetime = getattr(
     libblpapict, "blpapi_EventFormatter_appendValueHighPrecisionDatetime", stub
-)  # int
+)
+l_blpapi_EventFormatter_appendValueHighPrecisionDatetime.restype = c_int
+l_blpapi_EventFormatter_appendValueHighPrecisionDatetime.argtypes = [
+    blpapi_EventFormatter_t_p,
+    HighPrecisionDatetime_p,
+]
+# C signature: int blpapi_EventFormatter_setValueInt32(blpapi_EventFormatter_t *formatter, const char *typeString, const blpapi_Name_t *typeName, blpapi_Int32_t value)
 l_blpapi_EventFormatter_setValueInt32 = getattr(
     libblpapict, "blpapi_EventFormatter_setValueInt32", stub
-)  # int
+)
+l_blpapi_EventFormatter_setValueInt32.restype = c_int
+l_blpapi_EventFormatter_setValueInt32.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_int,
+]
+# C signature: int blpapi_EventFormatter_setValueInt64(blpapi_EventFormatter_t *formatter, const char *typeString, const blpapi_Name_t *typeName, blpapi_Int64_t value)
 l_blpapi_EventFormatter_setValueInt64 = getattr(
     libblpapict, "blpapi_EventFormatter_setValueInt64", stub
-)  # int
+)
+l_blpapi_EventFormatter_setValueInt64.restype = c_int
+l_blpapi_EventFormatter_setValueInt64.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_int64,
+]
+# C signature: int blpapi_EventFormatter_setValueNull(blpapi_EventFormatter_t *formatter, const char *typeString, const blpapi_Name_t *typeName)
 l_blpapi_EventFormatter_setValueNull = getattr(
     libblpapict, "blpapi_EventFormatter_setValueNull", stub
-)  # int
+)
+l_blpapi_EventFormatter_setValueNull.restype = c_int
+l_blpapi_EventFormatter_setValueNull.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_EventFormatter_setValueString(blpapi_EventFormatter_t *formatter, const char *typeString, const blpapi_Name_t *typeName, const char *value)
 l_blpapi_EventFormatter_setValueString = getattr(
     libblpapict, "blpapi_EventFormatter_setValueString", stub
-)  # int
+)
+l_blpapi_EventFormatter_setValueString.restype = c_int
+l_blpapi_EventFormatter_setValueString.argtypes = [
+    blpapi_EventFormatter_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+    c_char_p,
+]
+# C signature: int blpapi_EventFormatter_getElement(blpapi_EventFormatter_t *formatter, blpapi_Element_t **element)
 l_blpapi_EventFormatter_getElement = getattr(
     libblpapict, "blpapi_EventFormatter_getElement", stub
-)  # int
+)
+l_blpapi_EventFormatter_getElement.restype = c_int
+l_blpapi_EventFormatter_getElement.argtypes = [
+    blpapi_EventFormatter_t_p,
+    POINTER[blpapi_Element_t_p],
+]
 
+# C signature: blpapi_EventQueue_t *blpapi_EventQueue_create(void)
 l_blpapi_EventQueue_create = getattr(
     libblpapict, "blpapi_EventQueue_create", stub
 )
-l_blpapi_EventQueue_create.restype = c_void_p
+l_blpapi_EventQueue_create.restype = blpapi_EventQueue_t_p
+# C signature: int blpapi_EventQueue_destroy(blpapi_EventQueue_t *eventQueue)
 l_blpapi_EventQueue_destroy = getattr(
     libblpapict, "blpapi_EventQueue_destroy", stub
-)  # int
+)
+l_blpapi_EventQueue_destroy.restype = c_int
+l_blpapi_EventQueue_destroy.argtypes = [blpapi_EventQueue_t_p]
+# C signature: blpapi_Event_t *blpapi_EventQueue_nextEvent(blpapi_EventQueue_t *eventQueue, int timeout)
 l_blpapi_EventQueue_nextEvent = getattr(
     libblpapict, "blpapi_EventQueue_nextEvent", stub
 )
-l_blpapi_EventQueue_nextEvent.restype = c_void_p
+l_blpapi_EventQueue_nextEvent.restype = blpapi_Event_t_p
+l_blpapi_EventQueue_nextEvent.argtypes = [blpapi_EventQueue_t_p, c_int]
+# C signature: int blpapi_EventQueue_purge(blpapi_EventQueue_t *eventQueue)
 l_blpapi_EventQueue_purge = getattr(
     libblpapict, "blpapi_EventQueue_purge", stub
-)  # int
+)
+l_blpapi_EventQueue_purge.restype = c_int
+l_blpapi_EventQueue_purge.argtypes = [blpapi_EventQueue_t_p]
+# C signature: int blpapi_EventQueue_tryNextEvent(blpapi_EventQueue_t *eventQueue, blpapi_Event_t **eventPointer)
 l_blpapi_EventQueue_tryNextEvent = getattr(
     libblpapict, "blpapi_EventQueue_tryNextEvent", stub
-)  # int
+)
+l_blpapi_EventQueue_tryNextEvent.restype = c_int
+l_blpapi_EventQueue_tryNextEvent.argtypes = [
+    blpapi_EventQueue_t_p,
+    POINTER[blpapi_Event_t_p],
+]
 
+# C signature: int blpapi_HighPrecisionDatetime_fromTimePoint(blpapi_HighPrecisionDatetime_t *datetime, const blpapi_TimePoint_t *timePoint, short offset)
 l_blpapi_HighPrecisionDatetime_fromTimePoint = getattr(
     libblpapict, "blpapi_HighPrecisionDatetime_fromTimePoint", stub
-)  # int
+)
+l_blpapi_HighPrecisionDatetime_fromTimePoint.restype = c_int
+l_blpapi_HighPrecisionDatetime_fromTimePoint.argtypes = [
+    HighPrecisionDatetime_p,
+    TimePoint_p,
+    c_int16,
+]
 
+# C signature: int blpapi_HighResolutionClock_now(blpapi_TimePoint_t *timePoint)
 l_blpapi_HighResolutionClock_now = getattr(
     libblpapict, "blpapi_HighResolutionClock_now", stub
-)  # int
+)
+l_blpapi_HighResolutionClock_now.restype = c_int
+l_blpapi_HighResolutionClock_now.argtypes = [TimePoint_p]
 
+# C signature: int blpapi_Identity_getSeatType(const blpapi_Identity_t *handle, int *seatType)
 l_blpapi_Identity_getSeatType = getattr(
     libblpapict, "blpapi_Identity_getSeatType", stub
-)  # int
+)
+l_blpapi_Identity_getSeatType.restype = c_int
+l_blpapi_Identity_getSeatType.argtypes = [blpapi_Identity_t_p, POINTER[c_int]]
+# C signature: int blpapi_Identity_hasEntitlements(const blpapi_Identity_t *handle, const blpapi_Service_t *service, const blpapi_Element_t *eidElement, const int *entitlementIds, size_t numEntitlements, int *failedEntitlements, int *failedEntitlementsCount)
 l_blpapi_Identity_hasEntitlements = getattr(
     libblpapict, "blpapi_Identity_hasEntitlements", stub
-)  # int
+)
+l_blpapi_Identity_hasEntitlements.restype = c_int
+l_blpapi_Identity_hasEntitlements.argtypes = [
+    blpapi_Identity_t_p,
+    blpapi_Service_t_p,
+    blpapi_Element_t_p,
+    POINTER[c_int],
+    c_size_t,
+    POINTER[c_int],
+    POINTER[c_int],
+]
+# C signature: int blpapi_Identity_isAuthorized(const blpapi_Identity_t *handle, const blpapi_Service_t *service)
 l_blpapi_Identity_isAuthorized = getattr(
     libblpapict, "blpapi_Identity_isAuthorized", stub
-)  # int
+)
+l_blpapi_Identity_isAuthorized.restype = c_int
+l_blpapi_Identity_isAuthorized.argtypes = [
+    blpapi_Identity_t_p,
+    blpapi_Service_t_p,
+]
+# C signature: void blpapi_Identity_release(blpapi_Identity_t *handle)
 l_blpapi_Identity_release = getattr(
     libblpapict, "blpapi_Identity_release", stub
 )
 l_blpapi_Identity_release.restype = None
+l_blpapi_Identity_release.argtypes = [blpapi_Identity_t_p]
 
+# C signature: void blpapi_Logging_logTestMessage(blpapi_Logging_Severity_t severity)
 l_blpapi_Logging_logTestMessage = getattr(
     libblpapict, "blpapi_Logging_logTestMessage", stub
 )
 l_blpapi_Logging_logTestMessage.restype = None
+l_blpapi_Logging_logTestMessage.argtypes = [c_int]
 
+# C signature: void blpapi_Logging_userMessage(blpapi_Logging_Severity_t severity, const char *message)
 l_blpapi_Logging_userMessage = getattr(
     libblpapict, "blpapi_Logging_userMessage", stub
 )
 l_blpapi_Logging_userMessage.restype = None
+l_blpapi_Logging_userMessage.argtypes = [c_int, c_char_p]
 
+# C signature: int blpapi_Logging_registerCallback(blpapi_Logging_Func_t callback, blpapi_Logging_Severity_t thresholdSeverity)
 l_blpapi_Logging_registerCallback = getattr(
     libblpapict, "blpapi_Logging_registerCallback", stub
-)  # int
+)
+l_blpapi_Logging_registerCallback.restype = c_int
+l_blpapi_Logging_registerCallback.argtypes = [blpapi_Logging_Func_t, c_int]
 
+# C signature: int blpapi_MessageFormatter_FormatMessageJson(blpapi_MessageFormatter_t *formatter, const char *message)
 l_blpapi_MessageFormatter_FormatMessageJson = getattr(
     libblpapict, "blpapi_MessageFormatter_FormatMessageJson", stub
-)  # int
+)
+l_blpapi_MessageFormatter_FormatMessageJson.restype = c_int
+l_blpapi_MessageFormatter_FormatMessageJson.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    c_char_p,
+]
+# C signature: int blpapi_MessageFormatter_FormatMessageXml(blpapi_MessageFormatter_t *formatter, const char *message)
 l_blpapi_MessageFormatter_FormatMessageXml = getattr(
     libblpapict, "blpapi_MessageFormatter_FormatMessageXml", stub
-)  # int
+)
+l_blpapi_MessageFormatter_FormatMessageXml.restype = c_int
+l_blpapi_MessageFormatter_FormatMessageXml.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    c_char_p,
+]
+# C signature: int blpapi_MessageFormatter_appendElement(blpapi_MessageFormatter_t *formatter)
 l_blpapi_MessageFormatter_appendElement = getattr(
     libblpapict, "blpapi_MessageFormatter_appendElement", stub
-)  # int
+)
+l_blpapi_MessageFormatter_appendElement.restype = c_int
+l_blpapi_MessageFormatter_appendElement.argtypes = [
+    blpapi_MessageFormatter_t_p
+]
+# C signature: int blpapi_MessageFormatter_appendValueBool(blpapi_MessageFormatter_t *formatter, blpapi_Bool_t value)
 l_blpapi_MessageFormatter_appendValueBool = getattr(
     libblpapict, "blpapi_MessageFormatter_appendValueBool", stub
-)  # int
+)
+l_blpapi_MessageFormatter_appendValueBool.restype = c_int
+l_blpapi_MessageFormatter_appendValueBool.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    c_int,
+]
+# C signature: int blpapi_MessageFormatter_appendValueChar(blpapi_MessageFormatter_t *formatter, char value)
 l_blpapi_MessageFormatter_appendValueChar = getattr(
     libblpapict, "blpapi_MessageFormatter_appendValueChar", stub
-)  # int
+)
+l_blpapi_MessageFormatter_appendValueChar.restype = c_int
+l_blpapi_MessageFormatter_appendValueChar.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    c_char,
+]
+# C signature: int blpapi_MessageFormatter_appendValueDatetime(blpapi_MessageFormatter_t *formatter, const blpapi_Datetime_t *value)
 l_blpapi_MessageFormatter_appendValueDatetime = getattr(
     libblpapict, "blpapi_MessageFormatter_appendValueDatetime", stub
-)  # int
+)
+l_blpapi_MessageFormatter_appendValueDatetime.restype = c_int
+l_blpapi_MessageFormatter_appendValueDatetime.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    BDatetime_p,
+]
+# C signature: int blpapi_MessageFormatter_appendValueFloat32(blpapi_MessageFormatter_t *formatter, blpapi_Float32_t value)
 l_blpapi_MessageFormatter_appendValueFloat32 = getattr(
     libblpapict, "blpapi_MessageFormatter_appendValueFloat32", stub
-)  # int
+)
+l_blpapi_MessageFormatter_appendValueFloat32.restype = c_int
+l_blpapi_MessageFormatter_appendValueFloat32.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    c_float,
+]
+# C signature: int blpapi_MessageFormatter_appendValueFloat64(blpapi_MessageFormatter_t *formatter, blpapi_Float64_t value)
 l_blpapi_MessageFormatter_appendValueFloat64 = getattr(
     libblpapict, "blpapi_MessageFormatter_appendValueFloat64", stub
-)  # int
+)
+l_blpapi_MessageFormatter_appendValueFloat64.restype = c_int
+l_blpapi_MessageFormatter_appendValueFloat64.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    c_double,
+]
+# C signature: int blpapi_MessageFormatter_appendValueFromName(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *value)
 l_blpapi_MessageFormatter_appendValueFromName = getattr(
     libblpapict, "blpapi_MessageFormatter_appendValueFromName", stub
-)  # int
+)
+l_blpapi_MessageFormatter_appendValueFromName.restype = c_int
+l_blpapi_MessageFormatter_appendValueFromName.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_MessageFormatter_appendValueHighPrecisionDatetime(blpapi_MessageFormatter_t *formatter, const blpapi_HighPrecisionDatetime_t *value)
 l_blpapi_MessageFormatter_appendValueHighPrecisionDatetime = getattr(
     libblpapict,
     "blpapi_MessageFormatter_appendValueHighPrecisionDatetime",
     stub,
-)  # int
+)
+l_blpapi_MessageFormatter_appendValueHighPrecisionDatetime.restype = c_int
+l_blpapi_MessageFormatter_appendValueHighPrecisionDatetime.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    HighPrecisionDatetime_p,
+]
+# C signature: int blpapi_MessageFormatter_appendValueInt32(blpapi_MessageFormatter_t *formatter, blpapi_Int32_t value)
 l_blpapi_MessageFormatter_appendValueInt32 = getattr(
     libblpapict, "blpapi_MessageFormatter_appendValueInt32", stub
-)  # int
+)
+l_blpapi_MessageFormatter_appendValueInt32.restype = c_int
+l_blpapi_MessageFormatter_appendValueInt32.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    c_int,
+]
+# C signature: int blpapi_MessageFormatter_appendValueInt64(blpapi_MessageFormatter_t *formatter, blpapi_Int64_t value)
 l_blpapi_MessageFormatter_appendValueInt64 = getattr(
     libblpapict, "blpapi_MessageFormatter_appendValueInt64", stub
-)  # int
+)
+l_blpapi_MessageFormatter_appendValueInt64.restype = c_int
+l_blpapi_MessageFormatter_appendValueInt64.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    c_int64,
+]
+# C signature: int blpapi_MessageFormatter_appendValueString(blpapi_MessageFormatter_t *formatter, const char *value)
 l_blpapi_MessageFormatter_appendValueString = getattr(
     libblpapict, "blpapi_MessageFormatter_appendValueString", stub
-)  # int
+)
+l_blpapi_MessageFormatter_appendValueString.restype = c_int
+l_blpapi_MessageFormatter_appendValueString.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    c_char_p,
+]
+# C signature: int blpapi_MessageFormatter_destroy(blpapi_MessageFormatter_t *formatter)
 l_blpapi_MessageFormatter_destroy = getattr(
     libblpapict, "blpapi_MessageFormatter_destroy", stub
-)  # int
+)
+l_blpapi_MessageFormatter_destroy.restype = c_int
+l_blpapi_MessageFormatter_destroy.argtypes = [blpapi_MessageFormatter_t_p]
+# C signature: int blpapi_MessageFormatter_popElement(blpapi_MessageFormatter_t *formatter)
 l_blpapi_MessageFormatter_popElement = getattr(
     libblpapict, "blpapi_MessageFormatter_popElement", stub
-)  # int
+)
+l_blpapi_MessageFormatter_popElement.restype = c_int
+l_blpapi_MessageFormatter_popElement.argtypes = [blpapi_MessageFormatter_t_p]
+# C signature: int blpapi_MessageFormatter_pushElement(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName)
 l_blpapi_MessageFormatter_pushElement = getattr(
     libblpapict, "blpapi_MessageFormatter_pushElement", stub
-)  # int
+)
+l_blpapi_MessageFormatter_pushElement.restype = c_int
+l_blpapi_MessageFormatter_pushElement.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_MessageFormatter_setValueBool(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName, blpapi_Bool_t value)
 l_blpapi_MessageFormatter_setValueBool = getattr(
     libblpapict, "blpapi_MessageFormatter_setValueBool", stub
-)  # int
+)
+l_blpapi_MessageFormatter_setValueBool.restype = c_int
+l_blpapi_MessageFormatter_setValueBool.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    blpapi_Name_t_p,
+    c_int,
+]
+# C signature: int blpapi_MessageFormatter_setValueBytes(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName, const char *value, size_t length)
 l_blpapi_MessageFormatter_setValueBytes = getattr(
     libblpapict, "blpapi_MessageFormatter_setValueBytes", stub
-)  # int
+)
+l_blpapi_MessageFormatter_setValueBytes.restype = c_int
+l_blpapi_MessageFormatter_setValueBytes.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    blpapi_Name_t_p,
+    c_char_p,
+    c_size_t,
+]
+# C signature: int blpapi_MessageFormatter_setValueChar(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName, char value)
 l_blpapi_MessageFormatter_setValueChar = getattr(
-    libblpapict, "blpapi_MessageFormatter_setValueBool", stub
-)  # int
+    libblpapict, "blpapi_MessageFormatter_setValueChar", stub
+)
+l_blpapi_MessageFormatter_setValueChar.restype = c_int
+l_blpapi_MessageFormatter_setValueChar.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    blpapi_Name_t_p,
+    c_char,
+]
+# C signature: int blpapi_MessageFormatter_setValueDatetime(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName, const blpapi_Datetime_t *value)
 l_blpapi_MessageFormatter_setValueDatetime = getattr(
     libblpapict, "blpapi_MessageFormatter_setValueDatetime", stub
-)  # int
+)
+l_blpapi_MessageFormatter_setValueDatetime.restype = c_int
+l_blpapi_MessageFormatter_setValueDatetime.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    blpapi_Name_t_p,
+    BDatetime_p,
+]
+# C signature: int blpapi_MessageFormatter_setValueFloat32(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName, blpapi_Float32_t value)
 l_blpapi_MessageFormatter_setValueFloat32 = getattr(
     libblpapict, "blpapi_MessageFormatter_setValueFloat32", stub
-)  # int
+)
+l_blpapi_MessageFormatter_setValueFloat32.restype = c_int
+l_blpapi_MessageFormatter_setValueFloat32.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    blpapi_Name_t_p,
+    c_float,
+]
+# C signature: int blpapi_MessageFormatter_setValueFloat64(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName, blpapi_Float64_t value)
 l_blpapi_MessageFormatter_setValueFloat64 = getattr(
     libblpapict, "blpapi_MessageFormatter_setValueFloat64", stub
-)  # int
+)
+l_blpapi_MessageFormatter_setValueFloat64.restype = c_int
+l_blpapi_MessageFormatter_setValueFloat64.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    blpapi_Name_t_p,
+    c_double,
+]
+# C signature: int blpapi_MessageFormatter_setValueFromName(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName, const blpapi_Name_t *value)
 l_blpapi_MessageFormatter_setValueFromName = getattr(
     libblpapict, "blpapi_MessageFormatter_setValueFromName", stub
-)  # int
+)
+l_blpapi_MessageFormatter_setValueFromName.restype = c_int
+l_blpapi_MessageFormatter_setValueFromName.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    blpapi_Name_t_p,
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_MessageFormatter_setValueHighPrecisionDatetime(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName, const blpapi_HighPrecisionDatetime_t *value)
 l_blpapi_MessageFormatter_setValueHighPrecisionDatetime = getattr(
     libblpapict, "blpapi_MessageFormatter_setValueHighPrecisionDatetime", stub
-)  # int
+)
+l_blpapi_MessageFormatter_setValueHighPrecisionDatetime.restype = c_int
+l_blpapi_MessageFormatter_setValueHighPrecisionDatetime.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    blpapi_Name_t_p,
+    HighPrecisionDatetime_p,
+]
+# C signature: int blpapi_MessageFormatter_setValueInt32(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName, blpapi_Int32_t value)
 l_blpapi_MessageFormatter_setValueInt32 = getattr(
     libblpapict, "blpapi_MessageFormatter_setValueInt32", stub
-)  # int
+)
+l_blpapi_MessageFormatter_setValueInt32.restype = c_int
+l_blpapi_MessageFormatter_setValueInt32.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    blpapi_Name_t_p,
+    c_int,
+]
+# C signature: int blpapi_MessageFormatter_setValueInt64(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName, blpapi_Int64_t value)
 l_blpapi_MessageFormatter_setValueInt64 = getattr(
     libblpapict, "blpapi_MessageFormatter_setValueInt64", stub
-)  # int
+)
+l_blpapi_MessageFormatter_setValueInt64.restype = c_int
+l_blpapi_MessageFormatter_setValueInt64.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    blpapi_Name_t_p,
+    c_int64,
+]
+# C signature: int blpapi_MessageFormatter_setValueNull(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName)
 l_blpapi_MessageFormatter_setValueNull = getattr(
     libblpapict, "blpapi_MessageFormatter_setValueNull", stub
-)  # int
+)
+l_blpapi_MessageFormatter_setValueNull.restype = c_int
+l_blpapi_MessageFormatter_setValueNull.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_MessageFormatter_setValueString(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName, const char *value)
 l_blpapi_MessageFormatter_setValueString = getattr(
     libblpapict, "blpapi_MessageFormatter_setValueString", stub
-)  # int
+)
+l_blpapi_MessageFormatter_setValueString.restype = c_int
+l_blpapi_MessageFormatter_setValueString.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    blpapi_Name_t_p,
+    c_char_p,
+]
+# C signature: int blpapi_MessageFormatter_getElement(blpapi_MessageFormatter_t *formatter, blpapi_Element_t **element)
 l_blpapi_MessageFormatter_getElement = getattr(
     libblpapict, "blpapi_MessageFormatter_getElement", stub
-)  # int
+)
+l_blpapi_MessageFormatter_getElement.restype = c_int
+l_blpapi_MessageFormatter_getElement.argtypes = [
+    blpapi_MessageFormatter_t_p,
+    POINTER[blpapi_Element_t_p],
+]
 
+# C signature: blpapi_MessageIterator_t *blpapi_MessageIterator_create(const blpapi_Event_t *event)
 l_blpapi_MessageIterator_create = getattr(
     libblpapict, "blpapi_MessageIterator_create", stub
 )
-l_blpapi_MessageIterator_create.restype = c_void_p
+l_blpapi_MessageIterator_create.restype = blpapi_MessageIterator_t_p
+l_blpapi_MessageIterator_create.argtypes = [blpapi_Event_t_p]
+# C signature: void blpapi_MessageIterator_destroy(blpapi_MessageIterator_t *iterator)
 l_blpapi_MessageIterator_destroy = getattr(
     libblpapict, "blpapi_MessageIterator_destroy", stub
 )
 l_blpapi_MessageIterator_destroy.restype = None
+l_blpapi_MessageIterator_destroy.argtypes = [blpapi_MessageIterator_t_p]
+# C signature: int blpapi_MessageIterator_next(blpapi_MessageIterator_t *iterator, blpapi_Message_t **result)
 l_blpapi_MessageIterator_next = getattr(
     libblpapict, "blpapi_MessageIterator_next", stub
-)  # int
+)
+l_blpapi_MessageIterator_next.restype = c_int
+l_blpapi_MessageIterator_next.argtypes = [
+    blpapi_MessageIterator_t_p,
+    POINTER[blpapi_Message_t_p],
+]
 
-l_blpapi_Message_addRef = getattr(
-    libblpapict, "blpapi_Message_addRef", stub
-)  # int
+# C signature: int blpapi_Message_addRef(const blpapi_Message_t *message)
+l_blpapi_Message_addRef = getattr(libblpapict, "blpapi_Message_addRef", stub)
+l_blpapi_Message_addRef.restype = c_int
+l_blpapi_Message_addRef.argtypes = [blpapi_Message_t_p]
+# C signature: blpapi_CorrelationId_t blpapi_Message_correlationId(const blpapi_Message_t *message, size_t index)
 l_blpapi_Message_correlationId = getattr(
     libblpapict, "blpapi_Message_correlationId", stub
 )
 l_blpapi_Message_correlationId.restype = CidStruct
+l_blpapi_Message_correlationId.argtypes = [blpapi_Message_t_p, c_size_t]
+# C signature: blpapi_Element_t *blpapi_Message_elements(const blpapi_Message_t *message)
 l_blpapi_Message_elements = getattr(
     libblpapict, "blpapi_Message_elements", stub
 )
-l_blpapi_Message_elements.restype = c_void_p
+l_blpapi_Message_elements.restype = blpapi_Element_t_p
+l_blpapi_Message_elements.argtypes = [blpapi_Message_t_p]
+# C signature: int blpapi_Message_fragmentType(const blpapi_Message_t *message)
 l_blpapi_Message_fragmentType = getattr(
     libblpapict, "blpapi_Message_fragmentType", stub
-)  # int
+)
+l_blpapi_Message_fragmentType.restype = c_int
+l_blpapi_Message_fragmentType.argtypes = [blpapi_Message_t_p]
+# C signature: int blpapi_Message_getRequestId(const blpapi_Message_t *message, const char **requestId)
 l_blpapi_Message_getRequestId = getattr(
     libblpapict, "blpapi_Message_getRequestId", stub
-)  # int
+)
+l_blpapi_Message_getRequestId.restype = c_int
+l_blpapi_Message_getRequestId.argtypes = [
+    blpapi_Message_t_p,
+    POINTER[c_char_p],
+]
+# C signature: blpapi_Name_t *blpapi_Message_messageType(const blpapi_Message_t *message)
 l_blpapi_Message_messageType = getattr(
     libblpapict, "blpapi_Message_messageType", stub
 )
-l_blpapi_Message_messageType.restype = c_void_p
+l_blpapi_Message_messageType.restype = blpapi_Name_t_p
+l_blpapi_Message_messageType.argtypes = [blpapi_Message_t_p]
+# C signature: int blpapi_Message_numCorrelationIds(const blpapi_Message_t *message)
 l_blpapi_Message_numCorrelationIds = getattr(
     libblpapict, "blpapi_Message_numCorrelationIds", stub
-)  # int
-l_blpapi_Message_print = getattr(
-    libblpapict, "blpapi_Message_print", stub
-)  # int
+)
+l_blpapi_Message_numCorrelationIds.restype = c_int
+l_blpapi_Message_numCorrelationIds.argtypes = [blpapi_Message_t_p]
+# C signature: int blpapi_Message_print(const blpapi_Message_t *message, blpapi_StreamWriter_t streamWriter, void *stream, int indentLevel, int spacesPerLevel)
+l_blpapi_Message_print = getattr(libblpapict, "blpapi_Message_print", stub)
+l_blpapi_Message_print.restype = c_int
+l_blpapi_Message_print.argtypes = [
+    blpapi_Message_t_p,
+    c_void_p,
+    c_void_p,
+    c_int,
+    c_int,
+]
+# C signature: int blpapi_Message_recapType(const blpapi_Message_t *message)
 l_blpapi_Message_recapType = getattr(
     libblpapict, "blpapi_Message_recapType", stub
-)  # int
-l_blpapi_Message_release = getattr(
-    libblpapict, "blpapi_Message_release", stub
-)  # int
+)
+l_blpapi_Message_recapType.restype = c_int
+l_blpapi_Message_recapType.argtypes = [blpapi_Message_t_p]
+# C signature: int blpapi_Message_release(const blpapi_Message_t *message)
+l_blpapi_Message_release = getattr(libblpapict, "blpapi_Message_release", stub)
+l_blpapi_Message_release.restype = c_int
+l_blpapi_Message_release.argtypes = [blpapi_Message_t_p]
+# C signature: blpapi_Service_t *blpapi_Message_service(const blpapi_Message_t *message)
 l_blpapi_Message_service = getattr(libblpapict, "blpapi_Message_service", stub)
-l_blpapi_Message_service.restype = c_void_p
+l_blpapi_Message_service.restype = blpapi_Service_t_p
+l_blpapi_Message_service.argtypes = [blpapi_Message_t_p]
+# C signature: int blpapi_Message_timeReceived(const blpapi_Message_t *message, blpapi_TimePoint_t *timeReceived)
 l_blpapi_Message_timeReceived = getattr(
     libblpapict, "blpapi_Message_timeReceived", stub
-)  # int
+)
+l_blpapi_Message_timeReceived.restype = c_int
+l_blpapi_Message_timeReceived.argtypes = [blpapi_Message_t_p, TimePoint_p]
 
+# C signature: int blpapi_MessageProperties_create(blpapi_MessageProperties_t **messageProperties)
 l_blpapi_MessageProperties_create = getattr(
     libblpapict, "blpapi_MessageProperties_create", stub
-)  # int
+)
+l_blpapi_MessageProperties_create.restype = c_int
+l_blpapi_MessageProperties_create.argtypes = [
+    POINTER[blpapi_MessageProperties_t_p]
+]
+# C signature: void blpapi_MessageProperties_destroy(blpapi_MessageProperties_t *messageProperties)
 l_blpapi_MessageProperties_destroy = getattr(
     libblpapict, "blpapi_MessageProperties_destroy", stub
 )
 l_blpapi_MessageProperties_destroy.restype = None
+l_blpapi_MessageProperties_destroy.argtypes = [blpapi_MessageProperties_t_p]
+# C signature: int blpapi_MessageProperties_setCorrelationIds(blpapi_MessageProperties_t *messageProperties, const blpapi_CorrelationId_t *correlationIds, size_t numCorrelationIds)
 l_blpapi_MessageProperties_setCorrelationIds = getattr(
     libblpapict, "blpapi_MessageProperties_setCorrelationIds", stub
-)  # int
+)
+l_blpapi_MessageProperties_setCorrelationIds.restype = c_int
+l_blpapi_MessageProperties_setCorrelationIds.argtypes = [
+    blpapi_MessageProperties_t_p,
+    CidStruct_p,
+    c_size_t,
+]
+# C signature: int blpapi_MessageProperties_setRecapType(blpapi_MessageProperties_t *messageProperties, int recap, int fragment)
 l_blpapi_MessageProperties_setRecapType = getattr(
     libblpapict, "blpapi_MessageProperties_setRecapType", stub
-)  # int
+)
+l_blpapi_MessageProperties_setRecapType.restype = c_int
+l_blpapi_MessageProperties_setRecapType.argtypes = [
+    blpapi_MessageProperties_t_p,
+    c_int,
+    c_int,
+]
+# C signature: int blpapi_MessageProperties_setRequestId(blpapi_MessageProperties_t *messageProperties, const char *requestId)
 l_blpapi_MessageProperties_setRequestId = getattr(
     libblpapict, "blpapi_MessageProperties_setRequestId", stub
-)  # int
+)
+l_blpapi_MessageProperties_setRequestId.restype = c_int
+l_blpapi_MessageProperties_setRequestId.argtypes = [
+    blpapi_MessageProperties_t_p,
+    c_char_p,
+]
+# C signature: int blpapi_MessageProperties_setService(blpapi_MessageProperties_t *messageProperties, const blpapi_Service_t *service)
 l_blpapi_MessageProperties_setService = getattr(
     libblpapict, "blpapi_MessageProperties_setService", stub
-)  # int
+)
+l_blpapi_MessageProperties_setService.restype = c_int
+l_blpapi_MessageProperties_setService.argtypes = [
+    blpapi_MessageProperties_t_p,
+    blpapi_Service_t_p,
+]
+# C signature: int blpapi_MessageProperties_setTimeReceived(blpapi_MessageProperties_t *messageProperties, const blpapi_HighPrecisionDatetime_t *timestamp)
 l_blpapi_MessageProperties_setTimeReceived = getattr(
     libblpapict, "blpapi_MessageProperties_setTimeReceived", stub
-)  # int
+)
+l_blpapi_MessageProperties_setTimeReceived.restype = c_int
+l_blpapi_MessageProperties_setTimeReceived.argtypes = [
+    blpapi_MessageProperties_t_p,
+    HighPrecisionDatetime_p,
+]
 
+# C signature: blpapi_Name_t *blpapi_Name_create(const char *nameString)
 l_blpapi_Name_create = getattr(libblpapict, "blpapi_Name_create", stub)
-l_blpapi_Name_create.restype = c_void_p
+l_blpapi_Name_create.restype = blpapi_Name_t_p
+l_blpapi_Name_create.argtypes = [c_char_p]
+# C signature: void blpapi_Name_destroy(blpapi_Name_t *name)
 l_blpapi_Name_destroy = getattr(libblpapict, "blpapi_Name_destroy", stub)
 l_blpapi_Name_destroy.restype = None
-l_blpapi_Name_equalsStr = getattr(
-    libblpapict, "blpapi_Name_equalsStr", stub
-)  # int
+l_blpapi_Name_destroy.argtypes = [blpapi_Name_t_p]
+# C signature: int blpapi_Name_equalsStr(const blpapi_Name_t *name, const char *string)
+l_blpapi_Name_equalsStr = getattr(libblpapict, "blpapi_Name_equalsStr", stub)
+l_blpapi_Name_equalsStr.restype = c_int
+l_blpapi_Name_equalsStr.argtypes = [blpapi_Name_t_p, c_char_p]
+# C signature: blpapi_Name_t *blpapi_Name_findName(const char *nameString)
 l_blpapi_Name_findName = getattr(libblpapict, "blpapi_Name_findName", stub)
-l_blpapi_Name_findName.restype = c_void_p
+l_blpapi_Name_findName.restype = blpapi_Name_t_p
+l_blpapi_Name_findName.argtypes = [c_char_p]
+# C signature: size_t blpapi_Name_length(const blpapi_Name_t *name)
 l_blpapi_Name_length = getattr(libblpapict, "blpapi_Name_length", stub)
 l_blpapi_Name_length.restype = c_size_t
+l_blpapi_Name_length.argtypes = [blpapi_Name_t_p]
+# C signature: const char *blpapi_Name_string(const blpapi_Name_t *name)
 l_blpapi_Name_string = getattr(libblpapict, "blpapi_Name_string", stub)
 l_blpapi_Name_string.restype = c_char_p
+l_blpapi_Name_string.argtypes = [blpapi_Name_t_p]
 
+# C signature: const char *blpapi_Operation_description(blpapi_Operation_t *operation)
 l_blpapi_Operation_description = getattr(
     libblpapict, "blpapi_Operation_description", stub
 )
 l_blpapi_Operation_description.restype = c_char_p
+l_blpapi_Operation_description.argtypes = [blpapi_Operation_t_p]
+# C signature: const char *blpapi_Operation_name(blpapi_Operation_t *operation)
 l_blpapi_Operation_name = getattr(libblpapict, "blpapi_Operation_name", stub)
 l_blpapi_Operation_name.restype = c_char_p
+l_blpapi_Operation_name.argtypes = [blpapi_Operation_t_p]
+# C signature: int blpapi_Operation_numResponseDefinitions(blpapi_Operation_t *operation)
 l_blpapi_Operation_numResponseDefinitions = getattr(
     libblpapict, "blpapi_Operation_numResponseDefinitions", stub
-)  # int
+)
+l_blpapi_Operation_numResponseDefinitions.restype = c_int
+l_blpapi_Operation_numResponseDefinitions.argtypes = [blpapi_Operation_t_p]
+# C signature: int blpapi_Operation_requestDefinition(blpapi_Operation_t *operation, blpapi_SchemaElementDefinition_t **requestDefinition)
 l_blpapi_Operation_requestDefinition = getattr(
     libblpapict, "blpapi_Operation_requestDefinition", stub
-)  # int
+)
+l_blpapi_Operation_requestDefinition.restype = c_int
+l_blpapi_Operation_requestDefinition.argtypes = [
+    blpapi_Operation_t_p,
+    POINTER[blpapi_SchemaElementDefinition_t_p],
+]
+# C signature: int blpapi_Operation_responseDefinition(blpapi_Operation_t *operation, blpapi_SchemaElementDefinition_t **responseDefinition, size_t index)
 l_blpapi_Operation_responseDefinition = getattr(
     libblpapict, "blpapi_Operation_responseDefinition", stub
-)  # int
+)
+l_blpapi_Operation_responseDefinition.restype = c_int
+l_blpapi_Operation_responseDefinition.argtypes = [
+    blpapi_Operation_t_p,
+    POINTER[blpapi_SchemaElementDefinition_t_p],
+    c_size_t,
+]
 
+# C signature: int blpapi_ProviderSession_activateSubServiceCodeRange(blpapi_ProviderSession_t *session, const char *serviceName, int begin, int end, int priority)
 l_blpapi_ProviderSession_activateSubServiceCodeRange = getattr(
     libblpapict, "blpapi_ProviderSession_activateSubServiceCodeRange", stub
-)  # int
+)
+l_blpapi_ProviderSession_activateSubServiceCodeRange.restype = c_int
+l_blpapi_ProviderSession_activateSubServiceCodeRange.argtypes = [
+    blpapi_ProviderSession_t_p,
+    c_char_p,
+    c_int,
+    c_int,
+    c_int,
+]
+# C signature: blpapi_ProviderSession_t *blpapi_ProviderSession_create(blpapi_SessionOptions_t *parameters, blpapi_ProviderEventHandler_t handler, blpapi_EventDispatcher_t *dispatcher, void *userData)
 l_blpapi_ProviderSession_create = getattr(
     libblpapict, "blpapi_ProviderSession_create", stub
 )
-l_blpapi_ProviderSession_create.restype = c_void_p
+l_blpapi_ProviderSession_create.restype = blpapi_ProviderSession_t_p
+l_blpapi_ProviderSession_create.argtypes = [
+    blpapi_SessionOptions_t_p,
+    blpapi_ProviderEventHandler_t,
+    blpapi_EventDispatcher_t_p,
+    c_void_p,
+]
+# C signature: int blpapi_ProviderSession_createTopics(blpapi_ProviderSession_t *session, blpapi_TopicList_t *topicList, int resolveMode, const blpapi_Identity_t *identity)
 l_blpapi_ProviderSession_createTopics = getattr(
     libblpapict, "blpapi_ProviderSession_createTopics", stub
-)  # int
+)
+l_blpapi_ProviderSession_createTopics.restype = c_int
+l_blpapi_ProviderSession_createTopics.argtypes = [
+    blpapi_ProviderSession_t_p,
+    blpapi_TopicList_t_p,
+    c_int,
+    blpapi_Identity_t_p,
+]
+# C signature: int blpapi_ProviderSession_createTopicsAsync(blpapi_ProviderSession_t *session, const blpapi_TopicList_t *topicList, int resolveMode, const blpapi_Identity_t *identity)
 l_blpapi_ProviderSession_createTopicsAsync = getattr(
     libblpapict, "blpapi_ProviderSession_createTopicsAsync", stub
-)  # int
+)
+l_blpapi_ProviderSession_createTopicsAsync.restype = c_int
+l_blpapi_ProviderSession_createTopicsAsync.argtypes = [
+    blpapi_ProviderSession_t_p,
+    blpapi_TopicList_t_p,
+    c_int,
+    blpapi_Identity_t_p,
+]
+# C signature: int blpapi_ProviderSession_createServiceStatusTopic(blpapi_ProviderSession_t *session, const blpapi_Service_t *service, blpapi_Topic_t **topic)
 l_blpapi_ProviderSession_createServiceStatusTopic = getattr(
     libblpapict, "blpapi_ProviderSession_createServiceStatusTopic", stub
-)  # int
+)
+l_blpapi_ProviderSession_createServiceStatusTopic.restype = c_int
+l_blpapi_ProviderSession_createServiceStatusTopic.argtypes = [
+    blpapi_ProviderSession_t_p,
+    blpapi_Service_t_p,
+    POINTER[blpapi_Topic_t_p],
+]
+# C signature: int blpapi_ProviderSession_deactivateSubServiceCodeRange(blpapi_ProviderSession_t *session, const char *serviceName, int begin, int end)
 l_blpapi_ProviderSession_deactivateSubServiceCodeRange = getattr(
     libblpapict, "blpapi_ProviderSession_deactivateSubServiceCodeRange", stub
-)  # int
+)
+l_blpapi_ProviderSession_deactivateSubServiceCodeRange.restype = c_int
+l_blpapi_ProviderSession_deactivateSubServiceCodeRange.argtypes = [
+    blpapi_ProviderSession_t_p,
+    c_char_p,
+    c_int,
+    c_int,
+]
+# C signature: int blpapi_ProviderSession_deleteTopics(blpapi_ProviderSession_t *session, const blpapi_Topic_t **topics, size_t numTopics)
 l_blpapi_ProviderSession_deleteTopics = getattr(
     libblpapict, "blpapi_ProviderSession_deleteTopics", stub
-)  # int
+)
+l_blpapi_ProviderSession_deleteTopics.restype = c_int
+l_blpapi_ProviderSession_deleteTopics.argtypes = [
+    blpapi_ProviderSession_t_p,
+    POINTER[blpapi_Topic_t_p],
+    c_size_t,
+]
+# C signature: int blpapi_ProviderSession_deregisterService(blpapi_ProviderSession_t *session, const char *serviceName)
 l_blpapi_ProviderSession_deregisterService = getattr(
     libblpapict, "blpapi_ProviderSession_deregisterService", stub
-)  # int
+)
+l_blpapi_ProviderSession_deregisterService.restype = c_int
+l_blpapi_ProviderSession_deregisterService.argtypes = [
+    blpapi_ProviderSession_t_p,
+    c_char_p,
+]
+# C signature: void blpapi_ProviderSession_destroy(blpapi_ProviderSession_t *session)
 l_blpapi_ProviderSession_destroy = getattr(
     libblpapict, "blpapi_ProviderSession_destroy", stub
 )
 l_blpapi_ProviderSession_destroy.restype = None
+l_blpapi_ProviderSession_destroy.argtypes = [blpapi_ProviderSession_t_p]
+# C signature: int blpapi_ProviderSession_flushPublishedEvents(blpapi_ProviderSession_t *session, int *allFlushed, int timeoutMsecs)
 l_blpapi_ProviderSession_flushPublishedEvents = getattr(
     libblpapict, "blpapi_ProviderSession_flushPublishedEvents", stub
-)  # int
+)
+l_blpapi_ProviderSession_flushPublishedEvents.restype = c_int
+l_blpapi_ProviderSession_flushPublishedEvents.argtypes = [
+    blpapi_ProviderSession_t_p,
+    POINTER[c_int],
+    c_int,
+]
+# C signature: blpapi_AbstractSession_t *blpapi_ProviderSession_getAbstractSession(blpapi_ProviderSession_t *session)
 l_blpapi_ProviderSession_getAbstractSession = getattr(
     libblpapict, "blpapi_ProviderSession_getAbstractSession", stub
 )
-l_blpapi_ProviderSession_getAbstractSession.restype = c_void_p
+l_blpapi_ProviderSession_getAbstractSession.restype = (
+    blpapi_AbstractSession_t_p
+)
+l_blpapi_ProviderSession_getAbstractSession.argtypes = [
+    blpapi_ProviderSession_t_p
+]
+# C signature: int blpapi_ProviderSession_getTopic(blpapi_ProviderSession_t *session, const blpapi_Message_t *message, blpapi_Topic_t **topic)
 l_blpapi_ProviderSession_getTopic = getattr(
     libblpapict, "blpapi_ProviderSession_getTopic", stub
-)  # int
+)
+l_blpapi_ProviderSession_getTopic.restype = c_int
+l_blpapi_ProviderSession_getTopic.argtypes = [
+    blpapi_ProviderSession_t_p,
+    blpapi_Message_t_p,
+    POINTER[blpapi_Topic_t_p],
+]
+# C signature: int blpapi_ProviderSession_nextEvent(blpapi_ProviderSession_t *session, blpapi_Event_t **eventPointer, unsigned int timeoutInMilliseconds)
 l_blpapi_ProviderSession_nextEvent = getattr(
     libblpapict, "blpapi_ProviderSession_nextEvent", stub
-)  # int
+)
+l_blpapi_ProviderSession_nextEvent.restype = c_int
+l_blpapi_ProviderSession_nextEvent.argtypes = [
+    blpapi_ProviderSession_t_p,
+    POINTER[blpapi_Event_t_p],
+    c_uint,
+]
+# C signature: int blpapi_ProviderSession_publish(blpapi_ProviderSession_t *session, blpapi_Event_t *event)
 l_blpapi_ProviderSession_publish = getattr(
     libblpapict, "blpapi_ProviderSession_publish", stub
-)  # int
+)
+l_blpapi_ProviderSession_publish.restype = c_int
+l_blpapi_ProviderSession_publish.argtypes = [
+    blpapi_ProviderSession_t_p,
+    blpapi_Event_t_p,
+]
+# C signature: int blpapi_ProviderSession_registerService(blpapi_ProviderSession_t *session, const char *serviceName, const blpapi_Identity_t *identity, blpapi_ServiceRegistrationOptions_t *registrationOptions)
 l_blpapi_ProviderSession_registerService = getattr(
     libblpapict, "blpapi_ProviderSession_registerService", stub
-)  # int
+)
+l_blpapi_ProviderSession_registerService.restype = c_int
+l_blpapi_ProviderSession_registerService.argtypes = [
+    blpapi_ProviderSession_t_p,
+    c_char_p,
+    blpapi_Identity_t_p,
+    blpapi_ServiceRegistrationOptions_t_p,
+]
+# C signature: int blpapi_ProviderSession_registerServiceAsync(blpapi_ProviderSession_t *session, const char *serviceName, const blpapi_Identity_t *identity, blpapi_CorrelationId_t *correlationId, blpapi_ServiceRegistrationOptions_t *registrationOptions)
 l_blpapi_ProviderSession_registerServiceAsync = getattr(
     libblpapict, "blpapi_ProviderSession_registerServiceAsync", stub
-)  # int
+)
+l_blpapi_ProviderSession_registerServiceAsync.restype = c_int
+l_blpapi_ProviderSession_registerServiceAsync.argtypes = [
+    blpapi_ProviderSession_t_p,
+    c_char_p,
+    blpapi_Identity_t_p,
+    CidStruct_p,
+    blpapi_ServiceRegistrationOptions_t_p,
+]
+# C signature: int blpapi_ProviderSession_resolve(blpapi_ProviderSession_t *session, blpapi_ResolutionList_t *resolutionList, int resolveMode, const blpapi_Identity_t *identity)
 l_blpapi_ProviderSession_resolve = getattr(
     libblpapict, "blpapi_ProviderSession_resolve", stub
-)  # int
+)
+l_blpapi_ProviderSession_resolve.restype = c_int
+l_blpapi_ProviderSession_resolve.argtypes = [
+    blpapi_ProviderSession_t_p,
+    blpapi_ResolutionList_t_p,
+    c_int,
+    blpapi_Identity_t_p,
+]
+# C signature: int blpapi_ProviderSession_resolveAsync(blpapi_ProviderSession_t *session, const blpapi_ResolutionList_t *resolutionList, int resolveMode, const blpapi_Identity_t *identity)
 l_blpapi_ProviderSession_resolveAsync = getattr(
     libblpapict, "blpapi_ProviderSession_resolveAsync", stub
-)  # int
+)
+l_blpapi_ProviderSession_resolveAsync.restype = c_int
+l_blpapi_ProviderSession_resolveAsync.argtypes = [
+    blpapi_ProviderSession_t_p,
+    blpapi_ResolutionList_t_p,
+    c_int,
+    blpapi_Identity_t_p,
+]
+# C signature: int blpapi_ProviderSession_sendResponse(blpapi_ProviderSession_t *session, blpapi_Event_t *event, int isPartialResponse)
 l_blpapi_ProviderSession_sendResponse = getattr(
     libblpapict, "blpapi_ProviderSession_sendResponse", stub
-)  # int
+)
+l_blpapi_ProviderSession_sendResponse.restype = c_int
+l_blpapi_ProviderSession_sendResponse.argtypes = [
+    blpapi_ProviderSession_t_p,
+    blpapi_Event_t_p,
+    c_int,
+]
+# C signature: int blpapi_ProviderSession_start(blpapi_ProviderSession_t *session)
 l_blpapi_ProviderSession_start = getattr(
     libblpapict, "blpapi_ProviderSession_start", stub
-)  # int
+)
+l_blpapi_ProviderSession_start.restype = c_int
+l_blpapi_ProviderSession_start.argtypes = [blpapi_ProviderSession_t_p]
+# C signature: int blpapi_ProviderSession_startAsync(blpapi_ProviderSession_t *session)
 l_blpapi_ProviderSession_startAsync = getattr(
     libblpapict, "blpapi_ProviderSession_startAsync", stub
-)  # int
+)
+l_blpapi_ProviderSession_startAsync.restype = c_int
+l_blpapi_ProviderSession_startAsync.argtypes = [blpapi_ProviderSession_t_p]
+# C signature: int blpapi_ProviderSession_stop(blpapi_ProviderSession_t *session)
 l_blpapi_ProviderSession_stop = getattr(
     libblpapict, "blpapi_ProviderSession_stop", stub
-)  # int
+)
+l_blpapi_ProviderSession_stop.restype = c_int
+l_blpapi_ProviderSession_stop.argtypes = [blpapi_ProviderSession_t_p]
+# C signature: int blpapi_ProviderSession_stopAsync(blpapi_ProviderSession_t *session)
 l_blpapi_ProviderSession_stopAsync = getattr(
     libblpapict, "blpapi_ProviderSession_stopAsync", stub
-)  # int
+)
+l_blpapi_ProviderSession_stopAsync.restype = c_int
+l_blpapi_ProviderSession_stopAsync.argtypes = [blpapi_ProviderSession_t_p]
+# C signature: int blpapi_ProviderSession_terminateSubscriptionsOnTopics(blpapi_ProviderSession_t *session, const blpapi_Topic_t **topics, size_t numTopics, const char *message)
 l_blpapi_ProviderSession_terminateSubscriptionsOnTopics = getattr(
     libblpapict, "blpapi_ProviderSession_terminateSubscriptionsOnTopics", stub
-)  # int
+)
+l_blpapi_ProviderSession_terminateSubscriptionsOnTopics.restype = c_int
+l_blpapi_ProviderSession_terminateSubscriptionsOnTopics.argtypes = [
+    blpapi_ProviderSession_t_p,
+    POINTER[blpapi_Topic_t_p],
+    c_size_t,
+    c_char_p,
+]
+# C signature: int blpapi_ProviderSession_tryNextEvent(blpapi_ProviderSession_t *session, blpapi_Event_t **eventPointer)
 l_blpapi_ProviderSession_tryNextEvent = getattr(
     libblpapict, "blpapi_ProviderSession_tryNextEvent", stub
-)  # int
+)
+l_blpapi_ProviderSession_tryNextEvent.restype = c_int
+l_blpapi_ProviderSession_tryNextEvent.argtypes = [
+    blpapi_ProviderSession_t_p,
+    POINTER[blpapi_Event_t_p],
+]
 
+# C signature: int blpapi_RequestTemplate_release(const blpapi_RequestTemplate_t *requestTemplate)
 l_blpapi_RequestTemplate_release = getattr(
     libblpapict, "blpapi_RequestTemplate_release", stub
-)  # int
+)
+l_blpapi_RequestTemplate_release.restype = c_int
+l_blpapi_RequestTemplate_release.argtypes = [blpapi_RequestTemplate_t_p]
 
+# C signature: void blpapi_Request_destroy(blpapi_Request_t *request)
 l_blpapi_Request_destroy = getattr(libblpapict, "blpapi_Request_destroy", stub)
 l_blpapi_Request_destroy.restype = None
+l_blpapi_Request_destroy.argtypes = [blpapi_Request_t_p]
+# C signature: blpapi_Element_t *blpapi_Request_elements(blpapi_Request_t *request)
 l_blpapi_Request_elements = getattr(
     libblpapict, "blpapi_Request_elements", stub
 )
-l_blpapi_Request_elements.restype = c_void_p
+l_blpapi_Request_elements.restype = blpapi_Element_t_p
+l_blpapi_Request_elements.argtypes = [blpapi_Request_t_p]
+# C signature: int blpapi_Request_getRequestId(const blpapi_Request_t *request, const char **requestId)
 l_blpapi_Request_getRequestId = getattr(
     libblpapict, "blpapi_Request_getRequestId", stub
-)  # int
+)
+l_blpapi_Request_getRequestId.restype = c_int
+l_blpapi_Request_getRequestId.argtypes = [
+    blpapi_Request_t_p,
+    POINTER[c_char_p],
+]
 
+# C signature: blpapi_Element_t *blpapi_ResolutionList_extractAttributeFromResolutionSuccess(const blpapi_Message_t *message, const blpapi_Name_t *attribute)
 l_blpapi_ResolutionList_extractAttributeFromResolutionSuccess = getattr(
     libblpapict,
     "blpapi_ResolutionList_extractAttributeFromResolutionSuccess",
     stub,
 )
 l_blpapi_ResolutionList_extractAttributeFromResolutionSuccess.restype = (
-    c_void_p
+    blpapi_Element_t_p
 )
+l_blpapi_ResolutionList_extractAttributeFromResolutionSuccess.argtypes = [
+    blpapi_Message_t_p,
+    blpapi_Name_t_p,
+]
 
+# C signature: blpapi_ResolutionList_t *blpapi_ResolutionList_create(blpapi_ResolutionList_t *from)
 l_blpapi_ResolutionList_create = getattr(
     libblpapict, "blpapi_ResolutionList_create", stub
 )
-l_blpapi_ResolutionList_create.restype = c_void_p
+l_blpapi_ResolutionList_create.restype = blpapi_ResolutionList_t_p
+l_blpapi_ResolutionList_create.argtypes = [blpapi_ResolutionList_t_p]
 
+# C signature: void blpapi_ResolutionList_destroy(blpapi_ResolutionList_t *list)
 l_blpapi_ResolutionList_destroy = getattr(
     libblpapict, "blpapi_ResolutionList_destroy", stub
 )
 l_blpapi_ResolutionList_destroy.restype = None
+l_blpapi_ResolutionList_destroy.argtypes = [blpapi_ResolutionList_t_p]
+# C signature: int blpapi_ResolutionList_add(blpapi_ResolutionList_t *list, const char *topic, const blpapi_CorrelationId_t *correlationId)
 l_blpapi_ResolutionList_add = getattr(
     libblpapict, "blpapi_ResolutionList_add", stub
-)  # int
+)
+l_blpapi_ResolutionList_add.restype = c_int
+l_blpapi_ResolutionList_add.argtypes = [
+    blpapi_ResolutionList_t_p,
+    c_char_p,
+    CidStruct_p,
+]
+# C signature: int blpapi_ResolutionList_addFromMessage(blpapi_ResolutionList_t *list, const blpapi_Message_t *topic, const blpapi_CorrelationId_t *correlationId)
 l_blpapi_ResolutionList_addFromMessage = getattr(
     libblpapict, "blpapi_ResolutionList_addFromMessage", stub
-)  # int
+)
+l_blpapi_ResolutionList_addFromMessage.restype = c_int
+l_blpapi_ResolutionList_addFromMessage.argtypes = [
+    blpapi_ResolutionList_t_p,
+    blpapi_Message_t_p,
+    CidStruct_p,
+]
+# C signature: int blpapi_ResolutionList_addAttribute(blpapi_ResolutionList_t *list, const blpapi_Name_t *name)
 l_blpapi_ResolutionList_addAttribute = getattr(
     libblpapict, "blpapi_ResolutionList_addAttribute", stub
-)  # int
+)
+l_blpapi_ResolutionList_addAttribute.restype = c_int
+l_blpapi_ResolutionList_addAttribute.argtypes = [
+    blpapi_ResolutionList_t_p,
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_ResolutionList_correlationIdAt(const blpapi_ResolutionList_t *list, blpapi_CorrelationId_t *result, size_t index)
 l_blpapi_ResolutionList_correlationIdAt = getattr(
     libblpapict, "blpapi_ResolutionList_correlationIdAt", stub
-)  # int
+)
+l_blpapi_ResolutionList_correlationIdAt.restype = c_int
+l_blpapi_ResolutionList_correlationIdAt.argtypes = [
+    blpapi_ResolutionList_t_p,
+    CidStruct_p,
+    c_size_t,
+]
+# C signature: int blpapi_ResolutionList_topicString(const blpapi_ResolutionList_t *list, const char **topic, const blpapi_CorrelationId_t *id)
 l_blpapi_ResolutionList_topicString = getattr(
     libblpapict, "blpapi_ResolutionList_topicString", stub
-)  # int
+)
+l_blpapi_ResolutionList_topicString.restype = c_int
+l_blpapi_ResolutionList_topicString.argtypes = [
+    blpapi_ResolutionList_t_p,
+    POINTER[c_char_p],
+    CidStruct_p,
+]
+# C signature: int blpapi_ResolutionList_topicStringAt(const blpapi_ResolutionList_t *list, const char **topic, size_t index)
 l_blpapi_ResolutionList_topicStringAt = getattr(
     libblpapict, "blpapi_ResolutionList_topicStringAt", stub
-)  # int
+)
+l_blpapi_ResolutionList_topicStringAt.restype = c_int
+l_blpapi_ResolutionList_topicStringAt.argtypes = [
+    blpapi_ResolutionList_t_p,
+    POINTER[c_char_p],
+    c_size_t,
+]
+# C signature: int blpapi_ResolutionList_status(const blpapi_ResolutionList_t *list, int *status, const blpapi_CorrelationId_t *id)
 l_blpapi_ResolutionList_status = getattr(
     libblpapict, "blpapi_ResolutionList_status", stub
-)  # int
+)
+l_blpapi_ResolutionList_status.restype = c_int
+l_blpapi_ResolutionList_status.argtypes = [
+    blpapi_ResolutionList_t_p,
+    POINTER[c_int],
+    CidStruct_p,
+]
+# C signature: int blpapi_ResolutionList_statusAt(const blpapi_ResolutionList_t *list, int *status, size_t index)
 l_blpapi_ResolutionList_statusAt = getattr(
     libblpapict, "blpapi_ResolutionList_statusAt", stub
-)  # int
+)
+l_blpapi_ResolutionList_statusAt.restype = c_int
+l_blpapi_ResolutionList_statusAt.argtypes = [
+    blpapi_ResolutionList_t_p,
+    POINTER[c_int],
+    c_size_t,
+]
+# C signature: int blpapi_ResolutionList_attribute(const blpapi_ResolutionList_t *list, blpapi_Element_t **element, const blpapi_Name_t *attribute, const blpapi_CorrelationId_t *id)
 l_blpapi_ResolutionList_attribute = getattr(
     libblpapict, "blpapi_ResolutionList_attribute", stub
-)  # int
+)
+l_blpapi_ResolutionList_attribute.restype = c_int
+l_blpapi_ResolutionList_attribute.argtypes = [
+    blpapi_ResolutionList_t_p,
+    POINTER[blpapi_Element_t_p],
+    blpapi_Name_t_p,
+    CidStruct_p,
+]
+# C signature: int blpapi_ResolutionList_attributeAt(const blpapi_ResolutionList_t *list, blpapi_Element_t **element, const blpapi_Name_t *attribute, size_t index)
 l_blpapi_ResolutionList_attributeAt = getattr(
     libblpapict, "blpapi_ResolutionList_attributeAt", stub
-)  # int
+)
+l_blpapi_ResolutionList_attributeAt.restype = c_int
+l_blpapi_ResolutionList_attributeAt.argtypes = [
+    blpapi_ResolutionList_t_p,
+    POINTER[blpapi_Element_t_p],
+    blpapi_Name_t_p,
+    c_size_t,
+]
+# C signature: int blpapi_ResolutionList_message(const blpapi_ResolutionList_t *list, blpapi_Message_t **element, const blpapi_CorrelationId_t *id)
 l_blpapi_ResolutionList_message = getattr(
     libblpapict, "blpapi_ResolutionList_message", stub
-)  # int
+)
+l_blpapi_ResolutionList_message.restype = c_int
+l_blpapi_ResolutionList_message.argtypes = [
+    blpapi_ResolutionList_t_p,
+    POINTER[blpapi_Message_t_p],
+    CidStruct_p,
+]
+# C signature: int blpapi_ResolutionList_messageAt(const blpapi_ResolutionList_t *list, blpapi_Message_t **element, size_t index)
 l_blpapi_ResolutionList_messageAt = getattr(
     libblpapict, "blpapi_ResolutionList_messageAt", stub
-)  # int
+)
+l_blpapi_ResolutionList_messageAt.restype = c_int
+l_blpapi_ResolutionList_messageAt.argtypes = [
+    blpapi_ResolutionList_t_p,
+    POINTER[blpapi_Message_t_p],
+    c_size_t,
+]
+# C signature: int blpapi_ResolutionList_size(const blpapi_ResolutionList_t *list)
 l_blpapi_ResolutionList_size = getattr(
     libblpapict, "blpapi_ResolutionList_size", stub
-)  # int
+)
+l_blpapi_ResolutionList_size.restype = c_int
+l_blpapi_ResolutionList_size.argtypes = [blpapi_ResolutionList_t_p]
 
+# C signature: const char *blpapi_SchemaElementDefinition_description(const blpapi_SchemaElementDefinition_t *field)
 l_blpapi_SchemaElementDefinition_description = getattr(
     libblpapict, "blpapi_SchemaElementDefinition_description", stub
 )
 l_blpapi_SchemaElementDefinition_description.restype = c_char_p
+l_blpapi_SchemaElementDefinition_description.argtypes = [
+    blpapi_SchemaElementDefinition_t_p
+]
+# C signature: blpapi_Name_t *blpapi_SchemaElementDefinition_getAlternateName(const blpapi_SchemaElementDefinition_t *field, size_t index)
 l_blpapi_SchemaElementDefinition_getAlternateName = getattr(
     libblpapict, "blpapi_SchemaElementDefinition_getAlternateName", stub
 )
-l_blpapi_SchemaElementDefinition_getAlternateName.restype = c_void_p
+l_blpapi_SchemaElementDefinition_getAlternateName.restype = blpapi_Name_t_p
+l_blpapi_SchemaElementDefinition_getAlternateName.argtypes = [
+    blpapi_SchemaElementDefinition_t_p,
+    c_size_t,
+]
+# C signature: blpapi_Name_t *blpapi_SchemaElementDefinition_name(const blpapi_SchemaElementDefinition_t *field)
 l_blpapi_SchemaElementDefinition_name = getattr(
     libblpapict, "blpapi_SchemaElementDefinition_name", stub
 )
-l_blpapi_SchemaElementDefinition_name.restype = c_void_p
+l_blpapi_SchemaElementDefinition_name.restype = blpapi_Name_t_p
+l_blpapi_SchemaElementDefinition_name.argtypes = [
+    blpapi_SchemaElementDefinition_t_p
+]
+# C signature: int blpapi_SchemaElementDefinition_print(const blpapi_SchemaElementDefinition_t *element, blpapi_StreamWriter_t streamWriter, void *userStream, int level, int spacesPerLevel)
 l_blpapi_SchemaElementDefinition_print = getattr(
     libblpapict, "blpapi_SchemaElementDefinition_print", stub
 )
+l_blpapi_SchemaElementDefinition_print.restype = c_int
+l_blpapi_SchemaElementDefinition_print.argtypes = [
+    blpapi_SchemaElementDefinition_t_p,
+    c_void_p,
+    c_void_p,
+    c_int,
+    c_int,
+]
+# C signature: int blpapi_SchemaElementDefinition_status(const blpapi_SchemaElementDefinition_t *field)
 l_blpapi_SchemaElementDefinition_status = getattr(
     libblpapict, "blpapi_SchemaElementDefinition_status", stub
-)  # int
+)
+l_blpapi_SchemaElementDefinition_status.restype = c_int
+l_blpapi_SchemaElementDefinition_status.argtypes = [
+    blpapi_SchemaElementDefinition_t_p
+]
+# C signature: blpapi_SchemaTypeDefinition_t *blpapi_SchemaElementDefinition_type(const blpapi_SchemaElementDefinition_t *field)
 l_blpapi_SchemaElementDefinition_type = getattr(
     libblpapict, "blpapi_SchemaElementDefinition_type", stub
 )
-l_blpapi_SchemaElementDefinition_type.restype = c_void_p
+l_blpapi_SchemaElementDefinition_type.restype = blpapi_SchemaTypeDefinition_t_p
+l_blpapi_SchemaElementDefinition_type.argtypes = [
+    blpapi_SchemaElementDefinition_t_p
+]
 
+# C signature: int blpapi_SchemaTypeDefinition_datatype(const blpapi_SchemaTypeDefinition_t *type)
 l_blpapi_SchemaTypeDefinition_datatype = getattr(
     libblpapict, "blpapi_SchemaTypeDefinition_datatype", stub
 )
+l_blpapi_SchemaTypeDefinition_datatype.restype = c_int
+l_blpapi_SchemaTypeDefinition_datatype.argtypes = [
+    blpapi_SchemaTypeDefinition_t_p
+]
+# C signature: const char *blpapi_SchemaTypeDefinition_description(const blpapi_SchemaTypeDefinition_t *type)
 l_blpapi_SchemaTypeDefinition_description = getattr(
     libblpapict, "blpapi_SchemaTypeDefinition_description", stub
 )
 l_blpapi_SchemaTypeDefinition_description.restype = c_char_p
+l_blpapi_SchemaTypeDefinition_description.argtypes = [
+    blpapi_SchemaTypeDefinition_t_p
+]
+# C signature: int blpapi_SchemaTypeDefinition_isComplexType(const blpapi_SchemaTypeDefinition_t *type)
 l_blpapi_SchemaTypeDefinition_isComplexType = getattr(
     libblpapict, "blpapi_SchemaTypeDefinition_isComplexType", stub
 )
+l_blpapi_SchemaTypeDefinition_isComplexType.restype = c_int
+l_blpapi_SchemaTypeDefinition_isComplexType.argtypes = [
+    blpapi_SchemaTypeDefinition_t_p
+]
+# C signature: blpapi_ConstantList_t *blpapi_SchemaTypeDefinition_enumeration(const blpapi_SchemaTypeDefinition_t *element)
 l_blpapi_SchemaTypeDefinition_enumeration = getattr(
     libblpapict, "blpapi_SchemaTypeDefinition_enumeration", stub
 )
-l_blpapi_SchemaTypeDefinition_enumeration.restype = c_void_p
+l_blpapi_SchemaTypeDefinition_enumeration.restype = blpapi_ConstantList_t_p
+l_blpapi_SchemaTypeDefinition_enumeration.argtypes = [
+    blpapi_SchemaTypeDefinition_t_p
+]
+# C signature: blpapi_SchemaElementDefinition_t * blpapi_SchemaTypeDefinition_getElementDefinition(const blpapi_SchemaTypeDefinition_t *type, const char *nameString, const blpapi_Name_t *name)
 l_blpapi_SchemaTypeDefinition_getElementDefinition = getattr(
     libblpapict, "blpapi_SchemaTypeDefinition_getElementDefinition", stub
 )
-l_blpapi_SchemaTypeDefinition_getElementDefinition.restype = c_void_p
+l_blpapi_SchemaTypeDefinition_getElementDefinition.restype = (
+    blpapi_SchemaElementDefinition_t_p
+)
+l_blpapi_SchemaTypeDefinition_getElementDefinition.argtypes = [
+    blpapi_SchemaTypeDefinition_t_p,
+    c_char_p,
+    blpapi_Name_t_p,
+]
+# C signature: blpapi_SchemaElementDefinition_t * blpapi_SchemaTypeDefinition_getElementDefinitionAt(const blpapi_SchemaTypeDefinition_t *type, size_t index)
 l_blpapi_SchemaTypeDefinition_getElementDefinitionAt = getattr(
     libblpapict, "blpapi_SchemaTypeDefinition_getElementDefinitionAt", stub
 )
-l_blpapi_SchemaTypeDefinition_getElementDefinitionAt.restype = c_void_p
-l_blpapi_SchemaTypeDefinition_isComplexType = getattr(
-    libblpapict, "blpapi_SchemaTypeDefinition_isComplexType", stub
+l_blpapi_SchemaTypeDefinition_getElementDefinitionAt.restype = (
+    blpapi_SchemaElementDefinition_t_p
 )
+l_blpapi_SchemaTypeDefinition_getElementDefinitionAt.argtypes = [
+    blpapi_SchemaTypeDefinition_t_p,
+    c_size_t,
+]
+# C signature: int blpapi_SchemaTypeDefinition_isEnumerationType(const blpapi_SchemaTypeDefinition_t *type)
 l_blpapi_SchemaTypeDefinition_isEnumerationType = getattr(
     libblpapict, "blpapi_SchemaTypeDefinition_isEnumerationType", stub
-)  # int
+)
+l_blpapi_SchemaTypeDefinition_isEnumerationType.restype = c_int
+l_blpapi_SchemaTypeDefinition_isEnumerationType.argtypes = [
+    blpapi_SchemaTypeDefinition_t_p
+]
+# C signature: int blpapi_SchemaTypeDefinition_isSimpleType(const blpapi_SchemaTypeDefinition_t *type)
 l_blpapi_SchemaTypeDefinition_isSimpleType = getattr(
     libblpapict, "blpapi_SchemaTypeDefinition_isSimpleType", stub
-)  # int
+)
+l_blpapi_SchemaTypeDefinition_isSimpleType.restype = c_int
+l_blpapi_SchemaTypeDefinition_isSimpleType.argtypes = [
+    blpapi_SchemaTypeDefinition_t_p
+]
+# C signature: size_t blpapi_SchemaElementDefinition_maxValues(const blpapi_SchemaElementDefinition_t *field)
 l_blpapi_SchemaElementDefinition_maxValues = getattr(
     libblpapict, "blpapi_SchemaElementDefinition_maxValues", stub
 )
 l_blpapi_SchemaElementDefinition_maxValues.restype = c_size_t
+l_blpapi_SchemaElementDefinition_maxValues.argtypes = [
+    blpapi_SchemaElementDefinition_t_p
+]
+# C signature: size_t blpapi_SchemaElementDefinition_minValues(const blpapi_SchemaElementDefinition_t *field)
 l_blpapi_SchemaElementDefinition_minValues = getattr(
     libblpapict, "blpapi_SchemaElementDefinition_minValues", stub
 )
 l_blpapi_SchemaElementDefinition_minValues.restype = c_size_t
+l_blpapi_SchemaElementDefinition_minValues.argtypes = [
+    blpapi_SchemaElementDefinition_t_p
+]
+# C signature: size_t blpapi_SchemaElementDefinition_numAlternateNames(const blpapi_SchemaElementDefinition_t *field)
 l_blpapi_SchemaElementDefinition_numAlternateNames = getattr(
     libblpapict, "blpapi_SchemaElementDefinition_numAlternateNames", stub
 )
 l_blpapi_SchemaElementDefinition_numAlternateNames.restype = c_size_t
+l_blpapi_SchemaElementDefinition_numAlternateNames.argtypes = [
+    blpapi_SchemaElementDefinition_t_p
+]
+# C signature: blpapi_Name_t *blpapi_SchemaTypeDefinition_name(const blpapi_SchemaTypeDefinition_t *type)
 l_blpapi_SchemaTypeDefinition_name = getattr(
     libblpapict, "blpapi_SchemaTypeDefinition_name", stub
 )
-l_blpapi_SchemaTypeDefinition_name.restype = c_void_p
+l_blpapi_SchemaTypeDefinition_name.restype = blpapi_Name_t_p
+l_blpapi_SchemaTypeDefinition_name.argtypes = [blpapi_SchemaTypeDefinition_t_p]
+# C signature: size_t blpapi_SchemaTypeDefinition_numElementDefinitions(const blpapi_SchemaTypeDefinition_t *type)
 l_blpapi_SchemaTypeDefinition_numElementDefinitions = getattr(
     libblpapict, "blpapi_SchemaTypeDefinition_numElementDefinitions", stub
 )
 l_blpapi_SchemaTypeDefinition_numElementDefinitions.restype = c_size_t
+l_blpapi_SchemaTypeDefinition_numElementDefinitions.argtypes = [
+    blpapi_SchemaTypeDefinition_t_p
+]
+# C signature: int blpapi_SchemaTypeDefinition_print(const blpapi_SchemaTypeDefinition_t *element, blpapi_StreamWriter_t streamWriter, void *userStream, int level, int spacesPerLevel)
 l_blpapi_SchemaTypeDefinition_print = getattr(
     libblpapict, "blpapi_SchemaTypeDefinition_print", stub
-)  # int
+)
+l_blpapi_SchemaTypeDefinition_print.restype = c_int
+l_blpapi_SchemaTypeDefinition_print.argtypes = [
+    blpapi_SchemaTypeDefinition_t_p,
+    c_void_p,
+    c_void_p,
+    c_int,
+    c_int,
+]
+# C signature: int blpapi_SchemaTypeDefinition_status(const blpapi_SchemaTypeDefinition_t *type)
 l_blpapi_SchemaTypeDefinition_status = getattr(
     libblpapict, "blpapi_SchemaTypeDefinition_status", stub
-)  # int
+)
+l_blpapi_SchemaTypeDefinition_status.restype = c_int
+l_blpapi_SchemaTypeDefinition_status.argtypes = [
+    blpapi_SchemaTypeDefinition_t_p
+]
 
-l_blpapi_Service_addRef = getattr(
-    libblpapict, "blpapi_Service_addRef", stub
-)  # int
+# C signature: int blpapi_Service_addRef(blpapi_Service_t *service)
+l_blpapi_Service_addRef = getattr(libblpapict, "blpapi_Service_addRef", stub)
+l_blpapi_Service_addRef.restype = c_int
+l_blpapi_Service_addRef.argtypes = [blpapi_Service_t_p]
+# C signature: const char *blpapi_Service_authorizationServiceName(blpapi_Service_t *service)
 l_blpapi_Service_authorizationServiceName = getattr(
     libblpapict, "blpapi_Service_authorizationServiceName", stub
 )
 l_blpapi_Service_authorizationServiceName.restype = c_char_p
+l_blpapi_Service_authorizationServiceName.argtypes = [blpapi_Service_t_p]
+# C signature: int blpapi_Service_createAdminEvent(blpapi_Service_t *service, blpapi_Event_t **event)
 l_blpapi_Service_createAdminEvent = getattr(
     libblpapict, "blpapi_Service_createAdminEvent", stub
-)  # int
+)
+l_blpapi_Service_createAdminEvent.restype = c_int
+l_blpapi_Service_createAdminEvent.argtypes = [
+    blpapi_Service_t_p,
+    POINTER[blpapi_Event_t_p],
+]
+# C signature: int blpapi_Service_createAuthorizationRequest(blpapi_Service_t *service, blpapi_Request_t **request, const char *operation)
 l_blpapi_Service_createAuthorizationRequest = getattr(
     libblpapict, "blpapi_Service_createAuthorizationRequest", stub
-)  # int
+)
+l_blpapi_Service_createAuthorizationRequest.restype = c_int
+l_blpapi_Service_createAuthorizationRequest.argtypes = [
+    blpapi_Service_t_p,
+    POINTER[blpapi_Request_t_p],
+    c_char_p,
+]
+# C signature: int blpapi_Service_createPublishEvent(blpapi_Service_t *service, blpapi_Event_t **event)
 l_blpapi_Service_createPublishEvent = getattr(
     libblpapict, "blpapi_Service_createPublishEvent", stub
-)  # int
+)
+l_blpapi_Service_createPublishEvent.restype = c_int
+l_blpapi_Service_createPublishEvent.argtypes = [
+    blpapi_Service_t_p,
+    POINTER[blpapi_Event_t_p],
+]
+# C signature: int blpapi_Service_createRequest(blpapi_Service_t *service, blpapi_Request_t **request, const char *operation)
 l_blpapi_Service_createRequest = getattr(
     libblpapict, "blpapi_Service_createRequest", stub
-)  # int
+)
+l_blpapi_Service_createRequest.restype = c_int
+l_blpapi_Service_createRequest.argtypes = [
+    blpapi_Service_t_p,
+    POINTER[blpapi_Request_t_p],
+    c_char_p,
+]
+# C signature: int blpapi_Service_createResponseEvent(blpapi_Service_t *service, const blpapi_CorrelationId_t *correlationId, blpapi_Event_t **event)
 l_blpapi_Service_createResponseEvent = getattr(
     libblpapict, "blpapi_Service_createResponseEvent", stub
-)  # int
+)
+l_blpapi_Service_createResponseEvent.restype = c_int
+l_blpapi_Service_createResponseEvent.argtypes = [
+    blpapi_Service_t_p,
+    CidStruct_p,
+    POINTER[blpapi_Event_t_p],
+]
+# C signature: const char *blpapi_Service_description(blpapi_Service_t *service)
 l_blpapi_Service_description = getattr(
     libblpapict, "blpapi_Service_description", stub
 )
 l_blpapi_Service_description.restype = c_char_p
+l_blpapi_Service_description.argtypes = [blpapi_Service_t_p]
+# C signature: int blpapi_Service_getEventDefinition(blpapi_Service_t *service, blpapi_SchemaElementDefinition_t **result, const char *nameString, const blpapi_Name_t *name)
 l_blpapi_Service_getEventDefinition = getattr(
     libblpapict, "blpapi_Service_getEventDefinition", stub
-)  # int
+)
+l_blpapi_Service_getEventDefinition.restype = c_int
+l_blpapi_Service_getEventDefinition.argtypes = [
+    blpapi_Service_t_p,
+    POINTER[blpapi_SchemaElementDefinition_t_p],
+    c_char_p,
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_Service_getEventDefinitionAt(blpapi_Service_t *service, blpapi_SchemaElementDefinition_t **result, size_t index)
 l_blpapi_Service_getEventDefinitionAt = getattr(
     libblpapict, "blpapi_Service_getEventDefinitionAt", stub
-)  # int
+)
+l_blpapi_Service_getEventDefinitionAt.restype = c_int
+l_blpapi_Service_getEventDefinitionAt.argtypes = [
+    blpapi_Service_t_p,
+    POINTER[blpapi_SchemaElementDefinition_t_p],
+    c_size_t,
+]
+# C signature: int blpapi_Service_getOperation(blpapi_Service_t *service, blpapi_Operation_t **operation, const char *nameString, const blpapi_Name_t *name)
 l_blpapi_Service_getOperation = getattr(
     libblpapict, "blpapi_Service_getOperation", stub
-)  # int
+)
+l_blpapi_Service_getOperation.restype = c_int
+l_blpapi_Service_getOperation.argtypes = [
+    blpapi_Service_t_p,
+    POINTER[blpapi_Operation_t_p],
+    c_char_p,
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_Service_getOperationAt(blpapi_Service_t *service, blpapi_Operation_t **operation, size_t index)
 l_blpapi_Service_getOperationAt = getattr(
     libblpapict, "blpapi_Service_getOperationAt", stub
-)  # int
+)
+l_blpapi_Service_getOperationAt.restype = c_int
+l_blpapi_Service_getOperationAt.argtypes = [
+    blpapi_Service_t_p,
+    POINTER[blpapi_Operation_t_p],
+    c_size_t,
+]
+# C signature: const char *blpapi_Service_name(blpapi_Service_t *service)
 l_blpapi_Service_name = getattr(libblpapict, "blpapi_Service_name", stub)
 l_blpapi_Service_name.restype = c_char_p
+l_blpapi_Service_name.argtypes = [blpapi_Service_t_p]
+# C signature: int blpapi_Service_numEventDefinitions(blpapi_Service_t *service)
 l_blpapi_Service_numEventDefinitions = getattr(
     libblpapict, "blpapi_Service_numEventDefinitions", stub
-)  # int
+)
+l_blpapi_Service_numEventDefinitions.restype = c_int
+l_blpapi_Service_numEventDefinitions.argtypes = [blpapi_Service_t_p]
+# C signature: int blpapi_Service_numOperations(blpapi_Service_t *service)
 l_blpapi_Service_numOperations = getattr(
     libblpapict, "blpapi_Service_numOperations", stub
-)  # int
-l_blpapi_Service_print = getattr(
-    libblpapict, "blpapi_Service_print", stub
-)  # int
+)
+l_blpapi_Service_numOperations.restype = c_int
+l_blpapi_Service_numOperations.argtypes = [blpapi_Service_t_p]
+# C signature: int blpapi_Service_print(const blpapi_Service_t *service, blpapi_StreamWriter_t streamWriter, void *stream, int level, int spacesPerLevel)
+l_blpapi_Service_print = getattr(libblpapict, "blpapi_Service_print", stub)
+l_blpapi_Service_print.restype = c_int
+l_blpapi_Service_print.argtypes = [
+    blpapi_Service_t_p,
+    c_void_p,
+    c_void_p,
+    c_int,
+    c_int,
+]
+# C signature: void blpapi_Service_release(blpapi_Service_t *service)
 l_blpapi_Service_release = getattr(libblpapict, "blpapi_Service_release", stub)
 l_blpapi_Service_release.restype = None
+l_blpapi_Service_release.argtypes = [blpapi_Service_t_p]
 
+# C signature: int blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange(blpapi_ServiceRegistrationOptions_t *parameters, int start, int end, int priority)
 l_blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange = getattr(
     libblpapict,
     "blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange",
     stub,
 )
+l_blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange.restype = (
+    c_int
+)
+l_blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange.argtypes = [
+    blpapi_ServiceRegistrationOptions_t_p,
+    c_int,
+    c_int,
+    c_int,
+]
+# C signature: blpapi_ServiceRegistrationOptions_t *blpapi_ServiceRegistrationOptions_create(void)
 l_blpapi_ServiceRegistrationOptions_create = getattr(
     libblpapict, "blpapi_ServiceRegistrationOptions_create", stub
 )
-l_blpapi_ServiceRegistrationOptions_create.restype = c_void_p
+l_blpapi_ServiceRegistrationOptions_create.restype = (
+    blpapi_ServiceRegistrationOptions_t_p
+)
+# C signature: void blpapi_ServiceRegistrationOptions_destroy(blpapi_ServiceRegistrationOptions_t *parameters)
 l_blpapi_ServiceRegistrationOptions_destroy = getattr(
     libblpapict, "blpapi_ServiceRegistrationOptions_destroy", stub
 )
 l_blpapi_ServiceRegistrationOptions_destroy.restype = None
+l_blpapi_ServiceRegistrationOptions_destroy.argtypes = [
+    blpapi_ServiceRegistrationOptions_t_p
+]
+# C signature: int blpapi_ServiceRegistrationOptions_getGroupId(blpapi_ServiceRegistrationOptions_t *parameters, char *groupdIdBuffer, int *groupIdLength)
 l_blpapi_ServiceRegistrationOptions_getGroupId = getattr(
     libblpapict, "blpapi_ServiceRegistrationOptions_getGroupId", stub
 )
+l_blpapi_ServiceRegistrationOptions_getGroupId.restype = c_int
+l_blpapi_ServiceRegistrationOptions_getGroupId.argtypes = [
+    blpapi_ServiceRegistrationOptions_t_p,
+    c_char_p,
+    POINTER[c_int],
+]
+# C signature: int blpapi_ServiceRegistrationOptions_getServicePriority(blpapi_ServiceRegistrationOptions_t *parameters)
 l_blpapi_ServiceRegistrationOptions_getServicePriority = getattr(
     libblpapict, "blpapi_ServiceRegistrationOptions_getServicePriority", stub
-)  # int
+)
+l_blpapi_ServiceRegistrationOptions_getServicePriority.restype = c_int
+l_blpapi_ServiceRegistrationOptions_getServicePriority.argtypes = [
+    blpapi_ServiceRegistrationOptions_t_p
+]
+# C signature: void blpapi_ServiceRegistrationOptions_setGroupId(blpapi_ServiceRegistrationOptions_t *parameters, const char *groupId, unsigned int groupIdLength)
 l_blpapi_ServiceRegistrationOptions_setGroupId = getattr(
     libblpapict, "blpapi_ServiceRegistrationOptions_setGroupId", stub
 )
 l_blpapi_ServiceRegistrationOptions_setGroupId.restype = None
+l_blpapi_ServiceRegistrationOptions_setGroupId.argtypes = [
+    blpapi_ServiceRegistrationOptions_t_p,
+    c_char_p,
+    c_uint,
+]
+# C signature: int blpapi_ServiceRegistrationOptions_getPartsToRegister(blpapi_ServiceRegistrationOptions_t *parameters)
 l_blpapi_ServiceRegistrationOptions_getPartsToRegister = getattr(
     libblpapict, "blpapi_ServiceRegistrationOptions_getPartsToRegister", stub
 )
+l_blpapi_ServiceRegistrationOptions_getPartsToRegister.restype = c_int
+l_blpapi_ServiceRegistrationOptions_getPartsToRegister.argtypes = [
+    blpapi_ServiceRegistrationOptions_t_p
+]
+# C signature: void blpapi_ServiceRegistrationOptions_setPartsToRegister(blpapi_ServiceRegistrationOptions_t *parameters, int parts)
 l_blpapi_ServiceRegistrationOptions_setPartsToRegister = getattr(
     libblpapict, "blpapi_ServiceRegistrationOptions_setPartsToRegister", stub
 )
 l_blpapi_ServiceRegistrationOptions_setPartsToRegister.restype = None
+l_blpapi_ServiceRegistrationOptions_setPartsToRegister.argtypes = [
+    blpapi_ServiceRegistrationOptions_t_p,
+    c_int,
+]
+# C signature: int blpapi_ServiceRegistrationOptions_setServicePriority(blpapi_ServiceRegistrationOptions_t *parameters, int priority)
 l_blpapi_ServiceRegistrationOptions_setServicePriority = getattr(
     libblpapict, "blpapi_ServiceRegistrationOptions_setServicePriority", stub
 )
+l_blpapi_ServiceRegistrationOptions_setServicePriority.restype = c_int
+l_blpapi_ServiceRegistrationOptions_setServicePriority.argtypes = [
+    blpapi_ServiceRegistrationOptions_t_p,
+    c_int,
+]
+# C signature: void blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges(blpapi_ServiceRegistrationOptions_t *parameters)
 l_blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges = getattr(
     libblpapict,
     "blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges",
@@ -1415,479 +3232,1122 @@ l_blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges = getatt
 l_blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges.restype = (
     None
 )
+l_blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges.argtypes = [
+    blpapi_ServiceRegistrationOptions_t_p
+]
 
+# C signature: int blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg = getattr(
     libblpapict, "blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg", stub
 )
+l_blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg.restype = c_int
+l_blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: int blpapi_SessionOptions_applicationIdentityKey(const char **applicationIdentityKey, size_t *size, blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_applicationIdentityKey = getattr(
     libblpapict, "blpapi_SessionOptions_applicationIdentityKey", stub
-)  # int
+)
+l_blpapi_SessionOptions_applicationIdentityKey.restype = c_int
+l_blpapi_SessionOptions_applicationIdentityKey.argtypes = [
+    POINTER[c_char_p],
+    POINTER[c_size_t],
+    blpapi_SessionOptions_t_p,
+]
+# C signature: const char *blpapi_SessionOptions_authenticationOptions(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_authenticationOptions = getattr(
     libblpapict, "blpapi_SessionOptions_authenticationOptions", stub
 )
 l_blpapi_SessionOptions_authenticationOptions.restype = c_char_p
+l_blpapi_SessionOptions_authenticationOptions.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: int blpapi_SessionOptions_autoRestartOnDisconnection(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_autoRestartOnDisconnection = getattr(
     libblpapict, "blpapi_SessionOptions_autoRestartOnDisconnection", stub
 )
+l_blpapi_SessionOptions_autoRestartOnDisconnection.restype = c_int
+l_blpapi_SessionOptions_autoRestartOnDisconnection.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: int blpapi_SessionOptions_bandwidthSaveModeDisabled(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_bandwidthSaveModeDisabled = getattr(
     libblpapict, "blpapi_SessionOptions_bandwidthSaveModeDisabled", stub
-)  # int
+)
+l_blpapi_SessionOptions_bandwidthSaveModeDisabled.restype = c_int
+l_blpapi_SessionOptions_bandwidthSaveModeDisabled.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: int blpapi_SessionOptions_clientMode(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_clientMode = getattr(
     libblpapict, "blpapi_SessionOptions_clientMode", stub
-)  # int
+)
+l_blpapi_SessionOptions_clientMode.restype = c_int
+l_blpapi_SessionOptions_clientMode.argtypes = [blpapi_SessionOptions_t_p]
+# C signature: unsigned int blpapi_SessionOptions_connectTimeout(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_connectTimeout = getattr(
     libblpapict, "blpapi_SessionOptions_connectTimeout", stub
 )
 l_blpapi_SessionOptions_connectTimeout.restype = c_uint32
+l_blpapi_SessionOptions_connectTimeout.argtypes = [blpapi_SessionOptions_t_p]
+# C signature: blpapi_SessionOptions_t *blpapi_SessionOptions_create(void)
 l_blpapi_SessionOptions_create = getattr(
     libblpapict, "blpapi_SessionOptions_create", stub
 )
-l_blpapi_SessionOptions_create.restype = c_void_p
+l_blpapi_SessionOptions_create.restype = blpapi_SessionOptions_t_p
+# C signature: int blpapi_SessionOptions_defaultKeepAliveInactivityTime(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_defaultKeepAliveInactivityTime = getattr(
     libblpapict, "blpapi_SessionOptions_defaultKeepAliveInactivityTime", stub
 )
+l_blpapi_SessionOptions_defaultKeepAliveInactivityTime.restype = c_int
+l_blpapi_SessionOptions_defaultKeepAliveInactivityTime.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: int blpapi_SessionOptions_defaultKeepAliveResponseTimeout(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_defaultKeepAliveResponseTimeout = getattr(
     libblpapict, "blpapi_SessionOptions_defaultKeepAliveResponseTimeout", stub
-)  # int
+)
+l_blpapi_SessionOptions_defaultKeepAliveResponseTimeout.restype = c_int
+l_blpapi_SessionOptions_defaultKeepAliveResponseTimeout.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: const char *blpapi_SessionOptions_defaultServices(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_defaultServices = getattr(
     libblpapict, "blpapi_SessionOptions_defaultServices", stub
 )
 l_blpapi_SessionOptions_defaultServices.restype = c_char_p
+l_blpapi_SessionOptions_defaultServices.argtypes = [blpapi_SessionOptions_t_p]
+# C signature: const char *blpapi_SessionOptions_defaultSubscriptionService(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_defaultSubscriptionService = getattr(
     libblpapict, "blpapi_SessionOptions_defaultSubscriptionService", stub
 )
 l_blpapi_SessionOptions_defaultSubscriptionService.restype = c_char_p
+l_blpapi_SessionOptions_defaultSubscriptionService.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: const char *blpapi_SessionOptions_defaultTopicPrefix(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_defaultTopicPrefix = getattr(
     libblpapict, "blpapi_SessionOptions_defaultTopicPrefix", stub
 )
 l_blpapi_SessionOptions_defaultTopicPrefix.restype = c_char_p
+l_blpapi_SessionOptions_defaultTopicPrefix.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: void blpapi_SessionOptions_destroy(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_destroy = getattr(
     libblpapict, "blpapi_SessionOptions_destroy", stub
 )
 l_blpapi_SessionOptions_destroy.restype = None
+l_blpapi_SessionOptions_destroy.argtypes = [blpapi_SessionOptions_t_p]
+# C signature: int blpapi_SessionOptions_flushPublishedEventsTimeout(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_flushPublishedEventsTimeout = getattr(
     libblpapict, "blpapi_SessionOptions_flushPublishedEventsTimeout", stub
 )
+l_blpapi_SessionOptions_flushPublishedEventsTimeout.restype = c_int
+l_blpapi_SessionOptions_flushPublishedEventsTimeout.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: int blpapi_SessionOptions_getServerAddressWithProxy(blpapi_SessionOptions_t *parameters, const char **serverHost, unsigned short *serverPort, const char **socks5Host, unsigned short *sock5Port, size_t index)
 l_blpapi_SessionOptions_getServerAddressWithProxy = getattr(
     libblpapict, "blpapi_SessionOptions_getServerAddressWithProxy", stub
-)  # int
+)
+l_blpapi_SessionOptions_getServerAddressWithProxy.restype = c_int
+l_blpapi_SessionOptions_getServerAddressWithProxy.argtypes = [
+    blpapi_SessionOptions_t_p,
+    POINTER[c_char_p],
+    POINTER[c_uint16],
+    POINTER[c_char_p],
+    POINTER[c_uint16],
+    c_size_t,
+]
+# C signature: int blpapi_SessionOptions_keepAliveEnabled(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_keepAliveEnabled = getattr(
     libblpapict, "blpapi_SessionOptions_keepAliveEnabled", stub
-)  # int
+)
+l_blpapi_SessionOptions_keepAliveEnabled.restype = c_int
+l_blpapi_SessionOptions_keepAliveEnabled.argtypes = [blpapi_SessionOptions_t_p]
+# C signature: size_t blpapi_SessionOptions_maxEventQueueSize(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_maxEventQueueSize = getattr(
     libblpapict, "blpapi_SessionOptions_maxEventQueueSize", stub
 )
 l_blpapi_SessionOptions_maxEventQueueSize.restype = c_size_t
+l_blpapi_SessionOptions_maxEventQueueSize.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: int blpapi_SessionOptions_maxPendingRequests(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_maxPendingRequests = getattr(
     libblpapict, "blpapi_SessionOptions_maxPendingRequests", stub
-)  # int
+)
+l_blpapi_SessionOptions_maxPendingRequests.restype = c_int
+l_blpapi_SessionOptions_maxPendingRequests.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: int blpapi_SessionOptions_numServerAddresses(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_numServerAddresses = getattr(
     libblpapict, "blpapi_SessionOptions_numServerAddresses", stub
-)  # int
+)
+l_blpapi_SessionOptions_numServerAddresses.restype = c_int
+l_blpapi_SessionOptions_numServerAddresses.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: int blpapi_SessionOptions_numStartAttempts(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_numStartAttempts = getattr(
     libblpapict, "blpapi_SessionOptions_numStartAttempts", stub
-)  # int
+)
+l_blpapi_SessionOptions_numStartAttempts.restype = c_int
+l_blpapi_SessionOptions_numStartAttempts.argtypes = [blpapi_SessionOptions_t_p]
+# C signature: int blpapi_SessionOptions_print(blpapi_SessionOptions_t *parameters, blpapi_StreamWriter_t streamWriter, void *stream, int indentLevel, int spacesPerLevel)
 l_blpapi_SessionOptions_print = getattr(
     libblpapict, "blpapi_SessionOptions_print", stub
-)  # int
+)
+l_blpapi_SessionOptions_print.restype = c_int
 l_blpapi_SessionOptions_print.argtypes = [
+    blpapi_SessionOptions_t_p,
     c_void_p,
-    c_void_p,
-    c_void_p,  # as py_object it segfaults, we cast in any_printer instead
+    c_void_p,  # userdata - passed to streamWriter callback
     c_int,
     c_int,
 ]
+# C signature: int blpapi_SessionOptions_recordSubscriptionDataReceiveTimes(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_recordSubscriptionDataReceiveTimes = getattr(
     libblpapict,
     "blpapi_SessionOptions_recordSubscriptionDataReceiveTimes",
     stub,
 )
+l_blpapi_SessionOptions_recordSubscriptionDataReceiveTimes.restype = c_int
+l_blpapi_SessionOptions_recordSubscriptionDataReceiveTimes.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: int blpapi_SessionOptions_removeServerAddress(blpapi_SessionOptions_t *parameters, size_t index)
 l_blpapi_SessionOptions_removeServerAddress = getattr(
     libblpapict, "blpapi_SessionOptions_removeServerAddress", stub
-)  # int
+)
+l_blpapi_SessionOptions_removeServerAddress.restype = c_int
+l_blpapi_SessionOptions_removeServerAddress.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_size_t,
+]
+# C signature: const char *blpapi_SessionOptions_serverHost(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_serverHost = getattr(
     libblpapict, "blpapi_SessionOptions_serverHost", stub
 )
 l_blpapi_SessionOptions_serverHost.restype = c_char_p
+l_blpapi_SessionOptions_serverHost.argtypes = [blpapi_SessionOptions_t_p]
+# C signature: unsigned int blpapi_SessionOptions_serverPort(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_serverPort = getattr(
     libblpapict, "blpapi_SessionOptions_serverPort", stub
 )
 l_blpapi_SessionOptions_serverPort.restype = c_uint32
+l_blpapi_SessionOptions_serverPort.argtypes = [blpapi_SessionOptions_t_p]
+# C signature: int blpapi_SessionOptions_serviceCheckTimeout(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_serviceCheckTimeout = getattr(
     libblpapict, "blpapi_SessionOptions_serviceCheckTimeout", stub
 )
+l_blpapi_SessionOptions_serviceCheckTimeout.restype = c_int
+l_blpapi_SessionOptions_serviceCheckTimeout.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: int blpapi_SessionOptions_serviceDownloadTimeout(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_serviceDownloadTimeout = getattr(
     libblpapict, "blpapi_SessionOptions_serviceDownloadTimeout", stub
-)  # int
+)
+l_blpapi_SessionOptions_serviceDownloadTimeout.restype = c_int
+l_blpapi_SessionOptions_serviceDownloadTimeout.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: int blpapi_SessionOptions_sessionName(const char **sessionName, size_t *size, blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_sessionName = getattr(
     libblpapict, "blpapi_SessionOptions_sessionName", stub
-)  # int
+)
+l_blpapi_SessionOptions_sessionName.restype = c_int
+l_blpapi_SessionOptions_sessionName.argtypes = [
+    POINTER[c_char_p],
+    POINTER[c_size_t],
+    blpapi_SessionOptions_t_p,
+]
+# C signature: void blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg(blpapi_SessionOptions_t *parameters, int allowMultipleCorrelatorsPerMsg)
 l_blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg = getattr(
     libblpapict,
     "blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg",
     stub,
 )
 l_blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg.restype = None
+l_blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_int,
+]
+# C signature: int blpapi_SessionOptions_setApplicationIdentityKey(blpapi_SessionOptions_t *parameters, const char *applicationIdentityKey, size_t size)
 l_blpapi_SessionOptions_setApplicationIdentityKey = getattr(
     libblpapict, "blpapi_SessionOptions_setApplicationIdentityKey", stub
 )
+l_blpapi_SessionOptions_setApplicationIdentityKey.restype = c_int
+l_blpapi_SessionOptions_setApplicationIdentityKey.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_char_p,
+    c_size_t,
+]
+# C signature: void blpapi_SessionOptions_setAuthenticationOptions(blpapi_SessionOptions_t *parameters, const char *authOptions)
 l_blpapi_SessionOptions_setAuthenticationOptions = getattr(
     libblpapict, "blpapi_SessionOptions_setAuthenticationOptions", stub
 )
 l_blpapi_SessionOptions_setAuthenticationOptions.restype = None
+l_blpapi_SessionOptions_setAuthenticationOptions.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_char_p,
+]
+# C signature: void blpapi_SessionOptions_setAutoRestartOnDisconnection(blpapi_SessionOptions_t *parameters, int autoRestart)
 l_blpapi_SessionOptions_setAutoRestartOnDisconnection = getattr(
     libblpapict, "blpapi_SessionOptions_setAutoRestartOnDisconnection", stub
 )
 l_blpapi_SessionOptions_setAutoRestartOnDisconnection.restype = None
+l_blpapi_SessionOptions_setAutoRestartOnDisconnection.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_int,
+]
+# C signature: int blpapi_SessionOptions_setBandwidthSaveModeDisabled(blpapi_SessionOptions_t *parameters, int disableBandwidthSaveMode)
 l_blpapi_SessionOptions_setBandwidthSaveModeDisabled = getattr(
     libblpapict, "blpapi_SessionOptions_setBandwidthSaveModeDisabled", stub
 )
+l_blpapi_SessionOptions_setBandwidthSaveModeDisabled.restype = c_int
+l_blpapi_SessionOptions_setBandwidthSaveModeDisabled.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_int,
+]
+# C signature: void blpapi_SessionOptions_setClientMode(blpapi_SessionOptions_t *parameters, int clientMode)
 l_blpapi_SessionOptions_setClientMode = getattr(
     libblpapict, "blpapi_SessionOptions_setClientMode", stub
 )
 l_blpapi_SessionOptions_setClientMode.restype = None
+l_blpapi_SessionOptions_setClientMode.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_int,
+]
+# C signature: int blpapi_SessionOptions_setConnectTimeout(blpapi_SessionOptions_t *parameters, unsigned int timeoutInMilliseconds)
 l_blpapi_SessionOptions_setConnectTimeout = getattr(
     libblpapict, "blpapi_SessionOptions_setConnectTimeout", stub
 )
+l_blpapi_SessionOptions_setConnectTimeout.restype = c_int
+l_blpapi_SessionOptions_setConnectTimeout.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_uint,
+]
+# C signature: int blpapi_SessionOptions_setDefaultKeepAliveInactivityTime(blpapi_SessionOptions_t *parameters, int inactivityMsecs)
 l_blpapi_SessionOptions_setDefaultKeepAliveInactivityTime = getattr(
     libblpapict,
     "blpapi_SessionOptions_setDefaultKeepAliveInactivityTime",
     stub,
-)  # int
+)
+l_blpapi_SessionOptions_setDefaultKeepAliveInactivityTime.restype = c_int
+l_blpapi_SessionOptions_setDefaultKeepAliveInactivityTime.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_int,
+]
+# C signature: int blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout(blpapi_SessionOptions_t *parameters, int timeoutMsecs)
 l_blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout = getattr(
     libblpapict,
     "blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout",
     stub,
-)  # int
+)
+l_blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout.restype = c_int
+l_blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_int,
+]
+# C signature: int blpapi_SessionOptions_setDefaultServices(blpapi_SessionOptions_t *parameters, const char *defaultServices)
 l_blpapi_SessionOptions_setDefaultServices = getattr(
     libblpapict, "blpapi_SessionOptions_setDefaultServices", stub
-)  # int
+)
+l_blpapi_SessionOptions_setDefaultServices.restype = c_int
+l_blpapi_SessionOptions_setDefaultServices.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_char_p,
+]
+# C signature: int blpapi_SessionOptions_setDefaultSubscriptionService(blpapi_SessionOptions_t *parameters, const char *serviceIdentifier)
 l_blpapi_SessionOptions_setDefaultSubscriptionService = getattr(
     libblpapict, "blpapi_SessionOptions_setDefaultSubscriptionService", stub
-)  # int
+)
+l_blpapi_SessionOptions_setDefaultSubscriptionService.restype = c_int
+l_blpapi_SessionOptions_setDefaultSubscriptionService.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_char_p,
+]
+# C signature: void blpapi_SessionOptions_setDefaultTopicPrefix(blpapi_SessionOptions_t *parameters, const char *prefix)
 l_blpapi_SessionOptions_setDefaultTopicPrefix = getattr(
     libblpapict, "blpapi_SessionOptions_setDefaultTopicPrefix", stub
 )
 l_blpapi_SessionOptions_setDefaultTopicPrefix.restype = None
+l_blpapi_SessionOptions_setDefaultTopicPrefix.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_char_p,
+]
+# C signature: int blpapi_SessionOptions_setFlushPublishedEventsTimeout(blpapi_SessionOptions_t *paramaters, int timeoutMsecs)
 l_blpapi_SessionOptions_setFlushPublishedEventsTimeout = getattr(
     libblpapict, "blpapi_SessionOptions_setFlushPublishedEventsTimeout", stub
 )
+l_blpapi_SessionOptions_setFlushPublishedEventsTimeout.restype = c_int
+l_blpapi_SessionOptions_setFlushPublishedEventsTimeout.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_int,
+]
+# C signature: int blpapi_SessionOptions_setKeepAliveEnabled(blpapi_SessionOptions_t *parameters, int isEnabled)
 l_blpapi_SessionOptions_setKeepAliveEnabled = getattr(
     libblpapict, "blpapi_SessionOptions_setKeepAliveEnabled", stub
-)  # int
+)
+l_blpapi_SessionOptions_setKeepAliveEnabled.restype = c_int
+l_blpapi_SessionOptions_setKeepAliveEnabled.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_int,
+]
+# C signature: void blpapi_SessionOptions_setMaxEventQueueSize(blpapi_SessionOptions_t *parameters, size_t maxEventQueueSize)
 l_blpapi_SessionOptions_setMaxEventQueueSize = getattr(
     libblpapict, "blpapi_SessionOptions_setMaxEventQueueSize", stub
 )
 l_blpapi_SessionOptions_setMaxEventQueueSize.restype = None
+l_blpapi_SessionOptions_setMaxEventQueueSize.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_size_t,
+]
+# C signature: void blpapi_SessionOptions_setMaxPendingRequests(blpapi_SessionOptions_t *parameters, int maxPendingRequests)
 l_blpapi_SessionOptions_setMaxPendingRequests = getattr(
     libblpapict, "blpapi_SessionOptions_setMaxPendingRequests", stub
 )
 l_blpapi_SessionOptions_setMaxPendingRequests.restype = None
+l_blpapi_SessionOptions_setMaxPendingRequests.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_int,
+]
+# C signature: void blpapi_SessionOptions_setNumStartAttempts(blpapi_SessionOptions_t *parameters, int numStartAttempts)
 l_blpapi_SessionOptions_setNumStartAttempts = getattr(
     libblpapict, "blpapi_SessionOptions_setNumStartAttempts", stub
 )
 l_blpapi_SessionOptions_setNumStartAttempts.restype = None
+l_blpapi_SessionOptions_setNumStartAttempts.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_int,
+]
+# C signature: void blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes(blpapi_SessionOptions_t *parameters, int shouldRecord)
 l_blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes = getattr(
     libblpapict,
     "blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes",
     stub,
 )
 l_blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes.restype = None
+l_blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_int,
+]
+# C signature: int blpapi_SessionOptions_setServerAddress(blpapi_SessionOptions_t *parameters, const char *serverHost, unsigned short serverPort, size_t index)
 l_blpapi_SessionOptions_setServerAddress = getattr(
     libblpapict, "blpapi_SessionOptions_setServerAddress", stub
 )
+l_blpapi_SessionOptions_setServerAddress.restype = c_int
+l_blpapi_SessionOptions_setServerAddress.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_char_p,
+    c_uint16,
+    c_size_t,
+]
+# C signature: int blpapi_SessionOptions_setServerAddressWithProxy(blpapi_SessionOptions_t *parameters, const char *serverHost, unsigned short serverPort, const blpapi_Socks5Config_t *socks5Config, size_t index)
 l_blpapi_SessionOptions_setServerAddressWithProxy = getattr(
     libblpapict, "blpapi_SessionOptions_setServerAddressWithProxy", stub
-)  # int
+)
+l_blpapi_SessionOptions_setServerAddressWithProxy.restype = c_int
+l_blpapi_SessionOptions_setServerAddressWithProxy.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_char_p,
+    c_uint16,
+    blpapi_Socks5Config_t_p,
+    c_size_t,
+]
+# C signature: int blpapi_SessionOptions_setServerHost(blpapi_SessionOptions_t *parameters, const char *serverHost)
 l_blpapi_SessionOptions_setServerHost = getattr(
     libblpapict, "blpapi_SessionOptions_setServerHost", stub
-)  # int
+)
+l_blpapi_SessionOptions_setServerHost.restype = c_int
+l_blpapi_SessionOptions_setServerHost.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_char_p,
+]
+# C signature: int blpapi_SessionOptions_setServerPort(blpapi_SessionOptions_t *parameters, unsigned short serverPort)
 l_blpapi_SessionOptions_setServerPort = getattr(
     libblpapict, "blpapi_SessionOptions_setServerPort", stub
-)  # int
+)
+l_blpapi_SessionOptions_setServerPort.restype = c_int
+l_blpapi_SessionOptions_setServerPort.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_uint16,
+]
+# C signature: int blpapi_SessionOptions_setServiceCheckTimeout(blpapi_SessionOptions_t *paramaters, int timeoutMsecs)
 l_blpapi_SessionOptions_setServiceCheckTimeout = getattr(
     libblpapict, "blpapi_SessionOptions_setServiceCheckTimeout", stub
-)  # int
+)
+l_blpapi_SessionOptions_setServiceCheckTimeout.restype = c_int
+l_blpapi_SessionOptions_setServiceCheckTimeout.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_int,
+]
+# C signature: int blpapi_SessionOptions_setServiceDownloadTimeout(blpapi_SessionOptions_t *paramaters, int timeoutMsecs)
 l_blpapi_SessionOptions_setServiceDownloadTimeout = getattr(
     libblpapict, "blpapi_SessionOptions_setServiceDownloadTimeout", stub
-)  # int
+)
+l_blpapi_SessionOptions_setServiceDownloadTimeout.restype = c_int
+l_blpapi_SessionOptions_setServiceDownloadTimeout.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_int,
+]
+# C signature: int blpapi_SessionOptions_setSessionIdentityOptions(blpapi_SessionOptions_t *parameters, const blpapi_AuthOptions_t *authOptions, blpapi_CorrelationId_t *cid)
 l_blpapi_SessionOptions_setSessionIdentityOptions = getattr(
     libblpapict, "blpapi_SessionOptions_setSessionIdentityOptions", stub
-)  # int
+)
+l_blpapi_SessionOptions_setSessionIdentityOptions.restype = c_int
+l_blpapi_SessionOptions_setSessionIdentityOptions.argtypes = [
+    blpapi_SessionOptions_t_p,
+    blpapi_AuthOptions_t_p,
+    CidStruct_p,
+]
+# C signature: int blpapi_SessionOptions_setSessionName(blpapi_SessionOptions_t *parameters, const char *sessionName, size_t size)
 l_blpapi_SessionOptions_setSessionName = getattr(
     libblpapict, "blpapi_SessionOptions_setSessionName", stub
-)  # int
+)
+l_blpapi_SessionOptions_setSessionName.restype = c_int
+l_blpapi_SessionOptions_setSessionName.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_char_p,
+    c_size_t,
+]
+# C signature: int blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark(blpapi_SessionOptions_t *parameters, float hiWaterMark)
 l_blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark = getattr(
     libblpapict,
     "blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark",
     stub,
-)  # int
+)
+l_blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark.restype = c_int
+l_blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_float,
+]
+# C signature: int blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark(blpapi_SessionOptions_t *parameters, float loWaterMark)
 l_blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark = getattr(
     libblpapict,
     "blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark",
     stub,
-)  # int
+)
+l_blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark.restype = c_int
+l_blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark.argtypes = [
+    blpapi_SessionOptions_t_p,
+    c_float,
+]
+# C signature: void blpapi_SessionOptions_setTlsOptions(blpapi_SessionOptions_t *paramaters, const blpapi_TlsOptions_t *tlsOptions)
 l_blpapi_SessionOptions_setTlsOptions = getattr(
     libblpapict, "blpapi_SessionOptions_setTlsOptions", stub
 )
 l_blpapi_SessionOptions_setTlsOptions.restype = None
+l_blpapi_SessionOptions_setTlsOptions.argtypes = [
+    blpapi_SessionOptions_t_p,
+    blpapi_TlsOptions_t_p,
+]
+# C signature: float blpapi_SessionOptions_slowConsumerWarningHiWaterMark(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_slowConsumerWarningHiWaterMark = getattr(
     libblpapict, "blpapi_SessionOptions_slowConsumerWarningHiWaterMark", stub
 )
 l_blpapi_SessionOptions_slowConsumerWarningHiWaterMark.restype = c_float
+l_blpapi_SessionOptions_slowConsumerWarningHiWaterMark.argtypes = [
+    blpapi_SessionOptions_t_p
+]
+# C signature: float blpapi_SessionOptions_slowConsumerWarningLoWaterMark(blpapi_SessionOptions_t *parameters)
 l_blpapi_SessionOptions_slowConsumerWarningLoWaterMark = getattr(
     libblpapict, "blpapi_SessionOptions_slowConsumerWarningLoWaterMark", stub
 )
 l_blpapi_SessionOptions_slowConsumerWarningLoWaterMark.restype = c_float
+l_blpapi_SessionOptions_slowConsumerWarningLoWaterMark.argtypes = [
+    blpapi_SessionOptions_t_p
+]
 
+# C signature: blpapi_Session_t *blpapi_Session_create(blpapi_SessionOptions_t *parameters, blpapi_EventHandler_t handler, blpapi_EventDispatcher_t *dispatcher, void *userData)
 l_blpapi_Session_create = getattr(libblpapict, "blpapi_Session_create", stub)
-l_blpapi_Session_create.restype = c_void_p
-l_blpapi_Session_createSnapshotRequestTemplate = getattr(
-    libblpapict, "blpapi_Session_createSnapshotRequestTemplate", stub
-)  # int
-l_blpapi_Session_createSnapshotRequestTemplate.argtypes = [
-    c_void_p,
-    c_void_p,
-    c_char_p,
-    c_void_p,
+l_blpapi_Session_create.restype = blpapi_Session_t_p
+l_blpapi_Session_create.argtypes = [
+    blpapi_SessionOptions_t_p,
+    blpapi_EventHandler_t,
+    blpapi_EventDispatcher_t_p,
     c_void_p,
 ]
+# C signature: int blpapi_Session_createSnapshotRequestTemplate(blpapi_RequestTemplate_t **requestTemplate, blpapi_Session_t *session, const char *subscriptionString, const blpapi_Identity_t *identity, blpapi_CorrelationId_t *correlationId)
+l_blpapi_Session_createSnapshotRequestTemplate = getattr(
+    libblpapict, "blpapi_Session_createSnapshotRequestTemplate", stub
+)
+l_blpapi_Session_createSnapshotRequestTemplate.restype = c_int
+l_blpapi_Session_createSnapshotRequestTemplate.argtypes = [
+    POINTER[blpapi_RequestTemplate_t_p],
+    blpapi_Session_t_p,
+    c_char_p,
+    blpapi_Identity_t_p,
+    CidStruct_p,
+]
+# C signature: void blpapi_Session_destroy(blpapi_Session_t *session)
 l_blpapi_Session_destroy = getattr(libblpapict, "blpapi_Session_destroy", stub)
 l_blpapi_Session_destroy.restype = None
+l_blpapi_Session_destroy.argtypes = [blpapi_Session_t_p]
+# C signature: blpapi_AbstractSession_t *blpapi_Session_getAbstractSession(blpapi_Session_t *session)
 l_blpapi_Session_getAbstractSession = getattr(
     libblpapict, "blpapi_Session_getAbstractSession", stub
 )
-l_blpapi_Session_getAbstractSession.restype = c_void_p
+l_blpapi_Session_getAbstractSession.restype = blpapi_AbstractSession_t_p
+l_blpapi_Session_getAbstractSession.argtypes = [blpapi_Session_t_p]
+# C signature: int blpapi_Session_nextEvent(blpapi_Session_t *session, blpapi_Event_t **eventPointer, unsigned int timeoutInMilliseconds)
 l_blpapi_Session_nextEvent = getattr(
     libblpapict, "blpapi_Session_nextEvent", stub
-)  # int
+)
+l_blpapi_Session_nextEvent.restype = c_int
+l_blpapi_Session_nextEvent.argtypes = [
+    blpapi_Session_t_p,
+    POINTER[blpapi_Event_t_p],
+    c_uint,
+]
+# C signature: int blpapi_Session_resubscribe(blpapi_Session_t *session, const blpapi_SubscriptionList_t *resubscriptionList, const char *requestLabel, int requestLabelLen)
 l_blpapi_Session_resubscribe = getattr(
     libblpapict, "blpapi_Session_resubscribe", stub
-)  # int
+)
+l_blpapi_Session_resubscribe.restype = c_int
+l_blpapi_Session_resubscribe.argtypes = [
+    blpapi_Session_t_p,
+    blpapi_SubscriptionList_t_p,
+    c_char_p,
+    c_int,
+]
+# C signature: int blpapi_Session_resubscribeEx(blpapi_Session_t *session, const blpapi_SubscriptionList_t *resubscriptionList, const char *requestLabel, int requestLabelLen, blpapi_SubscriptionPreprocessErrorHandler_t errorHandler, void *userData)
 l_blpapi_Session_resubscribeEx = getattr(
     libblpapict, "blpapi_Session_resubscribeEx", stub
-)  # int
+)
+l_blpapi_Session_resubscribeEx.restype = c_int
+l_blpapi_Session_resubscribeEx.argtypes = [
+    blpapi_Session_t_p,
+    blpapi_SubscriptionList_t_p,
+    c_char_p,
+    c_int,
+    blpapi_SubscriptionPreprocessErrorHandler_t,
+    c_void_p,
+]
+# C signature: int blpapi_Session_resubscribeWithId(blpapi_Session_t *session, const blpapi_SubscriptionList_t *resubscriptionList, int resubscriptionId, const char *requestLabel, int requestLabelLen)
 l_blpapi_Session_resubscribeWithId = getattr(
     libblpapict, "blpapi_Session_resubscribeWithId", stub
-)  # int
+)
+l_blpapi_Session_resubscribeWithId.restype = c_int
+l_blpapi_Session_resubscribeWithId.argtypes = [
+    blpapi_Session_t_p,
+    blpapi_SubscriptionList_t_p,
+    c_int,
+    c_char_p,
+    c_int,
+]
+# C signature: int blpapi_Session_resubscribeWithIdEx(blpapi_Session_t *session, const blpapi_SubscriptionList_t *resubscriptionList, int resubscriptionId, const char *requestLabel, int requestLabelLen, blpapi_SubscriptionPreprocessErrorHandler_t errorHandler, void *userData)
 l_blpapi_Session_resubscribeWithIdEx = getattr(
     libblpapict, "blpapi_Session_resubscribeWithIdEx", stub
-)  # int
+)
+l_blpapi_Session_resubscribeWithIdEx.restype = c_int
+l_blpapi_Session_resubscribeWithIdEx.argtypes = [
+    blpapi_Session_t_p,
+    blpapi_SubscriptionList_t_p,
+    c_int,
+    c_char_p,
+    c_int,
+    blpapi_SubscriptionPreprocessErrorHandler_t,
+    c_void_p,
+]
+# C signature: int blpapi_Session_sendRequest(blpapi_Session_t *session, const blpapi_Request_t *request, blpapi_CorrelationId_t *correlationId, blpapi_Identity_t *identity, blpapi_EventQueue_t *eventQueue, const char *requestLabel, int requestLabelLen)
 l_blpapi_Session_sendRequest = getattr(
     libblpapict, "blpapi_Session_sendRequest", stub
-)  # int
+)
+l_blpapi_Session_sendRequest.restype = c_int
+l_blpapi_Session_sendRequest.argtypes = [
+    blpapi_Session_t_p,
+    blpapi_Request_t_p,
+    CidStruct_p,
+    blpapi_Identity_t_p,
+    blpapi_EventQueue_t_p,
+    c_char_p,
+    c_int,
+]
+# C signature: int blpapi_Session_sendRequestTemplate(blpapi_Session_t *session, const blpapi_RequestTemplate_t *requestTemplate, blpapi_CorrelationId_t *correlationId)
 l_blpapi_Session_sendRequestTemplate = getattr(
     libblpapict, "blpapi_Session_sendRequestTemplate", stub
-)  # int
+)
+l_blpapi_Session_sendRequestTemplate.restype = c_int
+l_blpapi_Session_sendRequestTemplate.argtypes = [
+    blpapi_Session_t_p,
+    blpapi_RequestTemplate_t_p,
+    CidStruct_p,
+]
+# C signature: int blpapi_Session_setStatusCorrelationId(blpapi_Session_t *session, const blpapi_Service_t *service, const blpapi_Identity_t *identity, const blpapi_CorrelationId_t *correlationId)
 l_blpapi_Session_setStatusCorrelationId = getattr(
     libblpapict, "blpapi_Session_setStatusCorrelationId", stub
-)  # int
-l_blpapi_Session_start = getattr(
-    libblpapict, "blpapi_Session_start", stub
-)  # int
+)
+l_blpapi_Session_setStatusCorrelationId.restype = c_int
+l_blpapi_Session_setStatusCorrelationId.argtypes = [
+    blpapi_Session_t_p,
+    blpapi_Service_t_p,
+    blpapi_Identity_t_p,
+    CidStruct_p,
+]
+# C signature: int blpapi_Session_start(blpapi_Session_t *session)
+l_blpapi_Session_start = getattr(libblpapict, "blpapi_Session_start", stub)
+l_blpapi_Session_start.restype = c_int
+l_blpapi_Session_start.argtypes = [blpapi_Session_t_p]
+# C signature: int blpapi_Session_startAsync(blpapi_Session_t *session)
 l_blpapi_Session_startAsync = getattr(
     libblpapict, "blpapi_Session_startAsync", stub
-)  # int
-l_blpapi_Session_stop = getattr(
-    libblpapict, "blpapi_Session_stop", stub
-)  # int
+)
+l_blpapi_Session_startAsync.restype = c_int
+l_blpapi_Session_startAsync.argtypes = [blpapi_Session_t_p]
+# C signature: int blpapi_Session_stop(blpapi_Session_t *session)
+l_blpapi_Session_stop = getattr(libblpapict, "blpapi_Session_stop", stub)
+l_blpapi_Session_stop.restype = c_int
+l_blpapi_Session_stop.argtypes = [blpapi_Session_t_p]
+# C signature: int blpapi_Session_stopAsync(blpapi_Session_t *session)
 l_blpapi_Session_stopAsync = getattr(
     libblpapict, "blpapi_Session_stopAsync", stub
-)  # int
+)
+l_blpapi_Session_stopAsync.restype = c_int
+l_blpapi_Session_stopAsync.argtypes = [blpapi_Session_t_p]
+# C signature: int blpapi_Session_subscribe(blpapi_Session_t *session, const blpapi_SubscriptionList_t *subscriptionList, const blpapi_Identity_t *handle, const char *requestLabel, int requestLabelLen)
 l_blpapi_Session_subscribe = getattr(
     libblpapict, "blpapi_Session_subscribe", stub
-)  # int
+)
+l_blpapi_Session_subscribe.restype = c_int
+l_blpapi_Session_subscribe.argtypes = [
+    blpapi_Session_t_p,
+    blpapi_SubscriptionList_t_p,
+    blpapi_Identity_t_p,
+    c_char_p,
+    c_int,
+]
+# C signature: int blpapi_Session_subscribeEx(blpapi_Session_t *session, const blpapi_SubscriptionList_t *subscriptionList, const blpapi_Identity_t *handle, const char *requestLabel, int requestLabelLen, blpapi_SubscriptionPreprocessErrorHandler_t errorHandler, void *userData)
 l_blpapi_Session_subscribeEx = getattr(
     libblpapict, "blpapi_Session_subscribeEx", stub
-)  # int
+)
+l_blpapi_Session_subscribeEx.restype = c_int
+l_blpapi_Session_subscribeEx.argtypes = [
+    blpapi_Session_t_p,
+    blpapi_SubscriptionList_t_p,
+    blpapi_Identity_t_p,
+    c_char_p,
+    c_int,
+    blpapi_SubscriptionPreprocessErrorHandler_t,
+    c_void_p,
+]
+# C signature: int blpapi_Session_tryNextEvent(blpapi_Session_t *session, blpapi_Event_t **eventPointer)
 l_blpapi_Session_tryNextEvent = getattr(
     libblpapict, "blpapi_Session_tryNextEvent", stub
-)  # int
+)
+l_blpapi_Session_tryNextEvent.restype = c_int
+l_blpapi_Session_tryNextEvent.argtypes = [
+    blpapi_Session_t_p,
+    POINTER[blpapi_Event_t_p],
+]
+# C signature: int blpapi_Session_unsubscribe(blpapi_Session_t *session, const blpapi_SubscriptionList_t *unsubscriptionList, const char *requestLabel, int requestLabelLen)
 l_blpapi_Session_unsubscribe = getattr(
     libblpapict, "blpapi_Session_unsubscribe", stub
-)  # int
+)
+l_blpapi_Session_unsubscribe.restype = c_int
+l_blpapi_Session_unsubscribe.argtypes = [
+    blpapi_Session_t_p,
+    blpapi_SubscriptionList_t_p,
+    c_char_p,
+    c_int,
+]
 
+# C signature: blpapi_Socks5Config_t *blpapi_Socks5Config_create(const char *hostname, size_t hostname_size, unsigned short port)
 l_blpapi_Socks5Config_create = getattr(
     libblpapict, "blpapi_Socks5Config_create", stub
 )
-l_blpapi_Socks5Config_create.restype = c_void_p
+l_blpapi_Socks5Config_create.restype = blpapi_Socks5Config_t_p
+l_blpapi_Socks5Config_create.argtypes = [
+    c_char_p,
+    c_size_t,
+    c_uint16,
+]
+# C signature: void blpapi_Socks5Config_destroy(blpapi_Socks5Config_t *socks5Config)
 l_blpapi_Socks5Config_destroy = getattr(
     libblpapict, "blpapi_Socks5Config_destroy", stub
 )
 l_blpapi_Socks5Config_destroy.restype = None
+l_blpapi_Socks5Config_destroy.argtypes = [blpapi_Socks5Config_t_p]
+# C signature: int blpapi_Socks5Config_print(blpapi_Socks5Config_t *socks5Config, blpapi_StreamWriter_t streamWriter, void *userStream, int indentLevel, int spacesPerLevel)
 l_blpapi_Socks5Config_print = getattr(
     libblpapict, "blpapi_Socks5Config_print", stub
-)  # int
+)
+l_blpapi_Socks5Config_print.restype = c_int
+l_blpapi_Socks5Config_print.argtypes = [
+    blpapi_Socks5Config_t_p,
+    c_void_p,
+    c_void_p,
+    c_int,
+    c_int,
+]
 
+# C signature: int blpapi_SubscriptionList_add(blpapi_SubscriptionList_t *list, const char *subscriptionString, const blpapi_CorrelationId_t *correlationId, const char **fields, const char **options, size_t numfields, size_t numOptions)
 l_blpapi_SubscriptionList_add = getattr(
     libblpapict, "blpapi_SubscriptionList_add", stub
-)  # int
+)
+l_blpapi_SubscriptionList_add.restype = c_int
 l_blpapi_SubscriptionList_add.argtypes = [
-    c_void_p,
+    blpapi_SubscriptionList_t_p,
     c_char_p,
-    c_void_p,
+    CidStruct_p,
     c_void_p,
     c_void_p,
     c_size_t,
     c_size_t,
 ]
+# C signature: int blpapi_SubscriptionList_addResolved(blpapi_SubscriptionList_t *list, const char *subscriptionString, const blpapi_CorrelationId_t *correlationId)
 l_blpapi_SubscriptionList_addResolved = getattr(
     libblpapict, "blpapi_SubscriptionList_addResolved", stub
-)  # int
+)
+l_blpapi_SubscriptionList_addResolved.restype = c_int
+l_blpapi_SubscriptionList_addResolved.argtypes = [
+    blpapi_SubscriptionList_t_p,
+    c_char_p,
+    CidStruct_p,
+]
+# C signature: int blpapi_SubscriptionList_append(blpapi_SubscriptionList_t *dest, const blpapi_SubscriptionList_t *src)
 l_blpapi_SubscriptionList_append = getattr(
     libblpapict, "blpapi_SubscriptionList_append", stub
-)  # int
+)
+l_blpapi_SubscriptionList_append.restype = c_int
+l_blpapi_SubscriptionList_append.argtypes = [
+    blpapi_SubscriptionList_t_p,
+    blpapi_SubscriptionList_t_p,
+]
+# C signature: int blpapi_SubscriptionList_clear(blpapi_SubscriptionList_t *list)
 l_blpapi_SubscriptionList_clear = getattr(
     libblpapict, "blpapi_SubscriptionList_clear", stub
-)  # int
+)
+l_blpapi_SubscriptionList_clear.restype = c_int
+l_blpapi_SubscriptionList_clear.argtypes = [blpapi_SubscriptionList_t_p]
+# C signature: int blpapi_SubscriptionList_correlationIdAt(const blpapi_SubscriptionList_t *list, blpapi_CorrelationId_t *result, size_t index)
 l_blpapi_SubscriptionList_correlationIdAt = getattr(
     libblpapict, "blpapi_SubscriptionList_correlationIdAt", stub
-)  # int
+)
+l_blpapi_SubscriptionList_correlationIdAt.restype = c_int
+l_blpapi_SubscriptionList_correlationIdAt.argtypes = [
+    blpapi_SubscriptionList_t_p,
+    CidStruct_p,
+    c_size_t,
+]
+# C signature: blpapi_SubscriptionList_t *blpapi_SubscriptionList_create(void)
 l_blpapi_SubscriptionList_create = getattr(
     libblpapict, "blpapi_SubscriptionList_create", stub
 )
-l_blpapi_SubscriptionList_create.restype = c_void_p
+l_blpapi_SubscriptionList_create.restype = blpapi_SubscriptionList_t_p
+# C signature: void blpapi_SubscriptionList_destroy(blpapi_SubscriptionList_t *list)
 l_blpapi_SubscriptionList_destroy = getattr(
     libblpapict, "blpapi_SubscriptionList_destroy", stub
 )
 l_blpapi_SubscriptionList_destroy.restype = None
+l_blpapi_SubscriptionList_destroy.argtypes = [blpapi_SubscriptionList_t_p]
+# C signature: int blpapi_SubscriptionList_isResolvedAt(blpapi_SubscriptionList_t *list, int *result, size_t index)
 l_blpapi_SubscriptionList_isResolvedAt = getattr(
     libblpapict, "blpapi_SubscriptionList_isResolvedAt", stub
-)  # int
+)
+l_blpapi_SubscriptionList_isResolvedAt.restype = c_int
+l_blpapi_SubscriptionList_isResolvedAt.argtypes = [
+    blpapi_SubscriptionList_t_p,
+    POINTER[c_int],
+    c_size_t,
+]
+# C signature: int blpapi_SubscriptionList_size(const blpapi_SubscriptionList_t *list)
 l_blpapi_SubscriptionList_size = getattr(
     libblpapict, "blpapi_SubscriptionList_size", stub
-)  # int
+)
+l_blpapi_SubscriptionList_size.restype = c_int
+l_blpapi_SubscriptionList_size.argtypes = [blpapi_SubscriptionList_t_p]
+# C signature: int blpapi_SubscriptionList_topicStringAt(blpapi_SubscriptionList_t *list, const char **result, size_t index)
 l_blpapi_SubscriptionList_topicStringAt = getattr(
     libblpapict, "blpapi_SubscriptionList_topicStringAt", stub
-)  # int
+)
+l_blpapi_SubscriptionList_topicStringAt.restype = c_int
+l_blpapi_SubscriptionList_topicStringAt.argtypes = [
+    blpapi_SubscriptionList_t_p,
+    POINTER[c_char_p],
+    c_size_t,
+]
 
+# C signature: int blpapi_TestUtil_appendMessage(blpapi_MessageFormatter_t **formatter, blpapi_Event_t *event, const blpapi_SchemaElementDefinition_t *messageType, const blpapi_MessageProperties_t *properties)
 l_blpapi_TestUtil_appendMessage = getattr(
     libblpapict, "blpapi_TestUtil_appendMessage", stub
-)  # int
+)
+l_blpapi_TestUtil_appendMessage.restype = c_int
+l_blpapi_TestUtil_appendMessage.argtypes = [
+    POINTER[blpapi_MessageFormatter_t_p],
+    blpapi_Event_t_p,
+    blpapi_SchemaElementDefinition_t_p,
+    blpapi_MessageProperties_t_p,
+]
+# C signature: int blpapi_TestUtil_createEvent(blpapi_Event_t **event, int eventType)
 l_blpapi_TestUtil_createEvent = getattr(
     libblpapict, "blpapi_TestUtil_createEvent", stub
-)  # int
+)
+l_blpapi_TestUtil_createEvent.restype = c_int
+l_blpapi_TestUtil_createEvent.argtypes = [POINTER[blpapi_Event_t_p], c_int]
+# C signature: int blpapi_TestUtil_createTopic(blpapi_Topic_t **topic, const blpapi_Service_t *service, int isActive)
 l_blpapi_TestUtil_createTopic = getattr(
     libblpapict, "blpapi_TestUtil_createTopic", stub
-)  # int
+)
+l_blpapi_TestUtil_createTopic.restype = c_int
+l_blpapi_TestUtil_createTopic.argtypes = [
+    POINTER[blpapi_Topic_t_p],
+    blpapi_Service_t_p,
+    c_int,
+]
+# C signature: int blpapi_TestUtil_deserializeService(const char *schema, size_t schemaLength, blpapi_Service_t **service)
 l_blpapi_TestUtil_deserializeService = getattr(
     libblpapict, "blpapi_TestUtil_deserializeService", stub
 )
+l_blpapi_TestUtil_deserializeService.restype = c_int
+l_blpapi_TestUtil_deserializeService.argtypes = [
+    c_char_p,
+    c_size_t,
+    POINTER[blpapi_Service_t_p],
+]
+# C signature: int blpapi_TestUtil_getAdminMessageDefinition(blpapi_SchemaElementDefinition_t **definition, blpapi_Name_t *messageName)
 l_blpapi_TestUtil_getAdminMessageDefinition = getattr(
     libblpapict, "blpapi_TestUtil_getAdminMessageDefinition", stub
-)  # int
+)
+l_blpapi_TestUtil_getAdminMessageDefinition.restype = c_int
+l_blpapi_TestUtil_getAdminMessageDefinition.argtypes = [
+    POINTER[blpapi_SchemaElementDefinition_t_p],
+    blpapi_Name_t_p,
+]
+# C signature: int blpapi_TestUtil_serializeService(blpapi_StreamWriter_t streamWriter, void *stream, const blpapi_Service_t *service)
 l_blpapi_TestUtil_serializeService = getattr(
     libblpapict, "blpapi_TestUtil_serializeService", stub
-)  # int
+)
+l_blpapi_TestUtil_serializeService.restype = c_int
+l_blpapi_TestUtil_serializeService.argtypes = [
+    c_void_p,
+    c_void_p,
+    blpapi_Service_t_p,
+]
+# C signature: blpapi_TlsOptions_t *blpapi_TlsOptions_createFromBlobs(const char *clientCredentialsRawData, int clientCredentialsRawDataLength, const char *clientCredentialsPassword, const char *trustedCertificatesRawData, int trustedCertificatesRawDataLength)
 l_blpapi_TlsOptions_createFromBlobs = getattr(
     libblpapict, "blpapi_TlsOptions_createFromBlobs", stub
 )
-l_blpapi_TlsOptions_createFromBlobs.restype = c_void_p
+l_blpapi_TlsOptions_createFromBlobs.restype = blpapi_TlsOptions_t_p
+l_blpapi_TlsOptions_createFromBlobs.argtypes = [
+    c_char_p,
+    c_int,
+    c_char_p,
+    c_char_p,
+    c_int,
+]
+# C signature: blpapi_TlsOptions_t *blpapi_TlsOptions_createFromFiles(const char *clientCredentialsFileName, const char *clientCredentialsPassword, const char *trustedCertificatesFileName)
 l_blpapi_TlsOptions_createFromFiles = getattr(
     libblpapict, "blpapi_TlsOptions_createFromFiles", stub
 )
-l_blpapi_TlsOptions_createFromFiles.restype = c_void_p
+l_blpapi_TlsOptions_createFromFiles.restype = blpapi_TlsOptions_t_p
+l_blpapi_TlsOptions_createFromFiles.argtypes = [
+    c_char_p,
+    c_char_p,
+    c_char_p,
+]
+# C signature: void blpapi_TlsOptions_destroy(blpapi_TlsOptions_t *parameters)
 l_blpapi_TlsOptions_destroy = getattr(
     libblpapict, "blpapi_TlsOptions_destroy", stub
 )
 l_blpapi_TlsOptions_destroy.restype = None
+l_blpapi_TlsOptions_destroy.argtypes = [blpapi_TlsOptions_t_p]
+# C signature: void blpapi_TlsOptions_setCrlFetchTimeoutMs(blpapi_TlsOptions_t *paramaters, int crlFetchTimeoutMs)
 l_blpapi_TlsOptions_setCrlFetchTimeoutMs = getattr(
     libblpapict, "blpapi_TlsOptions_setCrlFetchTimeoutMs", stub
 )
 l_blpapi_TlsOptions_setCrlFetchTimeoutMs.restype = None
+l_blpapi_TlsOptions_setCrlFetchTimeoutMs.argtypes = [
+    blpapi_TlsOptions_t_p,
+    c_int,
+]
+# C signature: void blpapi_TlsOptions_setTlsHandshakeTimeoutMs(blpapi_TlsOptions_t *paramaters, int tlsHandshakeTimeoutMs)
 l_blpapi_TlsOptions_setTlsHandshakeTimeoutMs = getattr(
     libblpapict, "blpapi_TlsOptions_setTlsHandshakeTimeoutMs", stub
 )
 l_blpapi_TlsOptions_setTlsHandshakeTimeoutMs.restype = None
+l_blpapi_TlsOptions_setTlsHandshakeTimeoutMs.argtypes = [
+    blpapi_TlsOptions_t_p,
+    c_int,
+]
 
-l_blpapi_Topic_compare = getattr(
-    libblpapict, "blpapi_Topic_compare", stub
-)  # int
+# C signature: int blpapi_Topic_compare(const blpapi_Topic_t *lhs, const blpapi_Topic_t *rhs)
+l_blpapi_Topic_compare = getattr(libblpapict, "blpapi_Topic_compare", stub)
+l_blpapi_Topic_compare.restype = c_int
+l_blpapi_Topic_compare.argtypes = [blpapi_Topic_t_p, blpapi_Topic_t_p]
+# C signature: void blpapi_Topic_destroy(blpapi_Topic_t *victim)
 l_blpapi_Topic_destroy = getattr(libblpapict, "blpapi_Topic_destroy", stub)
 l_blpapi_Topic_destroy.restype = None
-l_blpapi_Topic_isActive = getattr(
-    libblpapict, "blpapi_Topic_isActive", stub
-)  # int
+l_blpapi_Topic_destroy.argtypes = [blpapi_Topic_t_p]
+# C signature: int blpapi_Topic_isActive(const blpapi_Topic_t *topic)
+l_blpapi_Topic_isActive = getattr(libblpapict, "blpapi_Topic_isActive", stub)
+l_blpapi_Topic_isActive.restype = c_int
+l_blpapi_Topic_isActive.argtypes = [blpapi_Topic_t_p]
+# C signature: blpapi_Service_t *blpapi_Topic_service(const blpapi_Topic_t *topic)
 l_blpapi_Topic_service = getattr(libblpapict, "blpapi_Topic_service", stub)
-l_blpapi_Topic_service.restype = c_void_p
+l_blpapi_Topic_service.restype = blpapi_Service_t_p
+l_blpapi_Topic_service.argtypes = [blpapi_Topic_t_p]
 
-l_blpapi_TopicList_add = getattr(
-    libblpapict, "blpapi_TopicList_add", stub
-)  # int
+# C signature: int blpapi_TopicList_add(blpapi_TopicList_t *list, const char *topic, const blpapi_CorrelationId_t *correlationId)
+l_blpapi_TopicList_add = getattr(libblpapict, "blpapi_TopicList_add", stub)
+l_blpapi_TopicList_add.restype = c_int
+l_blpapi_TopicList_add.argtypes = [blpapi_TopicList_t_p, c_char_p, CidStruct_p]
+# C signature: int blpapi_TopicList_addFromMessage(blpapi_TopicList_t *list, const blpapi_Message_t *topic, const blpapi_CorrelationId_t *correlationId)
 l_blpapi_TopicList_addFromMessage = getattr(
     libblpapict, "blpapi_TopicList_addFromMessage", stub
-)  # int
+)
+l_blpapi_TopicList_addFromMessage.restype = c_int
+l_blpapi_TopicList_addFromMessage.argtypes = [
+    blpapi_TopicList_t_p,
+    blpapi_Message_t_p,
+    CidStruct_p,
+]
+# C signature: int blpapi_TopicList_correlationIdAt(const blpapi_TopicList_t *list, blpapi_CorrelationId_t *result, size_t index)
 l_blpapi_TopicList_correlationIdAt = getattr(
     libblpapict, "blpapi_TopicList_correlationIdAt", stub
-)  # int
-l_blpapi_TopicList_correlationIdAt.argtypes = [c_void_p, c_void_p, c_size_t]
+)
+l_blpapi_TopicList_correlationIdAt.restype = c_int
+l_blpapi_TopicList_correlationIdAt.argtypes = [
+    blpapi_TopicList_t_p,
+    CidStruct_p,
+    c_size_t,
+]
+# C signature: blpapi_TopicList_t *blpapi_TopicList_create(blpapi_TopicList_t *from)
 l_blpapi_TopicList_create = getattr(
     libblpapict, "blpapi_TopicList_create", stub
 )
-l_blpapi_TopicList_create.restype = c_void_p
+l_blpapi_TopicList_create.restype = blpapi_TopicList_t_p
+l_blpapi_TopicList_create.argtypes = [blpapi_TopicList_t_p]
+# C signature: void blpapi_TopicList_destroy(blpapi_TopicList_t *list)
 l_blpapi_TopicList_destroy = getattr(
     libblpapict, "blpapi_TopicList_destroy", stub
 )
 l_blpapi_TopicList_destroy.restype = None
+l_blpapi_TopicList_destroy.argtypes = [blpapi_TopicList_t_p]
+# C signature: int blpapi_TopicList_message(const blpapi_TopicList_t *list, blpapi_Message_t **element, const blpapi_CorrelationId_t *id)
 l_blpapi_TopicList_message = getattr(
     libblpapict, "blpapi_TopicList_message", stub
-)  # int
+)
+l_blpapi_TopicList_message.restype = c_int
+l_blpapi_TopicList_message.argtypes = [
+    blpapi_TopicList_t_p,
+    POINTER[blpapi_Message_t_p],
+    CidStruct_p,
+]
+# C signature: int blpapi_TopicList_messageAt(const blpapi_TopicList_t *list, blpapi_Message_t **element, size_t index)
 l_blpapi_TopicList_messageAt = getattr(
     libblpapict, "blpapi_TopicList_messageAt", stub
-)  # int
-l_blpapi_TopicList_size = getattr(
-    libblpapict, "blpapi_TopicList_size", stub
-)  # int
+)
+l_blpapi_TopicList_messageAt.restype = c_int
+l_blpapi_TopicList_messageAt.argtypes = [
+    blpapi_TopicList_t_p,
+    POINTER[blpapi_Message_t_p],
+    c_size_t,
+]
+# C signature: int blpapi_TopicList_size(const blpapi_TopicList_t *list)
+l_blpapi_TopicList_size = getattr(libblpapict, "blpapi_TopicList_size", stub)
+l_blpapi_TopicList_size.restype = c_int
+l_blpapi_TopicList_size.argtypes = [blpapi_TopicList_t_p]
+# C signature: int blpapi_TopicList_status(const blpapi_TopicList_t *list, int *status, const blpapi_CorrelationId_t *id)
 l_blpapi_TopicList_status = getattr(
     libblpapict, "blpapi_TopicList_status", stub
-)  # int
+)
+l_blpapi_TopicList_status.restype = c_int
+l_blpapi_TopicList_status.argtypes = [
+    blpapi_TopicList_t_p,
+    POINTER[c_int],
+    CidStruct_p,
+]
+# C signature: int blpapi_TopicList_statusAt(const blpapi_TopicList_t *list, int *status, size_t index)
 l_blpapi_TopicList_statusAt = getattr(
     libblpapict, "blpapi_TopicList_statusAt", stub
-)  # int
+)
+l_blpapi_TopicList_statusAt.restype = c_int
+l_blpapi_TopicList_statusAt.argtypes = [
+    blpapi_TopicList_t_p,
+    POINTER[c_int],
+    c_size_t,
+]
+# C signature: int blpapi_TopicList_topicString(const blpapi_TopicList_t *list, const char **topic, const blpapi_CorrelationId_t *id)
 l_blpapi_TopicList_topicString = getattr(
     libblpapict, "blpapi_TopicList_topicString", stub
-)  # int
+)
+l_blpapi_TopicList_topicString.restype = c_int
+l_blpapi_TopicList_topicString.argtypes = [
+    blpapi_TopicList_t_p,
+    POINTER[c_char_p],
+    CidStruct_p,
+]
+# C signature: int blpapi_TopicList_topicStringAt(const blpapi_TopicList_t *list, const char **topic, size_t index)
 l_blpapi_TopicList_topicStringAt = getattr(
     libblpapict, "blpapi_TopicList_topicStringAt", stub
-)  # int
+)
+l_blpapi_TopicList_topicStringAt.restype = c_int
+l_blpapi_TopicList_topicStringAt.argtypes = [
+    blpapi_TopicList_t_p,
+    POINTER[c_char_p],
+    c_size_t,
+]
 
+# C signature: int blpapi_UserAgentInfo_setUserTaskName(const char *userTaskName)
 l_blpapi_UserAgentInfo_setUserTaskName = getattr(
     libblpapict, "blpapi_UserAgentInfo_setUserTaskName", stub
-)  # int
+)
+l_blpapi_UserAgentInfo_setUserTaskName.restype = c_int
+l_blpapi_UserAgentInfo_setUserTaskName.argtypes = [c_char_p]
+# C signature: int blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion(const char *language, const char *version)
 l_blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion = getattr(
     libblpapict, "blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion", stub
-)  # int
+)
+l_blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion.restype = c_int
+l_blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion.argtypes = [
+    c_char_p,
+    c_char_p,
+]
 
+# C signature: int blpapi_ZfpUtil_getOptionsForLeasedLines(blpapi_SessionOptions_t *sessionOptions, const blpapi_TlsOptions_t *tlsOptions, int remote)
 l_blpapi_ZfpUtil_getOptionsForLeasedLines = getattr(
     libblpapict, "blpapi_ZfpUtil_getOptionsForLeasedLines", stub
-)  # int
+)
+l_blpapi_ZfpUtil_getOptionsForLeasedLines.restype = c_int
+l_blpapi_ZfpUtil_getOptionsForLeasedLines.argtypes = [
+    blpapi_SessionOptions_t_p,
+    blpapi_TlsOptions_t_p,
+    c_int,
+]
 
+# C signature: const char *blpapi_getLastErrorDescription(int resultCode)
 l_blpapi_getLastErrorDescription = getattr(
     libblpapict, "blpapi_getLastErrorDescription", stub
 )
 l_blpapi_getLastErrorDescription.restype = c_char_p
+l_blpapi_getLastErrorDescription.argtypes = [c_int]
 
+# C signature: void blpapi_getVersionInfo(int *majorVersion, int *minorVersion, int *patchVersion, int *buildVersion)
 l_blpapi_getVersionInfo = getattr(libblpapict, "blpapi_getVersionInfo", stub)
 l_blpapi_getVersionInfo.restype = None
 l_blpapi_getVersionInfo.argtypes = [
-    POINTER(c_int),
-    POINTER(c_int),
-    POINTER(c_int),
-    POINTER(c_int),
+    POINTER[c_int],
+    POINTER[c_int],
+    POINTER[c_int],
+    POINTER[c_int],
 ]
 
 
-# signature: int blpapi_AbstractSession_cancel(blpapi_AbstractSession_t *session,const blpapi_CorrelationId_t *correlationIds,size_t numCorrelationIds,const char *requestLabel,int requestLabelLen);
 def _blpapi_AbstractSession_cancel(session, correlationIds, requestLabel):
     szcids = len(correlationIds)
     if szcids > 1:
         arraytype = CidStruct * szcids
         ptrs = arraytype(*[c.thestruct for c in correlationIds])
-        oneptr = pointer(ptrs)
+        oneptr = cast(ptrs, CidStruct_p)
     elif szcids == 1:
         oneptr = byref(correlationIds[0].thestruct)
     else:
-        oneptr = c_void_p()
+        oneptr = CidStruct_p()
 
     label, sz = charPtrWithSizeFromPyStr(requestLabel)
     retCode = l_blpapi_AbstractSession_cancel(
@@ -1900,12 +4360,10 @@ def _blpapi_AbstractSession_cancel(session, correlationIds, requestLabel):
     return retCode
 
 
-# signature: blpapi_Identity_t *blpapi_AbstractSession_createIdentity(blpapi_AbstractSession_t *session);
 def _blpapi_AbstractSession_createIdentity(session):
     return getHandleFromPtr(l_blpapi_AbstractSession_createIdentity(session))
 
 
-# signature: int blpapi_AbstractSession_generateAuthorizedIdentityAsync(blpapi_AbstractSession_t *session,const blpapi_AuthOptions_t *authOptions,blpapi_CorrelationId_t *cid);
 def _blpapi_AbstractSession_generateAuthorizedIdentityAsync(
     session, authOptions, cid
 ):
@@ -1917,7 +4375,6 @@ def _blpapi_AbstractSession_generateAuthorizedIdentityAsync(
     )
 
 
-# signature: int blpapi_AbstractSession_generateManualToken(blpapi_AbstractSession_t *session,blpapi_CorrelationId_t *correlationId,const char *user,const char *manualIp,blpapi_EventQueue_t *eventQueue);
 def _blpapi_AbstractSession_generateManualToken(
     session, correlationId, user, manualIp, eventQueue
 ):
@@ -1930,16 +4387,14 @@ def _blpapi_AbstractSession_generateManualToken(
     )
 
 
-# signature: int blpapi_AbstractSession_generateToken(blpapi_AbstractSession_t *session,blpapi_CorrelationId_t *correlationId,blpapi_EventQueue_t *eventQueue);
 def _blpapi_AbstractSession_generateToken(session, correlationId, eventQueue):
     return l_blpapi_AbstractSession_generateToken(
         session, byref(correlationId.thestruct), eventQueue
     )
 
 
-# signature: int blpapi_AbstractSession_getAuthorizedIdentity(blpapi_AbstractSession_t *session,const blpapi_CorrelationId_t *cid,blpapi_Identity_t **identity);
 def _blpapi_AbstractSession_getAuthorizedIdentity(session, cid):
-    out = c_void_p()
+    out = blpapi_Identity_t_p()
     outp = pointer(out)
     retCode = l_blpapi_AbstractSession_getAuthorizedIdentity(
         session, byref(cid.thestruct), outp
@@ -1947,9 +4402,8 @@ def _blpapi_AbstractSession_getAuthorizedIdentity(session, cid):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_AbstractSession_getService(blpapi_AbstractSession_t *session,blpapi_Service_t **service,const char *serviceIdentifier);
 def _blpapi_AbstractSession_getService(session, serviceIdentifier):
-    out = c_void_p()
+    out = blpapi_Service_t_p()
     outp = pointer(out)
     retCode = l_blpapi_AbstractSession_getService(
         session, outp, charPtrFromPyStr(serviceIdentifier)
@@ -1957,14 +4411,12 @@ def _blpapi_AbstractSession_getService(session, serviceIdentifier):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_AbstractSession_openService(blpapi_AbstractSession_t *session, const char *serviceIdentifier);
 def _blpapi_AbstractSession_openService(session, serviceIdentifier):
     return l_blpapi_AbstractSession_openService(
         session, charPtrFromPyStr(serviceIdentifier)
     )
 
 
-# signature: int blpapi_AbstractSession_openServiceAsync(blpapi_AbstractSession_t *session,const char *serviceIdentifier,blpapi_CorrelationId_t *correlationId);
 def _blpapi_AbstractSession_openServiceAsync(
     session, serviceIdentifier, correlationId
 ):
@@ -1976,7 +4428,6 @@ def _blpapi_AbstractSession_openServiceAsync(
     )
 
 
-# signature: int blpapi_AbstractSession_sendAuthorizationRequest(...)
 def _blpapi_AbstractSession_sendAuthorizationRequest(
     session, request, identity, correlationId, eventQueue, requestLabel
 ):
@@ -1989,7 +4440,6 @@ def _blpapi_AbstractSession_sendAuthorizationRequest(
     )
 
 
-# signature: int blpapi_AbstractSession_sessionName(blpapi_AbstractSession_t *session,const char **sessionName,size_t *size);
 def _blpapi_AbstractSession_sessionName(session):
     out = c_char_p()
     szout = c_size_t()
@@ -1999,115 +4449,97 @@ def _blpapi_AbstractSession_sessionName(session):
     return retCode, getSizedStrFromOutput(outp, szoutp, retCode)
 
 
-# signature: int blpapi_AuthApplication_copy(blpapi_AuthApplication_t *lhs, const blpapi_AuthApplication_t *rhs);
 def _blpapi_AuthApplication_copy(lhs, rhs):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_AuthApplication_create(blpapi_AuthApplication_t **app, const char *appName);
 def _blpapi_AuthApplication_create(appName):
-    authapphandle = c_void_p()
-    outp = pointer(authapphandle)
+    out = blpapi_AuthApplication_t_p()
+    outp = pointer(out)
     retCode = l_blpapi_AuthApplication_create(outp, charPtrFromPyStr(appName))
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: void blpapi_AuthApplication_destroy(blpapi_AuthApplication_t *app);
 def _blpapi_AuthApplication_destroy(app):
     l_blpapi_AuthApplication_destroy(app)
 
 
-# signature: int blpapi_AuthApplication_duplicate(blpapi_AuthApplication_t **app, const blpapi_AuthApplication_t *dup);
 def _blpapi_AuthApplication_duplicate(dup):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_AuthOptions_copy(blpapi_AuthOptions_t *lhs, const blpapi_AuthOptions_t *rhs);
 def _blpapi_AuthOptions_copy(lhs, rhs):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_AuthOptions_create_default(blpapi_AuthOptions_t **options);
 def _blpapi_AuthOptions_create_default():
-    out = c_void_p()
+    out = blpapi_AuthOptions_t_p()
     outp = pointer(out)
     retCode = l_blpapi_AuthOptions_create_default(outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_AuthOptions_create_forAppMode(blpapi_AuthOptions_t **options, const blpapi_AuthApplication_t *app);
 def _blpapi_AuthOptions_create_forAppMode(app):
-    out = c_void_p()
+    out = blpapi_AuthOptions_t_p()
     outp = pointer(out)
     retCode = l_blpapi_AuthOptions_create_forAppMode(outp, app)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_AuthOptions_create_forToken(blpapi_AuthOptions_t **options, const blpapi_AuthToken_t *token);
 def _blpapi_AuthOptions_create_forToken(token):
-    out = c_void_p()
+    out = blpapi_AuthOptions_t_p()
     outp = pointer(out)
     retCode = l_blpapi_AuthOptions_create_forToken(outp, token)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_AuthOptions_create_forUserAndAppMode(blpapi_AuthOptions_t **options,const blpapi_AuthUser_t *user,const blpapi_AuthApplication_t *app);
 def _blpapi_AuthOptions_create_forUserAndAppMode(user, app):
-    out = c_void_p()
+    out = blpapi_AuthOptions_t_p()
     outp = pointer(out)
     retCode = l_blpapi_AuthOptions_create_forUserAndAppMode(outp, user, app)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_AuthOptions_create_forUserMode(blpapi_AuthOptions_t **options, const blpapi_AuthUser_t *user);
 def _blpapi_AuthOptions_create_forUserMode(user):
-    out = c_void_p()
+    out = blpapi_AuthOptions_t_p()
     outp = pointer(out)
     retCode = l_blpapi_AuthOptions_create_forUserMode(outp, user)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: void blpapi_AuthOptions_destroy(blpapi_AuthOptions_t *options);
 def _blpapi_AuthOptions_destroy(options):
     l_blpapi_AuthOptions_destroy(options)
 
 
-# signature: int blpapi_AuthOptions_duplicate(blpapi_AuthOptions_t **options, const blpapi_AuthOptions_t *dup);
 def _blpapi_AuthOptions_duplicate(dup):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_AuthToken_copy(blpapi_AuthToken_t *lhs, const blpapi_AuthToken_t *rhs);
 def _blpapi_AuthToken_copy(lhs, rhs):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_AuthToken_create(blpapi_AuthToken_t **token, const char *tokenStr);
 def _blpapi_AuthToken_create(tokenStr):
-    out = c_void_p()
+    out = blpapi_AuthToken_t_p()
     outp = pointer(out)
     retCode = l_blpapi_AuthToken_create(outp, charPtrFromPyStr(tokenStr))
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: void blpapi_AuthToken_destroy(blpapi_AuthToken_t *token);
 def _blpapi_AuthToken_destroy(token):
     l_blpapi_AuthToken_destroy(token)
 
 
-# signature: int blpapi_AuthToken_duplicate(blpapi_AuthToken_t **token, const blpapi_AuthToken_t *dup);
 def _blpapi_AuthToken_duplicate(dup):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_AuthUser_copy(blpapi_AuthUser_t *lhs, const blpapi_AuthUser_t *rhs);
 def _blpapi_AuthUser_copy(lhs, rhs):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_AuthUser_createWithActiveDirectoryProperty(blpapi_AuthUser_t **user, const char *propertyName);
 def _blpapi_AuthUser_createWithActiveDirectoryProperty(propertyName):
-    out = c_void_p()
+    out = blpapi_AuthUser_t_p()
     outp = pointer(out)
     retCode = l_blpapi_AuthUser_createWithActiveDirectoryProperty(
         outp, charPtrFromPyStr(propertyName)
@@ -2115,17 +4547,15 @@ def _blpapi_AuthUser_createWithActiveDirectoryProperty(propertyName):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_AuthUser_createWithLogonName(blpapi_AuthUser_t **user);
 def _blpapi_AuthUser_createWithLogonName():
-    out = c_void_p()
+    out = blpapi_AuthUser_t_p()
     outp = pointer(out)
     retCode = l_blpapi_AuthUser_createWithLogonName(outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_AuthUser_createWithManualOptions(blpapi_AuthUser_t **user, const char *userId, const char *ipAddress);
 def _blpapi_AuthUser_createWithManualOptions(userId, ipAddress):
-    out = c_void_p()
+    out = blpapi_AuthUser_t_p()
     outp = pointer(out)
     retCode = l_blpapi_AuthUser_createWithManualOptions(
         outp, charPtrFromPyStr(userId), charPtrFromPyStr(ipAddress)
@@ -2133,28 +4563,23 @@ def _blpapi_AuthUser_createWithManualOptions(userId, ipAddress):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: void blpapi_AuthUser_destroy(blpapi_AuthUser_t *user);
 def _blpapi_AuthUser_destroy(user):
     l_blpapi_AuthUser_destroy(user)
 
 
-# signature: int blpapi_AuthUser_duplicate(blpapi_AuthUser_t **user, const blpapi_AuthUser_t *dup);
 def _blpapi_AuthUser_duplicate(dup):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_ConstantList_datatype(const blpapi_ConstantList_t *constant);
 def _blpapi_ConstantList_datatype(constant):
     return l_blpapi_ConstantList_datatype(constant)
 
 
-# signature: const char *blpapi_ConstantList_description(const blpapi_ConstantList_t *list);
 def _blpapi_ConstantList_description(clist):
-    assert clist is not None and clist.value is not None
+    assert clist is not None and getRawPtrFromHandle(clist) is not None
     return getStrFromC(l_blpapi_ConstantList_description(clist))
 
 
-# signature: blpapi_Constant_t *blpapi_ConstantList_getConstant(const blpapi_ConstantList_t *constant,const char *nameString,const blpapi_Name_t *name);
 def _blpapi_ConstantList_getConstant(constant, nameString, name):
     value = l_blpapi_ConstantList_getConstant(
         constant, charPtrFromPyStr(nameString), name
@@ -2162,45 +4587,37 @@ def _blpapi_ConstantList_getConstant(constant, nameString, name):
     return getHandleFromPtr(value)
 
 
-# signature: blpapi_Constant_t *blpapi_ConstantList_getConstantAt(const blpapi_ConstantList_t *constant, size_t index);
 def _blpapi_ConstantList_getConstantAt(constant, index):
     return getHandleFromPtr(
         l_blpapi_ConstantList_getConstantAt(constant, c_size_t(index))
     )
 
 
-# signature:
 def _blpapi_ConstantList_hasConstant(slist, nameString, name):
     constant = _blpapi_ConstantList_getConstant(slist, nameString, name)
-    return constant is not None and constant.value is not None
+    return constant is not None and getRawPtrFromHandle(constant) is not None
 
 
-# signature: blpapi_Name_t *blpapi_ConstantList_name(const blpapi_ConstantList_t *list);
 def _blpapi_ConstantList_name(clist):
     return getHandleFromPtr(l_blpapi_ConstantList_name(clist))
 
 
-# signature: int blpapi_ConstantList_numConstants(const blpapi_ConstantList_t *list);
 def _blpapi_ConstantList_numConstants(slist):
     return l_blpapi_ConstantList_numConstants(slist)
 
 
-# signature: int blpapi_ConstantList_status(const blpapi_ConstantList_t *list);
 def _blpapi_ConstantList_status(slist):
     return l_blpapi_ConstantList_status(slist)
 
 
-# signature: int blpapi_Constant_datatype(const blpapi_Constant_t *constant);
 def _blpapi_Constant_datatype(constant):
     return l_blpapi_Constant_datatype(constant)
 
 
-# signature: const char *blpapi_Constant_description(const blpapi_Constant_t *constant);
 def _blpapi_Constant_description(constant):
     return getStrFromC(l_blpapi_Constant_description(constant))
 
 
-# signature: int blpapi_Constant_getValueAsChar(const blpapi_Constant_t *constant, blpapi_Char_t *buffer);
 def _blpapi_Constant_getValueAsChar(constant):
     out = c_char()
     outp = pointer(out)
@@ -2208,7 +4625,6 @@ def _blpapi_Constant_getValueAsChar(constant):
     return retCode, getStrFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Constant_getValueAsDatetime(const blpapi_Constant_t *constant, blpapi_Datetime_t *buffer);
 def _blpapi_Constant_getValueAsDatetime(constant):
     out = BDatetime()
     outp = pointer(out)
@@ -2216,7 +4632,6 @@ def _blpapi_Constant_getValueAsDatetime(constant):
     return retCode, out if retCode == 0 else None
 
 
-# signature: int blpapi_Constant_getValueAsFloat32(const blpapi_Constant_t *constant, blpapi_Float32_t *buffer);
 def _blpapi_Constant_getValueAsFloat32(constant):
     out = c_float()
     outp = pointer(out)
@@ -2224,7 +4639,6 @@ def _blpapi_Constant_getValueAsFloat32(constant):
     return retCode, getPODFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Constant_getValueAsFloat64(const blpapi_Constant_t *constant, blpapi_Float64_t *buffer);
 def _blpapi_Constant_getValueAsFloat64(constant):
     out = c_double()
     outp = pointer(out)
@@ -2232,7 +4646,6 @@ def _blpapi_Constant_getValueAsFloat64(constant):
     return retCode, getPODFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Constant_getValueAsInt32(const blpapi_Constant_t *constant, blpapi_Int32_t *buffer);
 def _blpapi_Constant_getValueAsInt32(constant):
     out = c_int()
     outp = pointer(out)
@@ -2240,7 +4653,6 @@ def _blpapi_Constant_getValueAsInt32(constant):
     return retCode, getPODFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Constant_getValueAsInt64(const blpapi_Constant_t *constant, blpapi_Int64_t *buffer);
 def _blpapi_Constant_getValueAsInt64(constant):
     out = c_int64()
     outp = pointer(out)
@@ -2248,7 +4660,6 @@ def _blpapi_Constant_getValueAsInt64(constant):
     return retCode, getPODFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Constant_getValueAsString(const blpapi_Constant_t *constant, const char **buffer);
 def _blpapi_Constant_getValueAsString(constant):
     out = c_char_p()
     outp = pointer(out)
@@ -2256,19 +4667,16 @@ def _blpapi_Constant_getValueAsString(constant):
     return retCode, getStrFromOutput(outp, retCode)
 
 
-# signature: blpapi_Name_t *blpapi_Constant_name(const blpapi_Constant_t *constant);
 def _blpapi_Constant_name(constant):
     return getHandleFromPtr(l_blpapi_Constant_name(constant))
 
 
-# signature: int blpapi_Constant_status(const blpapi_Constant_t *constant);
 def _blpapi_Constant_status(constant):
     return l_blpapi_Constant_status(constant)
 
 
-# signature:
 def _blpapi_DiagnosticsUtil_memoryInfo_wrapper():
-    outp = c_void_p()
+    outp = c_char_p()  # just to get the size
     sz = l_blpapi_DiagnosticsUtil_memoryInfo(outp, c_size_t(0))
     if sz < 0:
         return None
@@ -2278,35 +4686,30 @@ def _blpapi_DiagnosticsUtil_memoryInfo_wrapper():
     return getSizedStrFromBuffer(outp, sz) if sz >= 0 else None
 
 
-# signature: int blpapi_Element_appendElement(blpapi_Element_t *element, blpapi_Element_t **appendedElement);
 def _blpapi_Element_appendElement(element):
-    out = c_void_p()
+    out = blpapi_Element_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Element_appendElement(element, outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature:  int blpapi_Element_datatype(const blpapi_Element_t *element);
 def _blpapi_Element_datatype(element):
     return l_blpapi_Element_datatype(element)
 
 
-# signature:  blpapi_SchemaElementDefinition_t *blpapi_Element_definition(const blpapi_Element_t *element);
 def _blpapi_Element_definition(element):
     return getHandleFromPtr(l_blpapi_Element_definition(element))
 
 
-# signature: int blpapi_Element_getChoice(const blpapi_Element_t *element, blpapi_Element_t **result);
 def _blpapi_Element_getChoice(element):
-    out = c_void_p()
+    out = blpapi_Element_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Element_getChoice(element, outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Element_getElementAt(const blpapi_Element_t *element,blpapi_Element_t **result,size_t position);
 def _blpapi_Element_getElement(element, nameString, name):
-    out = c_void_p()
+    out = blpapi_Element_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Element_getElement(
         element, outp, charPtrFromPyStr(nameString), name
@@ -2314,15 +4717,13 @@ def _blpapi_Element_getElement(element, nameString, name):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Element_getElementAt(const blpapi_Element_t *element,blpapi_Element_t **result,size_t position);
 def _blpapi_Element_getElementAt(element, position):
-    out = c_void_p()
+    out = blpapi_Element_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Element_getElementAt(element, outp, position)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Element_getValueAsBool(const blpapi_Element_t *element, blpapi_Bool_t *buffer, size_t index);
 def _blpapi_Element_getValueAsBool(element, index):
     out = c_int()  # int as boolean
     outp = pointer(out)
@@ -2330,7 +4731,6 @@ def _blpapi_Element_getValueAsBool(element, index):
     return retCode, getPODFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Element_getValueAsBytes(const blpapi_Element_t *element,const char **buffer,size_t *length,size_t index);
 def _blpapi_Element_getValueAsBytes(element, index):
     out = c_char_p()
     outp = pointer(out)
@@ -2342,7 +4742,6 @@ def _blpapi_Element_getValueAsBytes(element, index):
     return retCode, getSizedBytesFromOutput(outp, szoutp, retCode)
 
 
-# signature: int blpapi_Element_getValueAsChar(const blpapi_Element_t *element, blpapi_Char_t *buffer, size_t index);
 def _blpapi_Element_getValueAsChar(element, index):
     out = c_char()
     outp = pointer(out)
@@ -2350,14 +4749,12 @@ def _blpapi_Element_getValueAsChar(element, index):
     return retCode, getStrFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Element_getValueAsDatetime(const blpapi_Element_t *element,blpapi_Datetime_t *buffer,size_t index);
 def _blpapi_Element_getValueAsDatetime(element, index):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_Element_getValueAsElement(const blpapi_Element_t *element,blpapi_Element_t **buffer,size_t index);
 def _blpapi_Element_getValueAsElement(element, index):
-    out = c_void_p()
+    out = blpapi_Element_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Element_getValueAsElement(
         element, outp, c_size_t(index)
@@ -2365,7 +4762,6 @@ def _blpapi_Element_getValueAsElement(element, index):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Element_getValueAsFloat64(const blpapi_Element_t *element,blpapi_Float64_t *buffer,size_t index);
 def _blpapi_Element_getValueAsFloat64(element, index):
     out = c_double()
     outp = pointer(out)
@@ -2375,7 +4771,6 @@ def _blpapi_Element_getValueAsFloat64(element, index):
     return retCode, getPODFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Element_getValueAsHighPrecisionDatetime(const blpapi_Element_t *element,blpapi_HighPrecisionDatetime_t *buffer,size_t index);
 def _blpapi_Element_getValueAsHighPrecisionDatetime(element, index):
     out = HighPrecisionDatetime()
     outp = pointer(out)
@@ -2385,7 +4780,6 @@ def _blpapi_Element_getValueAsHighPrecisionDatetime(element, index):
     return retCode, getStructFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Element_getValueAsInt32(const blpapi_Element_t *element, blpapi_Int32_t *buffer, size_t index);
 def _blpapi_Element_getValueAsInt32(element, index):
     out = c_int()
     outp = pointer(out)
@@ -2393,7 +4787,6 @@ def _blpapi_Element_getValueAsInt32(element, index):
     return retCode, getPODFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Element_getValueAsInt64(const blpapi_Element_t *element, blpapi_Int64_t *buffer, size_t index);
 def _blpapi_Element_getValueAsInt64(element, index):
     out = c_int64()
     outp = pointer(out)
@@ -2401,15 +4794,13 @@ def _blpapi_Element_getValueAsInt64(element, index):
     return retCode, getPODFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Element_getValueAsName(const blpapi_Element_t *element, blpapi_Name_t **buffer, size_t index);
 def _blpapi_Element_getValueAsName(element, index):
-    out = c_void_p()
+    out = blpapi_Name_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Element_getValueAsName(element, outp, c_size_t(index))
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Element_getValueAsString(const blpapi_Element_t *element, const char **buffer, size_t index);
 def _blpapi_Element_getValueAsString(element, index):
     out = c_char_p()
     outp = pointer(out)
@@ -2417,7 +4808,6 @@ def _blpapi_Element_getValueAsString(element, index):
     return retCode, getStrFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Element_hasElementEx(const blpapi_Element_t *element,const char *nameString,const blpapi_Name_t *name,int excludeNullElements,int reserved);
 def _blpapi_Element_hasElementEx(
     element, nameString, name, excludeNullElements, reserved
 ):
@@ -2430,59 +4820,48 @@ def _blpapi_Element_hasElementEx(
     )
 
 
-# signature:  int blpapi_Element_isArray(const blpapi_Element_t *element);
 def _blpapi_Element_isArray(element):
     return l_blpapi_Element_isArray(element)
 
 
-# signature:  int blpapi_Element_isComplexType(const blpapi_Element_t *element);
 def _blpapi_Element_isComplexType(element):
     return l_blpapi_Element_isComplexType(element)
 
 
-# signature:  int blpapi_Element_isNullValue(const blpapi_Element_t *element, size_t position);
 def _blpapi_Element_isNull(element):
     return l_blpapi_Element_isNull(element)
 
 
-# signature:  int blpapi_Element_isNullValue(const blpapi_Element_t *element, size_t position);
 def _blpapi_Element_isNullValue(element, position):
     return l_blpapi_Element_isNullValue(element, position)
 
 
-# signature:  int blpapi_Element_isReadOnly(const blpapi_Element_t *element);
 def _blpapi_Element_isReadOnly(element):
     return l_blpapi_Element_isReadOnly(element)
 
 
-# signature:  blpapi_Name_t *blpapi_Element_name(const blpapi_Element_t *element);
 def _blpapi_Element_name(element):
     return getHandleFromPtr(l_blpapi_Element_name(element))
 
 
-# signature:  const char *blpapi_Element_nameString(const blpapi_Element_t *element);
 def _blpapi_Element_nameString(element):
     raise NotImplementedError("not called")
 
 
-# signature:  size_t blpapi_Element_numElements(const blpapi_Element_t *element);
 def _blpapi_Element_numElements(element):
     return l_blpapi_Element_numElements(element)
 
 
-# signature:  size_t blpapi_Element_numValues(const blpapi_Element_t *element);
 def _blpapi_Element_numValues(element):
     return l_blpapi_Element_numValues(element)
 
 
-# signature:
 def _blpapi_Element_printHelper(element, level, spacesPerLevel):
     return any_printer(element, l_blpapi_Element_print, level, spacesPerLevel)
 
 
-# signature: int blpapi_Element_setChoice(blpapi_Element_t *element,blpapi_Element_t **resultElement,const char *nameCstr,const blpapi_Name_t *name,size_t index);
 def _blpapi_Element_setChoice(element, nameCstr, name, index):
-    out = c_void_p()
+    out = blpapi_Element_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Element_setChoice(
         element, outp, charPtrFromPyStr(nameCstr), name, c_size_t(index)
@@ -2490,14 +4869,12 @@ def _blpapi_Element_setChoice(element, nameCstr, name, index):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Element_setElementBool(blpapi_Element_t *element,const char *nameString,const blpapi_Name_t *name,blpapi_Bool_t value);
 def _blpapi_Element_setElementBool(element, nameString, name, value):
     return l_blpapi_Element_setElementBool(
         element, charPtrFromPyStr(nameString), name, c_int(value)
     )
 
 
-# signature: int blpapi_Element_setElementBytes(blpapi_Element_t *element,const char *nameString,const blpapi_Name_t *name,const char *value,size_t length);
 def _blpapi_Element_setElementBytes(element, nameString, name, value):
     valuePtr, sz = charPtrWithSizeFromPyStr(value)
     return l_blpapi_Element_setElementBytes(
@@ -2505,14 +4882,15 @@ def _blpapi_Element_setElementBytes(element, nameString, name, value):
     )
 
 
-# signature: int blpapi_Element_setElementFloat32(blpapi_Element_t *element,const char *nameString,const blpapi_Name_t *name,blpapi_Float32_t value);
 def _blpapi_Element_setElementFloat(element, nameString, name, value):
     # The C interface will not silently discard precision to store a 64-bit
     # float in a field whose schema type is 32-bit, however all Python floats
     # are 64-bit, so we explicitly allow narrowing to 32 bits if necessary.
 
     retCode, field = _blpapi_Element_getElement(element, nameString, name)
-    if retCode == 0 and (field is not None and field.value is not None):
+    if retCode == 0 and (
+        field is not None and getRawPtrFromHandle(field) is not None
+    ):
         # Able to get field, consider its datatype
         if l_blpapi_Element_datatype(field) == DATATYPE_FLOAT32:
             retCode = l_blpapi_Element_setElementFloat32(
@@ -2535,14 +4913,12 @@ def _blpapi_Element_setElementFloat(element, nameString, name, value):
     return retCode
 
 
-# signature: int blpapi_Element_setElementFromName(blpapi_Element_t *element,const char *elementName,const blpapi_Name_t *name,const blpapi_Name_t *buffer);
 def _blpapi_Element_setElementFromName(element, elementName, name, buffer):
     return l_blpapi_Element_setElementFromName(
         element, charPtrFromPyStr(elementName), name, buffer
     )
 
 
-# signature: int blpapi_Element_setElementHighPrecisionDatetime(blpapi_Element_t *element,const char *nameString,const blpapi_Name_t *name,const blpapi_HighPrecisionDatetime_t *value);
 def _blpapi_Element_setElementHighPrecisionDatetime(
     element, nameString, name, value
 ):
@@ -2551,35 +4927,30 @@ def _blpapi_Element_setElementHighPrecisionDatetime(
     )
 
 
-# signature: int blpapi_Element_setElementInt32(blpapi_Element_t *element,const char *nameString,const blpapi_Name_t *name,blpapi_Int32_t value);
 def _blpapi_Element_setElementInt32(element, nameString, name, value):
     return l_blpapi_Element_setElementInt32(
         element, charPtrFromPyStr(nameString), name, c_int(value)
     )
 
 
-# signature: int blpapi_Element_setElementInt64(blpapi_Element_t *element,const char *nameString,const blpapi_Name_t *name,blpapi_Int64_t value);
 def _blpapi_Element_setElementInt64(element, nameString, name, value):
     return l_blpapi_Element_setElementInt64(
         element, charPtrFromPyStr(nameString), name, c_int64(value)
     )
 
 
-# signature: int blpapi_Element_setElementString(blpapi_Element_t *element,const char *nameString,const blpapi_Name_t *name,const char *value);
 def _blpapi_Element_setElementString(element, nameString, name, value):
     return l_blpapi_Element_setElementString(
         element, charPtrFromPyStr(nameString), name, charPtrFromPyStr(value)
     )
 
 
-# signature: int blpapi_Element_setValueBool(blpapi_Element_t *element, blpapi_Bool_t value, size_t index);
 def _blpapi_Element_setValueBool(element, value, index):
     return l_blpapi_Element_setValueBool(
         element, c_int(value), c_size_t(index)
     )
 
 
-# signature: int blpapi_Element_setValueBytes(blpapi_Element_t *element,const char *value,size_t length,size_t index);
 def _blpapi_Element_setValueBytes(element, value, index):
     valuePtr, sz = charPtrWithSizeFromPyStr(value)
     return l_blpapi_Element_setValueBytes(
@@ -2587,7 +4958,6 @@ def _blpapi_Element_setValueBytes(element, value, index):
     )
 
 
-# signature: int blpapi_Element_setValueFloat32(blpapi_Element_t *element, blpapi_Float32_t value, size_t index);
 def _blpapi_Element_setValueFloat(element, value, index):
     # The C interface will not silently discard precision to store a 64-bit
     # float in a field whose schema type is 32-bit, however all Python floats
@@ -2605,50 +4975,42 @@ def _blpapi_Element_setValueFloat(element, value, index):
     return retCode
 
 
-# signature: int blpapi_Element_setValueFromName(blpapi_Element_t *element, const blpapi_Name_t *value, size_t index);
 def _blpapi_Element_setValueFromName(element, value, index):
     return l_blpapi_Element_setValueFromName(element, value, c_size_t(index))
 
 
-# signature: int blpapi_Element_setValueHighPrecisionDatetime(blpapi_Element_t *element,const blpapi_HighPrecisionDatetime_t *value,size_t index);
 def _blpapi_Element_setValueHighPrecisionDatetime(element, value, index):
     return l_blpapi_Element_setValueHighPrecisionDatetime(
         element, byref(value), c_size_t(index)
     )
 
 
-# signature: int blpapi_Element_setValueInt32(blpapi_Element_t *element, blpapi_Int32_t value, size_t index);
 def _blpapi_Element_setValueInt32(element, value, index):
     return l_blpapi_Element_setValueInt32(
         element, c_int(value), c_size_t(index)
     )
 
 
-# signature: int blpapi_Element_setValueInt64(blpapi_Element_t *element, blpapi_Int64_t value, size_t index);
 def _blpapi_Element_setValueInt64(element, value, index):
     return l_blpapi_Element_setValueInt64(
         element, c_int64(value), c_size_t(index)
     )
 
 
-# signature: int blpapi_Element_setValueString(blpapi_Element_t *element, const char *value, size_t index);
 def _blpapi_Element_setValueString(element, value, index):
     return l_blpapi_Element_setValueString(
         element, charPtrFromPyStr(value), c_size_t(index)
     )
 
 
-# signature: int blpapi_Element_toJson(const blpapi_Element_t *element, blpapi_StreamWriter_t streamWriter, void *stream);
 def _blpapi_Element_toJson(element, streamWriter, stream):
     return l_blpapi_Element_toJson(element, streamWriter, stream)
 
 
-# signature: int blpapi_Element_fromJson(const blpapi_Element_t *element, char const *json);
 def _blpapi_Element_fromJson(element, json):
     return l_blpapi_Element_fromJson(element, charPtrFromPyStr(json))
 
 
-# signature:
 def _blpapi_Element_toJsonHelper(element):
     """Convert element to JSON string"""
     out = StringIO()
@@ -2661,39 +5023,32 @@ def _blpapi_Element_toJsonHelper(element):
     return retCode, out.read()
 
 
-# signature:
 def _blpapi_Element_toPy(element):
     return libffastcalls.blpapi_Element_toPy(element)
 
 
-# signature: blpapi_EventDispatcher_t *blpapi_EventDispatcher_create(size_t numDispatcherThreads);
 def _blpapi_EventDispatcher_create(numDispatcherThreads):
     return getHandleFromPtr(
         l_blpapi_EventDispatcher_create(c_size_t(numDispatcherThreads))
     )
 
 
-# signature: void blpapi_EventDispatcher_destroy(blpapi_EventDispatcher_t *handle);
 def _blpapi_EventDispatcher_destroy(handle):
     l_blpapi_EventDispatcher_destroy(handle)
 
 
-# signature: int blpapi_EventDispatcher_start(blpapi_EventDispatcher_t *handle);
 def _blpapi_EventDispatcher_start(handle):
     return l_blpapi_EventDispatcher_start(handle)
 
 
-# signature: int blpapi_EventDispatcher_stop(blpapi_EventDispatcher_t *handle, int async);
 def _blpapi_EventDispatcher_stop(handle, asynch):
     return l_blpapi_EventDispatcher_stop(handle, c_int(asynch))
 
 
-# signature: int blpapi_EventFormatter_appendElement(blpapi_EventFormatter_t *formatter);
 def _blpapi_EventFormatter_appendElement(formatter):
     return l_blpapi_EventFormatter_appendElement(formatter)
 
 
-# signature: int blpapi_EventFormatter_appendFragmentedRecapMessage(blpapi_EventFormatter_t *formatter,const char *typeString,blpapi_Name_t *typeName,const blpapi_Topic_t *topic,const blpapi_CorrelationId_t *cid,int fragmentType);
 def _blpapi_EventFormatter_appendFragmentedRecapMessage(
     formatter, typeString, typeName, topic, cid, fragmentType
 ):
@@ -2707,7 +5062,6 @@ def _blpapi_EventFormatter_appendFragmentedRecapMessage(
     )
 
 
-# signature: int blpapi_EventFormatter_appendFragmentedRecapMessageSeq(blpapi_EventFormatter_t *formatter,const char *typeString,blpapi_Name_t *typeName,const blpapi_Topic_t *topic,int fragmentType,unsigned int sequenceNumber);
 def _blpapi_EventFormatter_appendFragmentedRecapMessageSeq(
     formatter, typeString, typeName, topic, fragmentType, sequenceNumber
 ):
@@ -2721,7 +5075,6 @@ def _blpapi_EventFormatter_appendFragmentedRecapMessageSeq(
     )
 
 
-# signature: int blpapi_EventFormatter_appendMessage(blpapi_EventFormatter_t *formatter,const char *typeString,blpapi_Name_t *typeName,const blpapi_Topic_t *topic);
 def _blpapi_EventFormatter_appendMessage(
     formatter, typeString, typeName, topic
 ):
@@ -2730,7 +5083,6 @@ def _blpapi_EventFormatter_appendMessage(
     )
 
 
-# signature: int blpapi_EventFormatter_appendMessageSeq(blpapi_EventFormatter_t *formatter,const char *typeString,blpapi_Name_t *typeName,const blpapi_Topic_t *topic,unsigned int sequenceNumber,unsigned int);
 def _blpapi_EventFormatter_appendMessageSeq(
     formatter, typeString, typeName, topic, sequenceNumber, aUIntArg
 ):
@@ -2744,7 +5096,6 @@ def _blpapi_EventFormatter_appendMessageSeq(
     )
 
 
-# signature: int blpapi_EventFormatter_appendRecapMessage(blpapi_EventFormatter_t *formatter,const blpapi_Topic_t *topic,const blpapi_CorrelationId_t *cid);
 def _blpapi_EventFormatter_appendRecapMessage(formatter, topic, cid):
     return l_blpapi_EventFormatter_appendRecapMessage(
         formatter,
@@ -2753,7 +5104,6 @@ def _blpapi_EventFormatter_appendRecapMessage(formatter, topic, cid):
     )
 
 
-# signature: int blpapi_EventFormatter_appendRecapMessageSeq(blpapi_EventFormatter_t *formatter,const blpapi_Topic_t *topic,const blpapi_CorrelationId_t *cid,unsigned int sequenceNumber,unsigned int);
 def _blpapi_EventFormatter_appendRecapMessageSeq(
     formatter, topic, cid, sequenceNumber, aUIntArg
 ):
@@ -2766,26 +5116,22 @@ def _blpapi_EventFormatter_appendRecapMessageSeq(
     )
 
 
-# signature: int blpapi_EventFormatter_appendResponse(blpapi_EventFormatter_t *formatter,const char *typeString,blpapi_Name_t *typeName);
 def _blpapi_EventFormatter_appendResponse(formatter, typeString, typeName):
     return l_blpapi_EventFormatter_appendResponse(
         formatter, charPtrFromPyStr(typeString), typeName
     )
 
 
-# signature: int blpapi_EventFormatter_appendValueBool(blpapi_EventFormatter_t *formatter, blpapi_Bool_t value);
 def _blpapi_EventFormatter_appendValueBool(formatter, value):
     return l_blpapi_EventFormatter_appendValueBool(
         formatter, c_int(value)
     )  # int as boolean
 
 
-# signature: int blpapi_EventFormatter_appendValueChar(blpapi_EventFormatter_t *formatter, char value);
 def _blpapi_EventFormatter_appendValueChar(formatter, value):
     return l_blpapi_EventFormatter_appendValueChar(formatter, c_char(value))
 
 
-# signature: int blpapi_EventFormatter_appendValueFloat32(blpapi_EventFormatter_t *formatter, blpapi_Float32_t value);
 def _blpapi_EventFormatter_appendValueFloat(formatter, value):
     # The C interface will not silently discard precision to store a 64-bit
     # float in a field whose schema type is 32-bit, however all Python floats
@@ -2801,58 +5147,48 @@ def _blpapi_EventFormatter_appendValueFloat(formatter, value):
     return retCode
 
 
-# signature: int blpapi_EventFormatter_appendValueFromName(blpapi_EventFormatter_t *formatter, const blpapi_Name_t *value);
 def _blpapi_EventFormatter_appendValueFromName(formatter, value):
     return l_blpapi_EventFormatter_appendValueFromName(formatter, value)
 
 
-# signature: int blpapi_EventFormatter_appendValueHighPrecisionDatetime(blpapi_EventFormatter_t *formatter,const blpapi_HighPrecisionDatetime_t *value);
 def _blpapi_EventFormatter_appendValueHighPrecisionDatetime(formatter, value):
     return l_blpapi_EventFormatter_appendValueHighPrecisionDatetime(
         formatter, byref(value)
     )
 
 
-# signature: int blpapi_EventFormatter_appendValueInt32(blpapi_EventFormatter_t *formatter, blpapi_Int32_t value);
 def _blpapi_EventFormatter_appendValueInt32(formatter, value):
     return l_blpapi_EventFormatter_appendValueInt32(formatter, c_int(value))
 
 
-# signature: int blpapi_EventFormatter_appendValueInt64(blpapi_EventFormatter_t *formatter, blpapi_Int64_t value);
 def _blpapi_EventFormatter_appendValueInt64(formatter, value):
     return l_blpapi_EventFormatter_appendValueInt64(formatter, c_int64(value))
 
 
-# signature: int blpapi_EventFormatter_appendValueString(blpapi_EventFormatter_t *formatter, const char *value);
 def _blpapi_EventFormatter_appendValueString(formatter, value):
     return l_blpapi_EventFormatter_appendValueString(
         formatter, charPtrFromPyStr(value)
     )
 
 
-# signature: blpapi_EventFormatter_t *blpapi_EventFormatter_create(blpapi_Event_t *event);
 def _blpapi_EventFormatter_create(event):
     return getHandleFromPtr(l_blpapi_EventFormatter_create(event))
 
 
-# signature: void blpapi_EventFormatter_destroy(blpapi_EventFormatter_t *victim);
 def _blpapi_EventFormatter_destroy(victim):
     l_blpapi_EventFormatter_destroy(victim)
 
 
-# signature: int blpapi_EventFormatter_popElement(blpapi_EventFormatter_t *formatter);
 def _blpapi_EventFormatter_popElement(formatter):
     return l_blpapi_EventFormatter_popElement(formatter)
 
 
-# signature: int blpapi_EventFormatter_pushElement(blpapi_EventFormatter_t *formatter,const char *typeString,const blpapi_Name_t *typeName);
 def _blpapi_EventFormatter_pushElement(formatter, typeString, typeName):
     return l_blpapi_EventFormatter_pushElement(
         formatter, charPtrFromPyStr(typeString), typeName
     )
 
 
-# signature: int blpapi_EventFormatter_setValueBool(blpapi_EventFormatter_t *formatter,const char *typeString,const blpapi_Name_t *typeName,blpapi_Bool_t value);
 def _blpapi_EventFormatter_setValueBool(
     formatter, typeString, typeName, value
 ):
@@ -2861,7 +5197,6 @@ def _blpapi_EventFormatter_setValueBool(
     )  # int as boolean
 
 
-# signature: int blpapi_EventFormatter_setValueBytes(blpapi_EventFormatter_t *formatter,const char *typeString,const blpapi_Name_t *typeName,const char *value,size_t length);
 def _blpapi_EventFormatter_setValueBytes(
     formatter, typeString, typeName, value
 ):
@@ -2875,7 +5210,6 @@ def _blpapi_EventFormatter_setValueBytes(
     )
 
 
-# signature: int blpapi_EventFormatter_setValueChar(blpapi_EventFormatter_t *formatter,const char *typeString,const blpapi_Name_t *typeName,char value);
 def _blpapi_EventFormatter_setValueChar(
     formatter, typeString, typeName, value
 ):
@@ -2887,7 +5221,6 @@ def _blpapi_EventFormatter_setValueChar(
     )
 
 
-# signature: int blpapi_EventFormatter_setValueFloat32(blpapi_EventFormatter_t *formatter,const char *typeString,const blpapi_Name_t *typeName,blpapi_Float32_t value);
 def _blpapi_EventFormatter_setValueFloat(
     formatter, typeString, typeName, value
 ):
@@ -2905,7 +5238,6 @@ def _blpapi_EventFormatter_setValueFloat(
     return retCode
 
 
-# signature: int blpapi_EventFormatter_setValueFromName(blpapi_EventFormatter_t *formatter,const char *typeString,const blpapi_Name_t *typeName,const blpapi_Name_t *value);
 def _blpapi_EventFormatter_setValueFromName(
     formatter, typeString, typeName, value
 ):
@@ -2914,7 +5246,6 @@ def _blpapi_EventFormatter_setValueFromName(
     )
 
 
-# signature: int blpapi_EventFormatter_setValueHighPrecisionDatetime(blpapi_EventFormatter_t *formatter,const char *typeString,const blpapi_Name_t *typeName,const blpapi_HighPrecisionDatetime_t *value);
 def _blpapi_EventFormatter_setValueHighPrecisionDatetime(
     formatter, typeString, typeName, value
 ):
@@ -2923,7 +5254,6 @@ def _blpapi_EventFormatter_setValueHighPrecisionDatetime(
     )
 
 
-# signature: int blpapi_EventFormatter_setValueInt32(blpapi_EventFormatter_t *formatter,const char *typeString,const blpapi_Name_t *typeName,blpapi_Int32_t value);
 def _blpapi_EventFormatter_setValueInt32(
     formatter, typeString, typeName, value
 ):
@@ -2932,7 +5262,6 @@ def _blpapi_EventFormatter_setValueInt32(
     )
 
 
-# signature: int blpapi_EventFormatter_setValueInt64(blpapi_EventFormatter_t *formatter,const char *typeString,const blpapi_Name_t *typeName,blpapi_Int64_t value);
 def _blpapi_EventFormatter_setValueInt64(
     formatter, typeString, typeName, value
 ):
@@ -2941,7 +5270,6 @@ def _blpapi_EventFormatter_setValueInt64(
     )
 
 
-# signature: int blpapi_EventFormatter_setValueNull(blpapi_EventFormatter_t *formatter,const char *typeString,const blpapi_Name_t *typeName);
 def _blpapi_EventFormatter_setValueNull(formatter, typeString, typeName):
     return l_blpapi_EventFormatter_setValueNull(
         formatter,
@@ -2950,7 +5278,6 @@ def _blpapi_EventFormatter_setValueNull(formatter, typeString, typeName):
     )
 
 
-# signature: int blpapi_EventFormatter_setValueString(blpapi_EventFormatter_t *formatter,const char *typeString,const blpapi_Name_t *typeName,const char *value);
 def _blpapi_EventFormatter_setValueString(
     formatter, typeString, typeName, value
 ):
@@ -2962,58 +5289,48 @@ def _blpapi_EventFormatter_setValueString(
     )
 
 
-# signature: int blpapi_EventFormatter_getElement(blpapi_EventFormatter_t *formatter, blpapi_Element_t **element);
 def _blpapi_EventFormatter_getElement(formatter):
-    out = c_void_p()
+    out = blpapi_Element_t_p()
     outp = pointer(out)
     retCode = l_blpapi_EventFormatter_getElement(formatter, outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: blpapi_EventQueue_t *blpapi_EventQueue_create(void);
 def _blpapi_EventQueue_create():
     return getHandleFromPtr(l_blpapi_EventQueue_create())
 
 
-# signature: int blpapi_EventQueue_destroy(blpapi_EventQueue_t *eventQueue);
 def _blpapi_EventQueue_destroy(eventQueue):
     return l_blpapi_EventQueue_destroy(eventQueue)
 
 
-# signature: blpapi_Event_t *blpapi_EventQueue_nextEvent(blpapi_EventQueue_t *eventQueue, int timeout);
 def _blpapi_EventQueue_nextEvent(eventQueue, timeout):
     return getHandleFromPtr(l_blpapi_EventQueue_nextEvent(eventQueue, timeout))
 
 
-# signature: int blpapi_EventQueue_purge(blpapi_EventQueue_t *eventQueue);
 def _blpapi_EventQueue_purge(eventQueue):
     return l_blpapi_EventQueue_purge(eventQueue)
 
 
-# signature: int blpapi_EventQueue_tryNextEvent(blpapi_EventQueue_t *eventQueue, blpapi_Event_t **eventPointer);
 def _blpapi_EventQueue_tryNextEvent(eventQueue):
-    out = c_void_p()
+    out = blpapi_Event_t_p()
     outp = pointer(out)
     retCode = l_blpapi_EventQueue_tryNextEvent(eventQueue, outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Event_eventType(const blpapi_Event_t *event);
 def _blpapi_Event_eventType(event):
     return l_blpapi_Event_eventType(event)
 
 
-# signature: int blpapi_Event_release(const blpapi_Event_t *event);
 def _blpapi_Event_release(event):
     return l_blpapi_Event_release(event)
 
 
-# signature: int blpapi_HighPrecisionDatetime_compare(const blpapi_HighPrecisionDatetime_t *lhs,const blpapi_HighPrecisionDatetime_t *rhs);
 def _blpapi_HighPrecisionDatetime_compare(lhs, rhs):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_HighPrecisionDatetime_fromTimePoint(blpapi_HighPrecisionDatetime_t *datetime,const blpapi_TimePoint_t *timePoint,short offset);
 def _blpapi_HighPrecisionDatetime_fromTimePoint(timepoint, offset):
     out = HighPrecisionDatetime()
     outp = pointer(out)
@@ -3023,20 +5340,17 @@ def _blpapi_HighPrecisionDatetime_fromTimePoint(timepoint, offset):
     return retCode, getStructFromOutput(outp, retCode)
 
 
-# signature:
 def _blpapi_HighPrecisionDatetime_fromTimePoint_wrapper(timepoint):
     _, result = _blpapi_HighPrecisionDatetime_fromTimePoint(timepoint, 0)
     return result
 
 
-# signature: int blpapi_HighPrecisionDatetime_print(const blpapi_HighPrecisionDatetime_t *datetime,blpapi_StreamWriter_t streamWriter,void *stream,int level,int spacesPerLevel);
 def _blpapi_HighPrecisionDatetime_print(
     datetime, streamWriter, stream, level, spacesPerLevel
 ):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_HighResolutionClock_now(blpapi_TimePoint_t *timePoint);
 def _blpapi_HighResolutionClock_now():
     out = TimePoint()
     outp = pointer(out)
@@ -3044,12 +5358,10 @@ def _blpapi_HighResolutionClock_now():
     return retCode, getStructFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Identity_addRef(blpapi_Identity_t *handle);
 def _blpapi_Identity_addRef(handle):
     raise NotImplementedError("not called")  # only needed on copy
 
 
-# signature: int blpapi_Identity_getSeatType(const blpapi_Identity_t *handle, int *seatType);
 def _blpapi_Identity_getSeatType(handle):
     out = c_int()
     outp = pointer(out)
@@ -3057,7 +5369,6 @@ def _blpapi_Identity_getSeatType(handle):
     return retCode, getPODFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Identity_hasEntitlements(const blpapi_Identity_t *handle,const blpapi_Service_t *service,const blpapi_Element_t *eidElement,const int *entitlementIds,size_t numEntitlements,int *failedEntitlements,int *failedEntitlementsCount);
 def _blpapi_Identity_hasEntitlements(
     handle,
     service,
@@ -3071,104 +5382,88 @@ def _blpapi_Identity_hasEntitlements(
         handle,
         service,
         eidElement,
-        c_void_p() if entitlementIds is None else byref(entitlementIds),
+        (
+            POINTER[c_int]()
+            if entitlementIds is None
+            else cast(entitlementIds, POINTER[c_int])
+        ),
         c_size_t(numEntitlements),
         (
-            c_void_p()
+            POINTER[c_int]()
             if failedEntitlements is None
-            else pointer(failedEntitlements)
+            else cast(failedEntitlements, POINTER[c_int])
         ),
         (
-            c_void_p()
+            POINTER[c_int]()
             if failedEntitlementsCount is None
             else pointer(failedEntitlementsCount)
         ),
     )
 
 
-# signature: int blpapi_Identity_isAuthorized(const blpapi_Identity_t *handle, const blpapi_Service_t *service);
 def _blpapi_Identity_isAuthorized(handle, service):
     return l_blpapi_Identity_isAuthorized(handle, service)
 
 
-# signature: void blpapi_Identity_release(blpapi_Identity_t *handle);
 def _blpapi_Identity_release(handle):
     l_blpapi_Identity_release(handle)
 
 
-# signature: void blpapi_Logging_logTestMessage(blpapi_Logging_Severity_t severity);
 def _blpapi_Logging_logTestMessage(severity):
     l_blpapi_Logging_logTestMessage(severity)
 
 
-# signature: void blpapi_Logging_userMessage(blpapi_Logging_Severity_t severity, const char *message);
 def _blpapi_Logging_userMessage(severity, message):
     l_blpapi_Logging_userMessage(severity, message)
 
 
 class LoggingCallbackWrapper:
-    # typedef void (*blpapi_Logging_Func_t)(
-    #        blpapi_UInt64_t threadId,
-    #        int severity,
-    #        blpapi_Datetime_t timestamp,
-    #        const char *category,
-    #        const char *message);
-    _cftype = CFUNCTYPE(None, c_uint64, c_int, BDatetime, c_char_p, c_char_p)
-
     @staticmethod
     def get(cb: Optional[Callable]) -> Callable:
         return (
-            LoggingCallbackWrapper._cftype(cb)
+            blpapi_Logging_Func_t(cb)
             if cb is not None
-            else c_void_p(0)
+            else blpapi_Logging_Func_t(0)
         )
 
 
-# signature: blpapi_Logging_registerCallback(logging_cb, int);
 def _blpapi_Logging_registerCallback(callback, thresholdSeverity):
-    proxy = LoggingCallbackWrapper.get(callback)
+    proxy = cast(LoggingCallbackWrapper.get(callback), blpapi_Logging_Func_t)
     return l_blpapi_Logging_registerCallback(proxy, thresholdSeverity), proxy
 
 
-# signature: int blpapi_MessageFormatter_FormatMessageJson(blpapi_MessageFormatter_t *formatter, const char *message);
 def _blpapi_MessageFormatter_FormatMessageJson(formatter, message):
     return l_blpapi_MessageFormatter_FormatMessageJson(
         formatter, charPtrFromPyStr(message)
     )
 
 
-# signature: int blpapi_MessageFormatter_FormatMessageXml(blpapi_MessageFormatter_t *formatter, const char *message);
 def _blpapi_MessageFormatter_FormatMessageXml(formatter, message):
     return l_blpapi_MessageFormatter_FormatMessageXml(
         formatter, charPtrFromPyStr(message)
     )
 
 
-# signature: int blpapi_MessageFormatter_appendElement(blpapi_MessageFormatter_t *formatter);
 def _blpapi_MessageFormatter_appendElement(formatter):
     return l_blpapi_MessageFormatter_appendElement(formatter)
 
 
-# signature: int blpapi_MessageFormatter_appendValueBool(blpapi_MessageFormatter_t *formatter, blpapi_Bool_t value);
 def _blpapi_MessageFormatter_appendValueBool(formatter, value):
     return l_blpapi_MessageFormatter_appendValueBool(
         formatter, c_int(value)
     )  # int as boolean
 
 
-# signature: int blpapi_MessageFormatter_appendValueChar(blpapi_MessageFormatter_t *formatter, char value);
 def _blpapi_MessageFormatter_appendValueChar(formatter, value):
     return l_blpapi_MessageFormatter_appendValueChar(formatter, c_char(value))
 
 
-# signature: int blpapi_MessageFormatter_appendValueDatetime(blpapi_MessageFormatter_t *formatter, const blpapi_Datetime_t *value);
 def _blpapi_MessageFormatter_appendValueDatetime(formatter, value):
     return l_blpapi_MessageFormatter_appendValueDatetime(
         formatter, byref(value)
     )
 
 
-# signature: int blpapi_MessageFormatter_appendValueFloat32(blpapi_MessageFormatter_t *formatter, blpapi_Float32_t value);
 def _blpapi_MessageFormatter_appendValueFloat(formatter, value):
     # The C interface will not silently discard precision to store a 64-bit
     # float in a field whose schema type is 32-bit, however all Python floats
@@ -3184,26 +5479,22 @@ def _blpapi_MessageFormatter_appendValueFloat(formatter, value):
     return retCode
 
 
-# signature: int blpapi_MessageFormatter_appendValueFloat32(blpapi_MessageFormatter_t *formatter, blpapi_Float32_t value);
 def _blpapi_MessageFormatter_appendValueFloat32(formatter, value):
     return l_blpapi_MessageFormatter_appendValueFloat32(
         formatter, c_float(value)
     )
 
 
-# signature: int blpapi_MessageFormatter_appendValueFloat64(blpapi_MessageFormatter_t *formatter, blpapi_Float64_t value);
 def _blpapi_MessageFormatter_appendValueFloat64(formatter, value):
     return l_blpapi_MessageFormatter_appendValueFloat64(
         formatter, c_double(value)
     )
 
 
-# signature: int blpapi_MessageFormatter_appendValueFromName(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *value);
 def _blpapi_MessageFormatter_appendValueFromName(formatter, value):
     return l_blpapi_MessageFormatter_appendValueFromName(formatter, value)
 
 
-# signature: int blpapi_MessageFormatter_appendValueHighPrecisionDatetime(blpapi_MessageFormatter_t *formatter,const blpapi_HighPrecisionDatetime_t *value);
 def _blpapi_MessageFormatter_appendValueHighPrecisionDatetime(
     formatter, value
 ):
@@ -3212,58 +5503,48 @@ def _blpapi_MessageFormatter_appendValueHighPrecisionDatetime(
     )
 
 
-# signature: int blpapi_MessageFormatter_appendValueInt32(blpapi_MessageFormatter_t *formatter, blpapi_Int32_t value);
 def _blpapi_MessageFormatter_appendValueInt32(formatter, value):
     return l_blpapi_MessageFormatter_appendValueInt32(formatter, value)
 
 
-# signature: int blpapi_MessageFormatter_appendValueInt64(blpapi_MessageFormatter_t *formatter, blpapi_Int64_t value);
 def _blpapi_MessageFormatter_appendValueInt64(formatter, value):
     return l_blpapi_MessageFormatter_appendValueInt64(
         formatter, c_int64(value)
     )
 
 
-# signature: int blpapi_MessageFormatter_appendValueString(blpapi_MessageFormatter_t *formatter, const char *value);
 def _blpapi_MessageFormatter_appendValueString(formatter, value):
     return l_blpapi_MessageFormatter_appendValueString(
         formatter, charPtrFromPyStr(value)
     )
 
 
-# signature: int blpapi_MessageFormatter_assign(blpapi_MessageFormatter_t **lhs, const blpapi_MessageFormatter_t *rhs);
 def _blpapi_MessageFormatter_assign(rhs):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_MessageFormatter_copy(blpapi_MessageFormatter_t **formatter,const blpapi_MessageFormatter_t *original);
 def _blpapi_MessageFormatter_copy(original):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_MessageFormatter_destroy(blpapi_MessageFormatter_t *formatter);
 def _blpapi_MessageFormatter_destroy(formatter):
     return l_blpapi_MessageFormatter_destroy(formatter)
 
 
-# signature: int blpapi_MessageFormatter_popElement(blpapi_MessageFormatter_t *formatter);
 def _blpapi_MessageFormatter_popElement(formatter):
     return l_blpapi_MessageFormatter_popElement(formatter)
 
 
-# signature: int blpapi_MessageFormatter_pushElement(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName);
 def _blpapi_MessageFormatter_pushElement(formatter, typeName):
     return l_blpapi_MessageFormatter_pushElement(formatter, typeName)
 
 
-# signature: int blpapi_MessageFormatter_setValueBool(blpapi_MessageFormatter_t *formatter,const blpapi_Name_t *typeName,blpapi_Bool_t value);
 def _blpapi_MessageFormatter_setValueBool(formatter, typeName, value):
     return l_blpapi_MessageFormatter_setValueBool(
         formatter, typeName, c_int(value)
     )  # int as boolean
 
 
-# signature: int blpapi_MessageFormatter_setValueBytes(blpapi_MessageFormatter_t *formatter,const blpapi_Name_t *typeName,const char *value,size_t length);
 def _blpapi_MessageFormatter_setValueBytes(formatter, typeName, value):
     valuePtr, sz = charPtrWithSizeFromPyStr(value)
     return l_blpapi_MessageFormatter_setValueBytes(
@@ -3271,21 +5552,18 @@ def _blpapi_MessageFormatter_setValueBytes(formatter, typeName, value):
     )
 
 
-# signature: int blpapi_MessageFormatter_setValueChar(blpapi_MessageFormatter_t *formatter,const blpapi_Name_t *typeName,char value);
 def _blpapi_MessageFormatter_setValueChar(formatter, typeName, value):
     return l_blpapi_MessageFormatter_setValueChar(
         formatter, typeName, c_char(value)
     )
 
 
-# signature: int blpapi_MessageFormatter_setValueDatetime(blpapi_MessageFormatter_t *formatter,const blpapi_Name_t *typeName,const blpapi_Datetime_t *value);
 def _blpapi_MessageFormatter_setValueDatetime(formatter, typeName, value):
     return l_blpapi_MessageFormatter_setValueDatetime(
         formatter, typeName, byref(value)
     )
 
 
-# signature: int blpapi_MessageFormatter_setValueFloat32(blpapi_MessageFormatter_t *formatter,const blpapi_Name_t *typeName,blpapi_Float32_t value);
 def _blpapi_MessageFormatter_setValueFloat(formatter, typeName, value):
     # The C interface will not silently discard precision to store a 64-bit
     # float in a field whose schema type is 32-bit, however all Python floats
@@ -3301,28 +5579,24 @@ def _blpapi_MessageFormatter_setValueFloat(formatter, typeName, value):
     return retCode
 
 
-# signature: int blpapi_MessageFormatter_setValueFloat32(blpapi_MessageFormatter_t *formatter,const blpapi_Name_t *typeName,blpapi_Float32_t value);
 def _blpapi_MessageFormatter_setValueFloat32(formatter, typeName, value):
     return l_blpapi_MessageFormatter_appendValueFloat32(
         formatter, typeName, c_float(value)
     )
 
 
-# signature: int blpapi_MessageFormatter_setValueFloat64(blpapi_MessageFormatter_t *formatter,const blpapi_Name_t *typeName,blpapi_Float64_t value);
 def _blpapi_MessageFormatter_setValueFloat64(formatter, typeName, value):
     return l_blpapi_MessageFormatter_appendValueFloat64(
         formatter, typeName, c_double(value)
     )
 
 
-# signature: int blpapi_MessageFormatter_setValueFromName(blpapi_MessageFormatter_t *formatter,const blpapi_Name_t *typeName,const blpapi_Name_t *value);
 def _blpapi_MessageFormatter_setValueFromName(formatter, typeName, value):
     return l_blpapi_MessageFormatter_setValueFromName(
         formatter, typeName, value
     )
 
 
-# signature: int blpapi_MessageFormatter_setValueHighPrecisionDatetime(blpapi_MessageFormatter_t *formatter,const blpapi_Name_t *typeName,const blpapi_HighPrecisionDatetime_t *value);
 def _blpapi_MessageFormatter_setValueHighPrecisionDatetime(
     formatter, typeName, value
 ):
@@ -3331,80 +5605,67 @@ def _blpapi_MessageFormatter_setValueHighPrecisionDatetime(
     )
 
 
-# signature: int blpapi_MessageFormatter_setValueInt32(blpapi_MessageFormatter_t *formatter,const blpapi_Name_t *typeName,blpapi_Int32_t value);
 def _blpapi_MessageFormatter_setValueInt32(formatter, typeName, value):
     return l_blpapi_MessageFormatter_setValueInt32(formatter, typeName, value)
 
 
-# signature: int blpapi_MessageFormatter_setValueInt64(blpapi_MessageFormatter_t *formatter,const blpapi_Name_t *typeName,blpapi_Int64_t value);
 def _blpapi_MessageFormatter_setValueInt64(formatter, typeName, value):
     return l_blpapi_MessageFormatter_setValueInt64(
         formatter, typeName, c_int64(value)
     )
 
 
-# signature: int blpapi_MessageFormatter_setValueNull(blpapi_MessageFormatter_t *formatter, const blpapi_Name_t *typeName);
 def _blpapi_MessageFormatter_setValueNull(formatter, typeName):
     return l_blpapi_MessageFormatter_setValueNull(formatter, typeName)
 
 
-# signature: int blpapi_MessageFormatter_setValueString(blpapi_MessageFormatter_t *formatter,const blpapi_Name_t *typeName,const char *value);
 def _blpapi_MessageFormatter_setValueString(formatter, typeName, value):
     return l_blpapi_MessageFormatter_setValueString(
         formatter, typeName, charPtrFromPyStr(value)
     )
 
 
-# signature: int blpapi_MessageFormatter_getElement(blpapi_MessageFormatter_t *formatter, blpapi_Element_t **element);
 def _blpapi_MessageFormatter_getElement(formatter):
-    out = c_void_p()
+    out = blpapi_Element_t_p()
     outp = pointer(out)
     retCode = l_blpapi_MessageFormatter_getElement(formatter, outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: blpapi_MessageIterator_t *blpapi_MessageIterator_create(const blpapi_Event_t *event);
 def _blpapi_MessageIterator_create(event):
     return getHandleFromPtr(l_blpapi_MessageIterator_create(event))
 
 
-# signature: void blpapi_MessageIterator_destroy(blpapi_MessageIterator_t *iterator);
 def _blpapi_MessageIterator_destroy(iterator):
     l_blpapi_MessageIterator_destroy(iterator)
 
 
-# signature: int blpapi_MessageIterator_next(blpapi_MessageIterator_t *iterator, blpapi_Message_t **result);
 def _blpapi_MessageIterator_next(iterator):
-    message_pp = c_void_p()
+    message_pp = blpapi_Message_t_p()
     outp = pointer(message_pp)
     retCode = l_blpapi_MessageIterator_next(iterator, outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_MessageProperties_assign(blpapi_MessageProperties_t *lhs,const blpapi_MessageProperties_t *rhs);
 def _blpapi_MessageProperties_assign(lhs, rhs):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_MessageProperties_copy(blpapi_MessageProperties_t **dest,const blpapi_MessageProperties_t *src);
 def _blpapi_MessageProperties_copy(src):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_MessageProperties_create(blpapi_MessageProperties_t **messageProperties);
 def _blpapi_MessageProperties_create():
-    out = c_void_p()
+    out = blpapi_MessageProperties_t_p()
     outp = pointer(out)
-    retCode = l_blpapi_MessageProperties_create(outp)  # int
+    retCode = l_blpapi_MessageProperties_create(outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: void blpapi_MessageProperties_destroy(blpapi_MessageProperties_t *messageProperties);
 def _blpapi_MessageProperties_destroy(messageProperties):
     l_blpapi_MessageProperties_destroy(messageProperties)
 
 
-# signature: int blpapi_MessageProperties_setCorrelationIds(blpapi_MessageProperties_t *messageProperties,const blpapi_CorrelationId_t *correlationIds,size_t numCorrelationIds);
 def _blpapi_MessageProperties_setCorrelationIds(
     messageProperties, correlationIds
 ):
@@ -3412,49 +5673,43 @@ def _blpapi_MessageProperties_setCorrelationIds(
     if szcids > 1:
         arraytype = CidStruct * szcids
         ptrs = arraytype(*[c.thestruct for c in correlationIds])
-        oneptr = byref(ptrs)
+        oneptr = cast(ptrs, CidStruct_p)
     elif szcids == 1:
         oneptr = byref(correlationIds[0].thestruct)
     else:
-        oneptr = c_void_p()  # pass null, the C SDK will check and reject
+        oneptr = CidStruct_p()  # pass null, the C SDK will check and reject
 
     return l_blpapi_MessageProperties_setCorrelationIds(
         messageProperties, oneptr, c_size_t(szcids)
     )
 
 
-# signature: int blpapi_MessageProperties_setRecapType(blpapi_MessageProperties_t *messageProperties,int recap,int fragment);
 def _blpapi_MessageProperties_setRecapType(messageProperties, recap, fragment):
     return l_blpapi_MessageProperties_setRecapType(
         messageProperties, recap, fragment
     )
 
 
-# signature: int blpapi_MessageProperties_setRequestId(blpapi_MessageProperties_t *messageProperties, const char *requestId);
 def _blpapi_MessageProperties_setRequestId(messageProperties, requestId):
     return l_blpapi_MessageProperties_setRequestId(
         messageProperties, charPtrFromPyStr(requestId)
     )
 
 
-# signature: int blpapi_MessageProperties_setService(blpapi_MessageProperties_t *messageProperties,const blpapi_Service_t *service);
 def _blpapi_MessageProperties_setService(messageProperties, service):
     return l_blpapi_MessageProperties_setService(messageProperties, service)
 
 
-# signature: int blpapi_MessageProperties_setTimeReceived(blpapi_MessageProperties_t *messageProperties,const blpapi_HighPrecisionDatetime_t *timestamp);
 def _blpapi_MessageProperties_setTimeReceived(messageProperties, timestamp):
     return l_blpapi_MessageProperties_setTimeReceived(
         messageProperties, byref(timestamp)
     )
 
 
-# signature: int blpapi_Message_addRef(const blpapi_Message_t *message);
 def _blpapi_Message_addRef(message):
     return l_blpapi_Message_addRef(message)
 
 
-# signature: blpapi_CorrelationId_t blpapi_Message_correlationId(const blpapi_Message_t *message, size_t index);
 def _blpapi_Message_correlationId(message, index):
     # C does return ABIUtil::ptr(message)->correlationId(index).impl();
     # i.e., we need to bump the ref. -- the caller will wrap this in CorrelationId
@@ -3462,56 +5717,46 @@ def _blpapi_Message_correlationId(message, index):
     return cid
 
 
-# signature: blpapi_Element_t *blpapi_Message_elements(const blpapi_Message_t *message);
 def _blpapi_Message_elements(message):
     return getHandleFromPtr(l_blpapi_Message_elements(message))
 
 
-# signature: int blpapi_Message_fragmentType(const blpapi_Message_t *message);
 def _blpapi_Message_fragmentType(message):
     return l_blpapi_Message_fragmentType(message)
 
 
-# signature: int blpapi_Message_getRequestId(const blpapi_Message_t *message, const char **requestId);
 def _blpapi_Message_getRequestId(message):
     out = c_char_p()
     outp = pointer(out)
-    retCode = l_blpapi_Message_getRequestId(message, outp)  # int
+    retCode = l_blpapi_Message_getRequestId(message, outp)
     return retCode, getStrFromOutput(outp, retCode)
 
 
-# signature: blpapi_Name_t *blpapi_Message_messageType(const blpapi_Message_t *message);
 def _blpapi_Message_messageType(message):
     return getHandleFromPtr(l_blpapi_Message_messageType(message))
 
 
-# signature: int blpapi_Message_numCorrelationIds(const blpapi_Message_t *message);
 def _blpapi_Message_numCorrelationIds(message):
     return l_blpapi_Message_numCorrelationIds(message)
 
 
-# signature:
 def _blpapi_Message_printHelper(message, level, spacesPerLevel):
     return any_printer(message, l_blpapi_Message_print, level, spacesPerLevel)
 
 
-# signature: int blpapi_Message_recapType(const blpapi_Message_t *message);
 def _blpapi_Message_recapType(message):
     return l_blpapi_Message_recapType(message)
 
 
-# signature: int blpapi_Message_release(const blpapi_Message_t *message);
 def _blpapi_Message_release(message):
     return l_blpapi_Message_release(message)
 
 
-# signature: blpapi_Service_t *blpapi_Message_service(const blpapi_Message_t *message);
 def _blpapi_Message_service(message):
     service = l_blpapi_Message_service(message)
     return getHandleFromPtr(service)
 
 
-# signature: int blpapi_Message_timeReceived(const blpapi_Message_t *message, blpapi_TimePoint_t *timeReceived);
 def _blpapi_Message_timeReceived(message):
     out = TimePoint()
     outp = pointer(out)
@@ -3519,80 +5764,67 @@ def _blpapi_Message_timeReceived(message):
     return retCode, getStructFromOutput(outp, retCode)
 
 
-# signature: const char *blpapi_Message_topicName(const blpapi_Message_t *message);
 def _blpapi_Message_topicName(message):  # pylint: disable=unused-argument
     return ""  # that is what C does
 
 
-# signature: blpapi_Name_t *blpapi_Name_create(const char *nameString);
 def _blpapi_Name_create(nameString):
     return getHandleFromPtr(l_blpapi_Name_create(charPtrFromPyStr(nameString)))
 
 
-# signature: void blpapi_Name_destroy(blpapi_Name_t *name);
 def _blpapi_Name_destroy(name):
     l_blpapi_Name_destroy(name)
 
 
-# signature: int blpapi_Name_equalsStr(const blpapi_Name_t *name, const char *string);
 def _blpapi_Name_equalsStr(name, string):
     return l_blpapi_Name_equalsStr(name, charPtrFromPyStr(string))
 
 
-# signature: blpapi_Name_t *blpapi_Name_findName(const char *nameString);
 def _blpapi_Name_findName(nameString):
     return getHandleFromPtr(
         l_blpapi_Name_findName(charPtrFromPyStr(nameString))
     )
 
 
-# signature:
 def _blpapi_Name_hasName(nameString):
     handle = _blpapi_Name_findName(nameString)
-    return 0 if handle is None else 1
+    return 0 if handle is None or getRawPtrFromHandle(handle) is None else 1
 
 
-# signature: size_t blpapi_Name_length(const blpapi_Name_t *name);
 def _blpapi_Name_length(name):
     return l_blpapi_Name_length(name)
 
 
-# signature: const char *blpapi_Name_string(const blpapi_Name_t *name);
 def _blpapi_Name_string(name):
     # C does not check the pointer, simply reinterpret_casts it
-    # c_void_p().value and c_void_p(0).value are None
-    if name is None or name.value is None:
+    # With strict argtypes, validate handle is not None
+    if name is None or getRawPtrFromHandle(name) is None:
         return None
     return getStrFromC(l_blpapi_Name_string(name))
 
 
-# signature: const char *blpapi_Operation_description(blpapi_Operation_t *operation);
 def _blpapi_Operation_description(operation):
     # tests assume empty string
     return getStrFromC(l_blpapi_Operation_description(operation), "")
 
 
-# signature: const char *blpapi_Operation_name(blpapi_Operation_t *operation);
 def _blpapi_Operation_name(operation):
     return getStrFromC(l_blpapi_Operation_name(operation))
 
 
-# signature: int blpapi_Operation_numResponseDefinitions(blpapi_Operation_t *operation);
 def _blpapi_Operation_numResponseDefinitions(operation):
     return l_blpapi_Operation_numResponseDefinitions(operation)
 
 
-# signature: int blpapi_Operation_requestDefinition(blpapi_Operation_t *operation,blpapi_SchemaElementDefinition_t **requestDefinition);
 def _blpapi_Operation_requestDefinition(operation):
-    out = c_void_p()
+    out = blpapi_SchemaElementDefinition_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Operation_requestDefinition(operation, outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Operation_responseDefinition(blpapi_Operation_t *operation,blpapi_SchemaElementDefinition_t **responseDefinition,size_t index);
 def _blpapi_Operation_responseDefinition(operation, index):
-    out = c_void_p()
+    out = blpapi_SchemaElementDefinition_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Operation_responseDefinition(
         operation, outp, c_size_t(index)
@@ -3600,12 +5832,10 @@ def _blpapi_Operation_responseDefinition(operation, index):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Operation_responseDefinitionFromName(blpapi_Operation_t *operation,blpapi_SchemaElementDefinition_t **responseDefinition,const blpapi_Name_t *name);
 def _blpapi_Operation_responseDefinitionFromName(operation, name):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_ProviderSession_activateSubServiceCodeRange(blpapi_ProviderSession_t *session,const char *serviceName,int begin,int end,int priority);
 def _blpapi_ProviderSession_activateSubServiceCodeRange(
     session, serviceName, begin, end, priority
 ):
@@ -3614,9 +5844,8 @@ def _blpapi_ProviderSession_activateSubServiceCodeRange(
     )
 
 
-# signature: int blpapi_ProviderSession_createServiceStatusTopic(blpapi_ProviderSession_t *session,const blpapi_Service_t *service,blpapi_Topic_t **topic);
 def _blpapi_ProviderSession_createServiceStatusTopic(session, service):
-    out = c_void_p()
+    out = blpapi_Topic_t_p()
     outp = pointer(out)
     retCode = l_blpapi_ProviderSession_createServiceStatusTopic(
         session, service, outp
@@ -3624,12 +5853,10 @@ def _blpapi_ProviderSession_createServiceStatusTopic(session, service):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_ProviderSession_createTopics(blpapi_ProviderSession_t *session,blpapi_TopicList_t *topicList,int resolveMode,const blpapi_Identity_t *identity);
 def _blpapi_ProviderSession_createTopic(session, message):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_ProviderSession_createTopics(blpapi_ProviderSession_t *session,blpapi_TopicList_t *topicList,int resolveMode,const blpapi_Identity_t *identity);
 def _blpapi_ProviderSession_createTopics(
     session, topicList, resolveMode, identity
 ):
@@ -3638,7 +5865,6 @@ def _blpapi_ProviderSession_createTopics(
     )
 
 
-# signature: int blpapi_ProviderSession_createTopicsAsync(blpapi_ProviderSession_t *session,const blpapi_TopicList_t *topicList,int resolveMode,const blpapi_Identity_t *identity);
 def _blpapi_ProviderSession_createTopicsAsync(
     session, topicList, resolveMode, identity
 ):
@@ -3647,7 +5873,6 @@ def _blpapi_ProviderSession_createTopicsAsync(
     )
 
 
-# signature: int blpapi_ProviderSession_deactivateSubServiceCodeRange(blpapi_ProviderSession_t *session,const char *serviceName,int begin,int end);
 def _blpapi_ProviderSession_deactivateSubServiceCodeRange(
     session, serviceName, begin, end
 ):
@@ -3656,25 +5881,22 @@ def _blpapi_ProviderSession_deactivateSubServiceCodeRange(
     )
 
 
-# signature: int blpapi_ProviderSession_deleteTopics(blpapi_ProviderSession_t *session,const blpapi_Topic_t **topics,size_t numTopics);
 def _blpapi_ProviderSession_deleteTopics(session, topics):
     # topics is a python list of handles by now
     sz = len(topics)
-    arraytpe = c_void_p * sz
-    topicsp = arraytpe(*topics)
+    arraytype = blpapi_Topic_t_p * sz
+    topicsp = arraytype(*topics)
     return l_blpapi_ProviderSession_deleteTopics(
-        session, topicsp, c_size_t(sz)
+        session, cast(topicsp, POINTER[blpapi_Topic_t_p]), c_size_t(sz)
     )
 
 
-# signature: int blpapi_ProviderSession_deregisterService(blpapi_ProviderSession_t *session, const char *serviceName);
 def _blpapi_ProviderSession_deregisterService(session, serviceName):
     return l_blpapi_ProviderSession_deregisterService(
         session, charPtrFromPyStr(serviceName)
     )
 
 
-# signature: int blpapi_ProviderSession_flushPublishedEvents(blpapi_ProviderSession_t *session, int *allFlushed, int timeoutMsecs);
 def _blpapi_ProviderSession_flushPublishedEvents(session, timeoutMsecs):
     out = c_int()
     outp = pointer(out)
@@ -3684,37 +5906,32 @@ def _blpapi_ProviderSession_flushPublishedEvents(session, timeoutMsecs):
     return retCode, getPODFromOutput(outp, retCode)
 
 
-# signature: blpapi_AbstractSession_t *blpapi_ProviderSession_getAbstractSession(blpapi_ProviderSession_t *session);
 def _blpapi_ProviderSession_getAbstractSession(session):
     return getHandleFromPtr(
         l_blpapi_ProviderSession_getAbstractSession(session)
     )
 
 
-# signature: int blpapi_ProviderSession_getTopic(blpapi_ProviderSession_t *session,const blpapi_Message_t *message,blpapi_Topic_t **topic);
 def _blpapi_ProviderSession_getTopic(session, message):
-    out = c_void_p()
+    out = blpapi_Topic_t_p()
     outp = pointer(out)
     retCode = l_blpapi_ProviderSession_getTopic(session, message, outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_ProviderSession_nextEvent(blpapi_ProviderSession_t *session,blpapi_Event_t **eventPointer,unsigned int timeoutInMilliseconds);
 def _blpapi_ProviderSession_nextEvent(session, timeoutInMilliseconds):
-    eventptr = c_void_p()
-    outp = pointer(eventptr)
+    out = blpapi_Event_t_p()
+    outp = pointer(out)
     retCode = l_blpapi_ProviderSession_nextEvent(
         session, outp, c_uint(timeoutInMilliseconds)
     )
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_ProviderSession_publish(blpapi_ProviderSession_t *session, blpapi_Event_t *event);
 def _blpapi_ProviderSession_publish(session, event):
     return l_blpapi_ProviderSession_publish(session, event)
 
 
-# signature: int blpapi_ProviderSession_registerService(blpapi_ProviderSession_t *session,const char *serviceName,const blpapi_Identity_t *identity,blpapi_ServiceRegistrationOptions_t *registrationOptions);
 def _blpapi_ProviderSession_registerService(
     session, serviceName, identity, registrationOptions
 ):
@@ -3723,7 +5940,6 @@ def _blpapi_ProviderSession_registerService(
     )
 
 
-# signature: int blpapi_ProviderSession_registerServiceAsync(blpapi_ProviderSession_t *session,const char *serviceName,const blpapi_Identity_t *identity,blpapi_CorrelationId_t *correlationId,blpapi_ServiceRegistrationOptions_t *registrationOptions);
 def _blpapi_ProviderSession_registerServiceAsync(
     session, serviceName, identity, correlationId, registrationOptions
 ):
@@ -3739,7 +5955,6 @@ def _blpapi_ProviderSession_registerServiceAsync(
     )
 
 
-# signature: int blpapi_ProviderSession_resolve(blpapi_ProviderSession_t *session,blpapi_ResolutionList_t *resolutionList,int resolveMode,const blpapi_Identity_t *identity);
 def _blpapi_ProviderSession_resolve(
     session, resolutionList, resolveMode, identity
 ):
@@ -3748,7 +5963,6 @@ def _blpapi_ProviderSession_resolve(
     )
 
 
-# signature: int blpapi_ProviderSession_resolveAsync(blpapi_ProviderSession_t *session,const blpapi_ResolutionList_t *resolutionList,int resolveMode,const blpapi_Identity_t *identity);
 def _blpapi_ProviderSession_resolveAsync(
     session, resolutionList, resolveMode, identity
 ):
@@ -3757,29 +5971,24 @@ def _blpapi_ProviderSession_resolveAsync(
     )
 
 
-# signature: int blpapi_ProviderSession_sendResponse(blpapi_ProviderSession_t *session,blpapi_Event_t *event,int isPartialResponse);
 def _blpapi_ProviderSession_sendResponse(session, event, isPartialResponse):
     return l_blpapi_ProviderSession_sendResponse(
         session, event, c_int(isPartialResponse)
     )
 
 
-# signature: int blpapi_ProviderSession_start(blpapi_ProviderSession_t *session);
 def _blpapi_ProviderSession_start(session):
     return l_blpapi_ProviderSession_start(session)
 
 
-# signature: int blpapi_ProviderSession_startAsync(blpapi_ProviderSession_t *session);
 def _blpapi_ProviderSession_startAsync(session):
     return l_blpapi_ProviderSession_startAsync(session)
 
 
-# signature: int blpapi_ProviderSession_stop(blpapi_ProviderSession_t *session);
 def _blpapi_ProviderSession_stop(session):
     return l_blpapi_ProviderSession_stop(session)
 
 
-# signature: int blpapi_ProviderSession_stopAsync(blpapi_ProviderSession_t *session);
 def _blpapi_ProviderSession_stopAsync(session):
     return l_blpapi_ProviderSession_stopAsync(session)
 
@@ -3792,43 +6001,40 @@ def _blpapi_ProviderSession_terminateSubscriptionsOnTopic(
     )
 
 
-# signature: int blpapi_ProviderSession_terminateSubscriptionsOnTopics(blpapi_ProviderSession_t *session,const blpapi_Topic_t **topics,size_t numTopics,const char *message);
 def _blpapi_ProviderSession_terminateSubscriptionsOnTopics(
     session, topics, message
 ):
     # we put handles in providersession inside topics
     sz = len(topics)
-    arraytype = c_void_p * sz
+    arraytype = blpapi_Topic_t_p * sz
     topicsp = arraytype(*topics)
     return l_blpapi_ProviderSession_terminateSubscriptionsOnTopics(
-        session, topicsp, c_size_t(sz), charPtrFromPyStr(message)
+        session,
+        cast(topicsp, POINTER[blpapi_Topic_t_p]),
+        c_size_t(sz),
+        charPtrFromPyStr(message),
     )
 
 
-# signature: int blpapi_ProviderSession_tryNextEvent(blpapi_ProviderSession_t *session, blpapi_Event_t **eventPointer);
 def _blpapi_ProviderSession_tryNextEvent(session):
-    out = c_void_p()
+    out = blpapi_Event_t_p()
     outp = pointer(out)
     retCode = l_blpapi_ProviderSession_tryNextEvent(session, outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_RequestTemplate_release(const blpapi_RequestTemplate_t *requestTemplate);
 def _blpapi_RequestTemplate_release(requestTemplate):
     return l_blpapi_RequestTemplate_release(requestTemplate)
 
 
-# signature: void blpapi_Request_destroy(blpapi_Request_t *request);
 def _blpapi_Request_destroy(request):
     l_blpapi_Request_destroy(request)
 
 
-# signature: blpapi_Element_t *blpapi_Request_elements(blpapi_Request_t *request);
 def _blpapi_Request_elements(request):
     return getHandleFromPtr(l_blpapi_Request_elements(request))
 
 
-# signature: int blpapi_Request_getRequestId(const blpapi_Request_t *request, const char **requestId);
 def _blpapi_Request_getRequestId(request):
     out = c_char_p()
     outp = pointer(out)
@@ -3838,12 +6044,10 @@ def _blpapi_Request_getRequestId(request):
     return (retCode, getStrFromOutput(outp, retCode))
 
 
-# signature: void blpapi_Request_setPreferredRoute(blpapi_Request_t *request, blpapi_CorrelationId_t *correlationId);
 def _blpapi_Request_setPreferredRoute(request, correlationId):
     raise NotImplementedError("not called")
 
 
-# signature: int blpapi_ResolutionList_add(blpapi_ResolutionList_t *list,const char *topic,const blpapi_CorrelationId_t *correlationId);
 def _blpapi_ResolutionList_add(resolution_list, topic, correlationId):
     return l_blpapi_ResolutionList_add(
         resolution_list,
@@ -3852,12 +6056,10 @@ def _blpapi_ResolutionList_add(resolution_list, topic, correlationId):
     )
 
 
-# signature: int blpapi_ResolutionList_addAttribute(blpapi_ResolutionList_t *list, const blpapi_Name_t *name);
 def _blpapi_ResolutionList_addAttribute(resolution_list, name):
     return l_blpapi_ResolutionList_addAttribute(resolution_list, name)
 
 
-# signature: int blpapi_ResolutionList_addFromMessage(blpapi_ResolutionList_t *list,const blpapi_Message_t *topic,const blpapi_CorrelationId_t *correlationId);
 def _blpapi_ResolutionList_addFromMessage(resolution_list, topic, cid):
     return l_blpapi_ResolutionList_addFromMessage(
         resolution_list,
@@ -3866,9 +6068,8 @@ def _blpapi_ResolutionList_addFromMessage(resolution_list, topic, cid):
     )
 
 
-# signature: int blpapi_ResolutionList_attribute(const blpapi_ResolutionList_t *list,blpapi_Element_t **element,const blpapi_Name_t *attribute,const blpapi_CorrelationId_t *id);
 def _blpapi_ResolutionList_attribute(resolution_list, attribute, cid):
-    out = c_void_p()
+    out = blpapi_Element_t_p()
     outp = pointer(out)
     rc = l_blpapi_ResolutionList_attribute(
         resolution_list,
@@ -3880,9 +6081,8 @@ def _blpapi_ResolutionList_attribute(resolution_list, attribute, cid):
     return rc, getHandleFromOutput(outp, rc)
 
 
-# signature: int blpapi_ResolutionList_attributeAt(const blpapi_ResolutionList_t *list,blpapi_Element_t **element,const blpapi_Name_t *attribute,size_t index);
 def _blpapi_ResolutionList_attributeAt(resolution_list, attribute, index):
-    out = c_void_p()
+    out = blpapi_Element_t_p()
     outp = pointer(out)
     rc = l_blpapi_ResolutionList_attributeAt(
         resolution_list, outp, attribute, c_size_t(index)
@@ -3891,7 +6091,6 @@ def _blpapi_ResolutionList_attributeAt(resolution_list, attribute, index):
     return rc, getHandleFromOutput(outp, rc)
 
 
-# signature: int blpapi_ResolutionList_correlationIdAt(const blpapi_ResolutionList_t *list,blpapi_CorrelationId_t *result,size_t index);
 def _blpapi_ResolutionList_correlationIdAt(resolution_list, index):
     cid = CidStruct()
     cid_p = pointer(cid)
@@ -3906,27 +6105,23 @@ def _blpapi_ResolutionList_correlationIdAt(resolution_list, index):
     return rc, None
 
 
-# signature: blpapi_ResolutionList_t *blpapi_ResolutionList_create(blpapi_ResolutionList_t *from);
 def _blpapi_ResolutionList_create(_from):
-    from_p = c_void_p() if _from is None else _from
+    from_p = blpapi_ResolutionList_t_p() if _from is None else _from
     return getHandleFromPtr(l_blpapi_ResolutionList_create(from_p))
 
 
-# signature: void blpapi_ResolutionList_destroy(blpapi_ResolutionList_t *list);
 def _blpapi_ResolutionList_destroy(resolution_list):
     l_blpapi_ResolutionList_destroy(resolution_list)
 
 
-# signature: blpapi_Element_t *blpapi_ResolutionList_extractAttributeFromResolutionSuccess(const blpapi_Message_t *message, const blpapi_Name_t *attribute);
 def _blpapi_ResolutionList_extractAttributeFromResolutionSuccess(
     message, attribute
 ):
     raise DeprecationWarning()
 
 
-# signature: int blpapi_ResolutionList_message(const blpapi_ResolutionList_t *list,blpapi_Message_t **element,const blpapi_CorrelationId_t *id);
 def _blpapi_ResolutionList_message(resolution_list, cid):
-    out = c_void_p()
+    out = blpapi_Message_t_p()
     outp = pointer(out)
     rc = l_blpapi_ResolutionList_message(
         resolution_list, outp, byref(cid.thestruct)
@@ -3934,9 +6129,8 @@ def _blpapi_ResolutionList_message(resolution_list, cid):
     return rc, getHandleFromOutput(outp, rc)
 
 
-# signature: int blpapi_ResolutionList_messageAt(const blpapi_ResolutionList_t *list,blpapi_Message_t **element,size_t index);
 def _blpapi_ResolutionList_messageAt(resolution_list, index):
-    out = c_void_p()
+    out = blpapi_Message_t_p()
     outp = pointer(out)
     rc = l_blpapi_ResolutionList_messageAt(
         resolution_list, outp, c_size_t(index)
@@ -3944,12 +6138,10 @@ def _blpapi_ResolutionList_messageAt(resolution_list, index):
     return rc, getHandleFromOutput(outp, rc)
 
 
-# signature: int blpapi_ResolutionList_size(const blpapi_ResolutionList_t *list);
 def _blpapi_ResolutionList_size(resolution_list):
     return l_blpapi_ResolutionList_size(resolution_list)
 
 
-# signature: int blpapi_ResolutionList_status(const blpapi_ResolutionList_t *list,int *status,const blpapi_CorrelationId_t *id);
 def _blpapi_ResolutionList_status(resolution_list, cid):
     out = c_int()
     outp = pointer(out)
@@ -3960,7 +6152,6 @@ def _blpapi_ResolutionList_status(resolution_list, cid):
     return rc, getPODFromOutput(outp, rc)
 
 
-# signature: int blpapi_ResolutionList_statusAt(const blpapi_ResolutionList_t *list, int *status, size_t index);
 def _blpapi_ResolutionList_statusAt(resolution_list, index):
     out = c_int()
     outp = pointer(out)
@@ -3969,7 +6160,6 @@ def _blpapi_ResolutionList_statusAt(resolution_list, index):
     return rc, out.value
 
 
-# signature: int blpapi_ResolutionList_topicString(const blpapi_ResolutionList_t *list,const char **topic,const blpapi_CorrelationId_t *id);
 def _blpapi_ResolutionList_topicString(resolution_list, cid):
     out = c_char_p()
     outp = pointer(out)
@@ -3979,7 +6169,6 @@ def _blpapi_ResolutionList_topicString(resolution_list, cid):
     return rc, getStrFromOutput(outp, rc)
 
 
-# signature: int blpapi_ResolutionList_topicStringAt(const blpapi_ResolutionList_t *list, const char **topic, size_t index);
 def _blpapi_ResolutionList_topicStringAt(resolution_list, index):
     out = c_char_p()
     outp = pointer(out)
@@ -3987,13 +6176,11 @@ def _blpapi_ResolutionList_topicStringAt(resolution_list, index):
     return rc, getStrFromOutput(outp, rc)
 
 
-# signature: const char *blpapi_SchemaElementDefinition_description(const blpapi_SchemaElementDefinition_t *field);
 def _blpapi_SchemaElementDefinition_description(field):
     ds = l_blpapi_SchemaElementDefinition_description(field)
     return getStrFromC(ds)
 
 
-# signature: blpapi_Name_t *blpapi_SchemaElementDefinition_getAlternateName(const blpapi_SchemaElementDefinition_t *field, size_t index);
 def _blpapi_SchemaElementDefinition_getAlternateName(field, index):
     return getHandleFromPtr(
         l_blpapi_SchemaElementDefinition_getAlternateName(
@@ -4002,60 +6189,49 @@ def _blpapi_SchemaElementDefinition_getAlternateName(field, index):
     )
 
 
-# signature: size_t blpapi_SchemaElementDefinition_maxValues(const blpapi_SchemaElementDefinition_t *field);
 def _blpapi_SchemaElementDefinition_maxValues(field):
     return l_blpapi_SchemaElementDefinition_maxValues(field)
 
 
-# signature: size_t blpapi_SchemaElementDefinition_minValues(const blpapi_SchemaElementDefinition_t *field);
 def _blpapi_SchemaElementDefinition_minValues(field):
     return l_blpapi_SchemaElementDefinition_minValues(field)
 
 
-# signature: blpapi_Name_t *blpapi_SchemaElementDefinition_name(const blpapi_SchemaElementDefinition_t *field);
 def _blpapi_SchemaElementDefinition_name(field):
     return getHandleFromPtr(l_blpapi_SchemaElementDefinition_name(field))
 
 
-# signature: size_t blpapi_SchemaElementDefinition_numAlternateNames(const blpapi_SchemaElementDefinition_t *field);
 def _blpapi_SchemaElementDefinition_numAlternateNames(field):
     return l_blpapi_SchemaElementDefinition_numAlternateNames(field)
 
 
-# signature:
 def _blpapi_SchemaElementDefinition_printHelper(item, level, spacesPerLevel):
     return any_printer(
         item, l_blpapi_SchemaElementDefinition_print, level, spacesPerLevel
     )
 
 
-# signature: int blpapi_SchemaElementDefinition_status(const blpapi_SchemaElementDefinition_t *field);
 def _blpapi_SchemaElementDefinition_status(field):
     return l_blpapi_SchemaElementDefinition_status(field)
 
 
-# signature: blpapi_SchemaTypeDefinition_t *blpapi_SchemaElementDefinition_type(const blpapi_SchemaElementDefinition_t *field);
 def _blpapi_SchemaElementDefinition_type(field):
     return getHandleFromPtr(l_blpapi_SchemaElementDefinition_type(field))
 
 
-# signature: int blpapi_SchemaTypeDefinition_datatype(const blpapi_SchemaTypeDefinition_t *type);
 def _blpapi_SchemaTypeDefinition_datatype(stype):
     return l_blpapi_SchemaTypeDefinition_datatype(stype)
 
 
-# signature: const char *blpapi_SchemaTypeDefinition_description(const blpapi_SchemaTypeDefinition_t *type);
 def _blpapi_SchemaTypeDefinition_description(stype):
     ds = l_blpapi_SchemaTypeDefinition_description(stype)
     return getStrFromC(ds)
 
 
-# signature: blpapi_ConstantList_t *blpapi_SchemaTypeDefinition_enumeration(const blpapi_SchemaTypeDefinition_t *element);
 def _blpapi_SchemaTypeDefinition_enumeration(element):
     return getHandleFromPtr(l_blpapi_SchemaTypeDefinition_enumeration(element))
 
 
-# signature: blpapi_SchemaTypeDefinition_getElementDefinition(const blpapi_SchemaTypeDefinition_t *type,const char *nameString,const blpapi_Name_t *name);
 def _blpapi_SchemaTypeDefinition_getElementDefinition(stype, nameString, name):
     return getHandleFromPtr(
         l_blpapi_SchemaTypeDefinition_getElementDefinition(
@@ -4064,7 +6240,6 @@ def _blpapi_SchemaTypeDefinition_getElementDefinition(stype, nameString, name):
     )
 
 
-# signature: blpapi_SchemaTypeDefinition_getElementDefinitionAt(const blpapi_SchemaTypeDefinition_t *type, size_t index);
 def _blpapi_SchemaTypeDefinition_getElementDefinitionAt(stype, index):
     return getHandleFromPtr(
         l_blpapi_SchemaTypeDefinition_getElementDefinitionAt(
@@ -4073,51 +6248,43 @@ def _blpapi_SchemaTypeDefinition_getElementDefinitionAt(stype, index):
     )
 
 
-# signature:
 def _blpapi_SchemaTypeDefinition_hasElementDefinition(stype, nameString, name):
+    # we are not creating a chandle from it, only comparing to null
     return l_blpapi_SchemaTypeDefinition_getElementDefinition(
         stype, charPtrFromPyStr(nameString), name
     )
 
 
-# signature: int blpapi_SchemaTypeDefinition_isComplexType(const blpapi_SchemaTypeDefinition_t *type);
 def _blpapi_SchemaTypeDefinition_isComplexType(stype):
     return l_blpapi_SchemaTypeDefinition_isComplexType(stype)
 
 
-# signature: int blpapi_SchemaTypeDefinition_isEnumerationType(const blpapi_SchemaTypeDefinition_t *type);
 def _blpapi_SchemaTypeDefinition_isEnumerationType(stype):
     return l_blpapi_SchemaTypeDefinition_isEnumerationType(stype)
 
 
-# signature: int blpapi_SchemaTypeDefinition_isSimpleType(const blpapi_SchemaTypeDefinition_t *type);
 def _blpapi_SchemaTypeDefinition_isSimpleType(stype):
     return l_blpapi_SchemaTypeDefinition_isSimpleType(stype)
 
 
-# signature: blpapi_Name_t *blpapi_SchemaTypeDefinition_name(const blpapi_SchemaTypeDefinition_t *type);
 def _blpapi_SchemaTypeDefinition_name(stype):
     return getHandleFromPtr(l_blpapi_SchemaTypeDefinition_name(stype))
 
 
-# signature: size_t blpapi_SchemaTypeDefinition_numElementDefinitions(const blpapi_SchemaTypeDefinition_t *type);
 def _blpapi_SchemaTypeDefinition_numElementDefinitions(stype):
     return l_blpapi_SchemaTypeDefinition_numElementDefinitions(stype)
 
 
-# signature:
 def _blpapi_SchemaTypeDefinition_printHelper(item, level, spacesPerLevel):
     return any_printer(
         item, l_blpapi_SchemaTypeDefinition_print, level, spacesPerLevel
     )
 
 
-# signature: int blpapi_SchemaTypeDefinition_status(const blpapi_SchemaTypeDefinition_t *type);
 def _blpapi_SchemaTypeDefinition_status(stype):
     return l_blpapi_SchemaTypeDefinition_status(stype)
 
 
-# signature: int blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange(blpapi_ServiceRegistrationOptions_t *parameters,int start,int end,int priority);
 def _blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange(
     parameters, start, end, priority
 ):
@@ -4126,22 +6293,18 @@ def _blpapi_ServiceRegistrationOptions_addActiveSubServiceCodeRange(
     )  # all ints
 
 
-# signature: void blpapi_ServiceRegistrationOptions_copy(blpapi_ServiceRegistrationOptions_t *lhs,const blpapi_ServiceRegistrationOptions_t *rhs);
 def _blpapi_ServiceRegistrationOptions_copy(lhs, rhs):
     raise NotImplementedError("not called")
 
 
-# signature: blpapi_ServiceRegistrationOptions_t *blpapi_ServiceRegistrationOptions_create(void);
 def _blpapi_ServiceRegistrationOptions_create():
     return getHandleFromPtr(l_blpapi_ServiceRegistrationOptions_create())
 
 
-# signature: void blpapi_ServiceRegistrationOptions_destroy(blpapi_ServiceRegistrationOptions_t *parameters);
 def _blpapi_ServiceRegistrationOptions_destroy(parameters):
     l_blpapi_ServiceRegistrationOptions_destroy(parameters)
 
 
-# signature: blpapi_ServiceRegistrationOptions_duplicate(const blpapi_ServiceRegistrationOptions_t *parameters);
 def _blpapi_ServiceRegistrationOptions_duplicate(parameters):
     raise NotImplementedError("not called")
 
@@ -4149,7 +6312,6 @@ def _blpapi_ServiceRegistrationOptions_duplicate(parameters):
 BLPAPI_MAX_GROUP_ID_SIZE = 64
 
 
-# signature: int blpapi_ServiceRegistrationOptions_getGroupId(blpapi_ServiceRegistrationOptions_t *parameters,char *groupdIdBuffer,int *groupIdLength);
 def _blpapi_ServiceRegistrationOptions_getGroupId(parameters):
     outp = create_string_buffer(BLPAPI_MAX_GROUP_ID_SIZE)
     sz = c_int()
@@ -4162,17 +6324,14 @@ def _blpapi_ServiceRegistrationOptions_getGroupId(parameters):
     return retCode, getSizedStrFromBuffer(outp, sz.value)
 
 
-# signature: int blpapi_ServiceRegistrationOptions_getPartsToRegister(blpapi_ServiceRegistrationOptions_t *parameters);
 def _blpapi_ServiceRegistrationOptions_getPartsToRegister(parameters):
     return l_blpapi_ServiceRegistrationOptions_getPartsToRegister(parameters)
 
 
-# signature: int blpapi_ServiceRegistrationOptions_getServicePriority(blpapi_ServiceRegistrationOptions_t *parameters);
 def _blpapi_ServiceRegistrationOptions_getServicePriority(parameters):
     return l_blpapi_ServiceRegistrationOptions_getServicePriority(parameters)
 
 
-# signature: void blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges(blpapi_ServiceRegistrationOptions_t *parameters);
 def _blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges(
     parameters,
 ):
@@ -4181,18 +6340,15 @@ def _blpapi_ServiceRegistrationOptions_removeAllActiveSubServiceCodeRanges(
     )
 
 
-# signature: void blpapi_ServiceRegistrationOptions_setGroupId(blpapi_ServiceRegistrationOptions_t *parameters,const char *groupId,unsigned int groupIdLength);
 def _blpapi_ServiceRegistrationOptions_setGroupId(parameters, groupId):
     gid, sz = charPtrWithSizeFromPyStr(groupId)
     l_blpapi_ServiceRegistrationOptions_setGroupId(parameters, gid, c_uint(sz))
 
 
-# signature: void blpapi_ServiceRegistrationOptions_setPartsToRegister(blpapi_ServiceRegistrationOptions_t *parameters, int parts);
 def _blpapi_ServiceRegistrationOptions_setPartsToRegister(parameters, parts):
     l_blpapi_ServiceRegistrationOptions_setPartsToRegister(parameters, parts)
 
 
-# signature: int blpapi_ServiceRegistrationOptions_setServicePriority(blpapi_ServiceRegistrationOptions_t *parameters, int priority);
 def _blpapi_ServiceRegistrationOptions_setServicePriority(
     parameters, priority
 ):
@@ -4201,27 +6357,23 @@ def _blpapi_ServiceRegistrationOptions_setServicePriority(
     )
 
 
-# signature: int blpapi_Service_addRef(blpapi_Service_t *service);
 def _blpapi_Service_addRef(service):
     return l_blpapi_Service_addRef(service)
 
 
-# signature: const char *blpapi_Service_authorizationServiceName(blpapi_Service_t *service);
 def _blpapi_Service_authorizationServiceName(service):
     return getStrFromC(l_blpapi_Service_authorizationServiceName(service))
 
 
-# signature: int blpapi_Service_createAdminEvent(blpapi_Service_t *service, blpapi_Event_t **event);
 def _blpapi_Service_createAdminEvent(service):
-    out = c_void_p()
+    out = blpapi_Event_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Service_createAdminEvent(service, outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Service_createAuthorizationRequest(blpapi_Service_t *service,blpapi_Request_t **request,const char *operation);
 def _blpapi_Service_createAuthorizationRequest(service, operation):
-    out = c_void_p()
+    out = blpapi_Request_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Service_createAuthorizationRequest(
         service, outp, charPtrFromPyStr(operation)
@@ -4229,17 +6381,15 @@ def _blpapi_Service_createAuthorizationRequest(service, operation):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Service_createPublishEvent(blpapi_Service_t *service, blpapi_Event_t **event);
 def _blpapi_Service_createPublishEvent(service):
-    out = c_void_p()
+    out = blpapi_Event_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Service_createPublishEvent(service, outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Service_createRequest(blpapi_Service_t *service,blpapi_Request_t **request,const char *operation);
 def _blpapi_Service_createRequest(service, operation):
-    out = c_void_p()
+    out = blpapi_Request_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Service_createRequest(
         service, outp, charPtrFromPyStr(operation)
@@ -4247,9 +6397,8 @@ def _blpapi_Service_createRequest(service, operation):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Service_createResponseEvent(blpapi_Service_t *service,const blpapi_CorrelationId_t *correlationId,blpapi_Event_t **event);
 def _blpapi_Service_createResponseEvent(service, correlationId):
-    out = c_void_p()
+    out = blpapi_Event_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Service_createResponseEvent(
         service, byref(correlationId.thestruct), outp
@@ -4257,14 +6406,12 @@ def _blpapi_Service_createResponseEvent(service, correlationId):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: const char *blpapi_Service_description(blpapi_Service_t *service);
 def _blpapi_Service_description(service):
     return getStrFromC(l_blpapi_Service_description(service))
 
 
-# signature: int blpapi_Service_getEventDefinition(blpapi_Service_t *service,blpapi_SchemaElementDefinition_t **result,const char *nameString,const blpapi_Name_t *name);
 def _blpapi_Service_getEventDefinition(service, nameString, name):
-    out = c_void_p()
+    out = blpapi_SchemaElementDefinition_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Service_getEventDefinition(
         service, outp, charPtrFromPyStr(nameString), name
@@ -4272,9 +6419,8 @@ def _blpapi_Service_getEventDefinition(service, nameString, name):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Service_getEventDefinitionAt(blpapi_Service_t *service,blpapi_SchemaElementDefinition_t **result,size_t index);
 def _blpapi_Service_getEventDefinitionAt(service, index):
-    out = c_void_p()
+    out = blpapi_SchemaElementDefinition_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Service_getEventDefinitionAt(
         service, outp, c_size_t(index)
@@ -4282,9 +6428,8 @@ def _blpapi_Service_getEventDefinitionAt(service, index):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Service_getOperation(blpapi_Service_t *service,blpapi_Operation_t **operation,const char *nameString,const blpapi_Name_t *name);
 def _blpapi_Service_getOperation(service, nameString, name):
-    out = c_void_p()
+    out = blpapi_Operation_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Service_getOperation(
         service, outp, charPtrFromPyStr(nameString), name
@@ -4292,57 +6437,47 @@ def _blpapi_Service_getOperation(service, nameString, name):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Service_getOperationAt(blpapi_Service_t *service,blpapi_Operation_t **operation,size_t index);
 def _blpapi_Service_getOperationAt(service, index):
-    out = c_void_p()
+    out = blpapi_Operation_t_p()
     outp = pointer(out)
     retCode = l_blpapi_Service_getOperationAt(service, outp, index)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature:
 def _blpapi_Service_hasEventDefinition(service, nameString, name):
     return (
         0 == _blpapi_Service_getEventDefinition(service, nameString, name)[0]
     )
 
 
-# signature:
 def _blpapi_Service_hasOperation(service, nameString, name):
     return 0 == _blpapi_Service_getOperation(service, nameString, name)[0]
 
 
-# signature: const char *blpapi_Service_name(blpapi_Service_t *service);
 def _blpapi_Service_name(service):
     return getStrFromC(l_blpapi_Service_name(service))
 
 
-# signature: int blpapi_Service_numEventDefinitions(blpapi_Service_t *service);
 def _blpapi_Service_numEventDefinitions(service):
     return l_blpapi_Service_numEventDefinitions(service)
 
 
-# signature: int blpapi_Service_numOperations(blpapi_Service_t *service);
 def _blpapi_Service_numOperations(service):
     return l_blpapi_Service_numOperations(service)
 
 
-# signature:
 def _blpapi_Service_printHelper(service, level, spacesPerLevel):
     return any_printer(service, l_blpapi_Service_print, level, spacesPerLevel)
 
 
-# signature: void blpapi_Service_release(blpapi_Service_t *service);
 def _blpapi_Service_release(service):
     l_blpapi_Service_release(service)
 
 
-# signature: int blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg(parameters):
     return l_blpapi_SessionOptions_allowMultipleCorrelatorsPerMsg(parameters)
 
 
-# signature: int blpapi_SessionOptions_applicationIdentityKey(const char **applicationIdentityKey,size_t *size,blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_applicationIdentityKey(parameters):
     out = c_char_p()
     outp = pointer(out)
@@ -4354,76 +6489,62 @@ def _blpapi_SessionOptions_applicationIdentityKey(parameters):
     return retCode, getSizedStrFromOutput(outp, szoutp, retCode)
 
 
-# signature: const char *blpapi_SessionOptions_authenticationOptions(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_authenticationOptions(parameters):
     return getStrFromC(
         l_blpapi_SessionOptions_authenticationOptions(parameters)
     )
 
 
-# signature: int blpapi_SessionOptions_autoRestartOnDisconnection(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_autoRestartOnDisconnection(parameters):
     return l_blpapi_SessionOptions_autoRestartOnDisconnection(parameters)
 
 
-# signature: int blpapi_SessionOptions_bandwidthSaveModeDisabled(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_bandwidthSaveModeDisabled(parameters):
     return l_blpapi_SessionOptions_bandwidthSaveModeDisabled(parameters)
 
 
-# signature: int blpapi_SessionOptions_clientMode(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_clientMode(parameters):
     return l_blpapi_SessionOptions_clientMode(parameters)
 
 
-# signature: unsigned int blpapi_SessionOptions_connectTimeout(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_connectTimeout(parameters):
     return l_blpapi_SessionOptions_connectTimeout(parameters)
 
 
-# signature: blpapi_SessionOptions_t *blpapi_SessionOptions_create(void);
 def _blpapi_SessionOptions_create():
     return getHandleFromPtr(l_blpapi_SessionOptions_create())
 
 
-# signature: int blpapi_SessionOptions_defaultKeepAliveInactivityTime(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_defaultKeepAliveInactivityTime(parameters):
     return l_blpapi_SessionOptions_defaultKeepAliveInactivityTime(parameters)
 
 
-# signature: int blpapi_SessionOptions_defaultKeepAliveResponseTimeout(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_defaultKeepAliveResponseTimeout(parameters):
     return l_blpapi_SessionOptions_defaultKeepAliveResponseTimeout(parameters)
 
 
-# signature: const char *blpapi_SessionOptions_defaultServices(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_defaultServices(parameters):
     return getStrFromC(l_blpapi_SessionOptions_defaultServices(parameters))
 
 
-# signature: const char *blpapi_SessionOptions_defaultSubscriptionService(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_defaultSubscriptionService(parameters):
     return getStrFromC(
         l_blpapi_SessionOptions_defaultSubscriptionService(parameters)
     )
 
 
-# signature: const char *blpapi_SessionOptions_defaultTopicPrefix(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_defaultTopicPrefix(parameters):
     return getStrFromC(l_blpapi_SessionOptions_defaultTopicPrefix(parameters))
 
 
-# signature: void blpapi_SessionOptions_destroy(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_destroy(parameters):
     l_blpapi_SessionOptions_destroy(parameters)
 
 
-# signature: int blpapi_SessionOptions_flushPublishedEventsTimeout(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_flushPublishedEventsTimeout(parameters):
     return l_blpapi_SessionOptions_flushPublishedEventsTimeout(parameters)
 
 
-# signature: int blpapi_SessionOptions_getServerAddressWithProxy(blpapi_SessionOptions_t *parameters,const char **serverHost,unsigned short *serverPort,const char **socks5Host,unsigned short *sock5Port,size_t index);
 def _blpapi_SessionOptions_getServerAddressWithProxy(parameters, index):
     hostout = c_char_p()
     hostoutp = pointer(hostout)
@@ -4445,73 +6566,60 @@ def _blpapi_SessionOptions_getServerAddressWithProxy(parameters, index):
     )
 
 
-# signature: int blpapi_SessionOptions_keepAliveEnabled(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_keepAliveEnabled(parameters):
     return l_blpapi_SessionOptions_keepAliveEnabled(parameters)
 
 
-# signature: size_t blpapi_SessionOptions_maxEventQueueSize(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_maxEventQueueSize(parameters):
     return l_blpapi_SessionOptions_maxEventQueueSize(parameters)
 
 
-# signature: int blpapi_SessionOptions_maxPendingRequests(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_maxPendingRequests(parameters):
     return l_blpapi_SessionOptions_maxPendingRequests(parameters)
 
 
-# signature: int blpapi_SessionOptions_numServerAddresses(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_numServerAddresses(parameters):
     return l_blpapi_SessionOptions_numServerAddresses(parameters)
 
 
-# signature: int blpapi_SessionOptions_numStartAttempts(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_numStartAttempts(parameters):
     return l_blpapi_SessionOptions_numStartAttempts(parameters)
 
 
-# signature:
 def _blpapi_SessionOptions_printHelper(sessionOptions, level, spacesPerLevel):
     return any_printer(
         sessionOptions, l_blpapi_SessionOptions_print, level, spacesPerLevel
     )
 
 
-# signature: int blpapi_SessionOptions_recordSubscriptionDataReceiveTimes(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_recordSubscriptionDataReceiveTimes(parameters):
     return l_blpapi_SessionOptions_recordSubscriptionDataReceiveTimes(
         parameters
     )
 
 
-# signature: int blpapi_SessionOptions_removeServerAddress(blpapi_SessionOptions_t *parameters, size_t index);
 def _blpapi_SessionOptions_removeServerAddress(parameters, index):
     return l_blpapi_SessionOptions_removeServerAddress(
         parameters, c_size_t(index)
     )
 
 
-# signature: const char *blpapi_SessionOptions_serverHost(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_serverHost(parameters):
     return getStrFromC(l_blpapi_SessionOptions_serverHost(parameters))
 
 
-# signature: unsigned int blpapi_SessionOptions_serverPort(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_serverPort(parameters):
     return l_blpapi_SessionOptions_serverPort(parameters)
 
 
-# signature: int blpapi_SessionOptions_serviceCheckTimeout(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_serviceCheckTimeout(parameters):
     return l_blpapi_SessionOptions_serviceCheckTimeout(parameters)
 
 
-# signature: int blpapi_SessionOptions_serviceDownloadTimeout(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_serviceDownloadTimeout(parameters):
     return l_blpapi_SessionOptions_serviceDownloadTimeout(parameters)
 
 
-# signature: int blpapi_SessionOptions_sessionName(const char **sessionName,size_t *size,blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_sessionName(parameters):
     out = c_char_p()
     outp = pointer(out)
@@ -4521,7 +6629,6 @@ def _blpapi_SessionOptions_sessionName(parameters):
     return retCode, getSizedStrFromOutput(outp, szoutp, retCode)
 
 
-# signature: void blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg(blpapi_SessionOptions_t *parameters,int allowMultipleCorrelatorsPerMsg);
 def _blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg(
     parameters, allowMultipleCorrelatorsPerMsg
 ):
@@ -4530,7 +6637,6 @@ def _blpapi_SessionOptions_setAllowMultipleCorrelatorsPerMsg(
     )
 
 
-# signature: int blpapi_SessionOptions_setApplicationIdentityKey(blpapi_SessionOptions_t *parameters,const char *applicationIdentityKey,size_t size);
 def _blpapi_SessionOptions_setApplicationIdentityKey(
     parameters, applicationIdentityKey
 ):
@@ -4542,14 +6648,12 @@ def _blpapi_SessionOptions_setApplicationIdentityKey(
     )
 
 
-# signature: void blpapi_SessionOptions_setAuthenticationOptions(blpapi_SessionOptions_t *parameters, const char *authOptions);
 def _blpapi_SessionOptions_setAuthenticationOptions(parameters, authOptions):
     l_blpapi_SessionOptions_setAuthenticationOptions(
         parameters, charPtrFromPyStr(authOptions)
     )
 
 
-# signature: void blpapi_SessionOptions_setAutoRestartOnDisconnection(blpapi_SessionOptions_t *parameters, int autoRestart);
 def _blpapi_SessionOptions_setAutoRestartOnDisconnection(
     parameters, autoRestart
 ):
@@ -4558,7 +6662,6 @@ def _blpapi_SessionOptions_setAutoRestartOnDisconnection(
     )
 
 
-# signature: int blpapi_SessionOptions_setBandwidthSaveModeDisabled(blpapi_SessionOptions_t *parameters, int disableBandwidthSaveMode);
 def _blpapi_SessionOptions_setBandwidthSaveModeDisabled(
     parameters, disableBandwidthSaveMode
 ):
@@ -4567,12 +6670,10 @@ def _blpapi_SessionOptions_setBandwidthSaveModeDisabled(
     )
 
 
-# signature: void blpapi_SessionOptions_setClientMode(blpapi_SessionOptions_t *parameters, int clientMode);
 def _blpapi_SessionOptions_setClientMode(parameters, clientMode):
     l_blpapi_SessionOptions_setClientMode(parameters, clientMode)
 
 
-# signature: int blpapi_SessionOptions_setConnectTimeout(blpapi_SessionOptions_t *parameters,unsigned int timeoutInMilliseconds);
 def _blpapi_SessionOptions_setConnectTimeout(
     parameters, timeoutInMilliseconds
 ):
@@ -4581,7 +6682,6 @@ def _blpapi_SessionOptions_setConnectTimeout(
     )
 
 
-# signature: int blpapi_SessionOptions_setDefaultKeepAliveInactivityTime(blpapi_SessionOptions_t *parameters, int inactivityMsecs);
 def _blpapi_SessionOptions_setDefaultKeepAliveInactivityTime(
     parameters, inactivityMsecs
 ):
@@ -4590,7 +6690,6 @@ def _blpapi_SessionOptions_setDefaultKeepAliveInactivityTime(
     )
 
 
-# signature: int blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout(blpapi_SessionOptions_t *parameters, int timeoutMsecs);
 def _blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout(
     parameters, timeoutMsecs
 ):
@@ -4599,14 +6698,12 @@ def _blpapi_SessionOptions_setDefaultKeepAliveResponseTimeout(
     )
 
 
-# signature: int blpapi_SessionOptions_setDefaultServices(blpapi_SessionOptions_t *parameters, const char *defaultServices);
 def _blpapi_SessionOptions_setDefaultServices(parameters, defaultServices):
     return l_blpapi_SessionOptions_setDefaultServices(
         parameters, charPtrFromPyStr(defaultServices)
     )
 
 
-# signature: int blpapi_SessionOptions_setDefaultSubscriptionService(blpapi_SessionOptions_t *parameters, const char *serviceIdentifier);
 def _blpapi_SessionOptions_setDefaultSubscriptionService(
     parameters, serviceIdentifier
 ):
@@ -4615,14 +6712,12 @@ def _blpapi_SessionOptions_setDefaultSubscriptionService(
     )
 
 
-# signature: void blpapi_SessionOptions_setDefaultTopicPrefix(blpapi_SessionOptions_t *parameters, const char *prefix);
 def _blpapi_SessionOptions_setDefaultTopicPrefix(parameters, topicPrefix):
     l_blpapi_SessionOptions_setDefaultTopicPrefix(
         parameters, charPtrFromPyStr(topicPrefix)
     )
 
 
-# signature: int blpapi_SessionOptions_setFlushPublishedEventsTimeout(blpapi_SessionOptions_t *paramaters, int timeoutMsecs);
 def _blpapi_SessionOptions_setFlushPublishedEventsTimeout(
     paramaters, timeoutMsecs
 ):
@@ -4631,19 +6726,16 @@ def _blpapi_SessionOptions_setFlushPublishedEventsTimeout(
     )
 
 
-# signature: int blpapi_SessionOptions_setKeepAliveEnabled(blpapi_SessionOptions_t *parameters, int isEnabled);
 def _blpapi_SessionOptions_setKeepAliveEnabled(parameters, isEnabled):
     return l_blpapi_SessionOptions_setKeepAliveEnabled(parameters, isEnabled)
 
 
-# signature: void blpapi_SessionOptions_setMaxEventQueueSize(blpapi_SessionOptions_t *parameters, size_t maxEventQueueSize);
 def _blpapi_SessionOptions_setMaxEventQueueSize(parameters, maxEventQueueSize):
     l_blpapi_SessionOptions_setMaxEventQueueSize(
         parameters, c_size_t(maxEventQueueSize)
     )
 
 
-# signature: void blpapi_SessionOptions_setMaxPendingRequests(blpapi_SessionOptions_t *parameters, int maxPendingRequests);
 def _blpapi_SessionOptions_setMaxPendingRequests(
     parameters, maxPendingRequests
 ):
@@ -4652,12 +6744,10 @@ def _blpapi_SessionOptions_setMaxPendingRequests(
     )
 
 
-# signature: void blpapi_SessionOptions_setNumStartAttempts(blpapi_SessionOptions_t *parameters, int numStartAttempts);
 def _blpapi_SessionOptions_setNumStartAttempts(parameters, numStartAttempts):
     l_blpapi_SessionOptions_setNumStartAttempts(parameters, numStartAttempts)
 
 
-# signature: void blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes(blpapi_SessionOptions_t *parameters, int shouldRecord);
 def _blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes(
     parameters, shouldRecord
 ):
@@ -4666,7 +6756,6 @@ def _blpapi_SessionOptions_setRecordSubscriptionDataReceiveTimes(
     )
 
 
-# signature: int blpapi_SessionOptions_setServerAddress(blpapi_SessionOptions_t *parameters,const char *serverHost,unsigned short serverPort,size_t index);
 def _blpapi_SessionOptions_setServerAddress(
     parameters, serverHost, serverPort, index
 ):
@@ -4678,7 +6767,6 @@ def _blpapi_SessionOptions_setServerAddress(
     )
 
 
-# signature: int blpapi_SessionOptions_setServerAddressWithProxy(blpapi_SessionOptions_t *parameters,const char *serverHost,unsigned short serverPort,const blpapi_Socks5Config_t *socks5Config,size_t index);
 def _blpapi_SessionOptions_setServerAddressWithProxy(
     parameters, serverHost, serverPort, socks5Config, index
 ):
@@ -4693,35 +6781,30 @@ def _blpapi_SessionOptions_setServerAddressWithProxy(
     )
 
 
-# signature: int blpapi_SessionOptions_setServerHost(blpapi_SessionOptions_t *parameters, const char *serverHost);
 def _blpapi_SessionOptions_setServerHost(parameters, serverHost):
     return l_blpapi_SessionOptions_setServerHost(
         parameters, charPtrFromPyStr(serverHost)
     )
 
 
-# signature: int blpapi_SessionOptions_setServerPort(blpapi_SessionOptions_t *parameters, unsigned short serverPort);
 def _blpapi_SessionOptions_setServerPort(parameters, serverPort):
     return l_blpapi_SessionOptions_setServerPort(
         parameters, c_uint16(serverPort)
     )
 
 
-# signature: int blpapi_SessionOptions_setServiceCheckTimeout(blpapi_SessionOptions_t *paramaters, int timeoutMsecs);
 def _blpapi_SessionOptions_setServiceCheckTimeout(paramaters, timeoutMsecs):
     return l_blpapi_SessionOptions_setServiceCheckTimeout(
         paramaters, timeoutMsecs
     )
 
 
-# signature: int blpapi_SessionOptions_setServiceDownloadTimeout(blpapi_SessionOptions_t *paramaters, int timeoutMsecs);
 def _blpapi_SessionOptions_setServiceDownloadTimeout(paramaters, timeoutMsecs):
     return l_blpapi_SessionOptions_setServiceDownloadTimeout(
         paramaters, timeoutMsecs
     )
 
 
-# signature: int blpapi_SessionOptions_setSessionIdentityOptions(blpapi_SessionOptions_t *parameters,const blpapi_AuthOptions_t *authOptions,blpapi_CorrelationId_t *cid);
 def _blpapi_SessionOptions_setSessionIdentityOptions(
     parameters, authOptions, cid
 ):
@@ -4733,7 +6816,6 @@ def _blpapi_SessionOptions_setSessionIdentityOptions(
     return retCode, cid if retCode == 0 else None
 
 
-# signature: int blpapi_SessionOptions_setSessionName(blpapi_SessionOptions_t *parameters,const char *sessionName,size_t size);
 def _blpapi_SessionOptions_setSessionName(parameters, sessionName):
     sn, sz = charPtrWithSizeFromPyStr(sessionName)
     return l_blpapi_SessionOptions_setSessionName(
@@ -4743,7 +6825,6 @@ def _blpapi_SessionOptions_setSessionName(parameters, sessionName):
     )
 
 
-# signature: int blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark(blpapi_SessionOptions_t *parameters, float hiWaterMark);
 def _blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark(
     parameters, hiWaterMark
 ):
@@ -4752,7 +6833,6 @@ def _blpapi_SessionOptions_setSlowConsumerWarningHiWaterMark(
     )
 
 
-# signature: int blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark(blpapi_SessionOptions_t *parameters, float loWaterMark);
 def _blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark(
     parameters, loWaterMark
 ):
@@ -4761,29 +6841,25 @@ def _blpapi_SessionOptions_setSlowConsumerWarningLoWaterMark(
     )
 
 
-# signature: void blpapi_SessionOptions_setTlsOptions(blpapi_SessionOptions_t *paramaters,const blpapi_TlsOptions_t *tlsOptions);
 def _blpapi_SessionOptions_setTlsOptions(paramaters, tlsOptions):
     l_blpapi_SessionOptions_setTlsOptions(paramaters, tlsOptions)
 
 
-# signature: float blpapi_SessionOptions_slowConsumerWarningHiWaterMark(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_slowConsumerWarningHiWaterMark(parameters):
     return l_blpapi_SessionOptions_slowConsumerWarningHiWaterMark(parameters)
 
 
-# signature: float blpapi_SessionOptions_slowConsumerWarningLoWaterMark(blpapi_SessionOptions_t *parameters);
 def _blpapi_SessionOptions_slowConsumerWarningLoWaterMark(parameters):
     return l_blpapi_SessionOptions_slowConsumerWarningLoWaterMark(parameters)
 
 
-# signature: int blpapi_Session_createSnapshotRequestTemplate(blpapi_RequestTemplate_t **requestTemplate,blpapi_Session_t *session,const char *subscriptionString,const blpapi_Identity_t *identity,blpapi_CorrelationId_t *correlationId);
 def _blpapi_Session_createSnapshotRequestTemplate(
     session, subscriptionString, identity, correlationId
 ):
     # the C layer will OVERWRITE cid with autogen for unset
-    out = c_void_p()
+    out = blpapi_RequestTemplate_t_p()
     outp = pointer(out)
-    idp = c_void_p() if identity is None else identity
+    idp = blpapi_Identity_t_p() if identity is None else identity
 
     cidp = pointer(correlationId.thestruct)
 
@@ -4797,28 +6873,24 @@ def _blpapi_Session_createSnapshotRequestTemplate(
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: blpapi_AbstractSession_t *blpapi_Session_getAbstractSession(blpapi_Session_t *session);
 def _blpapi_Session_getAbstractSession(session):
     return getHandleFromPtr(l_blpapi_Session_getAbstractSession(session))
 
 
-# signature: int blpapi_Session_nextEvent(blpapi_Session_t *session,blpapi_Event_t **eventPointer,unsigned int timeoutInMilliseconds);
 def _blpapi_Session_nextEvent(session, timeoutInMilliseconds):
-    eventptr = c_void_p()
-    outp = pointer(eventptr)
+    out = blpapi_Event_t_p()
+    outp = pointer(out)
     retCode = l_blpapi_Session_nextEvent(
         session, outp, c_uint(timeoutInMilliseconds)
     )
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Session_resubscribe(blpapi_Session_t *session,const blpapi_SubscriptionList_t *resubscriptionList,const char *requestLabel,int requestLabelLen);
 def _blpapi_Session_resubscribe(session, resubscriptionList, requestLabel):
     label, sz = charPtrWithSizeFromPyStr(requestLabel)
     return l_blpapi_Session_resubscribe(session, resubscriptionList, label, sz)
 
 
-# signature: int blpapi_Session_resubscribeEx(blpapi_Session_t *session,const blpapi_SubscriptionList_t *resubscriptionList,const char *requestLabel,int requestLabelLen,blpapi_SubscriptionPreprocessErrorHandler_t errorHandler,void *userData);
 def _blpapi_Session_resubscribeEx(
     session, resubscriptionList, requestLabel, errorHandler, userData
 ):
@@ -4828,18 +6900,19 @@ def _blpapi_Session_resubscribeEx(
     )
 
 
-# signature:
 def _blpapi_Session_resubscribeEx_helper(
     session, resubscriptionList, requestLabel, errorAppenderCb
 ):
-    proxy = anySessionSubErrorHandlerWrapper.get()
+    proxy = cast(
+        anySessionSubErrorHandlerWrapper.get(),
+        blpapi_SubscriptionPreprocessErrorHandler_t,
+    )
     userdata = voidFromPyFunction(errorAppenderCb)
     return _blpapi_Session_resubscribeEx(
         session, resubscriptionList, requestLabel, proxy, userdata
     )
 
 
-# signature: int blpapi_Session_resubscribeWithId(blpapi_Session_t *session,const blpapi_SubscriptionList_t *resubscriptionList,int resubscriptionId,const char *requestLabel,int requestLabelLen);
 def _blpapi_Session_resubscribeWithId(
     session, resubscriptionList, resubscriptionId, requestLabel
 ):
@@ -4853,7 +6926,6 @@ def _blpapi_Session_resubscribeWithId(
     )
 
 
-# signature: int blpapi_Session_resubscribeWithIdEx(blpapi_Session_t *session,const blpapi_SubscriptionList_t *resubscriptionList,int resubscriptionId,const char *requestLabel,int requestLabelLen,blpapi_SubscriptionPreprocessErrorHandler_t errorHandler,void *userData);
 def _blpapi_Session_resubscribeWithIdEx(
     session,
     resubscriptionList,
@@ -4874,7 +6946,6 @@ def _blpapi_Session_resubscribeWithIdEx(
     )
 
 
-# signature:
 def _blpapi_Session_resubscribeWithIdEx_helper(
     session,
     resubscriptionList,
@@ -4882,7 +6953,10 @@ def _blpapi_Session_resubscribeWithIdEx_helper(
     requestLabel,
     errorAppenderCb,
 ):
-    proxy = anySessionSubErrorHandlerWrapper.get()
+    proxy = cast(
+        anySessionSubErrorHandlerWrapper.get(),
+        blpapi_SubscriptionPreprocessErrorHandler_t,
+    )
     userdata = voidFromPyFunction(errorAppenderCb)
     return _blpapi_Session_resubscribeWithIdEx(
         session,
@@ -4894,7 +6968,6 @@ def _blpapi_Session_resubscribeWithIdEx_helper(
     )
 
 
-# signature: int blpapi_Session_sendRequest(blpapi_Session_t *session,const blpapi_Request_t *request,blpapi_CorrelationId_t *correlationId,blpapi_Identity_t *identity,blpapi_EventQueue_t *eventQueue,const char *requestLabel,int requestLabelLen);
 def _blpapi_Session_sendRequest(
     session, request, correlationId, identity, eventQueue, requestLabel
 ):
@@ -4913,7 +6986,6 @@ def _blpapi_Session_sendRequest(
     )
 
 
-# signature: int blpapi_Session_sendRequestTemplate(blpapi_Session_t *session,const blpapi_RequestTemplate_t *requestTemplate,blpapi_CorrelationId_t *correlationId);
 def _blpapi_Session_sendRequestTemplate(
     session, requestTemplate, correlationId
 ):
@@ -4927,7 +6999,6 @@ def _blpapi_Session_sendRequestTemplate(
     )
 
 
-# signature: int blpapi_Session_setStatusCorrelationId(blpapi_Session_t *session,const blpapi_Service_t *service,const blpapi_Identity_t *identity,const blpapi_CorrelationId_t *correlationId);
 def _blpapi_Session_setStatusCorrelationId(
     session, service, identity, correlationId
 ):
@@ -4936,27 +7007,22 @@ def _blpapi_Session_setStatusCorrelationId(
     )
 
 
-# signature: int blpapi_Session_start(blpapi_Session_t *session);
 def _blpapi_Session_start(session):
     return l_blpapi_Session_start(session)
 
 
-# signature: int blpapi_Session_startAsync(blpapi_Session_t *session);
 def _blpapi_Session_startAsync(session):
     return l_blpapi_Session_startAsync(session)
 
 
-# signature: int blpapi_Session_stop(blpapi_Session_t *session);
 def _blpapi_Session_stop(session):
     return l_blpapi_Session_stop(session)
 
 
-# signature: int blpapi_Session_stopAsync(blpapi_Session_t *session);
 def _blpapi_Session_stopAsync(session):
     return l_blpapi_Session_stopAsync(session)
 
 
-# signature: int blpapi_Session_subscribe(blpapi_Session_t *session,const blpapi_SubscriptionList_t *subscriptionList,const blpapi_Identity_t *handle,const char *requestLabel,int requestLabelLen);
 def _blpapi_Session_subscribe(session, subscriptionList, handle, requestLabel):
     # handle is identity
     label, sz = charPtrWithSizeFromPyStr(requestLabel)
@@ -4965,7 +7031,6 @@ def _blpapi_Session_subscribe(session, subscriptionList, handle, requestLabel):
     )
 
 
-# signature: int blpapi_Session_subscribeEx(blpapi_Session_t *session,const blpapi_SubscriptionList_t *subscriptionList,const blpapi_Identity_t *handle,const char *requestLabel,int requestLabelLen,blpapi_SubscriptionPreprocessErrorHandler_t errorHandler,void *userData);
 def _blpapi_Session_subscribeEx(
     session, subscriptionList, handle, requestLabel, errorHandler, userData
 ):
@@ -4981,26 +7046,26 @@ def _blpapi_Session_subscribeEx(
     )
 
 
-# signature:
 def _blpapi_Session_subscribeEx_helper(
     session, subscriptionList, identity, requestLabel, errorAppenderCb
 ):
-    proxy = anySessionSubErrorHandlerWrapper.get()
+    proxy = cast(
+        anySessionSubErrorHandlerWrapper.get(),
+        blpapi_SubscriptionPreprocessErrorHandler_t,
+    )
     userdata = voidFromPyFunction(errorAppenderCb)
     return _blpapi_Session_subscribeEx(
         session, subscriptionList, identity, requestLabel, proxy, userdata
     )
 
 
-# signature: int blpapi_Session_tryNextEvent(blpapi_Session_t *session, blpapi_Event_t **eventPointer);
 def _blpapi_Session_tryNextEvent(session):
-    eventptr = c_void_p()
-    outp = pointer(eventptr)
+    out = blpapi_Event_t_p()
+    outp = pointer(out)
     retCode = l_blpapi_Session_tryNextEvent(session, outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Session_unsubscribe(blpapi_Session_t *session,const blpapi_SubscriptionList_t *unsubscriptionList,const char *requestLabel,int requestLabelLen);
 def _blpapi_Session_unsubscribe(session, unsubscriptionList, requestLabel):
     label, sz = charPtrWithSizeFromPyStr(requestLabel)
     return l_blpapi_Session_unsubscribe(
@@ -5008,7 +7073,6 @@ def _blpapi_Session_unsubscribe(session, unsubscriptionList, requestLabel):
     )
 
 
-# signature: blpapi_Socks5Config_t *blpapi_Socks5Config_create(const char *hostname, size_t hostname_size, unsigned short port);
 def _blpapi_Socks5Config_create(hostname, port):
     hn, sz = charPtrWithSizeFromPyStr(hostname)
     return getHandleFromPtr(
@@ -5016,19 +7080,16 @@ def _blpapi_Socks5Config_create(hostname, port):
     )
 
 
-# signature: void blpapi_Socks5Config_destroy(blpapi_Socks5Config_t *socks5Config);
 def _blpapi_Socks5Config_destroy(socks5Config):
     l_blpapi_Socks5Config_destroy(socks5Config)
 
 
-# signature:
 def _blpapi_Socks5Config_printHelper(socks5Config, level, spacesPerLevel):
     return any_printer(
         socks5Config, l_blpapi_Socks5Config_print, level, spacesPerLevel
     )
 
 
-# signature:
 def _blpapi_SubscriptionList_addHelper(slist, topic, correlationId):
     return l_blpapi_SubscriptionList_add(
         slist,
@@ -5041,7 +7102,6 @@ def _blpapi_SubscriptionList_addHelper(slist, topic, correlationId):
     )
 
 
-# signature: int blpapi_SubscriptionList_addResolved(blpapi_SubscriptionList_t *list,const char *subscriptionString,const blpapi_CorrelationId_t *correlationId);
 def _blpapi_SubscriptionList_addResolved(
     slist, subscriptionString, correlationId
 ):
@@ -5052,17 +7112,14 @@ def _blpapi_SubscriptionList_addResolved(
     )
 
 
-# signature: int blpapi_SubscriptionList_append(blpapi_SubscriptionList_t *dest, const blpapi_SubscriptionList_t *src);
 def _blpapi_SubscriptionList_append(dest, src):
     return l_blpapi_SubscriptionList_append(dest, src)
 
 
-# signature: int blpapi_SubscriptionList_clear(blpapi_SubscriptionList_t *list);
 def _blpapi_SubscriptionList_clear(slist):
     return l_blpapi_SubscriptionList_clear(slist)
 
 
-# signature: int blpapi_SubscriptionList_correlationIdAt(const blpapi_SubscriptionList_t *list,blpapi_CorrelationId_t *result,size_t index);
 def _blpapi_SubscriptionList_correlationIdAt(slist, index):
     cid = CidStruct()
     cidp = pointer(cid)
@@ -5077,17 +7134,14 @@ def _blpapi_SubscriptionList_correlationIdAt(slist, index):
     return retCode, None
 
 
-# signature: blpapi_SubscriptionList_t *blpapi_SubscriptionList_create(void);
 def _blpapi_SubscriptionList_create():
     return getHandleFromPtr(l_blpapi_SubscriptionList_create())
 
 
-# signature: void blpapi_SubscriptionList_destroy(blpapi_SubscriptionList_t *list);
 def _blpapi_SubscriptionList_destroy(slist):
     l_blpapi_SubscriptionList_destroy(slist)
 
 
-# signature: int blpapi_SubscriptionList_isResolvedAt(blpapi_SubscriptionList_t *list, int *result, size_t index);
 def _blpapi_SubscriptionList_isResolvedAt(slist, index):
     out = c_int()
     outp = pointer(out)
@@ -5097,12 +7151,10 @@ def _blpapi_SubscriptionList_isResolvedAt(slist, index):
     return retCode, getPODFromOutput(outp, retCode) != 0
 
 
-# signature: int blpapi_SubscriptionList_size(const blpapi_SubscriptionList_t *list);
 def _blpapi_SubscriptionList_size(slist):
-    return l_blpapi_SubscriptionList_size(slist)  # int
+    return l_blpapi_SubscriptionList_size(slist)
 
 
-# signature: int blpapi_SubscriptionList_topicStringAt(blpapi_SubscriptionList_t *list, const char **result, size_t index);
 def _blpapi_SubscriptionList_topicStringAt(slist, index):
     out = c_char_p()
     outp = pointer(out)
@@ -5112,56 +7164,46 @@ def _blpapi_SubscriptionList_topicStringAt(slist, index):
     return retCode, getStrFromOutput(outp, retCode)
 
 
-# signature: int blpapi_TestUtil_appendMessage(blpapi_MessageFormatter_t **formatter,blpapi_Event_t *event,const blpapi_SchemaElementDefinition_t *messageType,const blpapi_MessageProperties_t *properties);
 def _blpapi_TestUtil_appendMessage(event, messageType, properties):
-    out = c_void_p()
+    out = blpapi_MessageFormatter_t_p()
     outp = pointer(out)
     retCode = l_blpapi_TestUtil_appendMessage(
         outp, event, messageType, properties
-    )  # int
+    )
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_TestUtil_createEvent(blpapi_Event_t **event, int eventType);
 def _blpapi_TestUtil_createEvent(eventType):
-    out = c_void_p()
+    out = blpapi_Event_t_p()
     outp = pointer(out)
-    retCode = l_blpapi_TestUtil_createEvent(outp, eventType)  # int
+    retCode = l_blpapi_TestUtil_createEvent(outp, eventType)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_TestUtil_createTopic(blpapi_Topic_t **topic, const blpapi_Service_t *service, int isActive);
 def _blpapi_TestUtil_createTopic(service, isActive):
-    out = c_void_p()
+    out = blpapi_Topic_t_p()
     outp = pointer(out)
-    retCode = l_blpapi_TestUtil_createTopic(outp, service, isActive)  # int
+    retCode = l_blpapi_TestUtil_createTopic(outp, service, isActive)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_TestUtil_deserializeService(const char *schema, size_t schemaLength, blpapi_Service_t **service);
 def _blpapi_TestUtil_deserializeService(
     schema, schemaLength
 ):  # pylint: disable=unused-argument
-    out = c_void_p()
+    out = blpapi_Service_t_p()
     outp = pointer(out)
     schemac, sz = charPtrWithSizeFromPyStr(schema)
-    retCode = l_blpapi_TestUtil_deserializeService(
-        schemac, c_size_t(sz), outp
-    )  # int
+    retCode = l_blpapi_TestUtil_deserializeService(schemac, c_size_t(sz), outp)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_TestUtil_getAdminMessageDefinition(blpapi_SchemaElementDefinition_t **definition,blpapi_Name_t *messageName);
 def _blpapi_TestUtil_getAdminMessageDefinition(messageName):
-    out = c_void_p()
+    out = blpapi_SchemaElementDefinition_t_p()
     outp = pointer(out)
-    retCode = l_blpapi_TestUtil_getAdminMessageDefinition(
-        outp, messageName
-    )  # int
+    retCode = l_blpapi_TestUtil_getAdminMessageDefinition(outp, messageName)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature:
 def _blpapi_TestUtil_serializeServiceHelper(service):
     out = StringIO()
     writer = StreamWrapper()
@@ -5175,12 +7217,10 @@ def _blpapi_TestUtil_serializeServiceHelper(service):
     return out.read()
 
 
-# signature: long long blpapi_TimePointUtil_nanosecondsBetween(const blpapi_TimePoint_t *start, const blpapi_TimePoint_t *end);
 def _blpapi_TimePointUtil_nanosecondsBetween(start, end):
     raise NotImplementedError("not called")
 
 
-# signature: blpapi_TlsOptions_t *blpapi_TlsOptions_createFromBlobs(const char *clientCredentialsRawData,int clientCredentialsRawDataLength,const char *clientCredentialsPassword,const char *trustedCertificatesRawData,int trustedCertificatesRawDataLength);
 def _blpapi_TlsOptions_createFromBlobs(
     clientCredentialsRawData,
     clientCredentialsPassword,
@@ -5195,7 +7235,6 @@ def _blpapi_TlsOptions_createFromBlobs(
     )
 
 
-# signature: blpapi_TlsOptions_t *blpapi_TlsOptions_createFromFiles(const char *clientCredentialsFileName,const char *clientCredentialsPassword,const char *trustedCertificatesFileName);
 def _blpapi_TlsOptions_createFromFiles(
     clientCredentialsFileName,
     clientCredentialsPassword,
@@ -5210,17 +7249,14 @@ def _blpapi_TlsOptions_createFromFiles(
     )
 
 
-# signature: void blpapi_TlsOptions_destroy(blpapi_TlsOptions_t *parameters);
 def _blpapi_TlsOptions_destroy(parameters):
     l_blpapi_TlsOptions_destroy(parameters)
 
 
-# signature: void blpapi_TlsOptions_setCrlFetchTimeoutMs(blpapi_TlsOptions_t *paramaters, int crlFetchTimeoutMs);
 def _blpapi_TlsOptions_setCrlFetchTimeoutMs(paramaters, crlFetchTimeoutMs):
     l_blpapi_TlsOptions_setCrlFetchTimeoutMs(paramaters, crlFetchTimeoutMs)
 
 
-# signature: void blpapi_TlsOptions_setTlsHandshakeTimeoutMs(blpapi_TlsOptions_t *paramaters, int tlsHandshakeTimeoutMs);
 def _blpapi_TlsOptions_setTlsHandshakeTimeoutMs(
     paramaters, tlsHandshakeTimeoutMs
 ):
@@ -5229,7 +7265,6 @@ def _blpapi_TlsOptions_setTlsHandshakeTimeoutMs(
     )
 
 
-# signature: int blpapi_TopicList_add(blpapi_TopicList_t *list,const char *topic,const blpapi_CorrelationId_t *correlationId);
 def _blpapi_TopicList_add(topic_list, topic, correlationId):
     return l_blpapi_TopicList_add(
         topic_list,
@@ -5238,14 +7273,12 @@ def _blpapi_TopicList_add(topic_list, topic, correlationId):
     )
 
 
-# signature: int blpapi_TopicList_addFromMessage(blpapi_TopicList_t *list,const blpapi_Message_t *topic,const blpapi_CorrelationId_t *correlationId);
 def _blpapi_TopicList_addFromMessage(topic_list, message, correlationId):
     return l_blpapi_TopicList_addFromMessage(
         topic_list, message, byref(correlationId.thestruct)
     )
 
 
-# signature: int blpapi_TopicList_correlationIdAt(const blpapi_TopicList_t *list,blpapi_CorrelationId_t *result,size_t index);
 def _blpapi_TopicList_correlationIdAt(topic_list, index):
     cid = CidStruct()
     cidp = pointer(cid)
@@ -5260,25 +7293,23 @@ def _blpapi_TopicList_correlationIdAt(topic_list, index):
     return retCode, None
 
 
-# signature: blpapi_TopicList_t *blpapi_TopicList_create(blpapi_TopicList_t *from);
 def _blpapi_TopicList_create(_from):
-    fromp = c_void_p() if _from is None else _from
+    fromp = blpapi_TopicList_t_p() if _from is None else _from
     return getHandleFromPtr(l_blpapi_TopicList_create(fromp))
 
 
-# signature:
 def _blpapi_TopicList_createFromResolutionList(_from):
-    return getHandleFromPtr(l_blpapi_TopicList_create(_from))
+    return getHandleFromPtr(
+        l_blpapi_TopicList_create(cast(_from, blpapi_TopicList_t_p))
+    )
 
 
-# signature: void blpapi_TopicList_destroy(blpapi_TopicList_t *list);
 def _blpapi_TopicList_destroy(topic_list):
     l_blpapi_TopicList_destroy(topic_list)
 
 
-# signature: int blpapi_TopicList_message(const blpapi_TopicList_t *list,blpapi_Message_t **element,const blpapi_CorrelationId_t *id);
 def _blpapi_TopicList_message(topic_list, cid):
-    out = c_void_p()
+    out = blpapi_Message_t_p()
     outp = pointer(out)
     retCode = l_blpapi_TopicList_message(
         topic_list, outp, byref(cid.thestruct)
@@ -5286,20 +7317,17 @@ def _blpapi_TopicList_message(topic_list, cid):
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_TopicList_messageAt(const blpapi_TopicList_t *list,blpapi_Message_t **element,size_t index);
 def _blpapi_TopicList_messageAt(topic_list, index):
-    out = c_void_p()
+    out = blpapi_Message_t_p()
     outp = pointer(out)
     retCode = l_blpapi_TopicList_messageAt(topic_list, outp, index)
     return retCode, getHandleFromOutput(outp, retCode)
 
 
-# signature: int blpapi_TopicList_size(const blpapi_TopicList_t *list);
 def _blpapi_TopicList_size(topic_list):
-    return l_blpapi_TopicList_size(topic_list)  # int
+    return l_blpapi_TopicList_size(topic_list)
 
 
-# signature: int blpapi_TopicList_status(const blpapi_TopicList_t *list,int *status,const blpapi_CorrelationId_t *id);
 def _blpapi_TopicList_status(topic_list, cid):
     out = c_int()
     outp = pointer(out)
@@ -5307,7 +7335,6 @@ def _blpapi_TopicList_status(topic_list, cid):
     return retCode, getPODFromOutput(outp, retCode)
 
 
-# signature: int blpapi_TopicList_statusAt(const blpapi_TopicList_t *list, int *status, size_t index);
 def _blpapi_TopicList_statusAt(topic_list, index):
     out = c_int()
     outp = pointer(out)
@@ -5315,7 +7342,6 @@ def _blpapi_TopicList_statusAt(topic_list, index):
     return retCode, getPODFromOutput(outp, retCode)
 
 
-# signature: int blpapi_TopicList_topicString(const blpapi_TopicList_t *list,const char **topic,const blpapi_CorrelationId_t *id);
 def _blpapi_TopicList_topicString(topic_list, cid):
     out = c_char_p()
     outp = pointer(out)
@@ -5325,7 +7351,6 @@ def _blpapi_TopicList_topicString(topic_list, cid):
     return retCode, getStrFromOutput(outp, retCode)
 
 
-# signature: int blpapi_TopicList_topicStringAt(const blpapi_TopicList_t *list, const char **topic, size_t index);
 def _blpapi_TopicList_topicStringAt(topic_list, index):
     out = c_char_p()
     outp = pointer(out)
@@ -5333,46 +7358,38 @@ def _blpapi_TopicList_topicStringAt(topic_list, index):
     return retCode, getStrFromOutput(outp, retCode)
 
 
-# signature: int blpapi_Topic_compare(const blpapi_Topic_t *lhs, const blpapi_Topic_t *rhs);
 def _blpapi_Topic_compare(lhs, rhs):
     return l_blpapi_Topic_compare(lhs, rhs)
 
 
-# signature: blpapi_Topic_t *blpapi_Topic_create(blpapi_Topic_t *from);
 def _blpapi_Topic_create(_from):
     raise NotImplementedError("not called")
 
 
-# signature: void blpapi_Topic_destroy(blpapi_Topic_t *victim);
 def _blpapi_Topic_destroy(victim):
     l_blpapi_Topic_destroy(victim)
 
 
-# signature: int blpapi_Topic_isActive(const blpapi_Topic_t *topic);
 def _blpapi_Topic_isActive(topic):
     return l_blpapi_Topic_isActive(topic) != 0
 
 
-# signature: blpapi_Service_t *blpapi_Topic_service(const blpapi_Topic_t *topic);
 def _blpapi_Topic_service(topic):
     return getHandleFromPtr(l_blpapi_Topic_service(topic))
 
 
-# signature: int blpapi_UserAgentInfo_setUserTaskName(const char *userTaskName);
 def _blpapi_UserAgentInfo_setUserTaskName(userTaskName):
     return l_blpapi_UserAgentInfo_setUserTaskName(
         charPtrFromPyStr(userTaskName)
     )
 
 
-# signature: int blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion(const char *language, const char *version);
 def _blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion(language, version):
     return l_blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion(
         charPtrFromPyStr(language), charPtrFromPyStr(version)
     )
 
 
-# signature: int blpapi_ZfpUtil_getOptionsForLeasedLines(blpapi_SessionOptions_t *sessionOptions,const blpapi_TlsOptions_t *tlsOptions,int remote);
 def _blpapi_ZfpUtil_getOptionsForLeasedLines(
     sessionOptions, tlsOptions, remote
 ):
@@ -5381,7 +7398,6 @@ def _blpapi_ZfpUtil_getOptionsForLeasedLines(
     )
 
 
-# signature: const char *blpapi_getLastErrorDescription(int resultCode);
 def _blpapi_getLastErrorDescription(resultCode):
     return getStrFromC(l_blpapi_getLastErrorDescription(resultCode))
 
@@ -5415,10 +7431,12 @@ def _ProviderSession_createHelper(parameters, eventHandlerFunc, dispatcher):
     # returns handle to Session
     hasHandler = eventHandlerFunc is not None
     if hasHandler:
-        handlerparam = anySessionEventHandlerWrapper.get()
+        handlerparam = cast(
+            anySessionEventHandlerWrapper.get(), blpapi_ProviderEventHandler_t
+        )
         userdata = voidFromPyFunction(eventHandlerFunc)
     else:
-        handlerparam = c_void_p(0)
+        handlerparam = blpapi_ProviderEventHandler_t(0)
         userdata = c_void_p(0)
     handle = l_blpapi_ProviderSession_create(
         parameters,
@@ -5437,7 +7455,7 @@ def _Session_createHelper(parameters, dispatcher):
     # parameters is a handle to SessionOptions
     # dispatcher is a handle to dispatcher, which we honestly hope to be None!
     # returns handle to Session
-    handlerparam = c_void_p(0)
+    handlerparam = blpapi_EventHandler_t(0)
     userdata = c_void_p(0)
 
     # `Session.py` uses now a separated thread to poll event from the queue
@@ -6224,22 +8242,97 @@ Session_destroyHelper = _Session_destroyHelper
 def _test_function_signatures():
     _C_TO_PY = {
         "char": c_char,
+        "char*": c_char_p,
+        "char**": POINTER[c_char_p],
         "double": c_double,
+        "double*": POINTER[c_double],
         "float": c_float,
+        "float*": POINTER[c_float],
         "int": c_int,
-        "int*": POINTER(c_int),
+        "int*": POINTER[c_int],
+        "long": c_int64,
+        "long*": POINTER[c_int64],
+        "short": c_int16,
         "size_t": c_size_t,
+        "size_t*": POINTER[c_size_t],
         "unsigned int": c_uint,
+        "unsigned short": c_uint16,
+        "unsigned short*": POINTER[c_uint16],
+        "blpapi_Bool_t": c_int,
+        "blpapi_Bool_t*": POINTER[c_int],
+        "blpapi_Char_t*": POINTER[c_char],
         "blpapi_CorrelationId_t": CidStruct,
+        "blpapi_CorrelationId_t*": CidStruct_p,
+        "blpapi_Datetime_t*": BDatetime_p,
+        "blpapi_EventHandler_t": blpapi_EventHandler_t,
+        "blpapi_HighPrecisionDatetime_t*": HighPrecisionDatetime_p,
+        "blpapi_Logging_Func_t": blpapi_Logging_Func_t,
+        "blpapi_Logging_Severity_t": c_int,
+        "blpapi_ProviderEventHandler_t": blpapi_ProviderEventHandler_t,
         "blpapi_StreamWriter_t": blpapi_StreamWriter_t,
+        "blpapi_SubscriptionPreprocessErrorHandler_t": blpapi_SubscriptionPreprocessErrorHandler_t,
+        "blpapi_TimePoint_t*": TimePoint_p,
+        # Opaque pointer types
+        "blpapi_AbstractSession_t*": blpapi_AbstractSession_t_p,
+        "blpapi_AuthApplication_t*": blpapi_AuthApplication_t_p,
+        "blpapi_AuthApplication_t**": POINTER[blpapi_AuthApplication_t_p],
+        "blpapi_AuthOptions_t*": blpapi_AuthOptions_t_p,
+        "blpapi_AuthOptions_t**": POINTER[blpapi_AuthOptions_t_p],
+        "blpapi_AuthToken_t*": blpapi_AuthToken_t_p,
+        "blpapi_AuthToken_t**": POINTER[blpapi_AuthToken_t_p],
+        "blpapi_AuthUser_t*": blpapi_AuthUser_t_p,
+        "blpapi_AuthUser_t**": POINTER[blpapi_AuthUser_t_p],
+        "blpapi_Constant_t*": blpapi_Constant_t_p,
+        "blpapi_ConstantList_t*": blpapi_ConstantList_t_p,
+        "blpapi_Element_t*": blpapi_Element_t_p,
+        "blpapi_Element_t**": POINTER[blpapi_Element_t_p],
+        "blpapi_Event_t*": blpapi_Event_t_p,
+        "blpapi_Event_t**": POINTER[blpapi_Event_t_p],
+        "blpapi_EventDispatcher_t*": blpapi_EventDispatcher_t_p,
+        "blpapi_EventFormatter_t*": blpapi_EventFormatter_t_p,
+        "blpapi_EventFormatter_t**": POINTER[blpapi_EventFormatter_t_p],
+        "blpapi_EventQueue_t*": blpapi_EventQueue_t_p,
+        "blpapi_Identity_t*": blpapi_Identity_t_p,
+        "blpapi_Identity_t**": POINTER[blpapi_Identity_t_p],
+        "blpapi_Message_t*": blpapi_Message_t_p,
+        "blpapi_Message_t**": POINTER[blpapi_Message_t_p],
+        "blpapi_MessageFormatter_t*": blpapi_MessageFormatter_t_p,
+        "blpapi_MessageFormatter_t**": POINTER[blpapi_MessageFormatter_t_p],
+        "blpapi_MessageIterator_t*": blpapi_MessageIterator_t_p,
+        "blpapi_MessageProperties_t*": blpapi_MessageProperties_t_p,
+        "blpapi_MessageProperties_t**": POINTER[blpapi_MessageProperties_t_p],
+        "blpapi_Name_t*": blpapi_Name_t_p,
+        "blpapi_Name_t**": POINTER[blpapi_Name_t_p],
+        "blpapi_Operation_t*": blpapi_Operation_t_p,
+        "blpapi_Operation_t**": POINTER[blpapi_Operation_t_p],
+        "blpapi_ProviderSession_t*": blpapi_ProviderSession_t_p,
+        "blpapi_Request_t*": blpapi_Request_t_p,
+        "blpapi_Request_t**": POINTER[blpapi_Request_t_p],
+        "blpapi_RequestTemplate_t*": blpapi_RequestTemplate_t_p,
+        "blpapi_RequestTemplate_t**": POINTER[blpapi_RequestTemplate_t_p],
+        "blpapi_ResolutionList_t*": blpapi_ResolutionList_t_p,
+        "blpapi_SchemaElementDefinition_t*": blpapi_SchemaElementDefinition_t_p,
+        "blpapi_SchemaElementDefinition_t**": POINTER[
+            blpapi_SchemaElementDefinition_t_p
+        ],
+        "blpapi_SchemaTypeDefinition_t*": blpapi_SchemaTypeDefinition_t_p,
+        "blpapi_Service_t*": blpapi_Service_t_p,
+        "blpapi_Service_t**": POINTER[blpapi_Service_t_p],
+        "blpapi_ServiceRegistrationOptions_t*": blpapi_ServiceRegistrationOptions_t_p,
+        "blpapi_Session_t*": blpapi_Session_t_p,
+        "blpapi_SessionOptions_t*": blpapi_SessionOptions_t_p,
+        "blpapi_Socks5Config_t*": blpapi_Socks5Config_t_p,
+        "blpapi_SubscriptionList_t*": blpapi_SubscriptionList_t_p,
+        "blpapi_TlsOptions_t*": blpapi_TlsOptions_t_p,
+        "blpapi_TopicList_t*": blpapi_TopicList_t_p,
+        "blpapi_Topic_t*": blpapi_Topic_t_p,
+        "blpapi_Topic_t**": POINTER[blpapi_Topic_t_p],
     }
 
     def c_type_to_ctypes(ctype: str):
         pt = _C_TO_PY.get(ctype, None)
         if pt is not None:
             return pt
-        if "char" in ctype:
-            return c_char_p
         elif "*" in ctype:
             return c_void_p
         return None
@@ -6279,7 +8372,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_AbstractSession_createIdentity",
-        ret="blpapi_Identity_t *",
+        ret="blpapi_Identity_t*",
         args=["blpapi_AbstractSession_t*"],
     )
     verify_ctypes(
@@ -6334,6 +8427,19 @@ def _test_function_signatures():
         fnc="blpapi_AbstractSession_openServiceAsync",
         ret="int",
         args=["blpapi_AbstractSession_t*", "char*", "blpapi_CorrelationId_t*"],
+    )
+    verify_ctypes(
+        fnc="blpapi_AbstractSession_sendAuthorizationRequest",
+        ret="int",
+        args=[
+            "blpapi_AbstractSession_t*",
+            "blpapi_Request_t*",
+            "blpapi_Identity_t*",
+            "blpapi_CorrelationId_t*",
+            "blpapi_EventQueue_t*",
+            "char*",
+            "int",
+        ],
     )
     verify_ctypes(
         fnc="blpapi_AbstractSession_sessionName",
@@ -6459,22 +8565,22 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_ConstantList_description",
-        ret="char *",
+        ret="char*",
         args=["blpapi_ConstantList_t*"],
     )
     verify_ctypes(
         fnc="blpapi_ConstantList_getConstant",
-        ret="blpapi_Constant_t *",
+        ret="blpapi_Constant_t*",
         args=["blpapi_ConstantList_t*", "char*", "blpapi_Name_t*"],
     )
     verify_ctypes(
         fnc="blpapi_ConstantList_getConstantAt",
-        ret="blpapi_Constant_t *",
+        ret="blpapi_Constant_t*",
         args=["blpapi_ConstantList_t*", "size_t"],
     )
     verify_ctypes(
         fnc="blpapi_ConstantList_name",
-        ret="blpapi_Name_t *",
+        ret="blpapi_Name_t*",
         args=["blpapi_ConstantList_t*"],
     )
     verify_ctypes(
@@ -6492,7 +8598,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_Constant_description",
-        ret="char *",
+        ret="char*",
         args=["blpapi_Constant_t*"],
     )
     verify_ctypes(
@@ -6508,22 +8614,22 @@ def _test_function_signatures():
     verify_ctypes(
         fnc="blpapi_Constant_getValueAsFloat32",
         ret="int",
-        args=["blpapi_Constant_t*", "blpapi_Float32_t*"],
+        args=["blpapi_Constant_t*", "float*"],
     )
     verify_ctypes(
         fnc="blpapi_Constant_getValueAsFloat64",
         ret="int",
-        args=["blpapi_Constant_t*", "blpapi_Float64_t*"],
+        args=["blpapi_Constant_t*", "double*"],
     )
     verify_ctypes(
         fnc="blpapi_Constant_getValueAsInt32",
         ret="int",
-        args=["blpapi_Constant_t*", "blpapi_Int32_t*"],
+        args=["blpapi_Constant_t*", "int*"],
     )
     verify_ctypes(
         fnc="blpapi_Constant_getValueAsInt64",
         ret="int",
-        args=["blpapi_Constant_t*", "blpapi_Int64_t*"],
+        args=["blpapi_Constant_t*", "long*"],
     )
     verify_ctypes(
         fnc="blpapi_Constant_getValueAsString",
@@ -6532,11 +8638,19 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_Constant_name",
-        ret="blpapi_Name_t *",
+        ret="blpapi_Name_t*",
         args=["blpapi_Constant_t*"],
     )
     verify_ctypes(
         fnc="blpapi_Constant_status", ret="int", args=["blpapi_Constant_t*"]
+    )
+    verify_ctypes(
+        fnc="blpapi_DiagnosticsUtil_memoryInfo",
+        ret="int",
+        args=[
+            "char*",
+            "size_t",
+        ],
     )
     verify_ctypes(
         fnc="blpapi_Element_appendElement",
@@ -6548,8 +8662,13 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_Element_definition",
-        ret="blpapi_SchemaElementDefinition_t *",
+        ret="blpapi_SchemaElementDefinition_t*",
         args=["blpapi_Element_t*"],
+    )
+    verify_ctypes(
+        fnc="blpapi_Element_fromJson",
+        ret="int",
+        args=["blpapi_Element_t*", "char*"],
     )
     verify_ctypes(
         fnc="blpapi_Element_getChoice",
@@ -6559,7 +8678,12 @@ def _test_function_signatures():
     verify_ctypes(
         fnc="blpapi_Element_getElement",
         ret="int",
-        args=["blpapi_Element_t*", "blpapi_Element_t**", "size_t"],
+        args=[
+            "blpapi_Element_t*",
+            "blpapi_Element_t**",
+            "char*",
+            "blpapi_Name_t*",
+        ],
     )
     verify_ctypes(
         fnc="blpapi_Element_getElementAt",
@@ -6592,9 +8716,18 @@ def _test_function_signatures():
         args=["blpapi_Element_t*", "blpapi_Element_t**", "size_t"],
     )
     verify_ctypes(
+        fnc="blpapi_Element_getValueAsFloat32",
+        ret="int",
+        args=[
+            "blpapi_Element_t*",
+            "float*",
+            "size_t",
+        ],
+    )
+    verify_ctypes(
         fnc="blpapi_Element_getValueAsFloat64",
         ret="int",
-        args=["blpapi_Element_t*", "blpapi_Float64_t*", "size_t"],
+        args=["blpapi_Element_t*", "double*", "size_t"],
     )
     verify_ctypes(
         fnc="blpapi_Element_getValueAsHighPrecisionDatetime",
@@ -6608,12 +8741,12 @@ def _test_function_signatures():
     verify_ctypes(
         fnc="blpapi_Element_getValueAsInt32",
         ret="int",
-        args=["blpapi_Element_t*", "blpapi_Int32_t*", "size_t"],
+        args=["blpapi_Element_t*", "int*", "size_t"],
     )
     verify_ctypes(
         fnc="blpapi_Element_getValueAsInt64",
         ret="int",
-        args=["blpapi_Element_t*", "blpapi_Int64_t*", "size_t"],
+        args=["blpapi_Element_t*", "long*", "size_t"],
     )
     verify_ctypes(
         fnc="blpapi_Element_getValueAsName",
@@ -6641,7 +8774,7 @@ def _test_function_signatures():
     verify_ctypes(
         fnc="blpapi_Element_isNull",
         ret="int",
-        args=["blpapi_Element_t*", "size_t"],
+        args=["blpapi_Element_t*"],
     )
     verify_ctypes(
         fnc="blpapi_Element_isNullValue",
@@ -6653,12 +8786,12 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_Element_name",
-        ret="blpapi_Name_t *",
+        ret="blpapi_Name_t*",
         args=["blpapi_Element_t*"],
     )
     verify_ctypes(
         fnc="blpapi_Element_nameString",
-        ret="char *",
+        ret="char*",
         args=["blpapi_Element_t*"],
     )
     verify_ctypes(
@@ -6670,6 +8803,17 @@ def _test_function_signatures():
         fnc="blpapi_Element_numValues",
         ret="size_t",
         args=["blpapi_Element_t*"],
+    )
+    verify_ctypes(
+        fnc="blpapi_Element_print",
+        ret="int",
+        args=[
+            "blpapi_Element_t*",
+            "void*",
+            "void*",
+            "int",
+            "int",
+        ],
     )
     verify_ctypes(
         fnc="blpapi_Element_setChoice",
@@ -6705,7 +8849,27 @@ def _test_function_signatures():
             "blpapi_Element_t*",
             "char*",
             "blpapi_Name_t*",
-            "blpapi_Float32_t",
+            "float",
+        ],
+    )
+    verify_ctypes(
+        fnc="blpapi_Element_setElementFloat32",
+        ret="int",
+        args=[
+            "blpapi_Element_t*",
+            "char*",
+            "blpapi_Name_t*",
+            "float",
+        ],
+    )
+    verify_ctypes(
+        fnc="blpapi_Element_setElementFloat64",
+        ret="int",
+        args=[
+            "blpapi_Element_t*",
+            "char*",
+            "blpapi_Name_t*",
+            "double",
         ],
     )
     verify_ctypes(
@@ -6735,7 +8899,7 @@ def _test_function_signatures():
             "blpapi_Element_t*",
             "char*",
             "blpapi_Name_t*",
-            "blpapi_Int32_t",
+            "int",
         ],
     )
     verify_ctypes(
@@ -6745,7 +8909,7 @@ def _test_function_signatures():
             "blpapi_Element_t*",
             "char*",
             "blpapi_Name_t*",
-            "blpapi_Int64_t",
+            "long",
         ],
     )
     verify_ctypes(
@@ -6766,7 +8930,25 @@ def _test_function_signatures():
     verify_ctypes(
         fnc="blpapi_Element_setValueFloat",
         ret="int",
-        args=["blpapi_Element_t*", "blpapi_Float32_t", "size_t"],
+        args=["blpapi_Element_t*", "float", "size_t"],
+    )
+    verify_ctypes(
+        fnc="blpapi_Element_setValueFloat32",
+        ret="int",
+        args=[
+            "blpapi_Element_t*",
+            "float",
+            "size_t",
+        ],
+    )
+    verify_ctypes(
+        fnc="blpapi_Element_setValueFloat64",
+        ret="int",
+        args=[
+            "blpapi_Element_t*",
+            "double",
+            "size_t",
+        ],
     )
     verify_ctypes(
         fnc="blpapi_Element_setValueFromName",
@@ -6785,12 +8967,12 @@ def _test_function_signatures():
     verify_ctypes(
         fnc="blpapi_Element_setValueInt32",
         ret="int",
-        args=["blpapi_Element_t*", "blpapi_Int32_t", "size_t"],
+        args=["blpapi_Element_t*", "int", "size_t"],
     )
     verify_ctypes(
         fnc="blpapi_Element_setValueInt64",
         ret="int",
-        args=["blpapi_Element_t*", "blpapi_Int64_t", "size_t"],
+        args=["blpapi_Element_t*", "long", "size_t"],
     )
     verify_ctypes(
         fnc="blpapi_Element_setValueString",
@@ -6803,13 +8985,8 @@ def _test_function_signatures():
         args=["blpapi_Element_t*", "blpapi_StreamWriter_t", "void*"],
     )
     verify_ctypes(
-        fnc="blpapi_Element_fromJson",
-        ret="int",
-        args=["blpapi_Element_t*", "char const *"],
-    )
-    verify_ctypes(
         fnc="blpapi_EventDispatcher_create",
-        ret="blpapi_EventDispatcher_t *",
+        ret="blpapi_EventDispatcher_t*",
         args=["size_t"],
     )
     verify_ctypes(
@@ -6875,7 +9052,7 @@ def _test_function_signatures():
             "blpapi_Name_t*",
             "blpapi_Topic_t*",
             "unsigned int",
-            "unsigned",
+            "unsigned int",
         ],
     )
     verify_ctypes(
@@ -6895,7 +9072,7 @@ def _test_function_signatures():
             "blpapi_Topic_t*",
             "blpapi_CorrelationId_t*",
             "unsigned int",
-            "unsigned",
+            "unsigned int",
         ],
     )
     verify_ctypes(
@@ -6914,9 +9091,33 @@ def _test_function_signatures():
         args=["blpapi_EventFormatter_t*", "char"],
     )
     verify_ctypes(
+        fnc="blpapi_EventFormatter_appendValueDatetime",
+        ret="int",
+        args=[
+            "blpapi_EventFormatter_t*",
+            "blpapi_Datetime_t*",
+        ],
+    )
+    verify_ctypes(
         fnc="blpapi_EventFormatter_appendValueFloat",
         ret="int",
-        args=["blpapi_EventFormatter_t*", "blpapi_Float32_t"],
+        args=["blpapi_EventFormatter_t*", "float"],
+    )
+    verify_ctypes(
+        fnc="blpapi_EventFormatter_appendValueFloat32",
+        ret="int",
+        args=[
+            "blpapi_EventFormatter_t*",
+            "float",
+        ],
+    )
+    verify_ctypes(
+        fnc="blpapi_EventFormatter_appendValueFloat64",
+        ret="int",
+        args=[
+            "blpapi_EventFormatter_t*",
+            "double",
+        ],
     )
     verify_ctypes(
         fnc="blpapi_EventFormatter_appendValueFromName",
@@ -6931,12 +9132,12 @@ def _test_function_signatures():
     verify_ctypes(
         fnc="blpapi_EventFormatter_appendValueInt32",
         ret="int",
-        args=["blpapi_EventFormatter_t*", "blpapi_Int32_t"],
+        args=["blpapi_EventFormatter_t*", "int"],
     )
     verify_ctypes(
         fnc="blpapi_EventFormatter_appendValueInt64",
         ret="int",
-        args=["blpapi_EventFormatter_t*", "blpapi_Int64_t"],
+        args=["blpapi_EventFormatter_t*", "long"],
     )
     verify_ctypes(
         fnc="blpapi_EventFormatter_appendValueString",
@@ -6945,7 +9146,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_EventFormatter_create",
-        ret="blpapi_EventFormatter_t *",
+        ret="blpapi_EventFormatter_t*",
         args=["blpapi_Event_t*"],
     )
     verify_ctypes(
@@ -6954,14 +9155,14 @@ def _test_function_signatures():
         args=["blpapi_EventFormatter_t*"],
     )
     verify_ctypes(
-        fnc="blpapi_EventFormatter_popElement",
-        ret="int",
-        args=["blpapi_EventFormatter_t*"],
-    )
-    verify_ctypes(
         fnc="blpapi_EventFormatter_getElement",
         ret="int",
         args=["blpapi_EventFormatter_t*", "blpapi_Element_t**"],
+    )
+    verify_ctypes(
+        fnc="blpapi_EventFormatter_popElement",
+        ret="int",
+        args=["blpapi_EventFormatter_t*"],
     )
     verify_ctypes(
         fnc="blpapi_EventFormatter_pushElement",
@@ -6995,13 +9196,43 @@ def _test_function_signatures():
         args=["blpapi_EventFormatter_t*", "char*", "blpapi_Name_t*", "char"],
     )
     verify_ctypes(
+        fnc="blpapi_EventFormatter_setValueDatetime",
+        ret="int",
+        args=[
+            "blpapi_EventFormatter_t*",
+            "char*",
+            "blpapi_Name_t*",
+            "blpapi_Datetime_t*",
+        ],
+    )
+    verify_ctypes(
         fnc="blpapi_EventFormatter_setValueFloat",
         ret="int",
         args=[
             "blpapi_EventFormatter_t*",
             "char*",
             "blpapi_Name_t*",
-            "blpapi_Float32_t",
+            "float",
+        ],
+    )
+    verify_ctypes(
+        fnc="blpapi_EventFormatter_setValueFloat32",
+        ret="int",
+        args=[
+            "blpapi_EventFormatter_t*",
+            "char*",
+            "blpapi_Name_t*",
+            "float",
+        ],
+    )
+    verify_ctypes(
+        fnc="blpapi_EventFormatter_setValueFloat64",
+        ret="int",
+        args=[
+            "blpapi_EventFormatter_t*",
+            "char*",
+            "blpapi_Name_t*",
+            "double",
         ],
     )
     verify_ctypes(
@@ -7031,7 +9262,7 @@ def _test_function_signatures():
             "blpapi_EventFormatter_t*",
             "char*",
             "blpapi_Name_t*",
-            "blpapi_Int32_t",
+            "int",
         ],
     )
     verify_ctypes(
@@ -7041,7 +9272,7 @@ def _test_function_signatures():
             "blpapi_EventFormatter_t*",
             "char*",
             "blpapi_Name_t*",
-            "blpapi_Int64_t",
+            "long",
         ],
     )
     verify_ctypes(
@@ -7055,7 +9286,7 @@ def _test_function_signatures():
         args=["blpapi_EventFormatter_t*", "char*", "blpapi_Name_t*", "char*"],
     )
     verify_ctypes(
-        fnc="blpapi_EventQueue_create", ret="blpapi_EventQueue_t *", args=[""]
+        fnc="blpapi_EventQueue_create", ret="blpapi_EventQueue_t*", args=[""]
     )
     verify_ctypes(
         fnc="blpapi_EventQueue_destroy",
@@ -7064,13 +9295,8 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_EventQueue_nextEvent",
-        ret="blpapi_Event_t *",
+        ret="blpapi_Event_t*",
         args=["blpapi_EventQueue_t*", "int"],
-    )
-    verify_ctypes(
-        fnc="blpapi_MessageFormatter_getElement",
-        ret="int",
-        args=["blpapi_MessageFormatter_t*", "blpapi_Element_t**"],
     )
     verify_ctypes(
         fnc="blpapi_EventQueue_purge", ret="int", args=["blpapi_EventQueue_t*"]
@@ -7154,14 +9380,14 @@ def _test_function_signatures():
         args=["blpapi_Logging_Severity_t"],
     )
     verify_ctypes(
+        fnc="blpapi_Logging_registerCallback",
+        ret="int",
+        args=["blpapi_Logging_Func_t", "blpapi_Logging_Severity_t"],
+    )
+    verify_ctypes(
         fnc="blpapi_Logging_userMessage",
         ret="void",
         args=["blpapi_Logging_Severity_t", "char*"],
-    )
-    verify_ctypes(
-        fnc="blpapi_Logging_registerCallback",
-        ret="int",
-        args=["funct", "blpapi_Logging_Severity_t"],
     )
     verify_ctypes(
         fnc="blpapi_MessageFormatter_FormatMessageJson",
@@ -7196,17 +9422,17 @@ def _test_function_signatures():
     verify_ctypes(
         fnc="blpapi_MessageFormatter_appendValueFloat",
         ret="int",
-        args=["blpapi_MessageFormatter_t*", "blpapi_Float32_t"],
+        args=["blpapi_MessageFormatter_t*", "float"],
     )
     verify_ctypes(
         fnc="blpapi_MessageFormatter_appendValueFloat32",
         ret="int",
-        args=["blpapi_MessageFormatter_t*", "blpapi_Float32_t"],
+        args=["blpapi_MessageFormatter_t*", "float"],
     )
     verify_ctypes(
         fnc="blpapi_MessageFormatter_appendValueFloat64",
         ret="int",
-        args=["blpapi_MessageFormatter_t*", "blpapi_Float64_t"],
+        args=["blpapi_MessageFormatter_t*", "double"],
     )
     verify_ctypes(
         fnc="blpapi_MessageFormatter_appendValueFromName",
@@ -7221,12 +9447,12 @@ def _test_function_signatures():
     verify_ctypes(
         fnc="blpapi_MessageFormatter_appendValueInt32",
         ret="int",
-        args=["blpapi_MessageFormatter_t*", "blpapi_Int32_t"],
+        args=["blpapi_MessageFormatter_t*", "int"],
     )
     verify_ctypes(
         fnc="blpapi_MessageFormatter_appendValueInt64",
         ret="int",
-        args=["blpapi_MessageFormatter_t*", "blpapi_Int64_t"],
+        args=["blpapi_MessageFormatter_t*", "long"],
     )
     verify_ctypes(
         fnc="blpapi_MessageFormatter_appendValueString",
@@ -7247,6 +9473,11 @@ def _test_function_signatures():
         fnc="blpapi_MessageFormatter_destroy",
         ret="int",
         args=["blpapi_MessageFormatter_t*"],
+    )
+    verify_ctypes(
+        fnc="blpapi_MessageFormatter_getElement",
+        ret="int",
+        args=["blpapi_MessageFormatter_t*", "blpapi_Element_t**"],
     )
     verify_ctypes(
         fnc="blpapi_MessageFormatter_popElement",
@@ -7293,7 +9524,7 @@ def _test_function_signatures():
         args=[
             "blpapi_MessageFormatter_t*",
             "blpapi_Name_t*",
-            "blpapi_Float32_t",
+            "float",
         ],
     )
     verify_ctypes(
@@ -7302,7 +9533,7 @@ def _test_function_signatures():
         args=[
             "blpapi_MessageFormatter_t*",
             "blpapi_Name_t*",
-            "blpapi_Float32_t",
+            "float",
         ],
     )
     verify_ctypes(
@@ -7311,7 +9542,7 @@ def _test_function_signatures():
         args=[
             "blpapi_MessageFormatter_t*",
             "blpapi_Name_t*",
-            "blpapi_Float64_t",
+            "double",
         ],
     )
     verify_ctypes(
@@ -7338,7 +9569,7 @@ def _test_function_signatures():
         args=[
             "blpapi_MessageFormatter_t*",
             "blpapi_Name_t*",
-            "blpapi_Int32_t",
+            "int",
         ],
     )
     verify_ctypes(
@@ -7347,7 +9578,7 @@ def _test_function_signatures():
         args=[
             "blpapi_MessageFormatter_t*",
             "blpapi_Name_t*",
-            "blpapi_Int64_t",
+            "long",
         ],
     )
     verify_ctypes(
@@ -7362,7 +9593,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_MessageIterator_create",
-        ret="blpapi_MessageIterator_t *",
+        ret="blpapi_MessageIterator_t*",
         args=["blpapi_Event_t*"],
     )
     verify_ctypes(
@@ -7437,7 +9668,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_Message_elements",
-        ret="blpapi_Element_t *",
+        ret="blpapi_Element_t*",
         args=["blpapi_Message_t*"],
     )
     verify_ctypes(
@@ -7452,13 +9683,24 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_Message_messageType",
-        ret="blpapi_Name_t *",
+        ret="blpapi_Name_t*",
         args=["blpapi_Message_t*"],
     )
     verify_ctypes(
         fnc="blpapi_Message_numCorrelationIds",
         ret="int",
         args=["blpapi_Message_t*"],
+    )
+    verify_ctypes(
+        fnc="blpapi_Message_print",
+        ret="int",
+        args=[
+            "blpapi_Message_t*",
+            "void*",
+            "void*",
+            "int",
+            "int",
+        ],
     )
     verify_ctypes(
         fnc="blpapi_Message_recapType", ret="int", args=["blpapi_Message_t*"]
@@ -7468,7 +9710,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_Message_service",
-        ret="blpapi_Service_t *",
+        ret="blpapi_Service_t*",
         args=["blpapi_Message_t*"],
     )
     verify_ctypes(
@@ -7478,11 +9720,11 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_Message_topicName",
-        ret="char *",
+        ret="char*",
         args=["blpapi_Message_t*"],
     )
     verify_ctypes(
-        fnc="blpapi_Name_create", ret="blpapi_Name_t *", args=["char*"]
+        fnc="blpapi_Name_create", ret="blpapi_Name_t*", args=["char*"]
     )
     verify_ctypes(
         fnc="blpapi_Name_destroy", ret="void", args=["blpapi_Name_t*"]
@@ -7493,21 +9735,21 @@ def _test_function_signatures():
         args=["blpapi_Name_t*", "char*"],
     )
     verify_ctypes(
-        fnc="blpapi_Name_findName", ret="blpapi_Name_t *", args=["char*"]
+        fnc="blpapi_Name_findName", ret="blpapi_Name_t*", args=["char*"]
     )
     verify_ctypes(
         fnc="blpapi_Name_length", ret="size_t", args=["blpapi_Name_t*"]
     )
     verify_ctypes(
-        fnc="blpapi_Name_string", ret="char *", args=["blpapi_Name_t*"]
+        fnc="blpapi_Name_string", ret="char*", args=["blpapi_Name_t*"]
     )
     verify_ctypes(
         fnc="blpapi_Operation_description",
-        ret="char *",
+        ret="char*",
         args=["blpapi_Operation_t*"],
     )
     verify_ctypes(
-        fnc="blpapi_Operation_name", ret="char *", args=["blpapi_Operation_t*"]
+        fnc="blpapi_Operation_name", ret="char*", args=["blpapi_Operation_t*"]
     )
     verify_ctypes(
         fnc="blpapi_Operation_numResponseDefinitions",
@@ -7541,6 +9783,16 @@ def _test_function_signatures():
         fnc="blpapi_ProviderSession_activateSubServiceCodeRange",
         ret="int",
         args=["blpapi_ProviderSession_t*", "char*", "int", "int", "int"],
+    )
+    verify_ctypes(
+        fnc="blpapi_ProviderSession_create",
+        ret="blpapi_ProviderSession_t*",
+        args=[
+            "blpapi_SessionOptions_t*",
+            "blpapi_ProviderEventHandler_t",
+            "blpapi_EventDispatcher_t*",
+            "void*",
+        ],
     )
     verify_ctypes(
         fnc="blpapi_ProviderSession_createServiceStatusTopic",
@@ -7597,13 +9849,20 @@ def _test_function_signatures():
         args=["blpapi_ProviderSession_t*", "char*"],
     )
     verify_ctypes(
+        fnc="blpapi_ProviderSession_destroy",
+        ret="void",
+        args=[
+            "blpapi_ProviderSession_t*",
+        ],
+    )
+    verify_ctypes(
         fnc="blpapi_ProviderSession_flushPublishedEvents",
         ret="int",
         args=["blpapi_ProviderSession_t*", "int*", "int"],
     )
     verify_ctypes(
         fnc="blpapi_ProviderSession_getAbstractSession",
-        ret="blpapi_AbstractSession_t *",
+        ret="blpapi_AbstractSession_t*",
         args=["blpapi_ProviderSession_t*"],
     )
     verify_ctypes(
@@ -7716,7 +9975,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_Request_elements",
-        ret="blpapi_Element_t *",
+        ret="blpapi_Element_t*",
         args=["blpapi_Request_t*"],
     )
     verify_ctypes(
@@ -7775,7 +10034,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_ResolutionList_create",
-        ret="blpapi_ResolutionList_t *",
+        ret="blpapi_ResolutionList_t*",
         args=["blpapi_ResolutionList_t*"],
     )
     verify_ctypes(
@@ -7785,7 +10044,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_ResolutionList_extractAttributeFromResolutionSuccess",
-        ret="blpapi_Element_t *",
+        ret="blpapi_Element_t*",
         args=["blpapi_Message_t*", "blpapi_Name_t*"],
     )
     verify_ctypes(
@@ -7829,12 +10088,12 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_SchemaElementDefinition_description",
-        ret="char *",
+        ret="char*",
         args=["blpapi_SchemaElementDefinition_t*"],
     )
     verify_ctypes(
         fnc="blpapi_SchemaElementDefinition_getAlternateName",
-        ret="blpapi_Name_t *",
+        ret="blpapi_Name_t*",
         args=["blpapi_SchemaElementDefinition_t*", "size_t"],
     )
     verify_ctypes(
@@ -7849,7 +10108,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_SchemaElementDefinition_name",
-        ret="blpapi_Name_t *",
+        ret="blpapi_Name_t*",
         args=["blpapi_SchemaElementDefinition_t*"],
     )
     verify_ctypes(
@@ -7858,13 +10117,24 @@ def _test_function_signatures():
         args=["blpapi_SchemaElementDefinition_t*"],
     )
     verify_ctypes(
+        fnc="blpapi_SchemaElementDefinition_print",
+        ret="int",
+        args=[
+            "blpapi_SchemaElementDefinition_t*",
+            "void*",
+            "void*",
+            "int",
+            "int",
+        ],
+    )
+    verify_ctypes(
         fnc="blpapi_SchemaElementDefinition_status",
         ret="int",
         args=["blpapi_SchemaElementDefinition_t*"],
     )
     verify_ctypes(
         fnc="blpapi_SchemaElementDefinition_type",
-        ret="blpapi_SchemaTypeDefinition_t *",
+        ret="blpapi_SchemaTypeDefinition_t*",
         args=["blpapi_SchemaElementDefinition_t*"],
     )
     verify_ctypes(
@@ -7874,22 +10144,22 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_SchemaTypeDefinition_description",
-        ret="char *",
+        ret="char*",
         args=["blpapi_SchemaTypeDefinition_t*"],
     )
     verify_ctypes(
         fnc="blpapi_SchemaTypeDefinition_enumeration",
-        ret="blpapi_ConstantList_t *",
+        ret="blpapi_ConstantList_t*",
         args=["blpapi_SchemaTypeDefinition_t*"],
     )
     verify_ctypes(
         fnc="blpapi_SchemaTypeDefinition_getElementDefinition",
-        ret="void*",
+        ret="blpapi_SchemaElementDefinition_t*",
         args=["blpapi_SchemaTypeDefinition_t*", "char*", "blpapi_Name_t*"],
     )
     verify_ctypes(
         fnc="blpapi_SchemaTypeDefinition_getElementDefinitionAt",
-        ret="void*",
+        ret="blpapi_SchemaElementDefinition_t*",
         args=["blpapi_SchemaTypeDefinition_t*", "size_t"],
     )
     verify_ctypes(
@@ -7909,13 +10179,24 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_SchemaTypeDefinition_name",
-        ret="blpapi_Name_t *",
+        ret="blpapi_Name_t*",
         args=["blpapi_SchemaTypeDefinition_t*"],
     )
     verify_ctypes(
         fnc="blpapi_SchemaTypeDefinition_numElementDefinitions",
         ret="size_t",
         args=["blpapi_SchemaTypeDefinition_t*"],
+    )
+    verify_ctypes(
+        fnc="blpapi_SchemaTypeDefinition_print",
+        ret="int",
+        args=[
+            "blpapi_SchemaTypeDefinition_t*",
+            "void*",
+            "void*",
+            "int",
+            "int",
+        ],
     )
     verify_ctypes(
         fnc="blpapi_SchemaTypeDefinition_status",
@@ -7937,7 +10218,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_ServiceRegistrationOptions_create",
-        ret="blpapi_ServiceRegistrationOptions_t *",
+        ret="blpapi_ServiceRegistrationOptions_t*",
         args=[""],
     )
     verify_ctypes(
@@ -7990,7 +10271,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_Service_authorizationServiceName",
-        ret="char *",
+        ret="char*",
         args=["blpapi_Service_t*"],
     )
     verify_ctypes(
@@ -8024,7 +10305,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_Service_description",
-        ret="char *",
+        ret="char*",
         args=["blpapi_Service_t*"],
     )
     verify_ctypes(
@@ -8062,7 +10343,7 @@ def _test_function_signatures():
         args=["blpapi_Service_t*", "blpapi_Operation_t**", "size_t"],
     )
     verify_ctypes(
-        fnc="blpapi_Service_name", ret="char *", args=["blpapi_Service_t*"]
+        fnc="blpapi_Service_name", ret="char*", args=["blpapi_Service_t*"]
     )
     verify_ctypes(
         fnc="blpapi_Service_numEventDefinitions",
@@ -8073,6 +10354,17 @@ def _test_function_signatures():
         fnc="blpapi_Service_numOperations",
         ret="int",
         args=["blpapi_Service_t*"],
+    )
+    verify_ctypes(
+        fnc="blpapi_Service_print",
+        ret="int",
+        args=[
+            "blpapi_Service_t*",
+            "void*",
+            "void*",
+            "int",
+            "int",
+        ],
     )
     verify_ctypes(
         fnc="blpapi_Service_release", ret="void", args=["blpapi_Service_t*"]
@@ -8089,7 +10381,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_SessionOptions_authenticationOptions",
-        ret="char *",
+        ret="char*",
         args=["blpapi_SessionOptions_t*"],
     )
     verify_ctypes(
@@ -8114,7 +10406,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_SessionOptions_create",
-        ret="blpapi_SessionOptions_t *",
+        ret="blpapi_SessionOptions_t*",
         args=[""],
     )
     verify_ctypes(
@@ -8129,17 +10421,17 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_SessionOptions_defaultServices",
-        ret="char *",
+        ret="char*",
         args=["blpapi_SessionOptions_t*"],
     )
     verify_ctypes(
         fnc="blpapi_SessionOptions_defaultSubscriptionService",
-        ret="char *",
+        ret="char*",
         args=["blpapi_SessionOptions_t*"],
     )
     verify_ctypes(
         fnc="blpapi_SessionOptions_defaultTopicPrefix",
-        ret="char *",
+        ret="char*",
         args=["blpapi_SessionOptions_t*"],
     )
     verify_ctypes(
@@ -8190,6 +10482,17 @@ def _test_function_signatures():
         args=["blpapi_SessionOptions_t*"],
     )
     verify_ctypes(
+        fnc="blpapi_SessionOptions_print",
+        ret="int",
+        args=[
+            "blpapi_SessionOptions_t*",
+            "void*",
+            "void*",
+            "int",
+            "int",
+        ],
+    )
+    verify_ctypes(
         fnc="blpapi_SessionOptions_recordSubscriptionDataReceiveTimes",
         ret="int",
         args=["blpapi_SessionOptions_t*"],
@@ -8201,7 +10504,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_SessionOptions_serverHost",
-        ret="char *",
+        ret="char*",
         args=["blpapi_SessionOptions_t*"],
     )
     verify_ctypes(
@@ -8390,6 +10693,16 @@ def _test_function_signatures():
         args=["blpapi_SessionOptions_t*"],
     )
     verify_ctypes(
+        fnc="blpapi_Session_create",
+        ret="blpapi_Session_t*",
+        args=[
+            "blpapi_SessionOptions_t*",
+            "blpapi_EventHandler_t",
+            "blpapi_EventDispatcher_t*",
+            "void*",
+        ],
+    )
+    verify_ctypes(
         fnc="blpapi_Session_createSnapshotRequestTemplate",
         ret="int",
         args=[
@@ -8401,8 +10714,15 @@ def _test_function_signatures():
         ],
     )
     verify_ctypes(
+        fnc="blpapi_Session_destroy",
+        ret="void",
+        args=[
+            "blpapi_Session_t*",
+        ],
+    )
+    verify_ctypes(
         fnc="blpapi_Session_getAbstractSession",
-        ret="blpapi_AbstractSession_t *",
+        ret="blpapi_AbstractSession_t*",
         args=["blpapi_Session_t*"],
     )
     verify_ctypes(
@@ -8512,6 +10832,19 @@ def _test_function_signatures():
         ],
     )
     verify_ctypes(
+        fnc="blpapi_Session_subscribeEx",
+        ret="int",
+        args=[
+            "blpapi_Session_t*",
+            "blpapi_SubscriptionList_t*",
+            "blpapi_Identity_t*",
+            "char*",
+            "int",
+            "blpapi_SubscriptionPreprocessErrorHandler_t",
+            "void*",
+        ],
+    )
+    verify_ctypes(
         fnc="blpapi_Session_tryNextEvent",
         ret="int",
         args=["blpapi_Session_t*", "blpapi_Event_t**"],
@@ -8528,13 +10861,37 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_Socks5Config_create",
-        ret="blpapi_Socks5Config_t *",
+        ret="blpapi_Socks5Config_t*",
         args=["char*", "size_t", "unsigned short"],
     )
     verify_ctypes(
         fnc="blpapi_Socks5Config_destroy",
         ret="void",
         args=["blpapi_Socks5Config_t*"],
+    )
+    verify_ctypes(
+        fnc="blpapi_Socks5Config_print",
+        ret="int",
+        args=[
+            "blpapi_Socks5Config_t*",
+            "void*",
+            "void*",
+            "int",
+            "int",
+        ],
+    )
+    verify_ctypes(
+        fnc="blpapi_SubscriptionList_add",
+        ret="int",
+        args=[
+            "blpapi_SubscriptionList_t*",
+            "char*",
+            "blpapi_CorrelationId_t*",
+            "void*",
+            "void*",
+            "size_t",
+            "size_t",
+        ],
     )
     verify_ctypes(
         fnc="blpapi_SubscriptionList_addResolved",
@@ -8566,7 +10923,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_SubscriptionList_create",
-        ret="blpapi_SubscriptionList_t *",
+        ret="blpapi_SubscriptionList_t*",
         args=[""],
     )
     verify_ctypes(
@@ -8620,18 +10977,27 @@ def _test_function_signatures():
         args=["blpapi_SchemaElementDefinition_t**", "blpapi_Name_t*"],
     )
     verify_ctypes(
+        fnc="blpapi_TestUtil_serializeService",
+        ret="int",
+        args=[
+            "void*",
+            "void*",
+            "blpapi_Service_t*",
+        ],
+    )
+    verify_ctypes(
         fnc="blpapi_TimePointUtil_nanosecondsBetween",
         ret="long long",
         args=["blpapi_TimePoint_t*", "blpapi_TimePoint_t*"],
     )
     verify_ctypes(
         fnc="blpapi_TlsOptions_createFromBlobs",
-        ret="blpapi_TlsOptions_t *",
+        ret="blpapi_TlsOptions_t*",
         args=["char*", "int", "char*", "char*", "int"],
     )
     verify_ctypes(
         fnc="blpapi_TlsOptions_createFromFiles",
-        ret="blpapi_TlsOptions_t *",
+        ret="blpapi_TlsOptions_t*",
         args=["char*", "char*", "char*"],
     )
     verify_ctypes(
@@ -8670,7 +11036,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_TopicList_create",
-        ret="blpapi_TopicList_t *",
+        ret="blpapi_TopicList_t*",
         args=["blpapi_TopicList_t*"],
     )
     verify_ctypes(
@@ -8722,7 +11088,7 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_Topic_create",
-        ret="blpapi_Topic_t *",
+        ret="blpapi_Topic_t*",
         args=["blpapi_Topic_t*"],
     )
     verify_ctypes(
@@ -8733,11 +11099,8 @@ def _test_function_signatures():
     )
     verify_ctypes(
         fnc="blpapi_Topic_service",
-        ret="blpapi_Service_t *",
+        ret="blpapi_Service_t*",
         args=["blpapi_Topic_t*"],
-    )
-    verify_ctypes(
-        fnc="blpapi_UserAgentInfo_setUserTaskName", ret="int", args=["char*"]
     )
     verify_ctypes(
         fnc="blpapi_UserAgentInfo_setNativeSdkLanguageAndVersion",
@@ -8745,10 +11108,23 @@ def _test_function_signatures():
         args=["char*", "char*"],
     )
     verify_ctypes(
+        fnc="blpapi_UserAgentInfo_setUserTaskName", ret="int", args=["char*"]
+    )
+    verify_ctypes(
         fnc="blpapi_ZfpUtil_getOptionsForLeasedLines",
         ret="int",
         args=["blpapi_SessionOptions_t*", "blpapi_TlsOptions_t*", "int"],
     )
     verify_ctypes(
-        fnc="blpapi_getLastErrorDescription", ret="char *", args=["int"]
+        fnc="blpapi_getLastErrorDescription", ret="char*", args=["int"]
+    )
+    verify_ctypes(
+        fnc="blpapi_getVersionInfo",
+        ret="void",
+        args=[
+            "int*",
+            "int*",
+            "int*",
+            "int*",
+        ],
     )

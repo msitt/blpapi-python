@@ -272,7 +272,9 @@ class ServiceRegistrationOptions(
 
 # pylint: disable=abstract-method
 class ProviderSession(
-    CHandle, AbstractSession, metaclass=utils.MetaClassForClassesWithEnums
+    CHandle[internals.blpapi_ProviderSession_t_p],
+    AbstractSession,
+    metaclass=utils.MetaClassForClassesWithEnums,
 ):
     """Bases: :class:`AbstractSession`
 

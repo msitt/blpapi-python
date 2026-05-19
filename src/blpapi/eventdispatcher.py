@@ -11,7 +11,7 @@ from . import internals
 from .chandle import CHandle
 
 
-class EventDispatcher(CHandle):
+class EventDispatcher(CHandle[internals.blpapi_EventDispatcher_t_p]):
     """Dispatches events from one or more Sessions through callbacks
 
     :class:`EventDispatcher` objects are optionally specified when Session

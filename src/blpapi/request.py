@@ -17,7 +17,7 @@ from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
 
 
-class Request(CHandle):
+class Request(CHandle[internals.blpapi_Request_t_p]):
     """A single request to a single service.
 
     :class:`Request` objects are created using :meth:`Service.createRequest()`

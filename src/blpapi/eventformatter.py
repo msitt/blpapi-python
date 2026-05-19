@@ -27,7 +27,7 @@ from typing import Any, Callable, Deque, Optional, Tuple, Union
 from typing import Mapping as MappingType
 
 
-class EventFormatter(CHandle):
+class EventFormatter(CHandle[internals.blpapi_EventFormatter_t_p]):
     r""":class:`EventFormatter` is used to populate :class:`Event`\s for
     publishing.
 

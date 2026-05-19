@@ -33,7 +33,7 @@ from .chandle import CHandle
 from . import typehints  # pylint: disable=unused-import
 
 
-class Socks5Config(CHandle):
+class Socks5Config(CHandle[internals.blpapi_Socks5Config_t_p]):
     """Configuration to be used to specify a SOCKS5 proxy"""
 
     def __init__(self, hostname: str, port: int) -> None:
@@ -82,7 +82,10 @@ class Socks5Config(CHandle):
 
 
 # pylint: disable=too-many-public-methods
-class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
+class SessionOptions(
+    CHandle[internals.blpapi_SessionOptions_t_p],
+    metaclass=utils.MetaClassForClassesWithEnums,
+):
     """Options which the user can specify when creating a session.
 
     To use non-default options on a :class:`Session`, create a
@@ -988,7 +991,7 @@ class SessionOptions(CHandle, metaclass=utils.MetaClassForClassesWithEnums):
             )
 
 
-class TlsOptions(CHandle):
+class TlsOptions(CHandle[internals.blpapi_TlsOptions_t_p]):
     """SSL configuration options
 
     :class:`TlsOptions` instances maintain client credentials and trust

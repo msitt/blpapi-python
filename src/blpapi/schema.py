@@ -29,6 +29,7 @@ from .exception import NotFoundException, IndexOutOfRangeException
 from .name import Name, getNamePair
 from .constant import ConstantList
 from .chandle import CHandle
+from .ctypesutils import getRawPtrFromHandle
 from . import utils
 from . import internals
 
@@ -50,7 +51,8 @@ class SchemaStatus(metaclass=utils.MetaClassForClassesWithEnums):
 
 
 class SchemaElementDefinition(
-    CHandle, metaclass=utils.MetaClassForClassesWithEnums
+    CHandle[internals.blpapi_SchemaElementDefinition_t_p],
+    metaclass=utils.MetaClassForClassesWithEnums,
 ):
     """The definition of an individual field within a schema type.
 
@@ -218,7 +220,7 @@ class SchemaElementDefinition(
         )
 
 
-class SchemaTypeDefinition(CHandle):
+class SchemaTypeDefinition(CHandle[internals.blpapi_SchemaTypeDefinition_t_p]):
     """Representation of a "type" that can be used within a schema.
 
     This class implements a representation of a "type" that can be used within
@@ -396,7 +398,7 @@ class SchemaTypeDefinition(CHandle):
             res = internals.blpapi_SchemaTypeDefinition_getElementDefinition(
                 self._handle(), names[0], names[1]
             )
-            if res is None:
+            if res is None or getRawPtrFromHandle(res) is None:
                 errMessage = (
                     f"Name '{name!s}' not a sub-element of element "
                     f" '{self.name()!s}'."
@@ -407,7 +409,7 @@ class SchemaTypeDefinition(CHandle):
         res = internals.blpapi_SchemaTypeDefinition_getElementDefinitionAt(
             self._handle(), position
         )
-        if res is None:
+        if res is None or getRawPtrFromHandle(res) is None:
             errMessage = f"Index '{position}' out of bounds."
             raise IndexOutOfRangeException(errMessage, 0)
         return SchemaElementDefinition(res, self._parent())
@@ -434,7 +436,11 @@ class SchemaTypeDefinition(CHandle):
         """
 
         res = internals.blpapi_SchemaTypeDefinition_enumeration(self._handle())
-        return None if res is None else ConstantList(res, self._parent())
+        return (
+            None
+            if res is None or getRawPtrFromHandle(res) is None
+            else ConstantList(res, self._parent())
+        )
 
     def toString(self, level: int = 0, spacesPerLevel: int = 4) -> str:
         """
