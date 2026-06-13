@@ -1,6 +1,6 @@
-Version 3.26.4.2:
+Version 3.26.5.1:
 =================
-- Correctly handle C-layer NULL values for opaque pointers for DRQS 183825357
+- Stability and performance improvements
 
 Version 3.26.4.1:
 =================
