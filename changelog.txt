@@ -1,3 +1,7 @@
+Version 3.26.7.1:
+=================
+- Stability and performance improvements
+
 Version 3.26.6.1:
 =================
 - Stability and performance improvements
