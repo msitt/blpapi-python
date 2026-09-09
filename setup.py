@@ -14,7 +14,7 @@ from setuptools import setup, Extension
 
 
 def override_get_tag():
-    from wheel.bdist_wheel import bdist_wheel
+    from setuptools.command.bdist_wheel import bdist_wheel
 
     # bdist_wheel upon seeing an extension module will (wrongly) assume
     # that not only platform needs to be fixed, but also interpreter.
