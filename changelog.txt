@@ -1,3 +1,7 @@
+Version 3.26.9.1:
+=================
+- Stability and performance improvements
+
 Version 3.26.8.1:
 =================
 - Stability and performance improvements
