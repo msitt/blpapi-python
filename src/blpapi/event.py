@@ -39,12 +39,49 @@ from collections.abc import Iterator as IteratorABC
 from .message import Message
 from . import internals
 from . import utils
-from .utils import get_handle
+from .utils import BlpapiIntEnum, get_handle
 from .chandle import CHandle
 from .ctypesutils import blpapi_Event_t_p
 from . import typehints  # pylint: disable=unused-import
 from .typehints import BlpapiEventHandle
 from .exception import InvalidArgumentException
+
+
+class EventType(BlpapiIntEnum):
+    """Enumeration of possible types of :class:`Event`."""
+
+    # pylint: disable=invalid-enum-extension
+
+    ADMIN = internals.EVENTTYPE_ADMIN
+    """Admin event"""
+    SESSION_STATUS = internals.EVENTTYPE_SESSION_STATUS
+    """Status updates for a session"""
+    SUBSCRIPTION_STATUS = internals.EVENTTYPE_SUBSCRIPTION_STATUS
+    """Status updates for a subscription"""
+    REQUEST_STATUS = internals.EVENTTYPE_REQUEST_STATUS
+    """Status updates for a request"""
+    RESPONSE = internals.EVENTTYPE_RESPONSE
+    """The final (possibly only) response to a request"""
+    PARTIAL_RESPONSE = internals.EVENTTYPE_PARTIAL_RESPONSE
+    """A partial response to a request"""
+    SUBSCRIPTION_DATA = internals.EVENTTYPE_SUBSCRIPTION_DATA
+    """Data updates resulting from a subscription"""
+    SERVICE_STATUS = internals.EVENTTYPE_SERVICE_STATUS
+    """Status updates for a service"""
+    TIMEOUT = internals.EVENTTYPE_TIMEOUT
+    """An Event returned from nextEvent() if it timed out"""
+    AUTHORIZATION_STATUS = internals.EVENTTYPE_AUTHORIZATION_STATUS
+    """Status updates for user authorization"""
+    RESOLUTION_STATUS = internals.EVENTTYPE_RESOLUTION_STATUS
+    """Status updates for a resolution operation"""
+    TOPIC_STATUS = internals.EVENTTYPE_TOPIC_STATUS
+    """Status updates about topics for service providers"""
+    TOKEN_STATUS = internals.EVENTTYPE_TOKEN_STATUS
+    """Status updates for a generate token request"""
+    REQUEST = internals.EVENTTYPE_REQUEST
+    """Request event"""
+    UNKNOWN = -1
+    """Unknown event"""
 
 
 class MessageIterator(
@@ -99,38 +136,39 @@ class Event(
     :class:`Event` objects are always created by the API, never directly by the
     application.
 
-    The class attributes represent the possible types of event.
+    The class attributes are aliases of the :class:`EventType` members. New
+    code should use :class:`EventType`.
     """
 
-    ADMIN = internals.EVENTTYPE_ADMIN
+    ADMIN = EventType.ADMIN
     """Admin event"""
-    SESSION_STATUS = internals.EVENTTYPE_SESSION_STATUS
+    SESSION_STATUS = EventType.SESSION_STATUS
     """Status updates for a session"""
-    SUBSCRIPTION_STATUS = internals.EVENTTYPE_SUBSCRIPTION_STATUS
+    SUBSCRIPTION_STATUS = EventType.SUBSCRIPTION_STATUS
     """Status updates for a subscription"""
-    REQUEST_STATUS = internals.EVENTTYPE_REQUEST_STATUS
+    REQUEST_STATUS = EventType.REQUEST_STATUS
     """Status updates for a request"""
-    RESPONSE = internals.EVENTTYPE_RESPONSE
+    RESPONSE = EventType.RESPONSE
     """The final (possibly only) response to a request"""
-    PARTIAL_RESPONSE = internals.EVENTTYPE_PARTIAL_RESPONSE
+    PARTIAL_RESPONSE = EventType.PARTIAL_RESPONSE
     """A partial response to a request"""
-    SUBSCRIPTION_DATA = internals.EVENTTYPE_SUBSCRIPTION_DATA
+    SUBSCRIPTION_DATA = EventType.SUBSCRIPTION_DATA
     """Data updates resulting from a subscription"""
-    SERVICE_STATUS = internals.EVENTTYPE_SERVICE_STATUS
+    SERVICE_STATUS = EventType.SERVICE_STATUS
     """Status updates for a service"""
-    TIMEOUT = internals.EVENTTYPE_TIMEOUT
+    TIMEOUT = EventType.TIMEOUT
     """An Event returned from nextEvent() if it timed out"""
-    AUTHORIZATION_STATUS = internals.EVENTTYPE_AUTHORIZATION_STATUS
+    AUTHORIZATION_STATUS = EventType.AUTHORIZATION_STATUS
     """Status updates for user authorization"""
-    RESOLUTION_STATUS = internals.EVENTTYPE_RESOLUTION_STATUS
+    RESOLUTION_STATUS = EventType.RESOLUTION_STATUS
     """Status updates for a resolution operation"""
-    TOPIC_STATUS = internals.EVENTTYPE_TOPIC_STATUS
+    TOPIC_STATUS = EventType.TOPIC_STATUS
     """Status updates about topics for service providers"""
-    TOKEN_STATUS = internals.EVENTTYPE_TOKEN_STATUS
+    TOKEN_STATUS = EventType.TOKEN_STATUS
     """Status updates for a generate token request"""
-    REQUEST = internals.EVENTTYPE_REQUEST
+    REQUEST = EventType.REQUEST
     """Request event"""
-    UNKNOWN = -1
+    UNKNOWN = EventType.UNKNOWN
     """Unknown event"""
 
     def __init__(
@@ -142,12 +180,12 @@ class Event(
             handle, internals.blpapi_Event_release, parentSession
         )
 
-    def eventType(self) -> int:
+    def eventType(self) -> EventType:
         """
         Returns:
             Type of messages contained by this :class:`Event`.
         """
-        return internals.blpapi_Event_eventType(self._handle())
+        return EventType(internals.blpapi_Event_eventType(self._handle()))
 
     def __iter__(self) -> IteratorType:
         """

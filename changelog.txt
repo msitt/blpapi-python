@@ -1,3 +1,11 @@
+Version 3.26.10.1:
+==================
+    are EventType, FragmentType, RecapType, SeatType, TopicStatus,
+    ResolutionStatus, CorrelationType and LogSeverity. DataType and
+    SchemaStatus became IntEnum types in place. The existing class constants,
+    such as Event.ADMIN, are aliases of the new members and keep their values.
+- Stability and performance improvements
+
 Version 3.26.9.1:
 =================
 - Stability and performance improvements

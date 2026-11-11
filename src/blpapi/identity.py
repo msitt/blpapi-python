@@ -14,8 +14,21 @@ from .exception import _ExceptionUtil
 from . import internals
 from . import utils
 from . import typehints  # pylint: disable=unused-import
-from .utils import get_handle
+from .utils import BlpapiIntEnum, get_handle
 from .chandle import CHandle
+
+
+class SeatType(BlpapiIntEnum):
+    """Enumeration of possible seat types of an :class:`Identity`."""
+
+    # pylint: disable=invalid-enum-extension
+
+    INVALID_SEAT = internals.SEATTYPE_INVALID_SEAT
+    """Unknown seat type"""
+    BPS = internals.SEATTYPE_BPS
+    """Bloomberg Professional Service"""
+    NONBPS = internals.SEATTYPE_NONBPS
+    """Non-BPS"""
 
 
 class Identity(
@@ -37,14 +50,15 @@ class Identity(
     :class:`Identity` objects are always created by the API, never directly by
     the application.
 
-    The class attributes represent the various seat types.
+    The class attributes are aliases of the :class:`SeatType` members. New code
+    should use :class:`SeatType`.
     """
 
-    INVALID_SEAT = internals.SEATTYPE_INVALID_SEAT
+    INVALID_SEAT = SeatType.INVALID_SEAT
     """Unknown seat type"""
-    BPS = internals.SEATTYPE_BPS
+    BPS = SeatType.BPS
     """Bloomberg Professional Service"""
-    NONBPS = internals.SEATTYPE_NONBPS
+    NONBPS = SeatType.NONBPS
     """Non-BPS"""
 
     def __init__(
@@ -174,16 +188,14 @@ class Identity(
         )
         return True if res else False
 
-    def getSeatType(self) -> int:
+    def getSeatType(self) -> SeatType:
         """
         Returns:
             Seat type of this identity.
-
-        The class attributes of :class:`Identity` represent the seat types.
         """
         res = internals.blpapi_Identity_getSeatType(self._handle())
         _ExceptionUtil.raiseOnError(res[0])
-        return res[1]
+        return SeatType(res[1])
 
 
 __copyright__ = """

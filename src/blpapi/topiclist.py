@@ -12,11 +12,24 @@ from .message import Message
 from .resolutionlist import ResolutionList
 from . import internals
 from . import utils
-from .utils import get_handle
+from .utils import BlpapiIntEnum, get_handle
 from .correlationid import CorrelationId
 from .chandle import CHandle
 from .exception import InvalidArgumentException
 from . import typehints  # pylint: disable=unused-import
+
+
+class TopicStatus(BlpapiIntEnum):
+    """Enumeration of the states an entry of a :class:`TopicList` can be in."""
+
+    # pylint: disable=invalid-enum-extension
+
+    NOT_CREATED = internals.TOPICLIST_NOT_CREATED
+    """The topic has not been created yet"""
+    CREATED = internals.TOPICLIST_CREATED
+    """The topic was created successfully"""
+    FAILURE = internals.TOPICLIST_FAILURE
+    """The topic could not be created"""
 
 
 class TopicList(
@@ -33,11 +46,17 @@ class TopicList(
     :meth:`~ProviderSession.createTopicsAsync()` call on a
     :class:`ProviderSession`. It is updated and returned by the
     :meth:`~ProviderSession.createTopics()` call.
+
+    The class attributes are aliases of the :class:`TopicStatus` members. New
+    code should use :class:`TopicStatus`.
     """
 
-    NOT_CREATED = internals.TOPICLIST_NOT_CREATED
-    CREATED = internals.TOPICLIST_CREATED
-    FAILURE = internals.TOPICLIST_FAILURE
+    NOT_CREATED = TopicStatus.NOT_CREATED
+    """The topic has not been created yet"""
+    CREATED = TopicStatus.CREATED
+    """The topic was created successfully"""
+    FAILURE = TopicStatus.FAILURE
+    """The topic could not be created"""
 
     def __init__(self, original: Optional[ResolutionList] = None) -> None:
         """Create an empty :class:`TopicList`, or a :class:`TopicList` based on
@@ -176,7 +195,7 @@ class TopicList(
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
-    def status(self, correlationId: CorrelationId) -> int:
+    def status(self, correlationId: CorrelationId) -> TopicStatus:
         """
         Args:
             correlationId: Correlation id associated with the
@@ -184,8 +203,7 @@ class TopicList(
 
         Returns:
             Status of the entry in this list identified by the
-            specified ``correlationId``. This may be :attr:`NOT_CREATED`,
-            :attr:`CREATED` and :attr:`FAILURE`.
+            specified ``correlationId``.
 
         Raises:
             Exception: If the ``correlationId`` does not identify an entry in
@@ -195,16 +213,15 @@ class TopicList(
             self._handle(), correlationId
         )
         _ExceptionUtil.raiseOnError(errorCode)
-        return status
+        return TopicStatus(status)
 
-    def statusAt(self, index: int) -> int:
+    def statusAt(self, index: int) -> TopicStatus:
         r"""
         Args:
             index: Index of the entry
 
         Returns:
-            Status of the ``index``\th entry in this list. This may be
-            :attr:`NOT_CREATED`, :attr:`CREATED` and :attr:`FAILURE`.
+            Status of the ``index``\th entry in this list.
 
         Raises:
             Exception: If ``index >= size()``.
@@ -213,7 +230,7 @@ class TopicList(
             self._handle(), index
         )
         _ExceptionUtil.raiseOnError(errorCode)
-        return status
+        return TopicStatus(status)
 
     def message(self, correlationId: CorrelationId) -> Message:
         """

@@ -17,23 +17,23 @@ except ImportError as error:
 from .abstractsession import AbstractSession
 from .auth import AuthOptions, AuthUser
 from .constant import Constant, ConstantList
-from .correlationid import CorrelationId
+from .correlationid import CorrelationId, CorrelationType
 from .datatype import DataType
 from .datetime import FixedOffset
 from .element import Element
-from .event import Event, EventQueue
+from .event import Event, EventQueue, EventType
 from .eventdispatcher import EventDispatcher
 from .eventformatter import EventFormatter
 from .exception import *
-from .identity import Identity
-from .logging import Logger
-from .message import Message
+from .identity import Identity, SeatType
+from .logging import Logger, LogSeverity
+from .message import FragmentType, Message, RecapType
 from .name import Name
 from .names import Names
 from .providersession import ProviderSession, ServiceRegistrationOptions
 from .request import Request
 from .requesttemplate import RequestTemplate
-from .resolutionlist import ResolutionList
+from .resolutionlist import ResolutionList, ResolutionStatus
 from .schema import SchemaElementDefinition, SchemaStatus, SchemaTypeDefinition
 from .service import Service, Operation
 from .session import (
@@ -44,7 +44,7 @@ from .session import (
 from .sessionoptions import SessionOptions, TlsOptions, Socks5Config
 from .subscriptionlist import SubscriptionList
 from .topic import Topic
-from .topiclist import TopicList
+from .topiclist import TopicList, TopicStatus
 from .zfputil import ZfpUtil
 from .version import (
     __version__,

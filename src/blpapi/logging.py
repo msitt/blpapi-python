@@ -16,18 +16,39 @@ from .typehints import AnyPythonDatetime
 from inspect import signature
 
 
+class LogSeverity(utils.BlpapiIntEnum):
+    """Enumeration of the severity levels of a log message."""
+
+    # pylint: disable=invalid-enum-extension
+
+    OFF = internals.blpapi_Logging_SEVERITY_OFF
+    """Logging is disabled"""
+    FATAL = internals.blpapi_Logging_SEVERITY_FATAL
+    """A fatal error"""
+    ERROR = internals.blpapi_Logging_SEVERITY_ERROR
+    """An error"""
+    WARN = internals.blpapi_Logging_SEVERITY_WARN
+    """A warning"""
+    INFO = internals.blpapi_Logging_SEVERITY_INFO
+    """An informational message"""
+    DEBUG = internals.blpapi_Logging_SEVERITY_DEBUG
+    """A debug message"""
+    TRACE = internals.blpapi_Logging_SEVERITY_TRACE
+    """A trace message"""
+
+
 class Logger(metaclass=utils.MetaClassForClassesWithEnums):
     """This utility class provides a namespace for functions to test the
     logging configuration."""
 
     # Different logging levels
-    SEVERITY_OFF = internals.blpapi_Logging_SEVERITY_OFF
-    SEVERITY_FATAL = internals.blpapi_Logging_SEVERITY_FATAL
-    SEVERITY_ERROR = internals.blpapi_Logging_SEVERITY_ERROR
-    SEVERITY_WARN = internals.blpapi_Logging_SEVERITY_WARN
-    SEVERITY_INFO = internals.blpapi_Logging_SEVERITY_INFO
-    SEVERITY_DEBUG = internals.blpapi_Logging_SEVERITY_DEBUG
-    SEVERITY_TRACE = internals.blpapi_Logging_SEVERITY_TRACE
+    SEVERITY_OFF = LogSeverity.OFF
+    SEVERITY_FATAL = LogSeverity.FATAL
+    SEVERITY_ERROR = LogSeverity.ERROR
+    SEVERITY_WARN = LogSeverity.WARN
+    SEVERITY_INFO = LogSeverity.INFO
+    SEVERITY_DEBUG = LogSeverity.DEBUG
+    SEVERITY_TRACE = LogSeverity.TRACE
 
     # needed for temp. ref. holding
     loggerCallbacksLocal: List[Tuple[Callable, Callable]] = []
@@ -35,7 +56,7 @@ class Logger(metaclass=utils.MetaClassForClassesWithEnums):
     @staticmethod
     def registerCallback(
         callback: Optional[
-            Callable[[int, int, AnyPythonDatetime, str, str], None]
+            Callable[[int, LogSeverity, AnyPythonDatetime, str, str], None]
         ],
         thresholdSeverity: int = SEVERITY_INFO,
     ) -> None:
@@ -63,7 +84,11 @@ class Logger(metaclass=utils.MetaClassForClassesWithEnums):
             ) -> None:
                 dt = _DatetimeUtil.convertToNativeNotHighPrecision(ts)
                 callback(
-                    threadId, severity, dt, category.decode(), message.decode()
+                    threadId,
+                    LogSeverity(severity),
+                    dt,
+                    category.decode(),
+                    message.decode(),
                 )
 
             callbackRef = callbackWrapper

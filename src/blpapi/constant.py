@@ -18,6 +18,7 @@ from .exception import (
 )
 from .name import Name, getNamePair
 from .datatype import DataType
+from .schemastatus import SchemaStatus
 from .datetime import _DatetimeUtil
 from . import typehints  # pylint: disable=unused-import
 from .typehints import (
@@ -80,23 +81,23 @@ class Constant(CHandle[internals.blpapi_Constant_t_p]):
         """
         return internals.blpapi_Constant_description(self._handle())
 
-    def status(self) -> int:
+    def status(self) -> SchemaStatus:
         """
         Returns:
             Status of this :class:`Constant`.
 
         The possible return values are enumerated in :class:`SchemaStatus`.
         """
-        return internals.blpapi_Constant_status(self._handle())
+        return SchemaStatus(internals.blpapi_Constant_status(self._handle()))
 
-    def datatype(self) -> int:
+    def datatype(self) -> DataType:
         """
         Returns:
             Data type used to represent the value of this :class:`Constant`.
 
         The possible return values are enumerated in :class:`DataType`.
         """
-        return internals.blpapi_Constant_datatype(self._handle())
+        return DataType(internals.blpapi_Constant_datatype(self._handle()))
 
     def getValueAsInteger(self) -> int:
         """
@@ -237,14 +238,16 @@ class ConstantList(CHandle[internals.blpapi_ConstantList_t_p]):
         """
         return internals.blpapi_ConstantList_description(self._handle())
 
-    def status(self) -> int:
+    def status(self) -> SchemaStatus:
         """
         Returns:
-            int: Status of this :class:`ConstantList`
+            Status of this :class:`ConstantList`
 
         The possible return values are enumerated in :class:`SchemaStatus`
         """
-        return internals.blpapi_ConstantList_status(self._handle())
+        return SchemaStatus(
+            internals.blpapi_ConstantList_status(self._handle())
+        )
 
     def numConstants(self) -> int:
         """
@@ -253,14 +256,14 @@ class ConstantList(CHandle[internals.blpapi_ConstantList_t_p]):
         """
         return internals.blpapi_ConstantList_numConstants(self._handle())
 
-    def datatype(self) -> int:
+    def datatype(self) -> DataType:
         """
         Returns:
-            int: Data type used to represent the value of this constant
+            Data type used to represent the value of this constant
 
         The possible return values are enumerated in :class:`DataType`.
         """
-        return internals.blpapi_ConstantList_datatype(self._handle())
+        return DataType(internals.blpapi_ConstantList_datatype(self._handle()))
 
     def hasConstant(self, name: Name) -> bool:
         """

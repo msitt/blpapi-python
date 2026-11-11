@@ -7,10 +7,31 @@ from ctypes import (
 from . import internals
 from . import pycbhelpers
 from .ctypesutils import safePOD, py_objectFromVoid
+from .utils import BlpapiIntEnum, MetaClassForClassesWithEnums
 from typing import Any
 
 
-class CorrelationId:
+class CorrelationType(BlpapiIntEnum):
+    """Enumeration of possible types of :class:`CorrelationId`."""
+
+    # pylint: disable=invalid-enum-extension
+
+    UNSET_TYPE = internals.CORRELATION_TYPE_UNSET
+    """The :class:`CorrelationId` is unset. That is, it was created by the
+    default :class:`CorrelationId` constructor."""
+
+    INT_TYPE = internals.CORRELATION_TYPE_INT
+    """The :class:`CorrelationId` was created from an :class:`int` supplied by the user."""
+
+    OBJECT_TYPE = internals.CORRELATION_TYPE_POINTER
+    """The :class:`CorrelationId` was created from an object supplied by
+    the user."""
+
+    AUTOGEN_TYPE = internals.CORRELATION_TYPE_AUTOGEN
+    """The :class:`CorrelationId` was created internally by API."""
+
+
+class CorrelationId(metaclass=MetaClassForClassesWithEnums):
     r"""
     A key used to identify individual subscriptions or requests.
 
@@ -40,22 +61,23 @@ class CorrelationId:
     :class:`CorrelationId`, whilst the original request or subscription is still
     active.
 
-    The ``xxx_TYPE`` class attributes represent the possible types of
-    :class:`CorrelationId`.
+    The ``xxx_TYPE`` class attributes are aliases of the
+    :class:`CorrelationType` members. New code should use
+    :class:`CorrelationType`.
     """
 
-    UNSET_TYPE = internals.CORRELATION_TYPE_UNSET
+    UNSET_TYPE = CorrelationType.UNSET_TYPE
     """The :class:`CorrelationId` is unset. That is, it was created by the
     default :class:`CorrelationId` constructor."""
 
-    INT_TYPE = internals.CORRELATION_TYPE_INT
+    INT_TYPE = CorrelationType.INT_TYPE
     """The :class:`CorrelationId` was created from an :class:`int` supplied by the user."""
 
-    OBJECT_TYPE = internals.CORRELATION_TYPE_POINTER
+    OBJECT_TYPE = CorrelationType.OBJECT_TYPE
     """The :class:`CorrelationId` was created from an object supplied by
     the user."""
 
-    AUTOGEN_TYPE = internals.CORRELATION_TYPE_AUTOGEN
+    AUTOGEN_TYPE = CorrelationType.AUTOGEN_TYPE
     """The :class:`CorrelationId` was created internally by API."""
 
     MAX_CLASS_ID = internals.CORRELATION_MAX_CLASS_ID
@@ -63,7 +85,7 @@ class CorrelationId:
 
     STRUCT_SZ = sizeof(internals.CidStruct)
 
-    __TYPE_NAMES = {
+    __TYPE_NAMES: dict[int, str] = {
         UNSET_TYPE: "UNSET",
         INT_TYPE: "INTEGER",
         OBJECT_TYPE: "OBJECT",
@@ -153,19 +175,24 @@ class CorrelationId:
         )
 
     def __del__(self) -> None:
-        if self.type() != CorrelationId.OBJECT_TYPE:
+        if self._rawType() != CorrelationId.OBJECT_TYPE:
             return
 
         # this is safe for py-object, recaps, and even None
         pv = self.rawvalue.ptrValue
         pv.manager(byref(pv), None, internals.ManagedPtr.DESTROY)  # dec ref.
 
-    def type(self) -> int:
+    def type(self) -> CorrelationType:
         r"""
         Returns:
-            int: The type of this CorrelationId object (see the ``xxx_TYPE`` class
-            attributes)
+            The type of this CorrelationId object (see :class:`CorrelationType`)
         """
+        return CorrelationType(self._rawType())
+
+    def _rawType(self) -> int:
+        """The type of this CorrelationId object as a plain int.
+
+        Used on the hot paths, which do not need the enum member."""
         return self.thestruct.flags.valueType
 
     def classId(self) -> int:
@@ -195,7 +222,7 @@ class CorrelationId:
         - Object (``type() == CorrelationId.OBJECT_TYPE``)
         - ``None`` (``type() == CorrelationId.UNSET_TYPE``)
         """
-        valueType = self.type()
+        valueType = self._rawType()
         if (
             valueType == CorrelationId.INT_TYPE
             or valueType == CorrelationId.AUTOGEN_TYPE
@@ -223,13 +250,13 @@ class CorrelationId:
         return CorrelationId._objectFromStruct(self.thestruct)
 
     def __repr__(self) -> str:
-        if self.type() == CorrelationId.OBJECT_TYPE:
+        if self._rawType() == CorrelationId.OBJECT_TYPE:
             return f"CorrelationId(flags={self.thestruct.flags}, rawvalue.ptrValue=object)"
         return f"CorrelationId(flags={self.thestruct.flags}, rawvalue.intValue={self._asInt()})"
 
     def __str__(self) -> str:
         """x.__str__() <==> str(x)"""
-        valueType = self.type()
+        valueType = self._rawType()
         valueTypeName = CorrelationId.__TYPE_NAMES[valueType]
 
         if valueType == CorrelationId.UNSET_TYPE:
@@ -242,10 +269,10 @@ class CorrelationId:
             )
 
     def __hash__(self) -> int:
-        if self.type() == CorrelationId.OBJECT_TYPE:
+        if self._rawType() == CorrelationId.OBJECT_TYPE:
             return hash(
                 (
-                    self.type(),
+                    self._rawType(),
                     self.classId(),
                     self._internalClassId(),
                     self.thestruct.rawvalue.ptrValue.pointer,
@@ -253,7 +280,7 @@ class CorrelationId:
             )
         return hash(
             (
-                self.type(),
+                self._rawType(),
                 self.classId(),
                 self._internalClassId(),
                 self._asInt(),
@@ -267,13 +294,13 @@ class CorrelationId:
                 return True
             if other is None:
                 return False
-            if self.type() != other.type():
+            if self._rawType() != other._rawType():
                 return False
             if self.classId() != other.classId():
                 return False
             if self._internalClassId() != other._internalClassId():
                 return False
-            if self.type() == CorrelationId.OBJECT_TYPE:
+            if self._rawType() == CorrelationId.OBJECT_TYPE:
                 # we care about it being SAME object, not just equal/equivalent
                 return self._asObject() is other._asObject()
             return self._asInt() == other._asInt()

@@ -404,7 +404,7 @@ class Element(CHandle[internals.blpapi_Element_t_p]):
             internals.blpapi_Element_name(self._handle())
         )
 
-    def datatype(self) -> int:
+    def datatype(self) -> DataType:
         """
         Returns:
             Basic data type used to represent a value in this
@@ -413,6 +413,12 @@ class Element(CHandle[internals.blpapi_Element_t_p]):
         The possible types are enumerated in :class:`DataType`.
         """
 
+        return DataType(self._rawDatatype())
+
+    def _rawDatatype(self) -> int:
+        """The datatype of this Element as a plain int.
+
+        Used on the hot paths, which do not need the enum member."""
         self.__assertIsValid()
         return internals.blpapi_Element_datatype(self._handle())
 
@@ -708,7 +714,7 @@ class Element(CHandle[internals.blpapi_Element_t_p]):
                 sequence.
         """
 
-        if self.datatype() != DataType.SEQUENCE:
+        if self._rawDatatype() != DataType.SEQUENCE:
             raise UnsupportedOperationException(
                 description="Only sequences are supported", errorCode=None
             )
@@ -938,11 +944,11 @@ class Element(CHandle[internals.blpapi_Element_t_p]):
             IndexOutOfRangeException: If ``index >= numValues()``.
         """
 
-        datatype = self.datatype()
+        datatype = self._rawDatatype()
         valueGetter = _ELEMENT_VALUE_GETTER.get(
             datatype, Element.getValueAsString
         )
-        return valueGetter(self, index)  # type: ignore
+        return valueGetter(self, index)
 
     def values(self) -> IteratorType:
         """
@@ -960,7 +966,7 @@ class Element(CHandle[internals.blpapi_Element_t_p]):
 
         if self.isComplexType():
             return iter(())  # empty tuple
-        datatype = self.datatype()
+        datatype = self._rawDatatype()
         valueGetter = _ELEMENT_VALUE_GETTER.get(
             datatype, Element.getValueAsString
         )
@@ -1576,7 +1582,12 @@ class Element(CHandle[internals.blpapi_Element_t_p]):
                 raise Exception(getActivePathMessage() + errorMsg)
 
 
-_ELEMENT_VALUE_GETTER = {
+# The keys are DataType members, but a raw int from the C layer finds the same
+# entry, because a member hashes and compares as its integer value. That lets
+# the hot paths look up a datatype without building a member first.
+_ELEMENT_VALUE_GETTER: dict[
+    int, Callable[[Element, int], SupportedElementTypes | Element]
+] = {
     DataType.BOOL: Element.getValueAsBool,
     DataType.CHAR: Element.getValueAsString,
     DataType.BYTE: Element.getValueAsInteger,

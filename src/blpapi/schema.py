@@ -4,7 +4,6 @@
 
 This file defines these classes:
 
-    'SchemaStatus' - the version status of a schema
     'SchemaTypeDefinition' - definitions of schema types
     'SchemaElementDefinition' - definitions of message elements
 
@@ -30,26 +29,13 @@ from .name import Name, getNamePair
 from .constant import ConstantList
 from .chandle import CHandle
 from .ctypesutils import getRawPtrFromHandle
+from .datatype import DataType
+from .schemastatus import SchemaStatus
 from . import utils
 from . import internals
 
 
-# pylint: disable=protected-access,too-few-public-methods
-class SchemaStatus(metaclass=utils.MetaClassForClassesWithEnums):
-    """The possible deprecation statuses of a schema element or type."""
-
-    ACTIVE = internals.STATUS_ACTIVE
-    """This item is current and may appear in Messages"""
-    DEPRECATED = internals.STATUS_DEPRECATED
-    """This item is current and may appear in Messages but will be removed in
-    due course"""
-    INACTIVE = internals.STATUS_INACTIVE
-    """This item is not current and will not appear in Messages"""
-    PENDING_DEPRECATION = internals.STATUS_PENDING_DEPRECATION
-    """This item is expected to be deprecated in the future; clients are
-    advised to migrate away from use of this item."""
-
-
+# pylint: disable=protected-access
 class SchemaElementDefinition(
     CHandle[internals.blpapi_SchemaElementDefinition_t_p],
     metaclass=utils.MetaClassForClassesWithEnums,
@@ -131,7 +117,7 @@ class SchemaElementDefinition(
             self._handle()
         )
 
-    def status(self) -> int:
+    def status(self) -> SchemaStatus:
         """
         Returns:
             The deprecation status of this element.
@@ -139,7 +125,9 @@ class SchemaElementDefinition(
         The possible return values are enumerated in :class:`SchemaStatus`.
         """
 
-        return internals.blpapi_SchemaElementDefinition_status(self._handle())
+        return SchemaStatus(
+            internals.blpapi_SchemaElementDefinition_status(self._handle())
+        )
 
     def typeDefinition(self) -> SchemaTypeDefinition:
         """
@@ -259,7 +247,7 @@ class SchemaTypeDefinition(CHandle[internals.blpapi_SchemaTypeDefinition_t_p]):
 
         return self.toString()
 
-    def datatype(self) -> int:
+    def datatype(self) -> DataType:
         """
         Returns:
             The data type of this :class:`SchemaTypeDefinition`.
@@ -267,7 +255,9 @@ class SchemaTypeDefinition(CHandle[internals.blpapi_SchemaTypeDefinition_t_p]):
         The possible return values are enumerated in :class:`DataType`.
         """
 
-        return internals.blpapi_SchemaTypeDefinition_datatype(self._handle())
+        return DataType(
+            internals.blpapi_SchemaTypeDefinition_datatype(self._handle())
+        )
 
     def name(self) -> Name:
         """
@@ -287,7 +277,7 @@ class SchemaTypeDefinition(CHandle[internals.blpapi_SchemaTypeDefinition_t_p]):
             self._handle()
         )
 
-    def status(self) -> int:
+    def status(self) -> SchemaStatus:
         """
         Returns:
             The deprecation status of this :class:`SchemaTypeDefinition`.
@@ -295,7 +285,9 @@ class SchemaTypeDefinition(CHandle[internals.blpapi_SchemaTypeDefinition_t_p]):
         The possible return values are enumerated in :class:`SchemaStatus`.
         """
 
-        return internals.blpapi_SchemaTypeDefinition_status(self._handle())
+        return SchemaStatus(
+            internals.blpapi_SchemaTypeDefinition_status(self._handle())
+        )
 
     def numElementDefinitions(self) -> int:
         """

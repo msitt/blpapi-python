@@ -7,14 +7,15 @@ This file defines these classes:
 """
 
 from . import internals
-from . import utils
+from .utils import BlpapiIntEnum
 
 
-# pylint: disable=too-few-public-methods
-class DataType(metaclass=utils.MetaClassForClassesWithEnums):
+class DataType(BlpapiIntEnum):
     """Contains the possible data types which can be represented in an
     :class:`Element`.
     """
+
+    # pylint: disable=invalid-enum-extension
 
     BOOL = internals.DATATYPE_BOOL
     """Boolean"""

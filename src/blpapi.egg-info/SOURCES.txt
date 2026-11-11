@@ -92,6 +92,7 @@ src/blpapi/request.py
 src/blpapi/requesttemplate.py
 src/blpapi/resolutionlist.py
 src/blpapi/schema.py
+src/blpapi/schemastatus.py
 src/blpapi/service.py
 src/blpapi/session.py
 src/blpapi/sessionoptions.py

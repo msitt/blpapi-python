@@ -3,6 +3,7 @@
 """Internal utils."""
 
 from collections.abc import Iterator as IteratorABC, Sequence
+from enum import IntEnum
 from typing import Any, Callable, Union, Optional
 from typing import Iterator as IteratorType
 from inspect import getmembers, isfunction
@@ -67,6 +68,32 @@ class Iterator(IteratorABC):
         return res
 
     next = __next__
+
+
+class BlpapiIntEnum(IntEnum):
+    """Base type of the integer enumerations exposed by this SDK.
+
+    Members are ``int`` subclasses, so they compare equal to the integer, they
+    hash the same, and they pass to any API that accepts an integer.
+
+    The C layer can return a value that this SDK version does not define. Such
+    a value becomes a pseudo-member named ``UNDEFINED_<value>`` that keeps the
+    value, rather than raising :class:`ValueError`. Each lookup of an unknown
+    value gives a new object, so compare a pseudo-member with ``==``, not with
+    ``is``. A pseudo-member does not appear in ``__members__``.
+    """
+
+    __str__ = int.__repr__
+    __format__ = int.__format__  # type: ignore[assignment]
+
+    @classmethod
+    def _missing_(cls, value: object) -> Optional["BlpapiIntEnum"]:
+        if not isinstance(value, int):
+            return None
+        member = int.__new__(cls, value)
+        member._name_ = f"UNDEFINED_{value}"
+        member._value_ = value
+        return member
 
 
 class MetaClassForClassesWithEnums(type):

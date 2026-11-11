@@ -11,11 +11,39 @@ from .exception import _ExceptionUtil
 from .message import Message
 from . import internals
 from . import utils
-from .utils import deprecated, get_handle
+from .utils import BlpapiIntEnum, deprecated, get_handle
 from .correlationid import CorrelationId
 from .chandle import CHandle
 from .exception import InvalidArgumentException
 from . import typehints  # pylint: disable=unused-import
+
+
+class ResolutionStatus(BlpapiIntEnum):
+    """Enumeration of the states an entry of a :class:`ResolutionList` can be
+    in."""
+
+    # pylint: disable=invalid-enum-extension
+
+    UNRESOLVED = internals.RESOLUTIONLIST_UNRESOLVED
+    """The topic has not been resolved yet"""
+    RESOLVED = internals.RESOLUTIONLIST_RESOLVED
+    """The topic was resolved successfully"""
+    RESOLUTION_FAILURE_BAD_SERVICE = (
+        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_SERVICE
+    )
+    """The service of the topic could not be found"""
+    RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED = (
+        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED
+    )
+    """The user is not authorized for the service of the topic"""
+    RESOLUTION_FAILURE_BAD_TOPIC = (
+        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_TOPIC
+    )
+    """The topic itself is malformed or unknown"""
+    RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED = (
+        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED
+    )
+    """The user is not authorized for the topic"""
 
 
 class ResolutionList(
@@ -29,24 +57,30 @@ class ResolutionList(
     :meth:`ProviderSession.resolveAsync()` call on a :class:`ProviderSession`.
     It is updated and returned by the :meth:`~ProviderSession.resolve()` call.
 
-    The class attributes represent the states in which entries of a
-    :class:`ResolutionList` can be.
+    The class attributes are aliases of the :class:`ResolutionStatus` members.
+    New code should use :class:`ResolutionStatus`.
     """
 
-    UNRESOLVED = internals.RESOLUTIONLIST_UNRESOLVED
-    RESOLVED = internals.RESOLUTIONLIST_RESOLVED
+    UNRESOLVED = ResolutionStatus.UNRESOLVED
+    """The topic has not been resolved yet"""
+    RESOLVED = ResolutionStatus.RESOLVED
+    """The topic was resolved successfully"""
     RESOLUTION_FAILURE_BAD_SERVICE = (
-        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_SERVICE
+        ResolutionStatus.RESOLUTION_FAILURE_BAD_SERVICE
     )
+    """The service of the topic could not be found"""
     RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED = (
-        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED
+        ResolutionStatus.RESOLUTION_FAILURE_SERVICE_AUTHORIZATION_FAILED
     )
+    """The user is not authorized for the service of the topic"""
     RESOLUTION_FAILURE_BAD_TOPIC = (
-        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_BAD_TOPIC
+        ResolutionStatus.RESOLUTION_FAILURE_BAD_TOPIC
     )
+    """The topic itself is malformed or unknown"""
     RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED = (
-        internals.RESOLUTIONLIST_RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED
+        ResolutionStatus.RESOLUTION_FAILURE_TOPIC_AUTHORIZATION_FAILED
     )
+    """The user is not authorized for the topic"""
 
     @staticmethod
     @deprecated("attributes are no longer supported.")
@@ -181,7 +215,7 @@ class ResolutionList(
         _ExceptionUtil.raiseOnError(errorCode)
         return topic
 
-    def status(self, correlationId: CorrelationId) -> int:
+    def status(self, correlationId: CorrelationId) -> ResolutionStatus:
         """
         Args:
             correlationId: Correlation id that identifies the
@@ -194,34 +228,32 @@ class ResolutionList(
             Exception: If the ``correlationId`` does not identify an entry in
                 this :class:`ResolutionList`.
 
-        The possible statuses are represented by the class attributes of
-        :class:`ResolutionList`.
+        The possible statuses are the members of :class:`ResolutionStatus`.
         """
         errorCode, status = internals.blpapi_ResolutionList_status(
             self._handle(), correlationId
         )
         _ExceptionUtil.raiseOnError(errorCode)
-        return status
+        return ResolutionStatus(status)
 
-    def statusAt(self, index: int) -> int:
+    def statusAt(self, index: int) -> ResolutionStatus:
         """
         Args:
             index: Index of the Correlation id
 
         Returns:
-            int: status of the entry in this :class:`ResolutionList`.
+            status of the entry in this :class:`ResolutionList`.
 
         Raises:
             IndexOutOfRangeException: If ``index >= size()``.
 
-        The possible statuses are represented by the class attributes of
-        :class:`ResolutionList`.
+        The possible statuses are the members of :class:`ResolutionStatus`.
         """
         errorCode, status = internals.blpapi_ResolutionList_statusAt(
             self._handle(), index
         )
         _ExceptionUtil.raiseOnError(errorCode)
-        return status
+        return ResolutionStatus(status)
 
     @deprecated("attributes are no longer supported")
     # pylint: disable=unused-argument,no-self-use
